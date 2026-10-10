@@ -17,19 +17,22 @@ import { Pet } from "../domain/types";
 import { speciesEmoji } from "../domain/pet-profile";
 export { default as Icon } from "./Icon";
 export const colors = {
-  bg: "#FAF9F6",
-  paper: "#FFFFFF",
-  ink: "#263830",
-  muted: "#7E847E",
-  orange: "#E8743C",
-  pale: "#FCEDDD",
-  line: "#EAE9E2",
-  green: "#EAF0E5",
+  bg: "#F4F0E7",
+  paper: "#FFFDF7",
+  ink: "#242B29",
+  muted: "#73776B",
+  orange: "#EE6D4E",
+  pale: "#F9E3CB",
+  line: "#DAD9CC",
+  green: "#DCF2D7",
+  jade: "#247563",
+  lavender: "#7565CC",
+  yellow: "#F5CC65",
 };
 export const styles = StyleSheet.create({
   card: {
     backgroundColor: colors.paper,
-    borderRadius: 22,
+    borderRadius: 18,
     padding: 24,
     borderWidth: 1,
     borderColor: colors.line,
@@ -42,7 +45,7 @@ export const styles = StyleSheet.create({
     gap: 12,
   },
   stack: { gap: 20 },
-  h1: { fontSize: 32, lineHeight: 43, fontWeight: "700", color: colors.ink },
+  h1: { fontSize: 32, lineHeight: 42, fontWeight: "700", color: colors.ink },
   h2: { fontSize: 21, lineHeight: 30, fontWeight: "700", color: colors.ink },
   body: { fontSize: 15, lineHeight: 25, color: colors.ink },
   small: { fontSize: 12, lineHeight: 20, color: colors.muted },
@@ -232,9 +235,7 @@ export function Avatar({
         justifyContent: "center",
       }}
     >
-      <Text style={{ fontSize: size * 0.5 }}>
-        {speciesEmoji(pet)}
-      </Text>
+      <Text style={{ fontSize: size * 0.5 }}>{speciesEmoji(pet)}</Text>
     </View>
   );
 }
@@ -244,15 +245,123 @@ export function Empty({
   action,
 }: {
   title: string;
-  subtitle: string;
+  subtitle?: string;
   action?: React.ReactNode;
 }) {
   return (
     <Card style={{ alignItems: "center", paddingVertical: 42, gap: 12 }}>
       <Icon name="feather" size={32} color={colors.orange} />
       <Text style={styles.h2}>{title}</Text>
-      <Text style={[styles.muted, { textAlign: "center" }]}>{subtitle}</Text>
+      {subtitle && (
+        <Text style={[styles.muted, { textAlign: "center" }]}>{subtitle}</Text>
+      )}
       {action}
     </Card>
+  );
+}
+
+export function Heading({
+  title,
+  eyebrow,
+  action,
+}: {
+  title: string;
+  eyebrow: string;
+  action?: React.ReactNode;
+}) {
+  return (
+    <View
+      style={[styles.between, { flexWrap: "wrap", alignItems: "flex-end" }]}
+    >
+      <View style={{ gap: 4 }}>
+        <Text
+          style={[
+            styles.small,
+            { color: colors.jade, letterSpacing: 2, fontWeight: "700" },
+          ]}
+        >
+          {eyebrow}
+        </Text>
+        <Text style={styles.h1}>{title}</Text>
+      </View>
+      {action}
+    </View>
+  );
+}
+export function Portrait({
+  pet,
+  demo,
+  size = 110,
+}: {
+  pet: Pet;
+  demo?: boolean;
+  size?: number;
+}) {
+  return (
+    <View
+      style={{
+        padding: 7,
+        paddingBottom: 12,
+        backgroundColor: colors.paper,
+        transform: [{ rotate: "3deg" }],
+        boxShadow: "0px 4px 0px #00000015",
+        borderWidth: 1,
+        borderColor: colors.line,
+      }}
+    >
+      {pet.avatar || demo ? (
+        <Image
+          source={pet.avatar ? { uri: pet.avatar } : demoPhoto}
+          style={{ width: size, height: size, backgroundColor: colors.pale }}
+        />
+      ) : (
+        <View
+          style={{
+            width: size,
+            height: size,
+            backgroundColor: colors.pale,
+            justifyContent: "center",
+            alignItems: "center",
+          }}
+        >
+          <Text style={{ fontSize: size * 0.6 }}>{speciesEmoji(pet)}</Text>
+        </View>
+      )}
+      <Text
+        numberOfLines={1}
+        style={{
+          fontSize: 10,
+          textAlign: "center",
+          color: colors.ink,
+          marginTop: 7,
+          letterSpacing: 1,
+        }}
+      >
+        PAW · {pet.name}
+      </Text>
+    </View>
+  );
+}
+export function Meter({
+  value,
+  color = colors.jade,
+}: {
+  value: number;
+  color?: string;
+}) {
+  return (
+    <View
+      accessibilityLabel={`等级进度 ${value}%`}
+      style={{
+        height: 8,
+        backgroundColor: "#00000012",
+        borderRadius: 4,
+        overflow: "hidden",
+      }}
+    >
+      <View
+        style={{ height: "100%", width: `${value}%`, backgroundColor: color }}
+      />
+    </View>
   );
 }

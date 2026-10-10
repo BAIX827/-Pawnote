@@ -18,11 +18,16 @@ export default function News() {
     setBusy(true);
     try {
       await exportNews(event, card.current);
-      notify(Platform.OS === "web"
-        ? "新闻卡已导出，可用浏览器打开 SVG 文件。"
-        : "分享面板已关闭，可在所选位置检查图片。");
-    } catch (e) { notify(e instanceof Error ? e.message : "导出失败，请重试。"); }
-    finally { setBusy(false); }
+      notify(
+        Platform.OS === "web"
+          ? "新闻卡已导出，可用浏览器打开 SVG 文件。"
+          : "分享面板已关闭，可在所选位置检查图片。",
+      );
+    } catch (e) {
+      notify(e instanceof Error ? e.message : "导出失败，请重试。");
+    } finally {
+      setBusy(false);
+    }
   }
   if (!event)
     return (
@@ -40,10 +45,7 @@ export default function News() {
     >
       <View style={[styles.between, { flexWrap: "wrap" }]}>
         <View>
-          <Text style={styles.h1}>它的生活，值得上头条</Text>
-          <Text style={styles.muted}>
-            把一段日常，变成一份可收藏的个人特刊。
-          </Text>
+          <Text style={styles.h1}>喵闻编辑部</Text>
         </View>
         <Button label="返回" tone="plain" onPress={() => router.replace("/")} />
       </View>
@@ -52,7 +54,7 @@ export default function News() {
         collapsable={false}
         style={{
           backgroundColor: "#FFF9EF",
-          borderColor: "#E5DFD0",
+          borderColor: colors.ink,
           borderWidth: 1,
           borderRadius: 5,
           padding: 25,
@@ -110,15 +112,21 @@ export default function News() {
         </Text>
       </View>
       <Button
-        label={busy ? "正在准备新闻卡…" : Platform.OS === "web" ? "保存新闻卡（SVG）" : "分享新闻图片"}
+        label={
+          busy
+            ? "正在准备新闻卡…"
+            : Platform.OS === "web"
+              ? "保存新闻卡（SVG）"
+              : "分享新闻图片"
+        }
         icon="download"
         disabled={busy || (Platform.OS !== "web" && !photoReady)}
-        onPress={() => { void share(); }}
+        onPress={() => {
+          void share();
+        }}
       />
       <Text style={[styles.small, { textAlign: "center" }]}>
-        {Platform.OS === "web"
-          ? "SVG 卡片可在浏览器打开。"
-          : "导出完整新闻卡 PNG，可通过系统分享保存到文件或发送。"}
+        {Platform.OS === "web" ? "SVG 卡片可在浏览器打开。" : "PNG · 系统分享"}
       </Text>
     </View>
   );

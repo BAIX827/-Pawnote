@@ -3,6 +3,7 @@ import {
   ActivityIndicator,
   KeyboardAvoidingView,
   Platform,
+  Pressable,
   ScrollView,
   Text,
   View,
@@ -15,10 +16,10 @@ import { exportBackup } from "../platform/export";
 import { Avatar, Button, Icon, colors, styles } from "./ui";
 import RestoreBackup from "./RestoreBackup";
 const nav = [
-  { route: "/", label: "今日营业", icon: "sun" as const },
-  { route: "/life", label: "毛孩人生", icon: "briefcase" as const },
+  { route: "/", label: "街区", icon: "sun" as const },
+  { route: "/life", label: "人生", icon: "briefcase" as const },
   { route: "/circle", label: "毛圈", icon: "message-circle" as const },
-  { route: "/profile", label: "我的档案", icon: "user" as const },
+  { route: "/profile", label: "手账", icon: "user" as const },
 ];
 export default function Shell({ children }: { children: React.ReactNode }) {
   const { width } = useWindowDimensions();
@@ -27,20 +28,49 @@ export default function Shell({ children }: { children: React.ReactNode }) {
   const { state, ready, toast, error, blocked, raw, reset, notify, restoring } =
     useStore();
   const [confirmReset, setConfirmReset] = React.useState(false);
-  const item = (n: (typeof nav)[number]) => (
-    <Button
-      key={n.route}
-      icon={n.icon}
-      label={n.label}
-      tone={path === n.route ? "soft" : "plain"}
-      onPress={() => router.navigate(n.route as "/")}
-      style={
-        wide
-          ? { justifyContent: "flex-start" }
-          : { flex: 1, paddingHorizontal: 4 }
-      }
-    />
-  );
+  const item = (n: (typeof nav)[number]) => {
+    const active = path === n.route;
+    return (
+      <Pressable
+        key={n.route}
+        accessibilityRole="button"
+        accessibilityLabel={n.label}
+        accessibilityState={{ selected: active }}
+        onPress={() => router.navigate(n.route as "/")}
+        style={({ pressed }) => ({
+          flex: wide ? undefined : 1,
+          flexDirection: wide ? "row" : "column",
+          gap: wide ? 12 : 5,
+          alignItems: wide ? "center" : "center",
+          justifyContent: wide ? "flex-start" : "center",
+          paddingHorizontal: wide ? 16 : 4,
+          paddingVertical: wide ? 16 : 9,
+          borderRadius: wide ? 12 : 10,
+          backgroundColor: active
+            ? wide
+              ? colors.yellow
+              : colors.green
+            : "transparent",
+          opacity: pressed ? 0.65 : 1,
+        })}
+      >
+        <Icon
+          name={n.icon}
+          size={wide ? 20 : 21}
+          color={active ? colors.ink : wide ? "#C6CCBF" : colors.muted}
+        />
+        <Text
+          style={{
+            fontSize: wide ? 15 : 11,
+            fontWeight: active ? "700" : "500",
+            color: active ? colors.ink : wide ? "#C6CCBF" : colors.muted,
+          }}
+        >
+          {n.label}
+        </Text>
+      </Pressable>
+    );
+  };
   if (!ready)
     return (
       <SafeAreaView
@@ -55,14 +85,16 @@ export default function Shell({ children }: { children: React.ReactNode }) {
     );
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: colors.bg }}>
-      <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : undefined}
+      <KeyboardAvoidingView
+        behavior={Platform.OS === "ios" ? "padding" : undefined}
         pointerEvents={restoring ? "none" : "auto"}
-        style={{ flex: 1, flexDirection: "row" }}>
+        style={{ flex: 1, flexDirection: "row" }}
+      >
         {wide && (
           <View
             style={{
               width: 226,
-              backgroundColor: "#FFF",
+              backgroundColor: colors.ink,
               borderRightWidth: 1,
               borderColor: colors.line,
               padding: 25,
@@ -73,11 +105,17 @@ export default function Shell({ children }: { children: React.ReactNode }) {
               <Text style={{ fontSize: 31 }}>🐾</Text>
               <View>
                 <Text
-                  style={{ fontSize: 19, color: colors.ink, fontWeight: "800" }}
+                  style={{
+                    fontSize: 19,
+                    color: colors.paper,
+                    fontWeight: "800",
+                  }}
                 >
                   毛孩营业中
                 </Text>
-                <Text style={[styles.small, { letterSpacing: 2 }]}>
+                <Text
+                  style={[styles.small, { letterSpacing: 2, color: "#A2B09D" }]}
+                >
                   PAW LIFE CLUB
                 </Text>
               </View>
@@ -93,26 +131,30 @@ export default function Shell({ children }: { children: React.ReactNode }) {
             <View style={{ flex: 1 }} />
             <View
               style={{
-                backgroundColor: "#F7F7F1",
-                padding: 17,
-                borderRadius: 16,
-                gap: 7,
+                borderTopWidth: 1,
+                borderColor: "#4B554E",
+                paddingTop: 20,
+                gap: 8,
               }}
             >
-              <Icon name="coffee" color="#6E8563" />
-              <Text style={{ color: colors.ink, fontSize: 13, lineHeight: 22 }}>
-                认真记录生活，{"\n"}偶尔认真摸鱼。
+              <Icon name="map-pin" color={colors.yellow} />
+              <Text
+                style={{ color: colors.paper, fontSize: 15, fontWeight: "700" }}
+              >
+                毛孩市
+              </Text>
+              <Text style={{ color: "#A2B09D", fontSize: 12 }}>
+                本机体验版 · v0.1
               </Text>
             </View>
-            <Text style={styles.small}>v0.1 · 本机体验版</Text>
           </View>
         )}
         <View style={{ flex: 1 }}>
           <View
             style={{
               paddingHorizontal: wide ? 40 : 20,
-              paddingVertical: 18,
-              backgroundColor: "#FFF",
+              paddingVertical: 12,
+              backgroundColor: colors.paper,
               borderBottomWidth: 1,
               borderColor: colors.line,
               flexDirection: "row",
@@ -127,15 +169,20 @@ export default function Shell({ children }: { children: React.ReactNode }) {
                 color: wide ? colors.muted : colors.ink,
               }}
             >
-              {wide ? "每一件小事，都值得写进它的人生。" : "🐾 毛孩营业中"}
+              {wide ? "PAW LIFE / 毛孩市" : "🐾 毛孩营业中"}
             </Text>
             {state.pet ? (
               <View style={[styles.row, { gap: 9 }]}>
-                <Text style={styles.small}>{state.pet.name}</Text>
+                <Text
+                  numberOfLines={1}
+                  style={[styles.small, { maxWidth: wide ? 160 : 85 }]}
+                >
+                  {state.pet.name}
+                </Text>
                 <Avatar pet={state.pet} demo={state.demo} size={32} />
               </View>
             ) : (
-              <Text style={styles.small}>第二人生，准备开场</Text>
+              <Text style={styles.small}>居民登记处</Text>
             )}
           </View>
           {state.demo && (
@@ -151,7 +198,7 @@ export default function Shell({ children }: { children: React.ReactNode }) {
               }}
             >
               <Text style={[styles.small, { color: "#976143" }]}>
-                示例体验 · 橘总的故事用于演示
+                示例居民 · 橘总
               </Text>
               <Button
                 label="创建我的宠物"
@@ -214,9 +261,11 @@ export default function Shell({ children }: { children: React.ReactNode }) {
           )}
           <ScrollView
             keyboardShouldPersistTaps="handled"
-            keyboardDismissMode={Platform.OS === "ios" ? "interactive" : "on-drag"}
+            keyboardDismissMode={
+              Platform.OS === "ios" ? "interactive" : "on-drag"
+            }
             contentContainerStyle={{
-              padding: wide ? 40 : 20,
+              padding: wide ? 36 : 20,
               paddingBottom: 45,
               alignItems: "center",
             }}
@@ -238,7 +287,7 @@ export default function Shell({ children }: { children: React.ReactNode }) {
             <View
               style={{
                 flexDirection: "row",
-                backgroundColor: "#FFF",
+                backgroundColor: colors.paper,
                 borderTopWidth: 1,
                 borderColor: colors.line,
                 paddingVertical: 7,

@@ -25,7 +25,7 @@ export default function Event() {
     return (
       <Empty
         title="这条记录已移除"
-        subtitle="返回档案查看其他小日子。"
+        subtitle="在手账中查看其他记录。"
         action={
           <Button label="返回档案" onPress={() => router.replace("/profile")} />
         }
@@ -47,7 +47,7 @@ export default function Event() {
       }}
     >
       <View style={styles.between}>
-        <Text style={styles.h1}>这一天的小故事</Text>
+        <Text style={styles.h1}>这一天的日记</Text>
         <Button
           label="返回档案"
           tone="plain"

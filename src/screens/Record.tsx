@@ -1,11 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
-import {
-  Image,
-  Platform,
-  Pressable,
-  Text,
-  View,
-} from "react-native";
+import { Image, Platform, Pressable, Text, View } from "react-native";
 import { router } from "expo-router";
 import { useStore } from "../data/store";
 import {
@@ -136,8 +130,8 @@ export default function Record() {
     >
       <View style={[styles.between, { alignItems: "flex-start" }]}>
         <View style={{ flex: 1 }}>
-          <Text style={styles.h1}>记录今天的小事</Text>
-          <Text style={styles.muted}>你写下真实日常，它负责认真“营业”。</Text>
+          <Text style={styles.h1}>日记编辑室</Text>
+          <Text style={styles.small}>草稿自动保存在本机</Text>
         </View>
         <Button
           label="返回"
@@ -146,13 +140,15 @@ export default function Record() {
           onPress={() => router.replace("/")}
         />
       </View>
-      <Card style={{ gap: 22 }}>
+      <Card
+        style={{ gap: 22, borderTopWidth: 5, borderTopColor: colors.orange }}
+      >
         <View style={styles.row}>
           <Avatar pet={pet} demo={state.demo} />
           <View>
             <Text style={styles.h2}>{pet.name}</Text>
             <Text style={styles.small}>
-              {pet.role} · {pet.personality} · 草稿自动保留在本机
+              {pet.role} · {pet.personality}
             </Text>
           </View>
         </View>
@@ -174,7 +170,7 @@ export default function Record() {
           </Text>
         </View>
         <View>
-          <Label>给这件事一个标签</Label>
+          <Label>标签</Label>
           <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 8 }}>
             {CATEGORIES.map((c) => (
               <Chip
@@ -191,12 +187,10 @@ export default function Record() {
               />
             ))}
           </View>
-          <Text style={[styles.small, { marginTop: 8 }]}>
-            标签会影响虚拟故事。选择“其他”可围绕原始描述生成。
-          </Text>
+          <Text style={[styles.small, { marginTop: 8 }]}>标签影响故事模板</Text>
         </View>
         <View>
-          <Label>加一张照片，留住这一刻（可选）</Label>
+          <Label>照片（可选）</Label>
           {draft.photo && (
             <Image
               source={{ uri: draft.photo }}
@@ -222,8 +216,15 @@ export default function Record() {
               }}
             />
             {Platform.OS !== "web" && (
-              <Button label="拍一张" icon="camera" tone="soft" disabled={busy}
-                onPress={() => { void pick("camera"); }} />
+              <Button
+                label="拍一张"
+                icon="camera"
+                tone="soft"
+                disabled={busy}
+                onPress={() => {
+                  void pick("camera");
+                }}
+              />
             )}
             {draft.photo && (
               <Button
@@ -235,12 +236,12 @@ export default function Record() {
             )}
           </View>
           <Text style={[styles.small, { marginTop: 7 }]}>
-            最多 1 张 · 25 MB 以内 · 照片会压缩后保存在本机
+            1 张 · ≤25 MB · 压缩后保存
           </Text>
         </View>
         {!generated && (
           <Button
-            label="写成毛孩的故事"
+            label="生成故事"
             icon="zap"
             disabled={!draft.description.trim() || busy}
             onPress={generate}
@@ -250,7 +251,7 @@ export default function Record() {
       {generated && draft.stories && (
         <Card style={{ gap: 20 }}>
           <View style={styles.between}>
-            <Text style={styles.h2}>同一件小事，换个口吻</Text>
+            <Text style={styles.h2}>选择口吻</Text>
             <Tag>模板生成</Tag>
           </View>
           <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 8 }}>
@@ -286,7 +287,7 @@ export default function Record() {
             />
           </View>
           <View>
-            <Label>改成你觉得最像它的那句话</Label>
+            <Label>故事内容</Label>
             <Field
               accessibilityLabel="故事内容"
               multiline
@@ -316,7 +317,7 @@ export default function Record() {
           <View style={styles.divider} />
           <Pressable
             accessibilityRole="checkbox"
-            accessibilityLabel="同步到本机毛圈预览"
+            accessibilityLabel="发布到本机毛圈"
             accessibilityState={{ checked: draft.published }}
             aria-checked={draft.published}
             onPress={() => patch({ published: !draft.published })}
@@ -337,21 +338,16 @@ export default function Record() {
               {draft.published && <Icon name="check" color="#FFF" size={16} />}
             </View>
             <View style={{ flex: 1 }}>
-              <Text style={styles.body}>同步到本机毛圈预览</Text>
-              <Text style={styles.small}>
-                发布当前选中的口吻；仅这个设备可见。好友社交将在联机版开放。
-              </Text>
+              <Text style={styles.body}>发布到本机毛圈</Text>
+              <Text style={styles.small}>当前口吻 · 仅此设备可见</Text>
             </View>
           </Pressable>
           <Button
-            label="保存这件小事 · +20 XP"
+            label="保存日记 · +20 XP"
             icon="check"
             disabled={busy}
             onPress={save}
           />
-          <Text style={[styles.small, { textAlign: "center" }]}>
-            保存日记默认私密 · 分享由你决定
-          </Text>
         </Card>
       )}
     </View>
