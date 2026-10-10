@@ -1,13 +1,12 @@
 import { Category, Pet, Stories, Story, StoryStyle } from "./types";
 import { speciesLabel } from "./pet-profile";
 import { getLang, t } from "../i18n/core";
-import { reaction } from "./temper";
+import { isLoss, isSensitive, reaction, socialLine, temperOf } from "./temper";
 const incidents: Record<
   Category,
   {
     work: string;
     campus: string;
-    social: string;
     title: string;
     topic: string;
   }
@@ -15,42 +14,36 @@ const incidents: Record<
   sleep: {
     work: "沉浸式带薪休息研究已完成。工作可以等，午觉的黄金窗口只有一次。",
     campus: "睡眠研究课已完成实地实践。闭眼认真听讲，也是我的学习方式。",
-    social: "忙了一下午，忙着把梦做完。",
     title: "睡眠研究员今日再次延长实验时间",
     topic: "睡觉这件事",
   },
   snack: {
     work: "作为零食鉴定员，我对产品进行了深入抽样。建议补货，继续研究。",
     campus: "食堂风味调研已完成，样本数量仍有提升空间。申请下一轮实践经费。",
-    social: "尝一口是礼貌，多尝几口是对食物的尊重。",
     title: "零食抽样研究取得阶段性进展",
     topic: "吃这件事",
   },
   bath: {
     work: "清洁主题团建已参加，并当场提出用零食补偿的建议。",
     campus: "卫生实践课顺利结束，建议下次改为阳光浴选修课。",
-    social: "今日新造型：香香的，有点委屈的。",
     title: "泡泡主题活动引发当事宠物热议",
     topic: "洗澡这件事",
   },
   chaos: {
     work: "环境结构压力测试已完成。项目经验增加，预算请另行讨论。",
     campus: "空间改造实践作业已提交，期待老师给出有创意的评语。",
-    social: "关于今天的现场，我选择把它称为创作过程。",
     title: "毛孩创意改造项目引发家庭关注",
     topic: "今天的现场",
   },
   walk: {
     work: "外勤巡逻结束，沿途气味信息已收集。申请零食作为差旅补助。",
     campus: "户外观察课已完成，气味地图又增加了一页。",
-    social: "出门巡逻，顺便让人类运动一下。",
     title: "街区巡逻员完成新一轮外勤任务",
     topic: "出门这件事",
   },
   other: {
     work: "已将这段日常归档为今日工作纪要。",
     campus: "已将这段日常收录为校园生活笔记。",
-    social: "我的生活，又添了一条值得记住的动态。",
     title: "毛孩生活档案新增一段独家记录",
     topic: "今天这件事",
   },
@@ -89,12 +82,16 @@ const P = "\u0001",
   W = "\u0003",
   K = "\u0004";
 
-export const selfName = (pet: Pet) =>
-  getLang() === "en" ? "I" : (SELF[pet.species] ?? "我");
+// "本喵 / 本汪" reads as a pose, so only the cool and the dramatic use it; everyone else says "我".
+export const selfName = (pet: Pet) => {
+  if (getLang() === "en") return "I";
+  const temper = temperOf(pet);
+  return temper === "cool" || temper === "drama" ? (SELF[pet.species] ?? "我") : "我";
+};
 export const defaultOwnerName = (species: Pet["species"]) =>
   getLang() === "en"
     ? species === "cat" ? "the staff" : "my human"
-    : species === "cat" ? "铲屎官" : species === "dog" ? "主人" : "我的人类";
+    : species === "cat" ? "铲屎官" : "我的人";
 export const ownerName = (pet: Pet) =>
   pet.ownerTitle?.trim() || defaultOwnerName(pet.species);
 
@@ -102,6 +99,7 @@ export const ownerName = (pet: Pet) =>
 export function toPetVoice(
   pet: Pet,
   description: string,
+  plain = false,
 ): { text: string; spin?: string } {
   let s = description.trim().replace(/[\u0001-\u0004]/g, "");
   KEEP.forEach((word, i) => {
@@ -130,7 +128,8 @@ export function toPetVoice(
     s = time + P + s.slice(time.length);
   }
   let spin: string | undefined;
-  for (const [from, to] of SPINS)
+  // On a hard day the owner's words are kept straight, with no playful rewording.
+  for (const [from, to] of plain ? [] : SPINS)
     if (s.includes(from)) {
       s = s.split(from).join(to);
       spin ??= from;
@@ -186,12 +185,20 @@ export function generateStory(
   const fact = description.trim();
   if (!fact || fact.length > 500)
     throw new Error(t("请填写 1–500 字的真实日常。"));
+  const done = (title: string, text: string): Story =>
+    ({ title, text: text.slice(0, 2000), generator: "template", edited: false });
+  // A pet that has died is not given a voice: the owner's words stand as written.
+  if (isLoss(fact)) return done(t("{name}的一天", { name: pet.name }), fact);
   if (getLang() === "en") return englishStory(pet, fact, category, style, variant);
   const v = incidents[category];
+  const grave = isSensitive(fact);
   const self = selfName(pet),
     owner = ownerName(pet),
-    said = toPetVoice(pet, fact);
-  const mine = reaction(pet, category, owner, "zh", variant);
+    said = toPetVoice(pet, fact, grave);
+  const mine = reaction(pet, category, owner, "zh", variant, fact);
+  if (grave && style === "news") return done(`${pet.name}的今日记录`, `${owner}写下：“${fact}”\n\n${mine.line}`);
+  if (grave && style !== "diary")
+    return done(`${pet.name}的今日记录`, `${said.text}\n\n${style === "social" ? mine.closer : mine.line}`);
   const note = said.spin
     ? `\n（注：${owner}管这叫“${said.spin}”，${self}保留意见。）`
     : "";
@@ -200,9 +207,9 @@ export function generateStory(
     style === "news"
       ? `本报讯｜据${owner}向本报爆料：“${fact}”\n\n当事${speciesLabel(pet)} ${pet.name} 随后回应：“${said.text}”\n\n在毛孩世界里，这被写进了${pet.route === "work" ? "营业" : "校园"}档案。${life}\n\n${variant % 2 ? "这件小事，已收录进毛孩人生特刊。" : "以上为基于主人记录的虚构娱乐报道。"}`
       : style === "life"
-        ? `【${pet.route === "work" ? "今日工作纪要" : "今日课堂笔记"}】\n${said.text}\n\n${life}${note}`
+        ? `【${pet.route === "work" ? "今日工作纪要" : "今日课堂笔记"}】\n1. ${said.text}\n2. ${life}\n备注：${mine.closer}${note}`
         : style === "social"
-          ? `${said.text}${v.social}`
+          ? `${said.text}${socialLine(pet, category, owner, "zh", fact)}`
           : `${said.text}\n\n${mine.line}\n${mine.closer}${note}`;
   const title =
     style === "news"
@@ -212,45 +219,39 @@ export function generateStory(
         : style === "social"
           ? `${pet.name}正在营业`
           : `关于${v.topic}，${self}有话说`;
-  return { title, text: text.slice(0, 2000), generator: "template", edited: false };
+  return done(title, text);
 }
 // English has no safe rule for swapping grammatical person, so the offline version quotes
 // the owner and lets the pet comment; the AI gateway provides a true first-person retelling.
-const asides: Record<Category, { work: string; campus: string; social: string; title: string }> = {
+const asides: Record<Category, { work: string; campus: string; title: string }> = {
   sleep: {
     work: "Paid rest research completed. Work can wait; the afternoon nap window cannot.",
     campus: "Sleep studies: field practice complete. Listening with my eyes closed still counts.",
-    social: "Busy afternoon. Had a dream to finish.",
     title: "Sleep researcher extends experiment yet again",
   },
   snack: {
     work: "As snack inspector, I sampled the product thoroughly. Recommend restocking for further study.",
     campus: "Cafeteria flavour survey done. Sample size still too small; requesting more funding.",
-    social: "One bite is manners. A few more is respect.",
     title: "Snack sampling study reports early progress",
   },
   bath: {
     work: "Attended the cleaning-themed team event and proposed compensation in treats.",
     campus: "Hygiene practical complete. Suggest replacing it with a sunbathing elective.",
-    social: "New look today: fragrant, and slightly wronged.",
     title: "Bubble event sparks debate from the party involved",
   },
   chaos: {
     work: "Structural stress test of the environment complete. Budget to be discussed separately.",
     campus: "Space redesign assignment submitted. Looking forward to creative feedback.",
-    social: "About today's scene: I prefer the term creative process.",
     title: "Creative renovation project draws household attention",
   },
   walk: {
     work: "Field patrol finished, scent data collected. Requesting treats as travel allowance.",
     campus: "Outdoor observation class complete. One more page in the scent map.",
-    social: "Out on patrol, and took the human for some exercise.",
     title: "Neighbourhood patroller completes another field mission",
   },
   other: {
     work: "Filed under today's work notes.",
     campus: "Added to my campus notebook.",
-    social: "One more moment worth keeping.",
     title: "Life archive gains an exclusive new entry",
   },
 };
@@ -258,14 +259,21 @@ function englishStory(pet: Pet, fact: string, category: Category, style: StorySt
   const v = asides[category], owner = ownerName(pet), work = pet.route === "work";
   const Owner = owner.charAt(0).toUpperCase() + owner.slice(1);
   const life = work ? v.work : v.campus;
-  const mine = reaction(pet, category, owner, "en", variant);
+  const mine = reaction(pet, category, owner, "en", variant, fact);
+  if (isSensitive(fact))
+    return {
+      title: `${pet.name}'s day`,
+      text: `${Owner} wrote: "${fact}"\n\n${style === "social" ? mine.closer : mine.line}`.slice(0, 2000),
+      generator: "template",
+      edited: false,
+    };
   const text =
     style === "news"
       ? `PAW DISPATCH | ${Owner} told this paper: "${fact}"\n\n${pet.name} was reached for comment: "${mine.line}"${pet.species === "dog" ? " Our rating: 13/10." : ""}\n\nIn the pet world this now sits in the ${work ? "work" : "campus"} file. ${life}\n\n${variant % 2 ? "This small story has been added to the special edition." : "This is fictional entertainment based on the owner's note."}`
       : style === "life"
-        ? `[${work ? "Work log" : "Class notes"}]\n${Owner} wrote: "${fact}"\n\n${life}`
+        ? `${work ? "Work log" : "Class notes"}\n1. ${Owner} reports: "${fact}"\n2. ${life}\nNote: ${mine.closer}`
         : style === "social"
-          ? `${Owner} says: "${fact}" ${v.social}`
+          ? `${Owner} says: "${fact}" ${socialLine(pet, category, owner, "en", fact)}`
           : `${Owner} wrote: "${fact}"\n\n${mine.line}\n${mine.closer}`;
   const title =
     style === "news"

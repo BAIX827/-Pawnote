@@ -2,6 +2,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { ownerName, selfName } from "../domain/story-engine";
 import { Pet, STYLES, Stories, id } from "../domain/types";
 import { getLang, t } from "../i18n/core";
+import { isWeird, temperOf } from "../domain/temper";
 
 // Both come from the build: one bundle for mainland China, one for everywhere else.
 const API = process.env.EXPO_PUBLIC_API_URL?.replace(/\/$/, "");
@@ -9,6 +10,14 @@ const REGION = process.env.EXPO_PUBLIC_REGION === "intl" ? "intl" : "cn";
 const DEVICE_KEY = "pawlife.deviceId";
 
 export const aiAvailable = !!API;
+// The gateway picks British or American spelling from this.
+function deviceLocale() {
+  try {
+    return Intl.DateTimeFormat().resolvedOptions().locale;
+  } catch {
+    return "en-US";
+  }
+}
 export interface Quota {
   member: boolean;
   used: number;
@@ -78,6 +87,9 @@ export async function generateWithAI(
         deviceId: await deviceId(),
         region: REGION,
         lang: getLang(),
+        temper: temperOf(pet),
+        weird: isWeird(pet),
+        locale: deviceLocale(),
         description: description.trim(),
         pet: {
           name: pet.name,

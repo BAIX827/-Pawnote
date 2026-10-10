@@ -12,6 +12,7 @@ import {
   selfName,
 } from "../domain/story-engine";
 import { saveEvent } from "../domain/life";
+import { isLoss } from "../domain/temper";
 import {
   CATEGORIES,
   CATEGORY_LABELS,
@@ -327,7 +328,9 @@ export default function Record() {
                 style={[bare, { height: heights.pet, fontSize: 16, lineHeight: 28 }]}
               />
               <Text style={[styles.small, { color: colors.ink, opacity: 0.7 }]}>
-                {t("点文字可以直接改 · 改上面的原话会重新翻译")}
+                {isLoss(draft.description)
+                  ? t("写到离别的这一条，按你的原话保存，不让它开口。")
+                  : t("点文字可以直接改 · 改上面的原话会重新翻译")}
               </Text>
             </View>
           ) : (

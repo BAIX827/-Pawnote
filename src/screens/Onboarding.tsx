@@ -391,7 +391,7 @@ export default function Onboarding({ editing = false }: { editing?: boolean }) {
           <View style={{ gap: 10 }}>
             <Label>{t("06 / 它在日记里怎么称呼你")}</Label>
             <View style={[styles.row, { flexWrap: "wrap" }]}>
-              {[t("妈妈"), t("爸爸"), t("姐姐"), t("哥哥"), t("铲屎官"), t("主人")].map((t) => (
+              {[t("妈妈"), t("爸爸"), t("姐姐"), t("哥哥"), t("铲屎官"), t("两脚兽"), t("我的人"), t("主人")].map((t) => (
                 <Chip
                   key={t}
                   label={t}
