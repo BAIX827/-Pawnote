@@ -1,7 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import {
   Image,
-  KeyboardAvoidingView,
   Platform,
   Pressable,
   Text,
@@ -90,10 +89,10 @@ export default function Record() {
     });
     notify("当前口吻已重新生成。");
   }
-  async function pick() {
+  async function pick(source: "library" | "camera" = "library") {
     setBusy(true);
     try {
-      const photo = await choosePhoto();
+      const photo = await choosePhoto(source);
       if (photo) patch({ photo });
     } catch (e) {
       notify(e instanceof Error ? e.message : "照片读取失败。");
@@ -132,8 +131,7 @@ export default function Record() {
     }
   }
   return (
-    <KeyboardAvoidingView
-      behavior={Platform.OS === "ios" ? "padding" : undefined}
+    <View
       style={{ gap: 22, maxWidth: 800, width: "100%", alignSelf: "center" }}
     >
       <View style={[styles.between, { alignItems: "flex-start" }]}>
@@ -211,7 +209,7 @@ export default function Record() {
               resizeMode="cover"
             />
           )}
-          <View style={styles.row}>
+          <View style={[styles.row, { flexWrap: "wrap" }]}>
             <Button
               label={
                 busy ? "照片处理中…" : draft.photo ? "更换照片" : "选择照片"
@@ -223,6 +221,10 @@ export default function Record() {
                 void pick();
               }}
             />
+            {Platform.OS !== "web" && (
+              <Button label="拍一张" icon="camera" tone="soft" disabled={busy}
+                onPress={() => { void pick("camera"); }} />
+            )}
             {draft.photo && (
               <Button
                 label="移除照片"
@@ -233,7 +235,7 @@ export default function Record() {
             )}
           </View>
           <Text style={[styles.small, { marginTop: 7 }]}>
-            最多 1 张 · 5 MB 以内 · 照片会压缩后保存在本机
+            最多 1 张 · 25 MB 以内 · 照片会压缩后保存在本机
           </Text>
         </View>
         {!generated && (
@@ -352,6 +354,6 @@ export default function Record() {
           </Text>
         </Card>
       )}
-    </KeyboardAvoidingView>
+    </View>
   );
 }

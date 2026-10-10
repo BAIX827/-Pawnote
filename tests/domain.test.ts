@@ -8,7 +8,29 @@ import {
   generationSignature,
 } from "../src/domain/story-engine";
 import { escapeXML, newsSVG } from "../src/domain/news-card";
-import { Pet } from "../src/domain/types";
+import { Pet, newDraft } from "../src/domain/types";
+import { MAX_BACKUP_BYTES, parseBackup } from "../src/domain/backup";
+test("备份往返保留图片、私密状态、历史人设和草稿", () => {
+  const state = demoState();
+  state.pet!.avatar = "data:image/jpeg;base64,YQ==";
+  state.events[0].photo = "data:image/jpeg;base64,Yg==";
+  state.events[0].published = false;
+  state.pet!.route = "campus";
+  state.draft = { ...newDraft(), description: "还没写完的小事", photo: state.events[0].photo };
+  const parsed = parseBackup("\uFEFF" + JSON.stringify(state));
+  assert.deepEqual(parsed, state);
+  assert.equal(parsed.events[0].petSnapshot.route, "work");
+  assert.equal(progress(parsed.events).xp, 60);
+});
+test("导入拦截损坏、超大文件、重复事件与危险图片地址", () => {
+  const state = demoState();
+  assert.throws(() => parseBackup("{broken"));
+  assert.throws(() => parseBackup(" ".repeat(MAX_BACKUP_BYTES + 1)));
+  assert.throws(() => parseBackup(JSON.stringify({ ...state, schemaVersion: 3 })));
+  assert.throws(() => parseBackup(JSON.stringify({ ...state, events: [...state.events, state.events[0]] })));
+  state.events[0].photo = "https://untrusted.example/photo";
+  assert.throws(() => parseBackup(JSON.stringify(state)));
+});
 test("同一事件保存和发布重试只获得一次经验", () => {
   const s = demoState();
   let result = saveEvent(s, s.events[0]);

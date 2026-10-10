@@ -1,6 +1,8 @@
 import React from "react";
 import {
   ActivityIndicator,
+  KeyboardAvoidingView,
+  Platform,
   ScrollView,
   Text,
   View,
@@ -11,6 +13,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { useStore } from "../data/store";
 import { exportBackup } from "../platform/export";
 import { Avatar, Button, Icon, colors, styles } from "./ui";
+import RestoreBackup from "./RestoreBackup";
 const nav = [
   { route: "/", label: "今日营业", icon: "sun" as const },
   { route: "/life", label: "毛孩人生", icon: "briefcase" as const },
@@ -21,7 +24,7 @@ export default function Shell({ children }: { children: React.ReactNode }) {
   const { width } = useWindowDimensions();
   const wide = width >= 900;
   const path = usePathname();
-  const { state, ready, toast, error, blocked, raw, reset, notify } =
+  const { state, ready, toast, error, blocked, raw, reset, notify, restoring } =
     useStore();
   const [confirmReset, setConfirmReset] = React.useState(false);
   const item = (n: (typeof nav)[number]) => (
@@ -52,7 +55,9 @@ export default function Shell({ children }: { children: React.ReactNode }) {
     );
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: colors.bg }}>
-      <View style={{ flex: 1, flexDirection: "row" }}>
+      <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : undefined}
+        pointerEvents={restoring ? "none" : "auto"}
+        style={{ flex: 1, flexDirection: "row" }}>
         {wide && (
           <View
             style={{
@@ -204,10 +209,12 @@ export default function Shell({ children }: { children: React.ReactNode }) {
                   </View>
                 </View>
               )}
+              {blocked && <RestoreBackup />}
             </View>
           )}
           <ScrollView
             keyboardShouldPersistTaps="handled"
+            keyboardDismissMode={Platform.OS === "ios" ? "interactive" : "on-drag"}
             contentContainerStyle={{
               padding: wide ? 40 : 20,
               paddingBottom: 45,
@@ -242,7 +249,7 @@ export default function Shell({ children }: { children: React.ReactNode }) {
             </View>
           )}
         </View>
-      </View>
+      </KeyboardAvoidingView>
       {!!toast && (
         <View
           accessibilityRole="alert"

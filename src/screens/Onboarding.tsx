@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import RestoreBackup from "../components/RestoreBackup";
 import { Image, Text, View, useWindowDimensions } from "react-native";
 import { router } from "expo-router";
 import { useStore } from "../data/store";
@@ -231,6 +232,7 @@ export default function Onboarding({ editing = false }: { editing?: boolean }) {
               }}
             />
           )}
+          {!editing && !state.pet && <RestoreBackup />}
           {editing && (
             <Button
               label="返回"

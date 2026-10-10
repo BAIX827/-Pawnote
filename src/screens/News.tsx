@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useRef, useState } from "react";
 import { Image, Platform, Text, View } from "react-native";
 import { router, useLocalSearchParams } from "expo-router";
 import { useStore } from "../data/store";
@@ -9,6 +9,21 @@ export default function News() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const { state, notify } = useStore();
   const event = state.events.find((e) => e.id === id);
+  const card = useRef<View>(null);
+  const [busy, setBusy] = useState(false);
+  const [loadedPhoto, setLoadedPhoto] = useState<string>();
+  const photoReady = !event?.photo || loadedPhoto === event.photo;
+  async function share() {
+    if (!event) return;
+    setBusy(true);
+    try {
+      await exportNews(event, card.current);
+      notify(Platform.OS === "web"
+        ? "新闻卡已导出，可用浏览器打开 SVG 文件。"
+        : "分享面板已关闭，可在所选位置检查图片。");
+    } catch (e) { notify(e instanceof Error ? e.message : "导出失败，请重试。"); }
+    finally { setBusy(false); }
+  }
   if (!event)
     return (
       <Empty
@@ -33,6 +48,8 @@ export default function News() {
         <Button label="返回" tone="plain" onPress={() => router.replace("/")} />
       </View>
       <View
+        ref={card}
+        collapsable={false}
         style={{
           backgroundColor: "#FFF9EF",
           borderColor: "#E5DFD0",
@@ -75,6 +92,8 @@ export default function News() {
         </Text>
         {event.photo && (
           <Image
+            onLoad={() => setLoadedPhoto(event.photo)}
+            onError={() => notify("照片加载失败，请返回检查原始记录。")}
             source={{ uri: event.photo }}
             style={{ width: "100%", height: 300 }}
             resizeMode="cover"
@@ -91,24 +110,15 @@ export default function News() {
         </Text>
       </View>
       <Button
-        label={Platform.OS === "web" ? "保存新闻卡（SVG）" : "分享新闻文字"}
+        label={busy ? "正在准备新闻卡…" : Platform.OS === "web" ? "保存新闻卡（SVG）" : "分享新闻图片"}
         icon="download"
-        onPress={() => {
-          exportNews(event)
-            .then(() =>
-              notify(
-                Platform.OS === "web"
-                  ? "新闻卡已导出，可用浏览器打开 SVG 文件。"
-                  : "分享面板已打开。",
-              ),
-            )
-            .catch(() => notify("导出失败，请重试。"));
-        }}
+        disabled={busy || (Platform.OS !== "web" && !photoReady)}
+        onPress={() => { void share(); }}
       />
       <Text style={[styles.small, { textAlign: "center" }]}>
         {Platform.OS === "web"
-          ? "SVG 卡片可在浏览器打开。手机相册图片导出将在移动测试阶段接入。"
-          : "当前分享新闻文字，图片卡分享将在移动构建阶段接入。"}
+          ? "SVG 卡片可在浏览器打开。"
+          : "导出完整新闻卡 PNG，可通过系统分享保存到文件或发送。"}
       </Text>
     </View>
   );

@@ -19,6 +19,8 @@ type Store = {
   reset: () => void;
   raw: string | null;
   blocked: boolean;
+  restore: (backup: AppState) => Promise<void>;
+  restoring: boolean;
 };
 const Context = createContext<Store | null>(null);
 export function StoreProvider({ children }: { children: React.ReactNode }) {
@@ -28,6 +30,8 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
   const [toast, setToast] = useState("");
   const [raw, setRaw] = useState<string | null>(null);
   const [blocked, setBlocked] = useState(false);
+  const [restoring, setRestoring] = useState(false);
+  const restoreLock = useRef(false);
   const queue = useRef<Promise<void>>(Promise.resolve());
   const initial = useRef(true);
   useEffect(() => {
@@ -50,7 +54,7 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
       })
       .catch(() => {
         if (alive) {
-          setError("无法读取本机存储，请检查浏览器存储权限。");
+          setError("无法读取本机存储，请检查存储权限与剩余空间。");
           setBlocked(true);
           setReady(true);
         }
@@ -89,6 +93,28 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
     setError("");
     update(emptyState());
   };
+  const restore = async (backup: AppState) => {
+    if (restoreLock.current) throw new Error("正在恢复，请稍候。");
+    if (!isAppState(backup)) throw new Error("备份内容无法读取。");
+    restoreLock.current = true;
+    setRestoring(true);
+    const serialized = JSON.stringify(backup);
+    const write = queue.current.then(() => AsyncStorage.setItem(KEY, serialized));
+    queue.current = write.catch(() => {});
+    try {
+      await write;
+      initial.current = false;
+      setRaw(serialized);
+      setError("");
+      setBlocked(false);
+      update(backup);
+    } catch {
+      throw new Error("恢复保存失败，请检查剩余空间后重试。当前记录已保留。");
+    } finally {
+      restoreLock.current = false;
+      setRestoring(false);
+    }
+  };
   return (
     <Context.Provider
       value={{
@@ -101,6 +127,8 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
         reset,
         raw,
         blocked,
+        restore,
+        restoring,
       }}
     >
       {children}

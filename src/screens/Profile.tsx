@@ -1,11 +1,12 @@
 import React, { useState } from "react";
-import { Text, View } from "react-native";
+import { Platform, Text, View } from "react-native";
 import { router } from "expo-router";
 import { useStore } from "../data/store";
 import { formatDate } from "../domain/types";
 import { exportBackup } from "../platform/export";
 import { Avatar, Button, Card, Empty, Tag, styles } from "../components/ui";
 import Onboarding from "./Onboarding";
+import RestoreBackup from "../components/RestoreBackup";
 export default function Profile() {
   const { state, reset, notify } = useStore();
   const [confirm, setConfirm] = useState(false);
@@ -92,7 +93,7 @@ export default function Profile() {
           照片、档案和日记保存在当前浏览器或设备。浏览器清理和换设备会影响数据，请定期导出备份。
         </Text>
         <Text style={styles.small}>
-          导出文件包含照片与全部记录，请保存到自己的空间。云端同步和备份导入将在后续版本接入。
+          导出文件包含照片与全部记录，请保存到自己的空间。恢复支持 20 MB 以内的 JSON 备份；确认后替换本机数据。
         </Text>
         <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 10 }}>
           <Button
@@ -101,7 +102,9 @@ export default function Profile() {
             tone="soft"
             onPress={() => {
               exportBackup(JSON.stringify(state, null, 2))
-                .then(() => notify("备份已导出，请保管好这个文件。"))
+                .then(() => notify(Platform.OS === "web"
+                  ? "备份已导出，请保管好这个文件。"
+                  : "分享面板已关闭，请在保存位置检查备份。"))
                 .catch(() => notify("导出失败，请重试。"));
             }}
           />
@@ -112,6 +115,7 @@ export default function Profile() {
             onPress={() => setConfirm(true)}
           />
         </View>
+        <RestoreBackup />
         {confirm && (
           <View
             style={{
