@@ -1,8 +1,8 @@
 {
   "expo": {
-    "name": "app",
-    "slug": "app",
-    "version": "1.0.0",
+    "name": "毛孩营业中",
+    "slug": "paw-life",
+    "version": "0.1.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
@@ -10,16 +10,26 @@
       "supportsTablet": true
     },
     "android": {
-      "adaptiveIcon": {
-        "backgroundColor": "#E6F4FE",
-        "foregroundImage": "./assets/android-icon-foreground.png",
-        "backgroundImage": "./assets/android-icon-background.png",
-        "monochromeImage": "./assets/android-icon-monochrome.png"
-      },
-      "predictiveBackGestureEnabled": false
+      "predictiveBackGestureEnabled": true
     },
     "web": {
+      "bundler": "metro",
+      "output": "single",
+      "name": "毛孩营业中",
       "favicon": "./assets/favicon.png"
-    }
+    },
+    "scheme": "pawlife",
+    "plugins": [
+      "expo-router",
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "选择宠物照片作为头像和日常记录。",
+          "cameraPermission": "拍摄宠物日常照片。",
+          "microphonePermission": false
+        }
+      ],
+      "expo-font"
+    ]
   }
 }

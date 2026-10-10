@@ -1,0 +1,285 @@
+{
+  "date": "2026-10-10",
+  "summary": {
+    "info": 0,
+    "low": 0,
+    "moderate": 10,
+    "high": 18,
+    "critical": 0,
+    "total": 28
+  },
+  "packages": [
+    {
+      "name": "@expo/cli",
+      "severity": "high",
+      "isDirect": false,
+      "fixAvailable": {
+        "name": "expo",
+        "version": "44.0.6",
+        "isSemVerMajor": true
+      }
+    },
+    {
+      "name": "@expo/code-signing-certificates",
+      "severity": "high",
+      "isDirect": false,
+      "fixAvailable": {
+        "name": "expo",
+        "version": "44.0.6",
+        "isSemVerMajor": true
+      }
+    },
+    {
+      "name": "@expo/config",
+      "severity": "moderate",
+      "isDirect": false,
+      "fixAvailable": {
+        "name": "expo",
+        "version": "44.0.6",
+        "isSemVerMajor": true
+      }
+    },
+    {
+      "name": "@expo/config-plugins",
+      "severity": "moderate",
+      "isDirect": false,
+      "fixAvailable": {
+        "name": "expo",
+        "version": "44.0.6",
+        "isSemVerMajor": true
+      }
+    },
+    {
+      "name": "@expo/inline-modules",
+      "severity": "moderate",
+      "isDirect": false,
+      "fixAvailable": {
+        "name": "expo",
+        "version": "44.0.6",
+        "isSemVerMajor": true
+      }
+    },
+    {
+      "name": "@expo/local-build-cache-provider",
+      "severity": "moderate",
+      "isDirect": false,
+      "fixAvailable": {
+        "name": "expo",
+        "version": "44.0.6",
+        "isSemVerMajor": true
+      }
+    },
+    {
+      "name": "@expo/metro",
+      "severity": "high",
+      "isDirect": false,
+      "fixAvailable": {
+        "name": "expo",
+        "version": "44.0.6",
+        "isSemVerMajor": true
+      }
+    },
+    {
+      "name": "@expo/metro-config",
+      "severity": "high",
+      "isDirect": false,
+      "fixAvailable": {
+        "name": "expo",
+        "version": "44.0.6",
+        "isSemVerMajor": true
+      }
+    },
+    {
+      "name": "@expo/prebuild-config",
+      "severity": "moderate",
+      "isDirect": false,
+      "fixAvailable": {
+        "name": "expo",
+        "version": "44.0.6",
+        "isSemVerMajor": true
+      }
+    },
+    {
+      "name": "@react-native/community-cli-plugin",
+      "severity": "high",
+      "isDirect": false,
+      "fixAvailable": {
+        "name": "react-native",
+        "version": "0.72.17",
+        "isSemVerMajor": true
+      }
+    },
+    {
+      "name": "@react-native/metro-config",
+      "severity": "high",
+      "isDirect": false,
+      "fixAvailable": {
+        "name": "react-native",
+        "version": "0.72.17",
+        "isSemVerMajor": true
+      }
+    },
+    {
+      "name": "@react-native/virtualized-lists",
+      "severity": "high",
+      "isDirect": false,
+      "fixAvailable": {
+        "name": "react-native",
+        "version": "0.72.17",
+        "isSemVerMajor": true
+      }
+    },
+    {
+      "name": "braces",
+      "severity": "high",
+      "isDirect": false,
+      "fixAvailable": {
+        "name": "expo",
+        "version": "44.0.6",
+        "isSemVerMajor": true
+      }
+    },
+    {
+      "name": "decode-uri-component",
+      "severity": "moderate",
+      "isDirect": false,
+      "fixAvailable": {
+        "name": "expo-router",
+        "version": "58.0.17",
+        "isSemVerMajor": true
+      }
+    },
+    {
+      "name": "expo",
+      "severity": "high",
+      "isDirect": true,
+      "fixAvailable": {
+        "name": "expo",
+        "version": "44.0.6",
+        "isSemVerMajor": true
+      }
+    },
+    {
+      "name": "expo-router",
+      "severity": "moderate",
+      "isDirect": true,
+      "fixAvailable": {
+        "name": "expo-router",
+        "version": "58.0.17",
+        "isSemVerMajor": true
+      }
+    },
+    {
+      "name": "metro",
+      "severity": "high",
+      "isDirect": false,
+      "fixAvailable": {
+        "name": "expo",
+        "version": "44.0.6",
+        "isSemVerMajor": true
+      }
+    },
+    {
+      "name": "metro-config",
+      "severity": "high",
+      "isDirect": false,
+      "fixAvailable": {
+        "name": "expo",
+        "version": "44.0.6",
+        "isSemVerMajor": true
+      }
+    },
+    {
+      "name": "metro-file-map",
+      "severity": "high",
+      "isDirect": false,
+      "fixAvailable": {
+        "name": "expo",
+        "version": "44.0.6",
+        "isSemVerMajor": true
+      }
+    },
+    {
+      "name": "metro-transform-worker",
+      "severity": "high",
+      "isDirect": false,
+      "fixAvailable": {
+        "name": "expo",
+        "version": "44.0.6",
+        "isSemVerMajor": true
+      }
+    },
+    {
+      "name": "micromatch",
+      "severity": "high",
+      "isDirect": false,
+      "fixAvailable": {
+        "name": "expo",
+        "version": "44.0.6",
+        "isSemVerMajor": true
+      }
+    },
+    {
+      "name": "node-forge",
+      "severity": "high",
+      "isDirect": false,
+      "fixAvailable": {
+        "name": "expo",
+        "version": "44.0.6",
+        "isSemVerMajor": true
+      }
+    },
+    {
+      "name": "query-string",
+      "severity": "moderate",
+      "isDirect": false,
+      "fixAvailable": {
+        "name": "expo-router",
+        "version": "58.0.17",
+        "isSemVerMajor": true
+      }
+    },
+    {
+      "name": "react-native",
+      "severity": "high",
+      "isDirect": true,
+      "fixAvailable": {
+        "name": "react-native",
+        "version": "0.72.17",
+        "isSemVerMajor": true
+      }
+    },
+    {
+      "name": "react-native-reanimated",
+      "severity": "high",
+      "isDirect": false,
+      "fixAvailable": true
+    },
+    {
+      "name": "react-native-worklets",
+      "severity": "high",
+      "isDirect": false,
+      "fixAvailable": true
+    },
+    {
+      "name": "uuid",
+      "severity": "moderate",
+      "isDirect": false,
+      "fixAvailable": {
+        "name": "expo",
+        "version": "44.0.6",
+        "isSemVerMajor": true
+      }
+    },
+    {
+      "name": "xcode",
+      "severity": "moderate",
+      "isDirect": false,
+      "fixAvailable": {
+        "name": "expo",
+        "version": "44.0.6",
+        "isSemVerMajor": true
+      }
+    }
+  ]
+}
