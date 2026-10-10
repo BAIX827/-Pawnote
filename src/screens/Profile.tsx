@@ -1,3 +1,4 @@
+import { locale, setLang, t, tList, useLang } from "../i18n";
 import React, { useState } from "react";
 import { Image, Platform, Pressable, Text, View } from "react-native";
 import { router } from "expo-router";
@@ -7,6 +8,7 @@ import { exportBackup } from "../platform/export";
 import {
   Button,
   Card,
+  Chip,
   Empty,
   Heading,
   Icon,
@@ -26,17 +28,18 @@ export default function Profile() {
   const { state, reset, notify } = useStore();
   const [confirm, setConfirm] = useState(false);
   const [toolsOpen, setToolsOpen] = useState(false);
+  const lang = useLang();
   if (!state.pet) return <Onboarding />;
   const pet = state.pet;
   return (
     <View style={styles.stack}>
       <Heading
-        title="我的手账"
-        eyebrow="居民档案 · JOURNAL"
+        title={t("我的手账")}
+        eyebrow={t("居民档案 · JOURNAL")}
         accent={colors.lilac}
         action={
           <Button
-            label="编辑档案"
+            label={t("编辑档案")}
             icon="edit-2"
             tone="soft"
             onPress={() =>
@@ -61,7 +64,7 @@ export default function Profile() {
           <Portrait pet={pet} demo={state.demo} size={90} />
           <View style={{ flex: 1, gap: 6 }}>
             <Sticker bg={colors.yellow} rotate={-3}>
-              {state.demo ? "示例居民" : "毛孩市居民"}
+              {state.demo ? t("示例居民") : t("毛孩市居民")}
             </Sticker>
             <Text numberOfLines={2} style={[styles.h1, { fontSize: 36, color: "#FFF" }]}>
               {pet.name}
@@ -69,7 +72,7 @@ export default function Profile() {
             <Text style={[styles.body, { color: "#FFF", fontWeight: "700" }]}>
               {speciesLabel(pet)} · {ageLabel(pet.ageMonths)}
             </Text>
-            <Text style={[styles.small, { color: "#E4DDFB" }]}>{pet.personality}</Text>
+            <Text style={[styles.small, { color: "#E4DDFB" }]}>{tList(pet.personality)}</Text>
           </View>
         </View>
         <View
@@ -85,19 +88,19 @@ export default function Profile() {
         >
           <View style={{ flex: 1 }}>
             <Text style={styles.h2}>{state.events.length}</Text>
-            <Text style={styles.small}>篇日记</Text>
+            <Text style={styles.small}>{t("篇日记")}</Text>
           </View>
           <View style={{ flex: 1 }}>
             <Text style={styles.h2}>
               {state.events.filter((e) => e.published).length}
             </Text>
-            <Text style={styles.small}>条本机动态</Text>
+            <Text style={styles.small}>{t("条本机动态")}</Text>
           </View>
           <View style={{ flex: 1 }}>
             <Text style={[styles.h2, { fontSize: 17 }]}>
-              {pet.route === "work" ? "职场" : "校园"}
+              {pet.route === "work" ? t("职场") : t("校园")}
             </Text>
-            <Text style={styles.small}>{pet.role}</Text>
+            <Text style={styles.small}>{t(pet.role)}</Text>
           </View>
         </View>
       </View>
@@ -107,9 +110,9 @@ export default function Profile() {
             pointerEvents="none"
             style={{ position: "absolute", left: -4, right: -6, bottom: 3, height: 10, backgroundColor: colors.yellow }}
           />
-          <Text style={[styles.h2, { fontSize: 26, lineHeight: 34 }]}>人生日记</Text>
+          <Text style={[styles.h2, { fontSize: 26, lineHeight: 34 }]}>{t("人生日记")}</Text>
         </View>
-        <Text style={styles.small}>{state.events.length} 条真实记录</Text>
+        <Text style={styles.small}>{t("{n} 条真实记录", { n: state.events.length })}</Text>
       </View>
       {state.events.length ? (
         state.events.map((e, i) => {
@@ -142,7 +145,7 @@ export default function Profile() {
                       lineHeight: 18,
                     }}
                   >
-                    {date.getMonth() + 1}月
+                    {date.toLocaleDateString(locale(), { month: "short" })}
                   </Text>
                   <Text style={{ fontFamily: display, fontWeight: "700", fontSize: 24, lineHeight: 32, color: colors.ink }}>
                     {date.getDate()}
@@ -172,12 +175,12 @@ export default function Profile() {
                 <View style={[styles.between, { flexWrap: "wrap" }]}>
                   <Text style={styles.small}>{formatDate(e.createdAt)}</Text>
                   <Tag bg={e.published ? colors.green : colors.paper}>
-                    {e.published ? "本机毛圈" : "私密"}
+                    {e.published ? t("本机毛圈") : t("私密")}
                   </Tag>
                 </View>
                 <Pressable
                   accessibilityRole="button"
-                  accessibilityLabel={`打开日记：${e.description}`}
+                  accessibilityLabel={t("打开日记：{text}", { text: e.description })}
                   onPress={() =>
                     router.push({ pathname: "/event", params: { id: e.id } })
                   }
@@ -213,10 +216,10 @@ export default function Profile() {
                 >
                   <Text style={styles.small}>
                     {e.petSnapshot.name} ·{" "}
-                    {e.petSnapshot.route === "work" ? "职场" : "校园"}
+                    {e.petSnapshot.route === "work" ? t("职场") : t("校园")}
                   </Text>
                   <Button
-                    label="制作喵闻"
+                    label={t("制作喵闻")}
                     tone="plain"
                     onPress={() =>
                       router.push({ pathname: "/news", params: { id: e.id } })
@@ -229,16 +232,26 @@ export default function Profile() {
         })
       ) : (
         <Empty
-          title="日记本还是空的"
+          title={t("日记本还是空的")}
 
           action={
-            <Button label="记录今天" onPress={() => router.push("/record")} />
+            <Button label={t("记录今天")} onPress={() => router.push("/record")} />
           }
         />
       )}
+      <View style={[styles.between, { paddingTop: 16, borderTopWidth: 2, borderColor: colors.edge, flexWrap: "wrap" }]}>
+        <View style={styles.row}>
+          <Icon name="globe" color={colors.muted} />
+          <Text style={styles.body}>{t("界面语言")}</Text>
+        </View>
+        <View style={[styles.row, { gap: 8 }]}>
+          <Chip label="中文" active={lang === "zh"} onPress={() => setLang("zh")} />
+          <Chip label="English" active={lang === "en"} onPress={() => setLang("en")} />
+        </View>
+      </View>
       <Pressable
         accessibilityRole="button"
-        accessibilityLabel="数据与备份"
+        accessibilityLabel={t("数据与备份")}
         accessibilityState={{ expanded: toolsOpen }}
         onPress={() => setToolsOpen(!toolsOpen)}
         style={[
@@ -248,7 +261,7 @@ export default function Profile() {
       >
         <View style={styles.row}>
           <Icon name="hard-drive" color={colors.muted} />
-          <Text style={styles.body}>数据与备份</Text>
+          <Text style={styles.body}>{t("数据与备份")}</Text>
         </View>
         <Icon
           name={toolsOpen ? "chevron-up" : "chevron-down"}
@@ -258,14 +271,14 @@ export default function Profile() {
       {toolsOpen && (
         <Card style={{ gap: 17 }}>
           <Text style={styles.body}>
-            数据保存在当前设备。清理浏览器或换设备前，请导出备份。
+            {t("数据保存在当前设备。清理浏览器或换设备前，请导出备份。")}
           </Text>
           <Text style={styles.small}>
-            备份含照片与全部记录。恢复上限 20 MB，确认后替换本机数据。
+            {t("备份含照片与全部记录。恢复上限 20 MB，确认后替换本机数据。")}
           </Text>
           <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 10 }}>
             <Button
-              label="导出全部数据"
+              label={t("导出全部数据")}
               icon="download"
               tone="soft"
               onPress={() => {
@@ -273,15 +286,15 @@ export default function Profile() {
                   .then(() =>
                     notify(
                       Platform.OS === "web"
-                        ? "备份已导出，请保管好这个文件。"
-                        : "分享面板已关闭，请在保存位置检查备份。",
+                        ? t("备份已导出，请保管好这个文件。")
+                        : t("分享面板已关闭，请在保存位置检查备份。"),
                     ),
                   )
-                  .catch(() => notify("导出失败，请重试。"));
+                  .catch(() => notify(t("导出失败，请重试。")));
               }}
             />
             <Button
-              label="清空本机数据"
+              label={t("清空本机数据")}
               icon="trash-2"
               tone="danger"
               onPress={() => setConfirm(true)}
@@ -300,20 +313,20 @@ export default function Profile() {
               }}
             >
               <Text style={styles.body}>
-                将清空这台设备上的宠物、照片、日记和草稿。请先导出备份。
+                {t("将清空这台设备上的宠物、照片、日记和草稿。请先导出备份。")}
               </Text>
               <View style={styles.row}>
                 <Button
-                  label="确认清空全部数据"
+                  label={t("确认清空全部数据")}
                   tone="danger"
                   onPress={() => {
                     reset();
                     router.replace("/");
-                    notify("本机数据已清空。");
+                    notify(t("本机数据已清空。"));
                   }}
                 />
                 <Button
-                  label="取消"
+                  label={t("取消")}
                   tone="plain"
                   onPress={() => setConfirm(false)}
                 />

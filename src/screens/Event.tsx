@@ -1,3 +1,4 @@
+import { t } from "../i18n";
 import React, { useState } from "react";
 import { Image, Text, View } from "react-native";
 import { router, useLocalSearchParams } from "expo-router";
@@ -36,18 +37,18 @@ export default function Event() {
   if (!event)
     return (
       <Empty
-        title="这条记录已移除"
-        subtitle="在手账中查看其他记录。"
+        title={t("这条记录已移除")}
+        subtitle={t("在手账中查看其他记录。")}
         action={
-          <Button label="返回档案" onPress={() => router.replace("/profile")} />
+          <Button label={t("返回档案")} onPress={() => router.replace("/profile")} />
         }
       />
     );
   const labels: Record<StoryStyle, string> = {
-    diary: "内心独白",
-    life: event.petSnapshot.route === "work" ? "打工日记" : "校园日记",
-    social: "毛圈动态",
-    news: "今日喵闻",
+    diary: t("内心独白"),
+    life: event.petSnapshot.route === "work" ? t("打工日记") : t("校园日记"),
+    social: t("毛圈动态"),
+    news: t("今日喵闻"),
   };
   return (
     <View
@@ -59,11 +60,11 @@ export default function Event() {
       }}
     >
       <Heading
-        title="这一天"
-        eyebrow={`${formatDate(event.createdAt)} · ${event.petSnapshot.role}`}
+        title={t("这一天")}
+        eyebrow={`${formatDate(event.createdAt)} · ${t(event.petSnapshot.role)}`}
         accent={tones[style]}
         action={
-          <Button label="返回手账" tone="plain" onPress={() => router.replace("/profile")} />
+          <Button label={t("返回手账")} tone="plain" onPress={() => router.replace("/profile")} />
         }
       />
       {event.photo && (
@@ -91,7 +92,7 @@ export default function Event() {
       )}
       <View style={{ gap: 8 }}>
         <View style={[styles.row, { justifyContent: "flex-end", gap: 8 }]}>
-          <Text style={styles.caps}>{ownerName(event.petSnapshot)}的原话</Text>
+          <Text style={styles.caps}>{t("{owner}的原话", { owner: ownerName(event.petSnapshot) })}</Text>
           <View
             style={{
               width: 34,
@@ -114,7 +115,7 @@ export default function Event() {
       <View style={{ gap: 8, marginTop: 6 }}>
         <View style={[styles.row, { gap: 8 }]}>
           <Avatar pet={event.petSnapshot} demo={state.demo} size={34} />
-          <Text style={styles.caps}>{event.petSnapshot.name}说</Text>
+          <Text style={styles.caps}>{t("{name}说", { name: event.petSnapshot.name })}</Text>
         </View>
         <Bubble tail="left" bg={tones[style]}>
           <Text style={{ fontSize: 22, lineHeight: 32, fontWeight: "700", fontFamily: display, color: colors.ink, marginBottom: 8 }}>
@@ -138,12 +139,12 @@ export default function Event() {
           ))}
         </View>
         <Text style={styles.small}>
-          {event.stories[style].generator === "ai" ? "AI 生成" : "本机生成"}{event.stories[style].edited ? " · 主人润色过" : ""} ·
-          采用保存当天的人设{style === "news" ? " · 虚构娱乐报道" : ""}
+          {event.stories[style].generator === "ai" ? t("AI 生成") : t("本机生成")}{event.stories[style].edited ? t(" · 主人润色过") : ""} ·
+          {t("采用保存当天的人设")}{style === "news" ? t(" · 虚构娱乐报道") : ""}
         </Text>
         <View style={[styles.row, { flexWrap: "wrap" }]}>
           <Button
-            label="制作喵闻卡"
+            label={t("制作喵闻卡")}
             icon="file-text"
             tone="soft"
             onPress={() =>
@@ -151,7 +152,7 @@ export default function Event() {
             }
           />
           <Button
-            label="删除记录"
+            label={t("删除记录")}
             icon="trash-2"
             tone="danger"
             onPress={() => setConfirm(true)}
@@ -169,20 +170,20 @@ export default function Event() {
             }}
           >
             <Text style={styles.body}>
-              删除这件小事？关联故事、本机动态和新闻将一起移除，成长减少 20 XP。
+              {t("删除这件小事？关联故事、本机动态和新闻将一起移除，成长减少 20 XP。")}
             </Text>
             <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 10 }}>
               <Button
-                label="确认删除这条记录"
+                label={t("确认删除这条记录")}
                 tone="danger"
                 onPress={() => {
                   update((s) => deleteEvent(s, event.id));
-                  notify("记录已删除，成长已重新计算。");
+                  notify(t("记录已删除，成长已重新计算。"));
                   router.replace("/profile");
                 }}
               />
               <Button
-                label="取消"
+                label={t("取消")}
                 tone="plain"
                 onPress={() => setConfirm(false)}
               />

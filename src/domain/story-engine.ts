@@ -1,5 +1,6 @@
 import { Category, Pet, Stories, Story, StoryStyle } from "./types";
 import { speciesLabel } from "./pet-profile";
+import { getLang, t } from "../i18n/core";
 const incidents: Record<
   Category,
   {
@@ -127,9 +128,12 @@ const P = "\u0001",
   W = "\u0003",
   K = "\u0004";
 
-export const selfName = (pet: Pet) => SELF[pet.species] ?? "我";
+export const selfName = (pet: Pet) =>
+  getLang() === "en" ? "I" : (SELF[pet.species] ?? "我");
 export const defaultOwnerName = (species: Pet["species"]) =>
-  species === "cat" ? "铲屎官" : species === "dog" ? "主人" : "我的人类";
+  getLang() === "en"
+    ? "my human"
+    : species === "cat" ? "铲屎官" : species === "dog" ? "主人" : "我的人类";
 export const ownerName = (pet: Pet) =>
   pet.ownerTitle?.trim() || defaultOwnerName(pet.species);
 
@@ -220,7 +224,8 @@ export function generateStory(
 ): Story {
   const fact = description.trim();
   if (!fact || fact.length > 500)
-    throw new Error("请填写 1–500 字的真实日常。");
+    throw new Error(t("请填写 1–500 字的真实日常。"));
+  if (getLang() === "en") return englishStory(pet, fact, category, style, variant);
   const v = incidents[category];
   const self = selfName(pet),
     owner = ownerName(pet),
@@ -248,6 +253,75 @@ export function generateStory(
         : style === "social"
           ? `${pet.name}正在营业`
           : `关于${v.topic}，${self}有话说`;
+  return { title, text: text.slice(0, 2000), generator: "template", edited: false };
+}
+// English has no safe rule for swapping grammatical person, so the offline version quotes
+// the owner and lets the pet comment; the AI gateway provides a true first-person retelling.
+const asides: Record<Category, { diary: string[]; work: string; campus: string; social: string; title: string }> = {
+  sleep: {
+    diary: ["For the record, I was not asleep. I was reviewing the inside of my eyelids.", "Three positions tried, three positions mastered."],
+    work: "Paid rest research completed. Work can wait; the afternoon nap window cannot.",
+    campus: "Sleep studies: field practice complete. Listening with my eyes closed still counts.",
+    social: "Busy afternoon. Had a dream to finish.",
+    title: "Sleep researcher extends experiment yet again",
+  },
+  snack: {
+    diary: ["The food walked past my mouth. What happened next was fate.", "Tasty. Please keep it stocked, ideally where I can reach."],
+    work: "As snack inspector, I sampled the product thoroughly. Recommend restocking for further study.",
+    campus: "Cafeteria flavour survey done. Sample size still too small; requesting more funding.",
+    social: "One bite is manners. A few more is respect.",
+    title: "Snack sampling study reports early progress",
+  },
+  bath: {
+    diary: ["About the way I smell now: I am reserving judgement.", "Nobody told me in advance that water is wet."],
+    work: "Attended the cleaning-themed team event and proposed compensation in treats.",
+    campus: "Hygiene practical complete. Suggest replacing it with a sunbathing elective.",
+    social: "New look today: fragrant, and slightly wronged.",
+    title: "Bubble event sparks debate from the party involved",
+  },
+  chaos: {
+    diary: ["Art needs a little noise.", "I only wanted to see what it looks like when it falls. Now I know."],
+    work: "Structural stress test of the environment complete. Budget to be discussed separately.",
+    campus: "Space redesign assignment submitted. Looking forward to creative feedback.",
+    social: "About today's scene: I prefer the term creative process.",
+    title: "Creative renovation project draws household attention",
+  },
+  walk: {
+    diary: ["Every breeze out there carried news, and I read all of it.", "This patch is mine to patrol. All quiet today."],
+    work: "Field patrol finished, scent data collected. Requesting treats as travel allowance.",
+    campus: "Outdoor observation class complete. One more page in the scent map.",
+    social: "Out on patrol, and took the human for some exercise.",
+    title: "Neighbourhood patroller completes another field mission",
+  },
+  other: {
+    diary: ["Small as it is, this goes in my life file.", "Days are made of little things like this one."],
+    work: "Filed under today's work notes.",
+    campus: "Added to my campus notebook.",
+    social: "One more moment worth keeping.",
+    title: "Life archive gains an exclusive new entry",
+  },
+};
+function englishStory(pet: Pet, fact: string, category: Category, style: StoryStyle, variant: number): Story {
+  const v = asides[category], owner = ownerName(pet), work = pet.route === "work";
+  const Owner = owner.charAt(0).toUpperCase() + owner.slice(1);
+  const life = work ? v.work : v.campus;
+  const closer = variant % 2 ? "That is all from me today." : `Signed, ${pet.name}.`;
+  const text =
+    style === "news"
+      ? `PAW DISPATCH | ${Owner} told this paper: "${fact}"\n\n${pet.name} was reached for comment: "${v.diary[0]}"\n\nIn the pet world this now sits in the ${work ? "work" : "campus"} file. ${life}\n\n${variant % 2 ? "This small story has been added to the special edition." : "This is fictional entertainment based on the owner's note."}`
+      : style === "life"
+        ? `[${work ? "Work log" : "Class notes"}]\n${Owner} wrote: "${fact}"\n\n${life}`
+        : style === "social"
+          ? `${Owner} says: "${fact}" ${v.social}`
+          : `${Owner} wrote: "${fact}"\n\nMy side of it: ${v.diary[variant % v.diary.length]} ${closer}`;
+  const title =
+    style === "news"
+      ? `${pet.name}: ${v.title}`
+      : style === "life"
+        ? `${pet.name}'s ${work ? "work report" : "campus notes"}`
+        : style === "social"
+          ? `${pet.name} is open for business`
+          : `${pet.name} has something to say`;
   return { title, text: text.slice(0, 2000), generator: "template", edited: false };
 }
 export function generateStories(

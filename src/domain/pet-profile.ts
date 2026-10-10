@@ -1,3 +1,4 @@
+import { t } from "../i18n/core";
 import { Pet, Route, Species } from "./types";
 
 export const SPECIES_INFO: Record<Species, { label: string; emoji: string }> = {
@@ -9,17 +10,19 @@ export const SPECIES_INFO: Record<Species, { label: string; emoji: string }> = {
   other: { label: "其他宠物", emoji: "🐾" },
 };
 export const speciesLabel = (pet: Pet) =>
-  pet.species === "other" ? pet.speciesName ?? "其他宠物" : SPECIES_INFO[pet.species].label;
+  pet.species === "other" ? pet.speciesName ?? t("其他宠物") : t(SPECIES_INFO[pet.species].label);
 export const speciesEmoji = (pet: Pet) => SPECIES_INFO[pet.species].emoji;
-export const ageLabel = (months?: number) => months === undefined ? "年龄待补充"
-  : months < 12 ? `${months} 个月` : `${Math.floor(months / 12)} 岁${months % 12 ? ` ${months % 12} 个月` : ""}`;
+export const ageLabel = (months?: number) => months === undefined ? t("年龄待补充")
+  : months < 12 ? t("{m} 个月", { m: months })
+  : months % 12 ? t("{y} 岁 {m} 个月", { y: Math.floor(months / 12), m: months % 12 })
+  : t("{y} 岁", { y: Math.floor(months / 12) });
 
 export function parseAge(years: string, months: string): number | undefined {
   if (!years.trim() && !months.trim()) return undefined;
   if ((years.trim() && !/^\d{1,3}$/.test(years.trim())) || (months.trim() && !/^\d{1,2}$/.test(months.trim())))
-    throw new Error("年龄请填写整数，月数填写 0–11。");
+    throw new Error(t("年龄请填写整数，月数填写 0–11。"));
   const y = Number(years || 0), m = Number(months || 0);
-  if (y > 100 || m > 11 || y * 12 + m > 1200) throw new Error("年龄请填写 0–100 岁，月数填写 0–11。");
+  if (y > 100 || m > 11 || y * 12 + m > 1200) throw new Error(t("年龄请填写 0–100 岁，月数填写 0–11。"));
   return y * 12 + m;
 }
 // A virtual-life product rule; species maturity is not inferred from this cutoff.
@@ -59,9 +62,9 @@ export const QUESTIONS = [
 
 export function questionnaireTraits(answers: number[]): string[] {
   if (answers.length !== QUESTIONS.length || answers.some(a => !Number.isInteger(a) || a < 0 || a > 3))
-    throw new Error("请完成每一道观察题，也可以选择暂不确定。");
+    throw new Error(t("请完成每一道观察题，也可以选择暂不确定。"));
   if (answers.filter(a => a < 3).length < 3)
-    throw new Error("至少需要 3 道明确观察，才能总结性格。也可以直接输入你的描述。");
+    throw new Error(t("至少需要 3 道明确观察，才能总结性格。也可以直接输入你的描述。"));
   const scores = new Map<string, number>();
   QUESTIONS.forEach((q, i) => {
     if (answers[i] === 3) return;

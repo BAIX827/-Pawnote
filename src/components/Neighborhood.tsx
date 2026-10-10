@@ -1,3 +1,4 @@
+import { t } from "../i18n";
 import React from "react";
 import { Pressable, Text, View } from "react-native";
 import { router } from "expo-router";
@@ -6,7 +7,7 @@ import { colors, Icon, shadow, Sticker, Wobble } from "./ui";
 export default function Neighborhood({ work }: { work: boolean }) {
   const districts = [
     {
-      label: "日记小屋",
+      label: t("日记小屋"),
       route: "/profile" as const,
       icon: "book-open" as const,
       color: colors.orange,
@@ -14,7 +15,7 @@ export default function Neighborhood({ work }: { work: boolean }) {
       tilt: -2,
     },
     {
-      label: work ? "毛孩公司" : "联合学院",
+      label: work ? t("毛孩公司") : t("联合学院"),
       route: "/life" as const,
       icon: work ? ("briefcase" as const) : ("book" as const),
       color: colors.jade,
@@ -22,7 +23,7 @@ export default function Neighborhood({ work }: { work: boolean }) {
       tilt: 1,
     },
     {
-      label: "毛圈广场",
+      label: t("毛圈广场"),
       route: "/circle" as const,
       icon: "message-circle" as const,
       color: colors.lavender,
@@ -45,7 +46,7 @@ export default function Neighborhood({ work }: { work: boolean }) {
     >
       <View style={{ padding: 18, paddingBottom: 0 }}>
         <Sticker bg={colors.paper} rotate={-2}>
-          毛孩市 · 生活地图
+          {t("毛孩市 · 生活地图")}
         </Sticker>
       </View>
       <Wobble degrees={10} style={{ position: "absolute", right: 26, top: 20 }}>
@@ -97,7 +98,7 @@ export default function Neighborhood({ work }: { work: boolean }) {
           <Pressable
             key={d.route}
             accessibilityRole="button"
-            accessibilityLabel={`前往${d.label}`}
+            accessibilityLabel={t("前往{place}", { place: d.label })}
             onPress={() => router.push(d.route)}
             style={({ pressed }) => ({
               flex: 1,

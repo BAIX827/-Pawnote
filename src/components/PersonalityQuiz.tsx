@@ -1,3 +1,4 @@
+import { t } from "../i18n";
 import React, { useState } from "react";
 import { Text, View } from "react-native";
 import { QUESTIONS, questionnaireTraits } from "../domain/pet-profile";
@@ -35,16 +36,16 @@ export default function PersonalityQuiz({
         borderColor: "#EBDCC8",
       }}
     >
-      <Text style={styles.h2}>它的日常性格观察</Text>
+      <Text style={styles.h2}>{t("它的日常性格观察")}</Text>
       <Text style={styles.small}>
-        日常观察 · 人设参考。无法判断可选“暂不确定”。
+        {t("日常观察 · 人设参考。无法判断可选“暂不确定”。")}
       </Text>
       {QUESTIONS.map((q, i) => (
         <View key={q.title} style={{ gap: 9 }}>
           <Text style={styles.body}>
-            {i + 1}. {q.title}
+            {i + 1}. {t(q.title)}
           </Text>
-          {[...q.choices.map((c) => c.label), "暂不确定 / 不适用"].map(
+          {[...q.choices.map((c) => t(c.label)), t("暂不确定 / 不适用")].map(
             (label, value) => (
               <Chip
                 key={label}
@@ -57,14 +58,14 @@ export default function PersonalityQuiz({
         </View>
       ))}
       <Button
-        label="查看性格结果"
+        label={t("查看性格结果")}
         tone="soft"
         onPress={() => {
           try {
             setResult(questionnaireTraits(answers).join(" · "));
             setError("");
           } catch (e) {
-            setError(e instanceof Error ? e.message : "请检查作答。");
+            setError(e instanceof Error ? e.message : t("请检查作答。"));
           }
         }}
       />
@@ -78,9 +79,9 @@ export default function PersonalityQuiz({
       )}
       {result && (
         <View style={{ gap: 10 }}>
-          <Text style={styles.body}>观察结果：{result}</Text>
+          <Text style={styles.body}>{t("观察结果：{result}", { result: result ?? "" })}</Text>
           <Button
-            label="采用这个性格"
+            label={t("采用这个性格")}
             onPress={() => onApply(result, [...answers])}
           />
         </View>

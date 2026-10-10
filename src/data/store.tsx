@@ -1,3 +1,4 @@
+import { t } from "../i18n/core";
 import React, {
   createContext,
   useContext,
@@ -47,14 +48,14 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
             update(parsed);
           } catch {
             setBlocked(true);
-            setError("本机数据读取异常。请先导出原始备份，再确认清空重建。");
+            setError(t("本机数据读取异常。请先导出原始备份，再确认清空重建。"));
           }
         }
         setReady(true);
       })
       .catch(() => {
         if (alive) {
-          setError("无法读取本机存储，请检查存储权限与剩余空间。");
+          setError(t("无法读取本机存储，请检查存储权限与剩余空间。"));
           setBlocked(true);
           setReady(true);
         }
@@ -94,8 +95,8 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
     update(emptyState());
   };
   const restore = async (backup: AppState) => {
-    if (restoreLock.current) throw new Error("正在恢复，请稍候。");
-    if (!isAppState(backup)) throw new Error("备份内容无法读取。");
+    if (restoreLock.current) throw new Error(t("正在恢复，请稍候。"));
+    if (!isAppState(backup)) throw new Error(t("备份内容无法读取。"));
     restoreLock.current = true;
     setRestoring(true);
     const serialized = JSON.stringify(backup);
@@ -109,7 +110,7 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
       setBlocked(false);
       update(backup);
     } catch {
-      throw new Error("恢复保存失败，请检查剩余空间后重试。当前记录已保留。");
+      throw new Error(t("恢复保存失败，请检查剩余空间后重试。当前记录已保留。"));
     } finally {
       restoreLock.current = false;
       setRestoring(false);

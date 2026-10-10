@@ -17,6 +17,7 @@ import type Feather from "@expo/vector-icons/Feather";
 import Icon from "./Icon";
 import { Pet } from "../domain/types";
 import { speciesEmoji } from "../domain/pet-profile";
+import { t } from "../i18n";
 export { default as Icon } from "./Icon";
 export const colors = {
   bg: "#FBF5EC",
@@ -706,7 +707,7 @@ export function Meter({
 }) {
   return (
     <View
-      accessibilityLabel={`等级进度 ${value}%`}
+      accessibilityLabel={t("等级进度 {n}%", { n: value })}
       style={{
         height: 18,
         backgroundColor: colors.paper,

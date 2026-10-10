@@ -1,3 +1,4 @@
+import { t, tList } from "../i18n";
 import React, { useState } from "react";
 import RestoreBackup from "../components/RestoreBackup";
 import PersonalityQuiz from "../components/PersonalityQuiz";
@@ -75,7 +76,7 @@ export default function Onboarding({ editing = false }: { editing?: boolean }) {
   try {
     ageMonths = parseAge(years, months);
   } catch (e) {
-    ageError = e instanceof Error ? e.message : "请检查年龄。";
+    ageError = e instanceof Error ? e.message : t("请检查年龄。");
   }
   const recommended = recommendRoute(species, ageMonths);
   const effectiveRouteSource =
@@ -86,7 +87,7 @@ export default function Onboarding({ editing = false }: { editing?: boolean }) {
       : manualRoute;
   const preview: Pet = {
     id: original?.id ?? "preview",
-    name: name || "你的宠物",
+    name: name || t("你的宠物"),
     species,
     ...(species === "other" ? { speciesName: speciesName.trim() } : {}),
     personality: personality.trim(),
@@ -115,22 +116,22 @@ export default function Onboarding({ editing = false }: { editing?: boolean }) {
       const photo = await choosePhoto();
       if (photo) setAvatar(photo);
     } catch (e) {
-      notify(e instanceof Error ? e.message : "照片读取失败，请重试。");
+      notify(e instanceof Error ? e.message : t("照片读取失败，请重试。"));
     } finally {
       setBusy(false);
     }
   }
   function create() {
     if (!name.trim()) {
-      notify("给毛孩起个名字吧。");
+      notify(t("给毛孩起个名字吧。"));
       return;
     }
     if (species === "other" && !speciesName.trim()) {
-      notify("请填写宠物类型，例如刺猬、蜜袋鼯。");
+      notify(t("请填写宠物类型，例如刺猬、蜜袋鼯。"));
       return;
     }
     if (!personality.trim()) {
-      notify("选一个性格标签，或写下你了解的它。");
+      notify(t("选一个性格标签，或写下你了解的它。"));
       return;
     }
     if (ageError) {
@@ -138,7 +139,7 @@ export default function Onboarding({ editing = false }: { editing?: boolean }) {
       return;
     }
     if (effectiveRouteSource === "age" && !recommended) {
-      notify("填写年龄后可推荐路线，也可以手动选择上学或职场。");
+      notify(t("填写年龄后可推荐路线，也可以手动选择上学或职场。"));
       return;
     }
     const pet = { ...preview, id: original?.id ?? id(), name: name.trim() };
@@ -151,16 +152,16 @@ export default function Onboarding({ editing = false }: { editing?: boolean }) {
     }));
     notify(
       editing
-        ? "人设已更新，历史故事保留原来的身份。"
-        : "居民身份已领取，第二人生开始啦。",
+        ? t("人设已更新，历史故事保留原来的身份。")
+        : t("居民身份已领取，第二人生开始啦。"),
     );
     router.replace("/");
   }
   return (
     <View style={{ gap: 30 }}>
       <Heading
-        title={editing ? "编辑居民档案" : "欢迎搬进毛孩市"}
-        eyebrow="居民登记处"
+        title={editing ? t("编辑居民档案") : t("欢迎搬进毛孩市")}
+        eyebrow={t("居民登记处")}
       />
       <View
         style={{
@@ -182,7 +183,7 @@ export default function Onboarding({ editing = false }: { editing?: boolean }) {
             }}
           >
             <Text style={{ letterSpacing: 2, fontSize: 11, color: colors.ink }}>
-              毛孩市 · 居民证 / PREVIEW
+              {t("毛孩市 · 居民证 / PREVIEW")}
             </Text>
             <View
               style={{
@@ -202,9 +203,9 @@ export default function Onboarding({ editing = false }: { editing?: boolean }) {
                 <Text style={[styles.h1, { fontSize: wide ? 32 : 25 }]}>
                   {preview.name}
                 </Text>
-                <Text style={styles.small}>{preview.personality}</Text>
+                <Text style={styles.small}>{tList(preview.personality)}</Text>
                 <Tag bg={colors.paper}>
-                  {preview.role}
+                  {t(preview.role)}
                 </Tag>
               </View>
             </View>
@@ -214,28 +215,28 @@ export default function Onboarding({ editing = false }: { editing?: boolean }) {
           <View style={styles.between}>
             <View>
               <Text style={styles.h2}>
-                {editing ? "编辑宠物档案" : "办理毛孩居民证"}
+                {editing ? t("编辑宠物档案") : t("办理毛孩居民证")}
               </Text>
             </View>
             <Avatar pet={preview} size={54} />
           </View>
           <View>
-            <Label>01 / 名字</Label>
+            <Label>{t("01 / 名字")}</Label>
             <Field
-              accessibilityLabel="宠物名字"
+              accessibilityLabel={t("宠物名字")}
               value={name}
               onChangeText={setName}
               maxLength={20}
-              placeholder="例如：橘总、糯米、旺财"
+              placeholder={t("例如：橘总、糯米、旺财")}
             />
           </View>
           <View style={{ gap: 10 }}>
-            <Label>02 / 宠物类型</Label>
+            <Label>{t("02 / 宠物类型")}</Label>
             <View style={[styles.row, { flexWrap: "wrap" }]}>
               {SPECIES.map((value) => (
                 <Chip
                   key={value}
-                  label={`${SPECIES_INFO[value].emoji} ${SPECIES_INFO[value].label}`}
+                  label={`${SPECIES_INFO[value].emoji} ${t(SPECIES_INFO[value].label)}`}
                   active={species === value}
                   onPress={() => setSpecies(value)}
                 />
@@ -243,41 +244,41 @@ export default function Onboarding({ editing = false }: { editing?: boolean }) {
             </View>
             {species === "other" && (
               <Field
-                accessibilityLabel="其他宠物类型"
+                accessibilityLabel={t("其他宠物类型")}
                 value={speciesName}
                 onChangeText={setSpeciesName}
                 maxLength={20}
-                placeholder="例如：刺猬、蜜袋鼯、蜘蛛"
+                placeholder={t("例如：刺猬、蜜袋鼯、蜘蛛")}
               />
             )}
           </View>
           <View style={{ gap: 10 }}>
-            <Label>03 / 年龄</Label>
+            <Label>{t("03 / 年龄")}</Label>
             <View style={styles.row}>
               <View style={{ flex: 1, gap: 6 }}>
                 <Field
-                  accessibilityLabel="年龄岁数"
+                  accessibilityLabel={t("年龄岁数")}
                   value={years}
                   onChangeText={setYears}
                   keyboardType="number-pad"
                   maxLength={3}
                   placeholder="0"
                 />
-                <Text style={styles.small}>岁</Text>
+                <Text style={styles.small}>{t("岁")}</Text>
               </View>
               <View style={{ flex: 1, gap: 6 }}>
                 <Field
-                  accessibilityLabel="年龄月数"
+                  accessibilityLabel={t("年龄月数")}
                   value={months}
                   onChangeText={setMonths}
                   keyboardType="number-pad"
                   maxLength={2}
                   placeholder="0"
                 />
-                <Text style={styles.small}>个月（0–11）</Text>
+                <Text style={styles.small}>{t("个月（0–11）")}</Text>
               </View>
             </View>
-            <Text style={styles.small}>年龄可留空，随后手动选择路线。</Text>
+            <Text style={styles.small}>{t("年龄可留空，随后手动选择路线。")}</Text>
             {!!ageError && (
               <Text accessibilityRole="alert" style={{ color: "#AE4434" }}>
                 {ageError}
@@ -285,12 +286,12 @@ export default function Onboarding({ editing = false }: { editing?: boolean }) {
             )}
           </View>
           <View style={{ gap: 12 }}>
-            <Label>04 / 性格</Label>
+            <Label>{t("04 / 性格")}</Label>
             <View style={[styles.row, { flexWrap: "wrap" }]}>
               {PERSONALITIES.map((p) => (
                 <Chip
                   key={p}
-                  label={p}
+                  label={t(p)}
                   active={personality === p}
                   onPress={() => {
                     setPersonality(p);
@@ -300,19 +301,19 @@ export default function Onboarding({ editing = false }: { editing?: boolean }) {
               ))}
             </View>
             <Field
-              accessibilityLabel="自定义性格"
+              accessibilityLabel={t("自定义性格")}
               value={personality}
               onChangeText={(value) => {
                 setPersonality(value);
                 setPersonalitySource("custom");
               }}
               maxLength={60}
-              placeholder="例如：慢热但很亲人，喜欢安静地观察"
+              placeholder={t("例如：慢热但很亲人，喜欢安静地观察")}
               multiline
             />
-            <Text style={styles.small}>自定义最多 60 字 · 问卷 5 题</Text>
+            <Text style={styles.small}>{t("自定义最多 60 字 · 问卷 5 题")}</Text>
             <Button
-              label={quizOpen ? "收起性格问卷" : "做一次性格问卷"}
+              label={quizOpen ? t("收起性格问卷") : t("做一次性格问卷")}
               tone="soft"
               onPress={() => setQuizOpen(!quizOpen)}
             />
@@ -325,26 +326,26 @@ export default function Onboarding({ editing = false }: { editing?: boolean }) {
                   setPersonalitySource("questionnaire");
                   setQuizAnswers(answers);
                   setQuizOpen(false);
-                  notify("观察结果已填入性格，可以继续修改。");
+                  notify(t("观察结果已填入性格，可以继续修改。"));
                 }}
               />
             )}
             {personalitySource === "questionnaire" && (
-              <Text style={styles.small}>来自观察问卷 · 可修改</Text>
+              <Text style={styles.small}>{t("来自观察问卷 · 可修改")}</Text>
             )}
           </View>
           <View style={{ gap: 10 }}>
-            <Label>05 / 人生路线</Label>
+            <Label>{t("05 / 人生路线")}</Label>
             {species === "cat" || species === "dog" ? (
               <>
                 <View style={[styles.row, { flexWrap: "wrap" }]}>
                   <Chip
-                    label="按年龄推荐"
+                    label={t("按年龄推荐")}
                     active={effectiveRouteSource === "age"}
                     onPress={() => setRouteSource("age")}
                   />
                   <Chip
-                    label="主人自己选"
+                    label={t("主人自己选")}
                     active={effectiveRouteSource === "manual"}
                     onPress={() => {
                       setManualRoute(route);
@@ -354,17 +355,17 @@ export default function Onboarding({ editing = false }: { editing?: boolean }) {
                 </View>
                 <Text style={styles.small}>
                   {recommended
-                    ? `推荐${recommended === "campus" ? "校园" : "职场"}`
-                    : "填写年龄或手动选择"}
-                  {" · "}游戏规则：满 12 个月推荐职场
+                    ? recommended === "campus" ? t("推荐校园") : t("推荐职场")
+                    : t("填写年龄或手动选择")}
+                  {t(" · 游戏规则：满 12 个月推荐职场")}
                 </Text>
               </>
             ) : (
-              <Text style={styles.small}>主人选择路线</Text>
+              <Text style={styles.small}>{t("主人选择路线")}</Text>
             )}
             <View style={[styles.row, { flexWrap: "wrap" }]}>
               <Chip
-                label="🎒 去上学"
+                label={t("🎒 去上学")}
                 active={
                   route === "campus" &&
                   (effectiveRouteSource === "manual" || !!recommended)
@@ -375,7 +376,7 @@ export default function Onboarding({ editing = false }: { editing?: boolean }) {
                 }}
               />
               <Chip
-                label="💼 进入职场"
+                label={t("💼 进入职场")}
                 active={
                   route === "work" &&
                   (effectiveRouteSource === "manual" || !!recommended)
@@ -388,9 +389,9 @@ export default function Onboarding({ editing = false }: { editing?: boolean }) {
             </View>
           </View>
           <View style={{ gap: 10 }}>
-            <Label>06 / 它在日记里怎么称呼你</Label>
+            <Label>{t("06 / 它在日记里怎么称呼你")}</Label>
             <View style={[styles.row, { flexWrap: "wrap" }]}>
-              {["妈妈", "爸爸", "姐姐", "哥哥", "铲屎官", "主人"].map((t) => (
+              {[t("妈妈"), t("爸爸"), t("姐姐"), t("哥哥"), t("铲屎官"), t("主人")].map((t) => (
                 <Chip
                   key={t}
                   label={t}
@@ -400,17 +401,17 @@ export default function Onboarding({ editing = false }: { editing?: boolean }) {
               ))}
             </View>
             <Field
-              accessibilityLabel="宠物对你的称呼"
+              accessibilityLabel={t("宠物对你的称呼")}
               value={ownerTitle}
               onChangeText={setOwnerTitle}
               maxLength={10}
-              placeholder={`也可以自己写，例如：老张。留空就叫“${defaultOwnerName(species)}”`}
+              placeholder={t("也可以自己写，例如：老张。留空就叫“{owner}”", { owner: defaultOwnerName(species) })}
             />
           </View>
           <View style={styles.row}>
             <Button
               label={
-                busy ? "照片处理中…" : avatar ? "更换头像" : "添加真实头像"
+                busy ? t("照片处理中…") : avatar ? t("更换头像") : t("添加真实头像")
               }
               icon="camera"
               tone="plain"
@@ -421,21 +422,21 @@ export default function Onboarding({ editing = false }: { editing?: boolean }) {
             />
             {avatar && (
               <Button
-                label="移除头像"
+                label={t("移除头像")}
                 tone="plain"
                 onPress={() => setAvatar(undefined)}
               />
             )}
           </View>
           <Button
-            label={editing ? "保存档案" : "领取居民证"}
+            label={editing ? t("保存档案") : t("领取居民证")}
             icon="arrow-right"
             disabled={busy}
             onPress={create}
           />
           {!editing && !state.pet && (
             <Button
-              label="体验橘总的生活"
+              label={t("体验橘总的生活")}
               tone="plain"
               onPress={() => {
                 update(demoState());
@@ -446,7 +447,7 @@ export default function Onboarding({ editing = false }: { editing?: boolean }) {
           {!editing && !state.pet && <RestoreBackup />}
           {editing && (
             <Button
-              label="返回"
+              label={t("返回")}
               tone="plain"
               onPress={() => router.replace("/profile")}
             />

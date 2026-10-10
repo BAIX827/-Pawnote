@@ -1,6 +1,7 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { ownerName, selfName } from "../domain/story-engine";
 import { Pet, STYLES, Stories, id } from "../domain/types";
+import { t } from "../i18n/core";
 
 // Both come from the build: one bundle for mainland China, one for everywhere else.
 const API = process.env.EXPO_PUBLIC_API_URL?.replace(/\/$/, "");
@@ -67,7 +68,7 @@ export async function generateWithAI(
   pet: Pet,
   description: string,
 ): Promise<{ stories: Stories; quota?: Quota }> {
-  if (!API) throw new AIError("AI 服务还没有接通，先用本机版本。");
+  if (!API) throw new AIError(t("AI 服务还没有接通，先用本机版本。"));
   let response: Response, body: { stories?: unknown; quota?: unknown; error?: string };
   try {
     response = await fetch(`${API}/v1/pet-voice`, {
@@ -91,14 +92,14 @@ export async function generateWithAI(
     });
     body = await response.json();
   } catch {
-    throw new AIError("连不上 AI 服务，已保留本机版本。");
+    throw new AIError(t("连不上 AI 服务，已保留本机版本。"));
   }
   const quota = isQuota(body.quota) ? body.quota : undefined;
   if (response.status === 429)
-    throw new AIError("本周的免费 AI 次数用完了，本机版本不限次数。", quota);
-  if (response.status === 409) throw new AIError("上一次 AI 生成还没结束，稍等一下。");
+    throw new AIError(t("本周的免费 AI 次数用完了，本机版本不限次数。"), quota);
+  if (response.status === 409) throw new AIError(t("上一次 AI 生成还没结束，稍等一下。"));
   if (!response.ok || !isStories(body.stories))
-    throw new AIError("AI 这次没写好，没有扣次数，已保留本机版本。", quota);
+    throw new AIError(t("AI 这次没写好，没有扣次数，已保留本机版本。"), quota);
   const stories = {} as Stories;
   for (const style of STYLES)
     stories[style] = {

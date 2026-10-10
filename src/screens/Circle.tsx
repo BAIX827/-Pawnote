@@ -1,3 +1,4 @@
+import { t } from "../i18n";
 import React, { useState } from "react";
 import { Image, Text, View } from "react-native";
 import { router } from "expo-router";
@@ -35,25 +36,25 @@ export default function Circle() {
       ]}
     >
       <Heading
-        title="毛圈广场"
-        eyebrow="公告墙 · 本机毛圈"
+        title={t("毛圈广场")}
+        eyebrow={t("公告墙 · 本机毛圈")}
         accent={colors.sky}
         action={
-          <Button label="贴一条" icon="edit-3" onPress={() => router.push("/record")} />
+          <Button label={t("贴一条")} icon="edit-3" onPress={() => router.push("/record")} />
         }
       />
       <View style={[styles.row, { flexWrap: "wrap" }]}>
         <Chip
-          label={`全部 ${published.length}`}
+          label={t("全部 {n}", { n: published.length })}
           active={!photosOnly}
           onPress={() => setPhotosOnly(false)}
         />
         <Chip
-          label="有照片"
+          label={t("有照片")}
           active={photosOnly}
           onPress={() => setPhotosOnly(true)}
         />
-        <Text style={styles.small}>仅当前设备可见</Text>
+        <Text style={styles.small}>{t("仅当前设备可见")}</Text>
       </View>
       {events.length ? (
         <View
@@ -89,7 +90,7 @@ export default function Circle() {
                 <View style={{ flex: 1 }}>
                   <Text style={styles.h2}>{e.petSnapshot.name}</Text>
                   <Text style={[styles.small, { color: colors.ink }]}>
-                    {formatDate(e.createdAt)} · {e.petSnapshot.role}
+                    {formatDate(e.createdAt)} · {t(e.petSnapshot.role)}
                   </Text>
                 </View>
                 <Text
@@ -127,10 +128,10 @@ export default function Circle() {
               )}
               <View style={[styles.between, { flexWrap: "wrap" }]}>
                 <Sticker bg={colors.paper} rotate={-2}>
-                  {e.stories[e.selectedStyle].generator === "ai" ? "AI 生成" : "本机生成"}{e.selectedStyle === "news" ? " · 娱乐报道" : ""}
+                  {e.stories[e.selectedStyle].generator === "ai" ? t("AI 生成") : t("本机生成")}{e.selectedStyle === "news" ? t(" · 娱乐报道") : ""}
                 </Sticker>
                 <Button
-                  label="翻开这一天"
+                  label={t("翻开这一天")}
                   tone="plain"
                   onPress={() =>
                     router.push({ pathname: "/event", params: { id: e.id } })
@@ -142,13 +143,13 @@ export default function Circle() {
         </View>
       ) : (
         <Empty
-          title={photosOnly ? "还没有照片动态" : "公告墙等着第一条动态"}
+          title={photosOnly ? t("还没有照片动态") : t("公告墙等着第一条动态")}
           subtitle={
-            photosOnly ? undefined : "保存日记时，勾选「贴到本机毛圈」。"
+            photosOnly ? undefined : t("保存日记时，勾选「贴到本机毛圈」。")
           }
           action={
             <Button
-              label={photosOnly ? "查看全部" : "写一条动态"}
+              label={photosOnly ? t("查看全部") : t("写一条动态")}
               onPress={() =>
                 photosOnly ? setPhotosOnly(false) : router.push("/record")
               }

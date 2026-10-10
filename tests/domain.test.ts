@@ -14,6 +14,8 @@ import { Pet, newDraft } from "../src/domain/types";
 import { MAX_BACKUP_BYTES, parseBackup } from "../src/domain/backup";
 import { ageLabel, parseAge, questionnaireTraits, recommendRoute, speciesEmoji, speciesLabel } from "../src/domain/pet-profile";
 import { SPECIES } from "../src/domain/types";
+import { applyLang, t } from "../src/i18n/core";
+applyLang("zh");
 test("新物种和自定义性格可生成、备份，旧猫狗备份保持兼容", () => {
   assert.equal(isAppState(demoState()), true);
   assert.doesNotThrow(() => generateStories({ ...demoState().pet!, personality: "constructor" }, "在休息。", "other"));
@@ -159,6 +161,24 @@ test("主人视角改写为宠物第一人称，并从原话猜出标签", () =>
   assert.equal(detectCategory("带它去公园"), "walk");
   assert.equal(detectCategory("看了一会儿雨"), "other");
   assert.ok(generateStories(cat, "我".repeat(500), "other").news.text.length <= 2000);
+});
+test("英文界面下词条、称号与本机故事使用英文，未收录的文字原样显示", () => {
+  applyLang("en");
+  try {
+    assert.equal(t("街区"), "Town");
+    assert.equal(t("全部 {n}", { n: 3 }), "All 3");
+    assert.equal(t("主人自己写的话"), "主人自己写的话");
+    const pet = demoState().pet!;
+    const stories = generateStories(pet, "He stole a fish.", "snack");
+    for (const story of Object.values(stories)) {
+      assert.ok(story.text.includes("He stole a fish."));
+      assert.ok(!/[\u4e00-\u9fff]/.test(story.title + story.text));
+    }
+    assert.match(stories.diary.text, /^My human wrote/);
+    assert.equal(isAppState(demoState()), true);
+  } finally {
+    applyLang("zh");
+  }
 });
 test("四种风格保留真实描述，人设变化使生成签名失效", () => {
   const s = demoState(),

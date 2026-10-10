@@ -1,3 +1,4 @@
+import { loadLang, t, useLang } from "../i18n";
 import React from "react";
 import {
   ActivityIndicator,
@@ -28,13 +29,17 @@ export default function Shell({ children }: { children: React.ReactNode }) {
   const { state, ready, toast, error, blocked, raw, reset, notify, restoring } =
     useStore();
   const [confirmReset, setConfirmReset] = React.useState(false);
+  const lang = useLang();
+  React.useEffect(() => {
+    void loadLang();
+  }, []);
   const item = (n: (typeof nav)[number]) => {
     const active = path === n.route;
     return (
       <Pressable
         key={n.route}
         accessibilityRole="button"
-        accessibilityLabel={n.label}
+        accessibilityLabel={t(n.label)}
         accessibilityState={{ selected: active }}
         onPress={() => router.navigate(n.route as "/")}
         style={({ pressed }) => ({
@@ -63,7 +68,7 @@ export default function Shell({ children }: { children: React.ReactNode }) {
             color: active ? colors.ink : wide ? "#E9DDD0" : colors.muted,
           }}
         >
-          {n.label}
+          {t(n.label)}
         </Text>
       </Pressable>
     );
@@ -109,7 +114,7 @@ export default function Shell({ children }: { children: React.ReactNode }) {
                     fontWeight: "700",
                   }}
                 >
-                  爪记
+                  {t("爪记")}
                 </Text>
                 <Text
                   style={[styles.small, { letterSpacing: 2, color: "#A2B09D" }]}
@@ -121,7 +126,7 @@ export default function Shell({ children }: { children: React.ReactNode }) {
             <View style={{ gap: 10 }}>{nav.map(item)}</View>
             {state.pet && (
               <Button
-                label="记录今天"
+                label={t("记录今天")}
                 icon="plus"
                 onPress={() => router.push("/record")}
               />
@@ -139,10 +144,10 @@ export default function Shell({ children }: { children: React.ReactNode }) {
               <Text
                 style={{ color: colors.paper, fontSize: 15, fontWeight: "700" }}
               >
-                毛孩市
+                {t("毛孩市")}
               </Text>
               <Text style={{ color: "#A2B09D", fontSize: 12 }}>
-                本机体验版 · v0.1
+                {t("本机体验版 · v0.1")}
               </Text>
             </View>
           </View>
@@ -168,7 +173,7 @@ export default function Shell({ children }: { children: React.ReactNode }) {
           >
             {wide ? (
               <Text style={[styles.caps, { color: colors.muted }]}>
-                PAWNOTE / 毛孩市日报
+                {t("PAWNOTE / 毛孩市日报")}
               </Text>
             ) : (
               <View style={[styles.row, { gap: 8 }]}>
@@ -184,14 +189,14 @@ export default function Shell({ children }: { children: React.ReactNode }) {
                     letterSpacing: 1,
                   }}
                 >
-                  爪记
+                  {t("爪记")}
                 </Text>
               </View>
             )}
             {state.pet ? (
               <Pressable
                 accessibilityRole="button"
-                accessibilityLabel="打开手账"
+                accessibilityLabel={t("打开手账")}
                 onPress={() => router.navigate("/profile")}
                 style={[styles.row, { gap: 9 }]}
               >
@@ -204,7 +209,7 @@ export default function Shell({ children }: { children: React.ReactNode }) {
                 <Avatar pet={state.pet} demo={state.demo} size={34} />
               </Pressable>
             ) : (
-              <Text style={styles.small}>居民登记处</Text>
+              <Text style={styles.small}>{t("居民登记处")}</Text>
             )}
           </View>
           {state.demo && (
@@ -222,10 +227,10 @@ export default function Shell({ children }: { children: React.ReactNode }) {
               }}
             >
               <Text style={[styles.small, { color: colors.ink, fontWeight: "700" }]}>
-                示例居民 · 橘总
+                {t("示例居民")} · {state.pet?.name}
               </Text>
               <Button
-                label="创建我的宠物"
+                label={t("创建我的宠物")}
                 tone="plain"
                 onPress={() => router.push("/onboarding")}
               />
@@ -241,17 +246,17 @@ export default function Shell({ children }: { children: React.ReactNode }) {
               </Text>
               <View style={styles.row}>
                 <Button
-                  label="导出备份"
+                  label={t("导出备份")}
                   tone="plain"
                   onPress={() => {
                     exportBackup(
                       blocked ? (raw ?? "{}") : JSON.stringify(state, null, 2),
-                    ).catch(() => notify("备份导出失败，请重试。"));
+                    ).catch(() => notify(t("备份导出失败，请重试。")));
                   }}
                 />
                 {blocked && (
                   <Button
-                    label="清空重建"
+                    label={t("清空重建")}
                     tone="danger"
                     onPress={() => setConfirmReset(true)}
                   />
@@ -260,11 +265,11 @@ export default function Shell({ children }: { children: React.ReactNode }) {
               {confirmReset && (
                 <View style={{ gap: 8 }}>
                   <Text style={styles.body}>
-                    清空当前设备的数据？请先保存原始备份。
+                    {t("清空当前设备的数据？请先保存原始备份。")}
                   </Text>
                   <View style={styles.row}>
                     <Button
-                      label="确认清空"
+                      label={t("确认清空")}
                       tone="danger"
                       onPress={() => {
                         reset();
@@ -273,7 +278,7 @@ export default function Shell({ children }: { children: React.ReactNode }) {
                       }}
                     />
                     <Button
-                      label="取消"
+                      label={t("取消")}
                       tone="plain"
                       onPress={() => setConfirmReset(false)}
                     />
@@ -298,13 +303,14 @@ export default function Shell({ children }: { children: React.ReactNode }) {
             <View style={{ width: "100%", maxWidth: 1160 }}>
               {blocked ? (
                 <View style={{ padding: 30 }}>
-                  <Text style={styles.h2}>请先恢复本机数据</Text>
+                  <Text style={styles.h2}>{t("请先恢复本机数据")}</Text>
                   <Text style={styles.muted}>
-                    使用上方导出与重建操作处理读取异常。
+                    {t("使用上方导出与重建操作处理读取异常。")}
                   </Text>
                 </View>
               ) : (
-                children
+                // Screens read their text while rendering, so a new language remounts them.
+                <React.Fragment key={lang}>{children}</React.Fragment>
               )}
             </View>
           </ScrollView>
@@ -330,7 +336,7 @@ export default function Shell({ children }: { children: React.ReactNode }) {
               {nav.slice(0, 2).map(item)}
               <Pressable
                 accessibilityRole="button"
-                accessibilityLabel="记录今天"
+                accessibilityLabel={t("记录今天")}
                 onPress={() => router.push("/record")}
                 style={({ pressed }) => ({
                   width: 58,

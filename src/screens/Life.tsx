@@ -1,3 +1,4 @@
+import { t, tList } from "../i18n";
 import React from "react";
 import { Text, View, useWindowDimensions } from "react-native";
 import { router } from "expo-router";
@@ -35,9 +36,9 @@ export default function Life() {
     soft = work ? colors.green : colors.lilac,
     wide = width >= 1100;
   const steps = [
-    { at: 1, name: work ? "第一次营业" : "第一次入学" },
-    { at: 3, name: work ? "正式营业员" : "校园活跃分子" },
-    { at: 5, name: work ? "资深摸鱼专家" : "校园传说" },
+    { at: 1, name: work ? t("第一次营业") : t("第一次入学") },
+    { at: 3, name: work ? t("正式营业员") : t("校园活跃分子") },
+    { at: 5, name: work ? t("资深摸鱼专家") : t("校园传说") },
   ];
   const notch = {
     position: "absolute" as const,
@@ -52,8 +53,8 @@ export default function Life() {
   return (
     <View style={styles.stack}>
       <Heading
-        title="毛孩人生"
-        eyebrow={work ? "职场路线 · CAREER" : "校园路线 · CAMPUS"}
+        title={t("毛孩人生")}
+        eyebrow={work ? t("职场路线 · CAREER") : t("校园路线 · CAMPUS")}
         accent={soft}
       />
       <View style={{ flexDirection: wide ? "row" : "column", gap: 26 }}>
@@ -88,7 +89,7 @@ export default function Life() {
                 {work ? "PAWNOTE GROUP" : "PAWNOTE ACADEMY"}
               </Text>
               <Text style={{ color: "#FFF", fontSize: 28, fontWeight: "700", fontFamily: display }}>
-                {work ? "员工通行证" : "学生通行证"}
+                {work ? t("员工通行证") : t("学生通行证")}
               </Text>
             </View>
             <Icon name={work ? "briefcase" : "book"} color="#FFF" size={30} />
@@ -102,12 +103,12 @@ export default function Life() {
               >
                 {pet.name}
               </Text>
-              <Text style={[styles.body, { fontWeight: "700" }]}>{pet.role}</Text>
+              <Text style={[styles.body, { fontWeight: "700" }]}>{t(pet.role)}</Text>
               <Text style={[styles.small, { color: colors.ink }]}>
                 {speciesLabel(pet)} · {ageLabel(pet.ageMonths)}
               </Text>
               <Text style={[styles.small, { color: colors.ink }]} numberOfLines={2}>
-                {pet.personality}
+                {tList(pet.personality)}
               </Text>
             </View>
           </View>
@@ -124,14 +125,14 @@ export default function Life() {
             <View style={[notch, { right: -15 }]} />
             <View style={styles.between}>
               <View style={{ flex: 1 }}>
-                <Text style={styles.caps}>当前身份</Text>
+                <Text style={styles.caps}>{t("当前身份")}</Text>
                 <Text style={[styles.h2, { fontSize: 24, lineHeight: 34 }]}>
                   {titleFor(p.level, pet.route)}
                 </Text>
               </View>
               <Wobble>
                 <Stamp
-                  top={state.demo ? "示例" : "毛孩市"}
+                  top={state.demo ? t("示例") : t("毛孩市")}
                   main={`Lv.${p.level}`}
                   color={colors.orange}
                   size={78}
@@ -160,7 +161,7 @@ export default function Life() {
           }}
         >
           <View style={styles.between}>
-            <Text style={styles.caps}>下一站 · Lv.{p.level + 1}</Text>
+            <Text style={styles.caps}>{t("下一站")} · Lv.{p.level + 1}</Text>
             <Icon name="flag" size={24} color={colors.ink} />
           </View>
           <Text style={{ fontSize: 68, lineHeight: 76, fontWeight: "700", fontFamily: display, color: colors.ink }}>
@@ -169,9 +170,9 @@ export default function Life() {
           </Text>
           <Meter value={p.current} color={accent} />
           <Text style={[styles.body, { fontWeight: "600" }]}>
-            还差 {p.toNext} XP · 每条新记录 +20
+            {t("还差 {n} XP · 每条新记录 +20", { n: p.toNext })}
           </Text>
-          <Button label="添一段经历" icon="plus" onPress={() => router.push("/record")} />
+          <Button label={t("添一段经历")} icon="plus" onPress={() => router.push("/record")} />
         </Card>
       </View>
       <View style={{ alignSelf: "flex-start", marginTop: 6 }}>
@@ -179,7 +180,7 @@ export default function Life() {
           pointerEvents="none"
           style={{ position: "absolute", left: -4, right: -6, bottom: 3, height: 10, backgroundColor: soft }}
         />
-        <Text style={[styles.h2, { fontSize: 26, lineHeight: 34 }]}>成长路线</Text>
+        <Text style={[styles.h2, { fontSize: 26, lineHeight: 34 }]}>{t("成长路线")}</Text>
       </View>
       <View style={{ gap: 16 }}>
         {steps.map((m, i) => {
@@ -240,7 +241,7 @@ export default function Life() {
                 <View style={[styles.row, { gap: 6 }]}>
                   <Icon name={done ? "check" : "lock"} size={14} color={done ? accent : colors.muted} />
                   <Text style={styles.small}>
-                    Lv.{m.at} · {done ? "已解锁" : `${(m.at - 1) * 100} XP 解锁`}
+                    Lv.{m.at} · {done ? t("已解锁") : t("{n} XP 解锁", { n: (m.at - 1) * 100 })}
                   </Text>
                 </View>
               </View>

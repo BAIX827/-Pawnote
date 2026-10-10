@@ -1,3 +1,4 @@
+import { t } from "../i18n";
 import React, { useEffect, useRef, useState } from "react";
 import { Image, Platform, Pressable, Text, View } from "react-native";
 import { router } from "expo-router";
@@ -106,10 +107,10 @@ export default function Record() {
     owner = ownerName(pet),
     story = generated ? draft.stories![draft.selectedStyle] : undefined;
   const labels: Record<StoryStyle, string> = {
-    diary: "内心独白",
-    life: pet.route === "work" ? "打工日记" : "校园日记",
-    social: "毛圈动态",
-    news: "今日喵闻",
+    diary: t("内心独白"),
+    life: pet.route === "work" ? t("打工日记") : t("校园日记"),
+    social: t("毛圈动态"),
+    news: t("今日喵闻"),
   };
   function patch(changes: Partial<Draft>) {
     update((s) => ({ ...s, draft: { ...(s.draft ?? seed), ...changes } }));
@@ -143,7 +144,7 @@ export default function Record() {
         ),
       },
     });
-    notify(`${pet!.name}换了个说法。`);
+    notify(t("{name}换了个说法。", { name: pet!.name }));
   }
   async function askAI() {
     const asked = { description: draft.description, signature };
@@ -153,14 +154,14 @@ export default function Record() {
       if (result.quota) setQuota(result.quota);
       // If the owner kept typing while the AI wrote, its answer is about an older sentence.
       if (latest.current !== asked.description) {
-        notify("原话已经改了，AI 的这一版没有采用。");
+        notify(t("原话已经改了，AI 的这一版没有采用。"));
         return;
       }
       patch({ stories: result.stories, signature: asked.signature });
-      notify(`${pet!.name}用 AI 重新说了一遍。`);
+      notify(t("{name}用 AI 重新说了一遍。", { name: pet!.name }));
     } catch (e) {
       if (e instanceof AIError && e.quota) setQuota(e.quota);
-      notify(e instanceof Error ? e.message : "AI 生成失败，已保留本机版本。");
+      notify(e instanceof Error ? e.message : t("AI 生成失败，已保留本机版本。"));
     } finally {
       setAsking(false);
     }
@@ -183,18 +184,18 @@ export default function Record() {
       const photo = await choosePhoto(source);
       if (photo) patch({ photo });
     } catch (e) {
-      notify(e instanceof Error ? e.message : "照片读取失败。");
+      notify(e instanceof Error ? e.message : t("照片读取失败。"));
     } finally {
       setBusy(false);
     }
   }
   function save() {
     if (!generated || !draft.stories) {
-      notify(`先写下今天的事，${pet!.name}才能开口。`);
+      notify(t("先写下今天的事，{name}才能开口。", { name: pet!.name }));
       return;
     }
     if (Object.values(draft.stories).some((s) => !s.text.trim())) {
-      notify("故事内容需要至少一个字。");
+      notify(t("故事内容需要至少一个字。"));
       return;
     }
     const event = {
@@ -212,26 +213,26 @@ export default function Record() {
       const next = saveEvent(state, event);
       submitted.current = true;
       update(next);
-      notify("日常已保存 · +20 XP");
+      notify(t("日常已保存 · +20 XP"));
       router.replace("/");
     } catch (e) {
-      notify(e instanceof Error ? e.message : "保存失败。");
+      notify(e instanceof Error ? e.message : t("保存失败。"));
     }
   }
   return (
     <View style={{ gap: 22, maxWidth: 760, width: "100%", alignSelf: "center" }}>
       <Heading
-        title="宠语翻译机"
-        eyebrow={`你说人话 → ${pet.name}说${self === "我" ? "自己的" : self.slice(1)}话`}
+        title={t("宠语翻译机")}
+        eyebrow={t("你说人话 → {name}说{kind}话", { name: pet.name, kind: self.length > 1 ? self.slice(1) : t("自己的") })}
         accent={colors.pink}
         action={
-          <Button label="返回" icon="x" tone="plain" onPress={() => router.replace("/")} />
+          <Button label={t("返回")} icon="x" tone="plain" onPress={() => router.replace("/")} />
         }
       />
 
       <View style={{ gap: 8 }}>
         <View style={[styles.row, { justifyContent: "flex-end", gap: 8 }]}>
-          <Text style={styles.caps}>你（{owner}）说</Text>
+          <Text style={styles.caps}>{t("你（{owner}）说", { owner })}</Text>
           <View
             style={{
               width: 34,
@@ -249,7 +250,7 @@ export default function Record() {
         </View>
         <Bubble tail="right" bg={colors.paper}>
           <Field
-            accessibilityLabel="今天发生了什么"
+            accessibilityLabel={t("今天发生了什么")}
             value={draft.description}
             onChangeText={(description) =>
               retell(
@@ -264,10 +265,10 @@ export default function Record() {
               setHeights((h) => (h.owner === owner ? h : { ...h, owner }));
             }}
             style={[bare, { height: heights.owner, fontSize: 17, lineHeight: 28 }]}
-            placeholder={`照你看到的写就行。例如：今天${pet.name}把我的水杯推下去了，还一脸无辜。`}
+            placeholder={t("照你看到的写就行。例如：今天{name}把我的水杯推下去了，还一脸无辜。", { name: pet.name })}
           />
           <View style={[styles.between, { marginTop: 8 }]}>
-            <Text style={styles.small}>草稿自动保存在本机</Text>
+            <Text style={styles.small}>{t("草稿自动保存在本机")}</Text>
             <Text style={styles.small}>{draft.description.length} / 500</Text>
           </View>
         </Bubble>
@@ -277,8 +278,8 @@ export default function Record() {
         <View style={{ flex: 1, height: 2, borderRadius: 1, backgroundColor: colors.edge }} />
         <Wobble degrees={generated ? 6 : 0}>
           <Stamp
-            top={generated ? "已翻译" : "待翻译"}
-            main={self === "我" ? "宠语" : `${self.slice(1)}语`}
+            top={generated ? t("已翻译") : t("待翻译")}
+            main={self.length > 1 ? t("{kind}语", { kind: self.slice(1) }) : t("宠语")}
             color={generated ? colors.orange : colors.muted}
             size={72}
             rotate={0}
@@ -291,11 +292,11 @@ export default function Record() {
       <View style={{ gap: 8 }}>
         <View style={[styles.row, { gap: 8 }]}>
           <Avatar pet={pet} demo={state.demo} size={34} />
-          <Text style={styles.caps}>{pet.name}说</Text>
+          <Text style={styles.caps}>{t("{name}说", { name: pet.name })}</Text>
           {story && (
             <Sticker bg={story.generator === "ai" ? colors.lilac : colors.paper} rotate={2}>
-              {story.generator === "ai" ? "AI 生成" : "本机生成"}
-              {story.edited ? " · 主人润色" : ""}
+              {story.generator === "ai" ? t("AI 生成") : t("本机生成")}
+              {story.edited ? t(" · 主人润色") : ""}
             </Sticker>
           )}
         </View>
@@ -303,7 +304,7 @@ export default function Record() {
           {story ? (
             <View style={{ gap: 8 }}>
               <Field
-                accessibilityLabel="故事标题"
+                accessibilityLabel={t("故事标题")}
                 value={story.title}
                 maxLength={160}
                 onChangeText={(title) => edit({ title })}
@@ -314,7 +315,7 @@ export default function Record() {
               />
               <View style={{ height: 2, backgroundColor: colors.ink, opacity: 0.25 }} />
               <Field
-                accessibilityLabel="故事内容"
+                accessibilityLabel={t("故事内容")}
                 multiline
                 maxLength={2000}
                 value={story.text}
@@ -326,12 +327,12 @@ export default function Record() {
                 style={[bare, { height: heights.pet, fontSize: 16, lineHeight: 28 }]}
               />
               <Text style={[styles.small, { color: colors.ink, opacity: 0.7 }]}>
-                点文字可以直接改 · 改上面的原话会重新翻译
+                {t("点文字可以直接改 · 改上面的原话会重新翻译")}
               </Text>
             </View>
           ) : (
             <Text style={[styles.body, { color: colors.muted, minHeight: 60 }]}>
-              ……（{pet.name}正盯着你，等你先开口）
+              {t("……（{name}正盯着你，等你先开口）", { name: pet.name })}
             </Text>
           )}
         </Bubble>
@@ -339,7 +340,7 @@ export default function Record() {
 
       {generated && (
         <View style={{ gap: 10 }}>
-          <Text style={styles.caps}>换个口吻</Text>
+          <Text style={styles.caps}>{t("换个口吻")}</Text>
           <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 8 }}>
             {STYLES.map((s) => (
               <Chip
@@ -350,7 +351,7 @@ export default function Record() {
                 onPress={() => patch({ selectedStyle: s })}
               />
             ))}
-            <Button label="换个说法" icon="refresh-cw" tone="plain" onPress={regenerate} />
+            <Button label={t("换个说法")} icon="refresh-cw" tone="plain" onPress={regenerate} />
           </View>
         </View>
       )}
@@ -366,18 +367,18 @@ export default function Record() {
         >
           <View style={[styles.between, { flexWrap: "wrap" }]}>
             <Text style={[styles.body, { fontWeight: "700", flex: 1 }]}>
-              想让它说得更像它自己？
+              {t("想让它说得更像它自己？")}
             </Text>
             <Text style={styles.small}>
               {quota
                 ? quota.member
-                  ? "会员 · AI 不限次数"
-                  : `本周免费 AI 还剩 ${quota.remaining} / ${quota.limit} 次`
-                : "暂时查不到剩余次数"}
+                  ? t("会员 · AI 不限次数")
+                  : t("本周免费 AI 还剩 {left} / {limit} 次", { left: quota.remaining ?? 0, limit: quota.limit ?? 0 })
+                : t("暂时查不到剩余次数")}
             </Text>
           </View>
           <Button
-            label={asking ? `${pet.name}正在组织语言…` : "让 AI 来说（用 1 次）"}
+            label={asking ? t("{name}正在组织语言…", { name: pet.name }) : t("让 AI 来说（用 1 次）")}
             icon="zap"
             tone="soft"
             disabled={asking || (!!quota && !quota.member && quota.remaining === 0)}
@@ -386,20 +387,20 @@ export default function Record() {
             }}
           />
           <Text style={styles.small}>
-            一次生成四种口吻。本机版本不限次数；改上面的原话会回到本机版本。
+            {t("一次生成四种口吻。本机版本不限次数；改上面的原话会回到本机版本。")}
           </Text>
         </View>
       )}
 
       <View style={{ gap: 10 }}>
         <Text style={styles.caps}>
-          这算哪类事{manualTag ? "" : " · 已按原话自动判断"}
+          {t("这算哪类事")}{manualTag ? "" : t(" · 已按原话自动判断")}
         </Text>
         <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 8 }}>
           {CATEGORIES.map((c) => (
             <Chip
               key={c}
-              label={CATEGORY_LABELS[c]}
+              label={t(CATEGORY_LABELS[c])}
               active={draft.category === c}
               onPress={() => {
                 setManualTag(true);
@@ -433,7 +434,7 @@ export default function Record() {
         ) : (
           <Pressable
             accessibilityRole="button"
-            accessibilityLabel="选择照片"
+            accessibilityLabel={t("选择照片")}
             disabled={busy}
             onPress={() => {
               void pick();
@@ -450,14 +451,14 @@ export default function Record() {
           >
             <Icon name="image" size={26} color={colors.muted} />
             <Text style={styles.small}>
-              {busy ? "照片处理中…" : "贴一张现场照片（可选）"}
+              {busy ? t("照片处理中…") : t("贴一张现场照片（可选）")}
             </Text>
           </Pressable>
         )}
         <View style={[styles.row, { flexWrap: "wrap" }]}>
           {draft.photo && (
             <Button
-              label={busy ? "照片处理中…" : "更换照片"}
+              label={busy ? t("照片处理中…") : t("更换照片")}
               icon="image"
               tone="soft"
               disabled={busy}
@@ -468,7 +469,7 @@ export default function Record() {
           )}
           {Platform.OS !== "web" && (
             <Button
-              label="拍一张"
+              label={t("拍一张")}
               icon="camera"
               tone="soft"
               disabled={busy}
@@ -479,19 +480,19 @@ export default function Record() {
           )}
           {draft.photo && (
             <Button
-              label="移除照片"
+              label={t("移除照片")}
               tone="plain"
               disabled={busy}
               onPress={() => patch({ photo: undefined })}
             />
           )}
-          <Text style={styles.small}>1 张 · ≤25 MB · 压缩后保存</Text>
+          <Text style={styles.small}>{t("1 张 · ≤25 MB · 压缩后保存")}</Text>
         </View>
       </View>
 
       <Pressable
         accessibilityRole="checkbox"
-        accessibilityLabel="发布到本机毛圈"
+        accessibilityLabel={t("发布到本机毛圈")}
         accessibilityState={{ checked: draft.published }}
         aria-checked={draft.published}
         onPress={() => patch({ published: !draft.published })}
@@ -512,12 +513,12 @@ export default function Record() {
           {draft.published && <Icon name="check" color="#FFF" size={16} />}
         </View>
         <View style={{ flex: 1 }}>
-          <Text style={[styles.body, { fontWeight: "700" }]}>贴到本机毛圈</Text>
-          <Text style={styles.small}>当前口吻 · 仅此设备可见</Text>
+          <Text style={[styles.body, { fontWeight: "700" }]}>{t("贴到本机毛圈")}</Text>
+          <Text style={styles.small}>{t("当前口吻 · 仅此设备可见")}</Text>
         </View>
       </Pressable>
       <Button
-        label="保存日记 · +20 XP"
+        label={t("保存日记 · +20 XP")}
         icon="check"
         disabled={busy || asking || !generated}
         onPress={save}

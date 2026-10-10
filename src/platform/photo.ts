@@ -1,3 +1,4 @@
+import { t } from "../i18n/core";
 import * as ImagePicker from "expo-image-picker";
 import { ImageManipulator, SaveFormat } from "expo-image-manipulator";
 export async function choosePhoto(source: "library" | "camera" = "library"): Promise<string | undefined> {
@@ -20,7 +21,7 @@ export async function choosePhoto(source: "library" | "camera" = "library"): Pro
   if (result.canceled) return;
   const image = result.assets[0];
   if ((image.fileSize ?? 0) > 25 * 1024 * 1024)
-    throw new Error("请选择 25 MB 以内的照片。");
+    throw new Error(t("请选择 25 MB 以内的照片。"));
   const context = ImageManipulator.manipulate(image.uri);
   if (image.width > 1000 || image.height > 1000)
     context.resize(
@@ -33,6 +34,6 @@ export async function choosePhoto(source: "library" | "camera" = "library"): Pro
     base64: true,
   });
   if (!saved.base64 || saved.base64.length > 930000)
-    throw new Error("这张照片压缩后仍较大，请选择更小的图片。");
+    throw new Error(t("这张照片压缩后仍较大，请选择更小的图片。"));
   return `data:image/jpeg;base64,${saved.base64}`;
 }

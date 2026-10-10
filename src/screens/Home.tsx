@@ -1,9 +1,9 @@
+import { locale, t, tList } from "../i18n";
 import React from "react";
 import { Image, Pressable, Text, View, useWindowDimensions } from "react-native";
 import { router } from "expo-router";
 import { useStore } from "../data/store";
 import { progress, titleFor } from "../domain/life";
-import { selfName, toPetVoice } from "../domain/story-engine";
 import { formatDate } from "../domain/types";
 import {
   Bubble,
@@ -26,11 +26,11 @@ import Onboarding from "./Onboarding";
 
 // The poster changes with the hour, the way a pet's day does.
 function moment(hour: number) {
-  if (hour < 6) return { bg: colors.lilac, fg: colors.ink, label: "深夜档", line: "嘘，夜间巡逻中。", icon: "moon" as const };
-  if (hour < 11) return { bg: colors.yellow, fg: colors.ink, label: "早安档", line: "早，今天的早饭呢？", icon: "sun" as const };
-  if (hour < 14) return { bg: colors.pale, fg: colors.ink, label: "午间档", line: "中午了，适合找块太阳躺下。", icon: "sun" as const };
-  if (hour < 18) return { bg: colors.pink, fg: colors.ink, label: "下午档", line: "下午的风不错，我批准了。", icon: "coffee" as const };
-  return { bg: colors.green, fg: colors.ink, label: "晚间档", line: "你回来啦？我可没有在等你。", icon: "moon" as const };
+  if (hour < 6) return { bg: colors.lilac, fg: colors.ink, label: t("深夜档"), line: t("嘘，夜间巡逻中。"), icon: "moon" as const };
+  if (hour < 11) return { bg: colors.yellow, fg: colors.ink, label: t("早安档"), line: t("早，今天的早饭呢？"), icon: "sun" as const };
+  if (hour < 14) return { bg: colors.pale, fg: colors.ink, label: t("午间档"), line: t("中午了，适合找块太阳躺下。"), icon: "sun" as const };
+  if (hour < 18) return { bg: colors.pink, fg: colors.ink, label: t("下午档"), line: t("下午的风不错，我批准了。"), icon: "coffee" as const };
+  return { bg: colors.green, fg: colors.ink, label: t("晚间档"), line: t("你回来啦？我可没有在等你。"), icon: "moon" as const };
 }
 const notes = [colors.paper, colors.sky, colors.yellow, colors.green];
 
@@ -45,8 +45,9 @@ export default function Home() {
     narrow = width < 500,
     now = new Date(),
     m = moment(now.getHours());
+  // The pet's latest line as it was saved, so it never changes with the interface language.
   const saying = latest
-    ? toPetVoice(latest.petSnapshot, latest.description).text
+    ? latest.stories.diary.text.split("\n").find((line) => line.trim()) ?? m.line
     : m.line;
   return (
     <View style={styles.stack}>
@@ -94,7 +95,7 @@ export default function Home() {
         />
         <View style={styles.between}>
           <Sticker bg={colors.paper} rotate={-3}>
-            {now.toLocaleDateString("zh-CN", { month: "long", day: "numeric", weekday: "short" })}
+            {now.toLocaleDateString(locale(), { month: "long", day: "numeric", weekday: "short" })}
             {" · "}
             {m.label}
           </Sticker>
@@ -103,7 +104,7 @@ export default function Home() {
         <View style={{ flexDirection: "row", alignItems: "flex-end", gap: 14 }}>
           <View style={{ flex: 1, gap: 4 }}>
             <Text style={[styles.caps, { color: m.fg, opacity: 0.85 }]}>
-              今日主角
+              {t("今日主角")}
             </Text>
             <Text
               numberOfLines={2}
@@ -119,7 +120,7 @@ export default function Home() {
               {pet.name}
             </Text>
             <Text style={{ color: m.fg, fontSize: 14, fontWeight: "600" }}>
-              {titleFor(p.level, pet.route)} · {pet.personality}
+              {titleFor(p.level, pet.route)} · {tList(pet.personality)}
             </Text>
           </View>
           <View style={{ marginBottom: 8, marginRight: 6 }}>
@@ -138,7 +139,7 @@ export default function Home() {
         </View>
         <Bubble tail="right" bg={colors.paper} style={{ marginTop: 6, marginBottom: 8 }}>
           <Text style={[styles.caps, { color: colors.orange, marginBottom: 4 }]}>
-            {pet.name}说
+            {t("{name}说", { name: pet.name })}
           </Text>
           <Text numberOfLines={3} style={[styles.body, { fontSize: 16, fontWeight: "600" }]}>
             {saying}
@@ -148,7 +149,7 @@ export default function Home() {
 
       <Pressable
         accessibilityRole="button"
-        accessibilityLabel="记录今天，翻成宠物的话"
+        accessibilityLabel={t("记录今天，翻成宠物的话")}
         onPress={() => router.push("/record")}
         style={({ pressed }) => [
           {
@@ -179,10 +180,10 @@ export default function Home() {
         </View>
         <View style={{ flex: 1 }}>
           <Text style={{ color: colors.ink, fontSize: 20, fontWeight: "700", fontFamily: display }}>
-            它今天干了啥？
+            {t("它今天干了啥？")}
           </Text>
           <Text style={{ color: colors.muted, fontSize: 13, lineHeight: 20 }}>
-            你照实写，{pet.name}自己用{selfName(pet) === "我" ? "它" : selfName(pet)}的口吻再说一遍
+            {t("你照实写，{name}用自己的口吻再说一遍", { name: pet.name })}
           </Text>
         </View>
         <Icon name="arrow-right" color={colors.orange} size={24} />
@@ -195,9 +196,9 @@ export default function Home() {
         <View style={{ flex: wide ? 1 : undefined, gap: 24 }}>
           <View style={{ flexDirection: "row", gap: 12 }}>
             {[
-              { n: p.xp, unit: "XP", label: "成长经验", bg: colors.green },
-              { n: state.events.length, unit: "篇", label: "生活片刻", bg: colors.sky },
-              { n: p.toNext, unit: "XP", label: "离升级还差", bg: colors.lilac },
+              { n: p.xp, unit: "XP", label: t("成长经验"), bg: colors.green },
+              { n: state.events.length, unit: t("篇"), label: t("生活片刻"), bg: colors.sky },
+              { n: p.toNext, unit: "XP", label: t("离升级还差"), bg: colors.lilac },
             ].map((s, i) => (
               <View
                 key={s.label}
@@ -226,13 +227,13 @@ export default function Home() {
           <View style={{ gap: 6 }}>
             <View style={styles.between}>
               <Text style={styles.caps}>Lv.{p.level} → Lv.{p.level + 1}</Text>
-              <Text style={styles.small}>每条新记录 +20 XP</Text>
+              <Text style={styles.small}>{t("每条新记录 +20 XP")}</Text>
             </View>
             <Meter value={p.current} color={colors.orange} />
           </View>
           <Pressable
             accessibilityRole="button"
-            accessibilityLabel={latest ? "制作最新记录的喵闻" : "记录小事制作喵闻"}
+            accessibilityLabel={latest ? t("制作最新记录的喵闻") : t("记录小事制作喵闻")}
             onPress={() =>
               latest
                 ? router.push({ pathname: "/news", params: { id: latest.id } })
@@ -254,7 +255,7 @@ export default function Home() {
               ]}
             >
               <View style={styles.between}>
-                <Text style={styles.caps}>THE PAW TIMES · 独家</Text>
+                <Text style={styles.caps}>{t("THE PAW TIMES · 独家")}</Text>
                 <Icon name="arrow-up-right" color={colors.ink} />
               </View>
               <Text
@@ -271,12 +272,12 @@ export default function Home() {
                   paddingVertical: 4,
                 }}
               >
-                今日喵闻
+                {t("今日喵闻")}
               </Text>
               <Text style={[styles.h2, { fontSize: 19 }]} numberOfLines={3}>
-                {latest ? latest.stories.news.title : "头条，等你来写"}
+                {latest ? latest.stories.news.title : t("头条，等你来写")}
               </Text>
-              <Text style={styles.small}>点开做成新闻卡 · 虚构娱乐报道</Text>
+              <Text style={styles.small}>{t("点开做成新闻卡 · 虚构娱乐报道")}</Text>
             </View>
           </Pressable>
         </View>
@@ -288,9 +289,9 @@ export default function Home() {
             pointerEvents="none"
             style={{ position: "absolute", left: -4, right: -6, bottom: 3, height: 10, backgroundColor: colors.pink }}
           />
-          <Text style={[styles.h2, { fontSize: 26, lineHeight: 34 }]}>最近发生</Text>
+          <Text style={[styles.h2, { fontSize: 26, lineHeight: 34 }]}>{t("最近发生")}</Text>
         </View>
-        <Button label="翻开手账" tone="plain" onPress={() => router.push("/profile")} />
+        <Button label={t("翻开手账")} tone="plain" onPress={() => router.push("/profile")} />
       </View>
       {state.events.length ? (
         <View style={{ gap: 20 }}>
@@ -298,7 +299,7 @@ export default function Home() {
             <Pressable
               key={e.id}
               accessibilityRole="button"
-              accessibilityLabel={`查看记录：${e.description}`}
+              accessibilityLabel={t("查看记录：{text}", { text: e.description })}
               onPress={() => router.push({ pathname: "/event", params: { id: e.id } })}
               style={({ pressed }) => [
                 {
@@ -329,13 +330,13 @@ export default function Home() {
               </Text>
               <View style={{ flex: 1, gap: 4 }}>
                 <Text style={styles.small}>
-                  {formatDate(e.createdAt)} · {e.published ? "本机毛圈" : "私密"}
+                  {formatDate(e.createdAt)} · {e.published ? t("本机毛圈") : t("私密")}
                 </Text>
                 <Text style={[styles.h2, { fontSize: 18, lineHeight: 26 }]} numberOfLines={2}>
                   {e.stories[e.selectedStyle].title}
                 </Text>
                 <Text style={styles.muted} numberOfLines={2}>
-                  主人说：{e.description}
+                  {t("主人说：{text}", { text: e.description })}
                 </Text>
               </View>
               {e.photo && (
@@ -349,8 +350,8 @@ export default function Home() {
         </View>
       ) : (
         <Empty
-          title="今天的故事还空着"
-          action={<Button label="写第一条日记" onPress={() => router.push("/record")} />}
+          title={t("今天的故事还空着")}
+          action={<Button label={t("写第一条日记")} onPress={() => router.push("/record")} />}
         />
       )}
     </View>

@@ -1,9 +1,11 @@
 import { AppState, Pet } from "../domain/types";
 import { generateStories } from "../domain/story-engine";
+import { getLang } from "../i18n/core";
 export function demoState(): AppState {
+  const english = getLang() === "en";
   const pet: Pet = {
     id: "demo-pet",
-    name: "橘总",
+    name: english ? "Boss Orange" : "橘总",
     species: "cat",
     personality: "傲娇",
     route: "work",
@@ -12,17 +14,23 @@ export function demoState(): AppState {
   const samples = [
     {
       category: "sleep" as const,
-      description: "橘总今天在窗边睡了一整个下午，叫都叫不醒。",
+      description: english
+        ? "Boss Orange slept by the window all afternoon and would not wake up."
+        : "橘总今天在窗边睡了一整个下午，叫都叫不醒。",
       published: true,
     },
     {
       category: "snack" as const,
-      description: "趁我转身的时候，它偷吃了一块小鱼干。",
+      description: english
+        ? "The moment I turned around, he stole a piece of dried fish."
+        : "趁我转身的时候，它偷吃了一块小鱼干。",
       published: false,
     },
     {
       category: "walk" as const,
-      description: "今天带它出门散步，它在树下停了很久。",
+      description: english
+        ? "Took him out for a walk today and he stopped under a tree for ages."
+        : "今天带它出门散步，它在树下停了很久。",
       published: true,
     },
   ];
