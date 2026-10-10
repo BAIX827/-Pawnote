@@ -46,3 +46,6 @@ yarn-error.*
 # AI gateway
 server/.env
 server/data/
+
+# GitHub Pages export
+web-build/
