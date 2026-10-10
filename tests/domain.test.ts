@@ -166,7 +166,7 @@ test("主人视角改写为宠物第一人称，并从原话猜出标签", () =>
 test("英文界面下词条、称号与本机故事使用英文，未收录的文字原样显示", () => {
   applyLang("en");
   try {
-    assert.equal(t("街区"), "Town");
+    assert.equal(t("爪窝"), "Home");
     assert.equal(t("全部 {n}", { n: 3 }), "All 3");
     assert.equal(t("主人自己写的话"), "主人自己写的话");
     const pet = demoState().pet!;

@@ -233,7 +233,7 @@ export default function Home() {
           </View>
           <Pressable
             accessibilityRole="button"
-            accessibilityLabel={latest ? t("制作最新记录的喵闻") : t("记录小事制作喵闻")}
+            accessibilityLabel={latest ? t("制作最新记录的爪报") : t("记录小事制作爪报")}
             onPress={() =>
               latest
                 ? router.push({ pathname: "/news", params: { id: latest.id } })
@@ -255,7 +255,7 @@ export default function Home() {
               ]}
             >
               <View style={styles.between}>
-                <Text style={styles.caps}>{t("THE PAW TIMES · 独家")}</Text>
+                <Text style={styles.caps}>{t("PAW POST · 独家")}</Text>
                 <Icon name="arrow-up-right" color={colors.ink} />
               </View>
               <Text
@@ -272,7 +272,7 @@ export default function Home() {
                   paddingVertical: 4,
                 }}
               >
-                {t("今日喵闻")}
+                {t("爪报")}
               </Text>
               <Text style={[styles.h2, { fontSize: 19 }]} numberOfLines={3}>
                 {latest ? latest.stories.news.title : t("头条，等你来写")}
@@ -291,7 +291,7 @@ export default function Home() {
           />
           <Text style={[styles.h2, { fontSize: 26, lineHeight: 34 }]}>{t("最近发生")}</Text>
         </View>
-        <Button label={t("翻开手账")} tone="plain" onPress={() => router.push("/profile")} />
+        <Button label={t("翻开爪册")} tone="plain" onPress={() => router.push("/profile")} />
       </View>
       {state.events.length ? (
         <View style={{ gap: 20 }}>
@@ -330,7 +330,7 @@ export default function Home() {
               </Text>
               <View style={{ flex: 1, gap: 4 }}>
                 <Text style={styles.small}>
-                  {formatDate(e.createdAt)} · {e.published ? t("本机毛圈") : t("私密")}
+                  {formatDate(e.createdAt)} · {e.published ? t("本机爪友圈") : t("私密")}
                 </Text>
                 <Text style={[styles.h2, { fontSize: 18, lineHeight: 26 }]} numberOfLines={2}>
                   {e.stories[e.selectedStyle].title}

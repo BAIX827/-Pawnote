@@ -15,7 +15,7 @@ export async function exportNews(event: LifeEvent, view?: View | null) {
   const uri = await captureRef(view, { format: "png", result: "tmpfile" });
   try {
     await Sharing.shareAsync(uri, {
-      mimeType: "image/png", UTI: "public.png", dialogTitle: `${event.petSnapshot.name}的今日喵闻`,
+      mimeType: "image/png", UTI: "public.png", dialogTitle: `${event.petSnapshot.name}的爪报`,
     });
   } finally {
     releaseCapture(uri);

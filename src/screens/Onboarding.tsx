@@ -177,7 +177,7 @@ export default function Onboarding({ editing = false }: { editing?: boolean }) {
               borderRadius: 22,
               borderWidth: 1.5,
               borderColor: colors.edge,
-              boxShadow: `4px 4px 0px ${colors.ink}`,
+              boxShadow: "0px 8px 24px rgba(150, 110, 80, 0.16)",
               padding: wide ? 30 : 20,
               gap: 20,
             }}
@@ -192,7 +192,7 @@ export default function Onboarding({ editing = false }: { editing?: boolean }) {
                 gap: 22,
               }}
             >
-              <Portrait pet={preview} size={wide ? 170 : 76} />
+              <Portrait pet={preview} demo={editing && state.demo} size={wide ? 170 : 76} />
               <View
                 style={{
                   alignItems: wide ? "center" : "flex-start",
@@ -218,7 +218,7 @@ export default function Onboarding({ editing = false }: { editing?: boolean }) {
                 {editing ? t("编辑宠物档案") : t("办理毛孩居民证")}
               </Text>
             </View>
-            <Avatar pet={preview} size={54} />
+            <Avatar pet={preview} demo={editing && state.demo} size={54} />
           </View>
           <View>
             <Label>{t("01 / 名字")}</Label>

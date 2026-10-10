@@ -7,7 +7,7 @@ import { colors, Icon, shadow, Sticker, Wobble } from "./ui";
 export default function Neighborhood({ work }: { work: boolean }) {
   const districts = [
     {
-      label: t("日记小屋"),
+      label: t("爪册小屋"),
       route: "/profile" as const,
       icon: "book-open" as const,
       color: colors.orange,
@@ -23,7 +23,7 @@ export default function Neighborhood({ work }: { work: boolean }) {
       tilt: 1,
     },
     {
-      label: t("毛圈广场"),
+      label: t("爪友圈"),
       route: "/circle" as const,
       icon: "message-circle" as const,
       color: colors.lavender,

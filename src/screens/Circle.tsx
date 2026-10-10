@@ -36,8 +36,8 @@ export default function Circle() {
       ]}
     >
       <Heading
-        title={t("毛圈广场")}
-        eyebrow={t("公告墙 · 本机毛圈")}
+        title={t("爪友圈")}
+        eyebrow={t("公告墙 · 本机爪友圈")}
         accent={colors.sky}
         action={
           <Button label={t("贴一条")} icon="edit-3" onPress={() => router.push("/record")} />
@@ -145,7 +145,7 @@ export default function Circle() {
         <Empty
           title={photosOnly ? t("还没有照片动态") : t("公告墙等着第一条动态")}
           subtitle={
-            photosOnly ? undefined : t("保存日记时，勾选「贴到本机毛圈」。")
+            photosOnly ? undefined : t("保存日记时，勾选「贴到本机爪友圈」。")
           }
           action={
             <Button

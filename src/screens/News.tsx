@@ -34,7 +34,7 @@ export default function News() {
     return (
       <Empty
         title={t("先记录一件小事")}
-        subtitle={t("保存日常后，再来制作个人喵闻。")}
+        subtitle={t("保存日常后，再来制作爪报。")}
         action={
           <Button label={t("记录今天")} onPress={() => router.replace("/record")} />
         }
@@ -45,8 +45,8 @@ export default function News() {
       style={{ gap: 22, maxWidth: 740, width: "100%", alignSelf: "center" }}
     >
       <Heading
-        title={t("喵闻编辑部")}
-        eyebrow={t("THE DAILY PAW · 号外")}
+        title={t("爪报编辑部")}
+        eyebrow={t("PAW POST · 号外")}
         accent={colors.sky}
         action={<Button label={t("返回")} tone="plain" onPress={() => router.replace("/")} />}
       />
@@ -81,10 +81,10 @@ export default function News() {
             color: colors.ink,
           }}
         >
-          {t("今日喵闻")}
+          {t("爪报")}
         </Text>
         <Text style={[styles.small, { textAlign: "center", letterSpacing: 3 }]}>
-          THE DAILY PAW
+          PAW POST
         </Text>
         <View style={{ height: 4, backgroundColor: colors.ink }} />
         <Text

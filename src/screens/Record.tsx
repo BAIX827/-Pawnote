@@ -110,8 +110,8 @@ export default function Record() {
   const labels: Record<StoryStyle, string> = {
     diary: t("内心独白"),
     life: pet.route === "work" ? t("打工日记") : t("校园日记"),
-    social: t("毛圈动态"),
-    news: t("今日喵闻"),
+    social: t("爪友圈动态"),
+    news: t("爪报"),
   };
   function patch(changes: Partial<Draft>) {
     update((s) => ({ ...s, draft: { ...(s.draft ?? seed), ...changes } }));
@@ -223,7 +223,7 @@ export default function Record() {
   return (
     <View style={{ gap: 22, maxWidth: 760, width: "100%", alignSelf: "center" }}>
       <Heading
-        title={t("宠语翻译机")}
+        title={t("爪语")}
         eyebrow={t("你说人话 → {name}说{kind}话", { name: pet.name, kind: self.length > 1 ? self.slice(1) : t("自己的") })}
         accent={colors.pink}
         action={
@@ -495,7 +495,7 @@ export default function Record() {
 
       <Pressable
         accessibilityRole="checkbox"
-        accessibilityLabel={t("发布到本机毛圈")}
+        accessibilityLabel={t("发布到本机爪友圈")}
         accessibilityState={{ checked: draft.published }}
         aria-checked={draft.published}
         onPress={() => patch({ published: !draft.published })}
@@ -516,7 +516,7 @@ export default function Record() {
           {draft.published && <Icon name="check" color="#FFF" size={16} />}
         </View>
         <View style={{ flex: 1 }}>
-          <Text style={[styles.body, { fontWeight: "700" }]}>{t("贴到本机毛圈")}</Text>
+          <Text style={[styles.body, { fontWeight: "700" }]}>{t("贴到本机爪友圈")}</Text>
           <Text style={styles.small}>{t("当前口吻 · 仅此设备可见")}</Text>
         </View>
       </Pressable>

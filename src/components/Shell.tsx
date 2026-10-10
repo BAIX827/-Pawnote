@@ -17,10 +17,10 @@ import { exportBackup } from "../platform/export";
 import { Avatar, Button, Icon, Wash, Wobble, colors, display, shadow, styles } from "./ui";
 import RestoreBackup from "./RestoreBackup";
 const nav = [
-  { route: "/", label: "街区", icon: "home" as const },
-  { route: "/life", label: "人生", icon: "briefcase" as const },
-  { route: "/circle", label: "毛圈", icon: "message-circle" as const },
-  { route: "/profile", label: "手账", icon: "book-open" as const },
+  { route: "/", label: "爪窝", icon: "home" as const },
+  { route: "/life", label: "爪迹", icon: "briefcase" as const },
+  { route: "/circle", label: "爪友圈", icon: "message-circle" as const },
+  { route: "/profile", label: "爪册", icon: "book-open" as const },
 ];
 export default function Shell({ children }: { children: React.ReactNode }) {
   const { width } = useWindowDimensions();
@@ -205,7 +205,7 @@ export default function Shell({ children }: { children: React.ReactNode }) {
             {state.pet ? (
               <Pressable
                 accessibilityRole="button"
-                accessibilityLabel={t("打开手账")}
+                accessibilityLabel={t("打开爪册")}
                 onPress={() => router.navigate("/profile")}
                 style={[styles.row, { gap: 9 }]}
               >

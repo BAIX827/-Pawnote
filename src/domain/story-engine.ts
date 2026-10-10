@@ -205,7 +205,7 @@ export function generateStory(
   const life = pet.route === "work" ? v.work : v.campus;
   const text =
     style === "news"
-      ? `本报讯｜据${owner}向本报爆料：“${fact}”\n\n当事${speciesLabel(pet)} ${pet.name} 随后回应：“${said.text}”\n\n在毛孩世界里，这被写进了${pet.route === "work" ? "营业" : "校园"}档案。${life}\n\n${variant % 2 ? "这件小事，已收录进毛孩人生特刊。" : "以上为基于主人记录的虚构娱乐报道。"}`
+      ? `本报讯｜据${owner}向本报爆料：“${fact}”\n\n当事${speciesLabel(pet)} ${pet.name} 随后回应：“${said.text}”\n\n在毛孩世界里，这被写进了${pet.route === "work" ? "营业" : "校园"}档案。${life}\n\n${variant % 2 ? "这件小事，已收录进爪报特刊。" : "以上为基于主人记录的虚构娱乐报道。"}`
       : style === "life"
         ? `【${pet.route === "work" ? "今日工作纪要" : "今日课堂笔记"}】\n1. ${said.text}\n2. ${life}\n备注：${mine.closer}${note}`
         : style === "social"

@@ -26,7 +26,7 @@ export default function Profile() {
   return (
     <View style={styles.stack}>
       <Heading
-        title={t("我的手账")}
+        title={t("爪册")}
         eyebrow={t("居民档案 · JOURNAL")}
         accent={colors.lilac}
         action={
@@ -167,7 +167,7 @@ export default function Profile() {
                 <View style={[styles.between, { flexWrap: "wrap" }]}>
                   <Text style={styles.small}>{formatDate(e.createdAt)}</Text>
                   <Tag bg={e.published ? colors.green : colors.paper}>
-                    {e.published ? t("本机毛圈") : t("私密")}
+                    {e.published ? t("本机爪友圈") : t("私密")}
                   </Tag>
                 </View>
                 <Pressable
@@ -211,7 +211,7 @@ export default function Profile() {
                     {e.petSnapshot.route === "work" ? t("职场") : t("校园")}
                   </Text>
                   <Button
-                    label={t("制作喵闻")}
+                    label={t("制作爪报")}
                     tone="plain"
                     onPress={() =>
                       router.push({ pathname: "/news", params: { id: e.id } })

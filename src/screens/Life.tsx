@@ -53,7 +53,7 @@ export default function Life() {
   return (
     <View style={styles.stack}>
       <Heading
-        title={t("毛孩人生")}
+        title={t("爪迹")}
         eyebrow={work ? t("职场路线 · CAREER") : t("校园路线 · CAMPUS")}
         accent={soft}
       />

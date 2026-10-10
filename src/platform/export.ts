@@ -12,7 +12,7 @@ function download(content: string, filename: string, mime: string) {
 export async function exportNews(event: LifeEvent, _view?: View | null) {
     download(
       newsSVG(event),
-      `今日喵闻-${event.id}.svg`,
+      `爪报-${event.id}.svg`,
       "image/svg+xml;charset=utf-8",
     );
 }

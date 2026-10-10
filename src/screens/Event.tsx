@@ -38,7 +38,7 @@ export default function Event() {
     return (
       <Empty
         title={t("这条记录已移除")}
-        subtitle={t("在手账中查看其他记录。")}
+        subtitle={t("在爪册中查看其他记录。")}
         action={
           <Button label={t("返回档案")} onPress={() => router.replace("/profile")} />
         }
@@ -47,8 +47,8 @@ export default function Event() {
   const labels: Record<StoryStyle, string> = {
     diary: t("内心独白"),
     life: event.petSnapshot.route === "work" ? t("打工日记") : t("校园日记"),
-    social: t("毛圈动态"),
-    news: t("今日喵闻"),
+    social: t("爪友圈动态"),
+    news: t("爪报"),
   };
   return (
     <View
@@ -64,7 +64,7 @@ export default function Event() {
         eyebrow={`${formatDate(event.createdAt)} · ${t(event.petSnapshot.role)}`}
         accent={tones[style]}
         action={
-          <Button label={t("返回手账")} tone="plain" onPress={() => router.replace("/profile")} />
+          <Button label={t("返回爪册")} tone="plain" onPress={() => router.replace("/profile")} />
         }
       />
       {event.photo && (
@@ -144,7 +144,7 @@ export default function Event() {
         </Text>
         <View style={[styles.row, { flexWrap: "wrap" }]}>
           <Button
-            label={t("制作喵闻卡")}
+            label={t("制作爪报卡")}
             icon="file-text"
             tone="soft"
             onPress={() =>
