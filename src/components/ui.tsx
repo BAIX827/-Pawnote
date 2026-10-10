@@ -14,6 +14,7 @@ import {
 import type Feather from "@expo/vector-icons/Feather";
 import Icon from "./Icon";
 import { Pet } from "../domain/types";
+import { speciesEmoji } from "../domain/pet-profile";
 export { default as Icon } from "./Icon";
 export const colors = {
   bg: "#FAF9F6",
@@ -232,7 +233,7 @@ export function Avatar({
       }}
     >
       <Text style={{ fontSize: size * 0.5 }}>
-        {pet.species === "cat" ? "🐈" : "🐕"}
+        {speciesEmoji(pet)}
       </Text>
     </View>
   );

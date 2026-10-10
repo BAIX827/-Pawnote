@@ -1,4 +1,4 @@
-import { AppState, CATEGORIES, STYLES } from "../domain/types";
+import { AppState, CATEGORIES, SPECIES, STYLES } from "../domain/types";
 const obj = (v: unknown): v is Record<string, unknown> =>
   !!v && typeof v === "object" && !Array.isArray(v);
 const str = (v: unknown, max: number) =>
@@ -9,13 +9,26 @@ const photo = (v: unknown) =>
   v === undefined ||
   (str(v, 1000000) &&
     /^data:image\/jpeg;base64,[A-Za-z0-9+/=]+$/.test(v as string));
+const optionalInt = (v: unknown, max: number) => v === undefined || (Number.isInteger(v) && (v as number) >= 0 && (v as number) <= max);
+const questionnaire = (v: unknown) => v === undefined || (obj(v) && v.version === 1 && Array.isArray(v.answers) &&
+  v.answers.length === 5 && v.answers.every(a => Number.isInteger(a) && a >= 0 && a <= 3) && v.answers.filter(a => a < 3).length >= 3);
 const pet = (v: unknown) =>
   obj(v) &&
   str(v.id, 100) &&
   str(v.name, 20) &&
   (v.name as string).trim().length > 0 &&
-  one(v.species, ["cat", "dog"]) &&
-  one(v.personality, ["傲娇", "憨厚", "戏精"]) &&
+  one(v.species, SPECIES) &&
+  (v.speciesName === undefined || str(v.speciesName, 20)) &&
+  (v.species !== "other" || (str(v.speciesName, 20) && (v.speciesName as string).trim().length > 0)) &&
+  str(v.personality, 60) && (v.personality as string).trim().length > 0 &&
+  (v.personalitySource === undefined || one(v.personalitySource, ["tag", "custom", "questionnaire"])) &&
+  questionnaire(v.questionnaire) &&
+  (v.personalitySource !== "questionnaire" || v.questionnaire !== undefined) &&
+  optionalInt(v.ageMonths, 1200) &&
+  (v.ageRecordedAt === undefined || (str(v.ageRecordedAt, 40) && Number.isFinite(Date.parse(v.ageRecordedAt as string)))) &&
+  (v.routeSource === undefined || one(v.routeSource, ["age", "manual"])) &&
+  (v.routeSource !== "age" || ((v.species === "cat" || v.species === "dog") && v.ageMonths !== undefined &&
+    v.route === ((v.ageMonths as number) < 12 ? "campus" : "work"))) &&
   one(v.route, ["work", "campus"]) &&
   str(v.role, 30) &&
   photo(v.avatar);

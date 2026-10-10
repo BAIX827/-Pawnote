@@ -6,6 +6,7 @@ import { formatDate } from "../domain/types";
 import { exportBackup } from "../platform/export";
 import { Avatar, Button, Card, Empty, Tag, styles } from "../components/ui";
 import Onboarding from "./Onboarding";
+import { ageLabel, speciesLabel } from "../domain/pet-profile";
 import RestoreBackup from "../components/RestoreBackup";
 export default function Profile() {
   const { state, reset, notify } = useStore();
@@ -34,10 +35,10 @@ export default function Profile() {
           <View style={{ flex: 1 }}>
             <Text style={styles.h2}>{pet.name}</Text>
             <Text style={styles.muted}>
-              {pet.species === "cat" ? "猫猫" : "狗狗"} · {pet.personality} ·{" "}
+              {speciesLabel(pet)} · {pet.personality} ·{" "}
               {pet.route === "work" ? "职场路线" : "校园路线"}
             </Text>
-            <Text style={styles.small}>{pet.role}</Text>
+            <Text style={styles.small}>{ageLabel(pet.ageMonths)} · {pet.role}</Text>
           </View>
           <Tag>{state.demo ? "示例居民" : "毛孩市居民"}</Tag>
         </View>

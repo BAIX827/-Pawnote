@@ -10,6 +10,74 @@ import {
 import { escapeXML, newsSVG } from "../src/domain/news-card";
 import { Pet, newDraft } from "../src/domain/types";
 import { MAX_BACKUP_BYTES, parseBackup } from "../src/domain/backup";
+import { ageLabel, parseAge, questionnaireTraits, recommendRoute, speciesEmoji, speciesLabel } from "../src/domain/pet-profile";
+import { SPECIES } from "../src/domain/types";
+test("新物种和自定义性格可生成、备份，旧猫狗备份保持兼容", () => {
+  assert.equal(isAppState(demoState()), true);
+  assert.doesNotThrow(() => generateStories({ ...demoState().pet!, personality: "constructor" }, "在休息。", "other"));
+  for (const species of SPECIES) {
+    const state = demoState();
+    state.pet = { ...state.pet!, species, ...(species === "other" ? { speciesName: "蜜袋鼯" } : {}),
+      personality: "慢热但亲人，喜欢安静地观察", personalitySource: "custom", ageMonths: 8, routeSource: "manual" };
+    const stories = generateStories(state.pet, "今天在自己的角落休息。", "other");
+    for (const story of Object.values(stories)) {
+      assert.ok(story.text.includes("今天在自己的角落休息。"));
+      assert.ok(!story.text.includes("undefined"));
+    }
+    if (species !== "cat") assert.ok(!stories.diary.text.includes("本喵"));
+    if (species !== "dog") assert.ok(!stories.diary.text.includes("本汪"));
+    assert.ok(speciesEmoji(state.pet));
+    if (species === "other") assert.equal(speciesLabel(state.pet), "蜜袋鼯");
+    if (species === "lizard") assert.equal(speciesLabel(state.pet), "蜥蜴");
+    if (species === "rabbit") assert.equal(speciesLabel(state.pet), "兔子");
+    assert.deepEqual(parseBackup(JSON.stringify(state)), state);
+    assert.equal(state.events[0].petSnapshot.species, "cat");
+  }
+});
+test("猫狗年龄推荐守住12个月边界，其他物种和未知年龄由主人选择", () => {
+  assert.equal(parseAge("", ""), undefined);
+  assert.equal(parseAge("", "8"), 8);
+  assert.equal(parseAge("1", "0"), 12);
+  assert.equal(parseAge("100", "0"), 1200);
+  for (const species of ["cat", "dog"] as const) {
+    assert.equal(recommendRoute(species, 0), "campus");
+    assert.equal(recommendRoute(species, 11), "campus");
+    assert.equal(recommendRoute(species, 12), "work");
+    assert.equal(recommendRoute(species), undefined);
+    assert.equal(recommendRoute(species, -1), undefined);
+  }
+  assert.equal(recommendRoute("rabbit", 12), undefined);
+  assert.equal(recommendRoute("lizard", 12), undefined);
+  assert.equal(ageLabel(14), "1 岁 2 个月");
+  for (const [y, m] of [["1", "12"], ["-1", "0"], ["1.5", "0"], ["100", "1"], ["0", "x"]])
+    assert.throws(() => parseAge(y, m));
+  const state = demoState();
+  state.pet = { ...state.pet!, ageMonths: 2, route: "work", routeSource: "manual" };
+  assert.equal(isAppState(state), true);
+  state.pet.routeSource = "age";
+  assert.equal(isAppState(state), false);
+  state.pet.route = "campus";
+  assert.equal(isAppState(state), true);
+});
+test("问卷按已有观察汇总，缺答和观察不足不生成，回答与历史快照可保存", () => {
+  const answers = [0, 0, 0, 2, 2];
+  assert.deepEqual(questionnaireTraits(answers), ["活泼", "好奇", "亲人"]);
+  assert.throws(() => questionnaireTraits([0, 0]));
+  assert.throws(() => questionnaireTraits([0, 0, -1, 3, 3]));
+  assert.throws(() => questionnaireTraits([3, 3, 3, 0, 0]));
+  assert.ok(questionnaireTraits([0, 0, 0, 3, 3]).length > 0);
+  const state = demoState();
+  state.pet = { ...state.pet!, personality: questionnaireTraits(answers).join(" · "),
+    personalitySource: "questionnaire", questionnaire: { version: 1, answers } };
+  const next = saveEvent(state, { ...state.events[0], id: "quiz-event", petSnapshot: { ...state.pet },
+    stories: generateStories(state.pet, "观察窗边的新玩具。", "other") });
+  assert.deepEqual(parseBackup(JSON.stringify(next)).events[0].petSnapshot.questionnaire?.answers, answers);
+  const signature = generationSignature(state.pet, "观察窗边的新玩具。", "other");
+  assert.notEqual(signature, generationSignature({ ...state.pet, ageMonths: 8 }, "观察窗边的新玩具。", "other"));
+  state.pet.questionnaire!.answers = [9, 0, 0, 0, 0];
+  assert.equal(isAppState(state), false);
+  assert.throws(() => parseBackup(JSON.stringify({ ...state, pet: { ...state.pet, species: "unknown" } })));
+});
 test("备份往返保留图片、私密状态、历史人设和草稿", () => {
   const state = demoState();
   state.pet!.avatar = "data:image/jpeg;base64,YQ==";

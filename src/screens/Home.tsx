@@ -10,6 +10,7 @@ import { router } from "expo-router";
 import { useStore } from "../data/store";
 import { progress, titleFor } from "../domain/life";
 import { formatDate } from "../domain/types";
+import { speciesEmoji } from "../domain/pet-profile";
 import {
   Avatar,
   Button,
@@ -77,7 +78,7 @@ export default function Home() {
               <Tag style={{ backgroundColor: "#FFF8EF", color: "#9B643F" }}>
                 {pet.route === "work"
                   ? "毛孩集团 · 今日在岗"
-                  : "猫狗联合学院 · 在校生"}
+                  : "宠物联合学院 · 在校生"}
               </Tag>
               <Text style={[styles.h1, { fontSize: width < 500 ? 28 : 35 }]}>
                 {pet.name}
@@ -126,7 +127,7 @@ export default function Home() {
                   }}
                 >
                   <Text style={{ fontSize: width < 500 ? 53 : 100 }}>
-                    {pet.species === "cat" ? "🐈" : "🐕"}
+                    {speciesEmoji(pet)}
                   </Text>
                 </View>
               )}

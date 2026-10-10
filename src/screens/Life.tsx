@@ -5,6 +5,7 @@ import { useStore } from "../data/store";
 import { progress, titleFor } from "../domain/life";
 import { Avatar, Button, Card, Tag, colors, styles } from "../components/ui";
 import Onboarding from "./Onboarding";
+import { ageLabel, speciesLabel } from "../domain/pet-profile";
 export default function Life() {
   const { state } = useStore();
   const { width } = useWindowDimensions();
@@ -43,8 +44,8 @@ export default function Life() {
               <Text style={[styles.h1, { fontSize: 31 }]}>{pet.name}</Text>
               <Text style={styles.body}>{pet.role}</Text>
               <Text style={styles.small}>
-                {pet.species === "cat" ? "猫猫居民" : "狗狗居民"} ·{" "}
-                {pet.personality}
+                {speciesLabel(pet)}居民 ·{" "}
+                {pet.personality} · {ageLabel(pet.ageMonths)}
               </Text>
             </View>
           </View>

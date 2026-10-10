@@ -46,10 +46,20 @@ const incidents: Record<
     title: "毛孩生活档案新增一段独家记录",
   },
 };
-const voices = {
+const voices: Record<string, string> = {
   傲娇: "本喵自有安排。",
   憨厚: "能和你一起过这一天，我很开心。",
   戏精: "请把聚光灯给我，今日主角已就位！",
+  亲人: "这一页，要和你一起收藏。",
+  独立: "我的生活节奏，由我安排。",
+  活泼: "今天的生活，继续元气营业！",
+  慢热: "慢慢熟悉，慢慢把故事写好。",
+  好奇: "小小的世界，还有好多值得观察。",
+  稳重: "稳稳当当地，把这一天记下来。",
+  敏感: "给我一点空间，按自己的节奏就好。",
+  随和: "按平常的节奏，过好今天。",
+  有主见: "关于我的故事，我有自己的想法。",
+  温柔: "轻轻收藏，今天的小日子。",
 };
 export const generationSignature = (
   pet: Pet,
@@ -60,6 +70,8 @@ export const generationSignature = (
     pet.id,
     pet.name,
     pet.species,
+    pet.speciesName,
+    pet.ageMonths,
     pet.personality,
     pet.route,
     pet.role,
@@ -77,10 +89,10 @@ export function generateStory(
   if (!fact || fact.length > 500)
     throw new Error("请填写 1–500 字的真实日常。");
   const v = incidents[category];
-  const voice =
-    pet.species === "dog"
-      ? voices[pet.personality].replace("本喵", "本汪")
-      : voices[pet.personality];
+  const pronoun = pet.species === "cat" ? "本喵" : pet.species === "dog" ? "本汪"
+    : pet.species === "rabbit" ? "本兔" : pet.species === "lizard" ? "本蜥" : "我";
+  const voice = (Object.hasOwn(voices, pet.personality) ? voices[pet.personality]
+    : `我的性格小档案：${pet.personality}。这一页，按自己的节奏写。`).replace("本喵", pronoun);
   const suffix = variant % 2 ? "好了，今天的营业到这里。" : voice;
   const perspective =
     style === "life"
