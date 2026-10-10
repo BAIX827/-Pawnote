@@ -193,6 +193,15 @@ export default function Shell({ children }: { children: React.ReactNode }) {
                 </Text>
               </View>
             )}
+            <View style={[styles.row, { gap: 14 }]}>
+            <Pressable
+              accessibilityRole="button"
+              accessibilityLabel={t("设置")}
+              onPress={() => router.navigate("/settings")}
+              hitSlop={10}
+            >
+              <Icon name="settings" color={colors.muted} size={22} />
+            </Pressable>
             {state.pet ? (
               <Pressable
                 accessibilityRole="button"
@@ -211,6 +220,7 @@ export default function Shell({ children }: { children: React.ReactNode }) {
             ) : (
               <Text style={styles.small}>{t("居民登记处")}</Text>
             )}
+            </View>
           </View>
           {state.demo && (
             <View

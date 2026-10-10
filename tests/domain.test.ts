@@ -15,6 +15,7 @@ import { MAX_BACKUP_BYTES, parseBackup } from "../src/domain/backup";
 import { ageLabel, parseAge, questionnaireTraits, recommendRoute, speciesEmoji, speciesLabel } from "../src/domain/pet-profile";
 import { SPECIES } from "../src/domain/types";
 import { applyLang, t } from "../src/i18n/core";
+import { temperOf } from "../src/domain/temper";
 applyLang("zh");
 test("新物种和自定义性格可生成、备份，旧猫狗备份保持兼容", () => {
   assert.equal(isAppState(demoState()), true);
@@ -174,11 +175,28 @@ test("英文界面下词条、称号与本机故事使用英文，未收录的�
       assert.ok(story.text.includes("He stole a fish."));
       assert.ok(!/[\u4e00-\u9fff]/.test(story.title + story.text));
     }
-    assert.match(stories.diary.text, /^My human wrote/);
+    assert.match(stories.diary.text, /^The staff wrote/);
+    assert.match(stories.diary.text, /left unattended/);
+    assert.match(generateStories({ ...pet, species: "dog", personality: "亲人" }, "We went out.", "walk").diary.text, /^My human wrote[\s\S]*i kept looking back/);
     assert.equal(isAppState(demoState()), true);
   } finally {
     applyLang("zh");
   }
+});
+test("同一件事按性格写出不同口吻，未知性格按物种取默认", () => {
+  const cat = demoState().pet!;
+  const said = (personality: string, species: Pet["species"] = "cat") =>
+    generateStories({ ...cat, species, personality }, "它把杯子推下去了。", "chaos").diary.text;
+  assert.match(said("傲娇"), /碰巧伸了爪子/);
+  assert.match(said("亲人"), /不是故意的/);
+  assert.match(said("活泼"), /它先动的手/);
+  assert.match(said("稳重"), /地心引力/);
+  assert.match(said("敏感"), /吓了一跳/);
+  assert.match(said("慢热但亲人，喜欢安静地观察"), /吓了一跳/);
+  assert.match(said("说不清", "dog"), /不是故意的/);
+  assert.match(said("说不清", "turtle"), /地心引力/);
+  assert.equal(temperOf({ ...cat, personality: "活泼 · 好奇 · 亲人" }), "hyper");
+  assert.match(generateStories({ ...cat, ownerTitle: "妈妈", personality: "亲人" }, "带它散步。", "walk").diary.text, /妈妈都在/);
 });
 test("四种风格保留真实描述，人设变化使生成签名失效", () => {
   const s = demoState(),

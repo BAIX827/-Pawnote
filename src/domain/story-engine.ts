@@ -1,10 +1,10 @@
 import { Category, Pet, Stories, Story, StoryStyle } from "./types";
 import { speciesLabel } from "./pet-profile";
 import { getLang, t } from "../i18n/core";
+import { reaction } from "./temper";
 const incidents: Record<
   Category,
   {
-    diary: string[];
     work: string;
     campus: string;
     social: string;
@@ -13,10 +13,6 @@ const incidents: Record<
   }
 > = {
   sleep: {
-    diary: [
-      "梦里已经把生活安排得明明白白，醒来只需要伸个懒腰。",
-      "睡觉这件事，我是认真的。姿势换了三个，都很成功。",
-    ],
     work: "沉浸式带薪休息研究已完成。工作可以等，午觉的黄金窗口只有一次。",
     campus: "睡眠研究课已完成实地实践。闭眼认真听讲，也是我的学习方式。",
     social: "忙了一下午，忙着把梦做完。",
@@ -24,10 +20,6 @@ const incidents: Record<
     topic: "睡觉这件事",
   },
   snack: {
-    diary: [
-      "食物路过我的嘴，这是一场命中注定的相遇。",
-      "味道不错，建议常备。下次请直接放在我够得到的地方。",
-    ],
     work: "作为零食鉴定员，我对产品进行了深入抽样。建议补货，继续研究。",
     campus: "食堂风味调研已完成，样本数量仍有提升空间。申请下一轮实践经费。",
     social: "尝一口是礼貌，多尝几口是对食物的尊重。",
@@ -35,10 +27,6 @@ const incidents: Record<
     topic: "吃这件事",
   },
   bath: {
-    diary: [
-      "身上的香味，我暂时保留意见。",
-      "水是湿的，这一点事先没有人通知我。",
-    ],
     work: "清洁主题团建已参加，并当场提出用零食补偿的建议。",
     campus: "卫生实践课顺利结束，建议下次改为阳光浴选修课。",
     social: "今日新造型：香香的，有点委屈的。",
@@ -46,10 +34,6 @@ const incidents: Record<
     topic: "洗澡这件事",
   },
   chaos: {
-    diary: [
-      "艺术创作，总需要一点动静。",
-      "我只是想看看它掉下去是什么样子。现在知道了。",
-    ],
     work: "环境结构压力测试已完成。项目经验增加，预算请另行讨论。",
     campus: "空间改造实践作业已提交，期待老师给出有创意的评语。",
     social: "关于今天的现场，我选择把它称为创作过程。",
@@ -57,10 +41,6 @@ const incidents: Record<
     topic: "今天的现场",
   },
   walk: {
-    diary: [
-      "外面的每一阵风都带着新消息，我都收到了。",
-      "这一带归我巡视，今天一切正常。",
-    ],
     work: "外勤巡逻结束，沿途气味信息已收集。申请零食作为差旅补助。",
     campus: "户外观察课已完成，气味地图又增加了一页。",
     social: "出门巡逻，顺便让人类运动一下。",
@@ -68,31 +48,12 @@ const incidents: Record<
     topic: "出门这件事",
   },
   other: {
-    diary: [
-      "这件小事，也值得放进我的人生档案。",
-      "日子就是这样一件一件小事攒起来的。",
-    ],
     work: "已将这段日常归档为今日工作纪要。",
     campus: "已将这段日常收录为校园生活笔记。",
     social: "我的生活，又添了一条值得记住的动态。",
     title: "毛孩生活档案新增一段独家记录",
     topic: "今天这件事",
   },
-};
-const voices: Record<string, string> = {
-  傲娇: "本喵自有安排。",
-  憨厚: "能和你一起过这一天，我很开心。",
-  戏精: "请把聚光灯给我，今日主角已就位！",
-  亲人: "这一页，要和你一起收藏。",
-  独立: "我的生活节奏，由我安排。",
-  活泼: "今天的生活，继续元气营业！",
-  慢热: "慢慢熟悉，慢慢把故事写好。",
-  好奇: "小小的世界，还有好多值得观察。",
-  稳重: "稳稳当当地，把这一天记下来。",
-  敏感: "给我一点空间，按自己的节奏就好。",
-  随和: "按平常的节奏，过好今天。",
-  有主见: "关于我的故事，我有自己的想法。",
-  温柔: "轻轻收藏，今天的小日子。",
 };
 const SELF: Partial<Record<Pet["species"], string>> = {
   cat: "本喵",
@@ -132,7 +93,7 @@ export const selfName = (pet: Pet) =>
   getLang() === "en" ? "I" : (SELF[pet.species] ?? "我");
 export const defaultOwnerName = (species: Pet["species"]) =>
   getLang() === "en"
-    ? "my human"
+    ? species === "cat" ? "the staff" : "my human"
     : species === "cat" ? "铲屎官" : species === "dog" ? "主人" : "我的人类";
 export const ownerName = (pet: Pet) =>
   pet.ownerTitle?.trim() || defaultOwnerName(pet.species);
@@ -230,9 +191,7 @@ export function generateStory(
   const self = selfName(pet),
     owner = ownerName(pet),
     said = toPetVoice(pet, fact);
-  const voice = (Object.hasOwn(voices, pet.personality) ? voices[pet.personality]
-    : `我的性格小档案：${pet.personality}。这一页，按自己的节奏写。`).replace("本喵", self);
-  const closer = variant % 2 ? "好了，今天的营业到这里。" : voice;
+  const mine = reaction(pet, category, owner, "zh", variant);
   const note = said.spin
     ? `\n（注：${owner}管这叫“${said.spin}”，${self}保留意见。）`
     : "";
@@ -244,7 +203,7 @@ export function generateStory(
         ? `【${pet.route === "work" ? "今日工作纪要" : "今日课堂笔记"}】\n${said.text}\n\n${life}${note}`
         : style === "social"
           ? `${said.text}${v.social}`
-          : `${said.text}\n\n${v.diary[variant % v.diary.length]}${closer}${note}`;
+          : `${said.text}\n\n${mine.line}\n${mine.closer}${note}`;
   const title =
     style === "news"
       ? `${pet.name}：${v.title}`
@@ -257,44 +216,38 @@ export function generateStory(
 }
 // English has no safe rule for swapping grammatical person, so the offline version quotes
 // the owner and lets the pet comment; the AI gateway provides a true first-person retelling.
-const asides: Record<Category, { diary: string[]; work: string; campus: string; social: string; title: string }> = {
+const asides: Record<Category, { work: string; campus: string; social: string; title: string }> = {
   sleep: {
-    diary: ["For the record, I was not asleep. I was reviewing the inside of my eyelids.", "Three positions tried, three positions mastered."],
     work: "Paid rest research completed. Work can wait; the afternoon nap window cannot.",
     campus: "Sleep studies: field practice complete. Listening with my eyes closed still counts.",
     social: "Busy afternoon. Had a dream to finish.",
     title: "Sleep researcher extends experiment yet again",
   },
   snack: {
-    diary: ["The food walked past my mouth. What happened next was fate.", "Tasty. Please keep it stocked, ideally where I can reach."],
     work: "As snack inspector, I sampled the product thoroughly. Recommend restocking for further study.",
     campus: "Cafeteria flavour survey done. Sample size still too small; requesting more funding.",
     social: "One bite is manners. A few more is respect.",
     title: "Snack sampling study reports early progress",
   },
   bath: {
-    diary: ["About the way I smell now: I am reserving judgement.", "Nobody told me in advance that water is wet."],
     work: "Attended the cleaning-themed team event and proposed compensation in treats.",
     campus: "Hygiene practical complete. Suggest replacing it with a sunbathing elective.",
     social: "New look today: fragrant, and slightly wronged.",
     title: "Bubble event sparks debate from the party involved",
   },
   chaos: {
-    diary: ["Art needs a little noise.", "I only wanted to see what it looks like when it falls. Now I know."],
     work: "Structural stress test of the environment complete. Budget to be discussed separately.",
     campus: "Space redesign assignment submitted. Looking forward to creative feedback.",
     social: "About today's scene: I prefer the term creative process.",
     title: "Creative renovation project draws household attention",
   },
   walk: {
-    diary: ["Every breeze out there carried news, and I read all of it.", "This patch is mine to patrol. All quiet today."],
     work: "Field patrol finished, scent data collected. Requesting treats as travel allowance.",
     campus: "Outdoor observation class complete. One more page in the scent map.",
     social: "Out on patrol, and took the human for some exercise.",
     title: "Neighbourhood patroller completes another field mission",
   },
   other: {
-    diary: ["Small as it is, this goes in my life file.", "Days are made of little things like this one."],
     work: "Filed under today's work notes.",
     campus: "Added to my campus notebook.",
     social: "One more moment worth keeping.",
@@ -305,15 +258,15 @@ function englishStory(pet: Pet, fact: string, category: Category, style: StorySt
   const v = asides[category], owner = ownerName(pet), work = pet.route === "work";
   const Owner = owner.charAt(0).toUpperCase() + owner.slice(1);
   const life = work ? v.work : v.campus;
-  const closer = variant % 2 ? "That is all from me today." : `Signed, ${pet.name}.`;
+  const mine = reaction(pet, category, owner, "en", variant);
   const text =
     style === "news"
-      ? `PAW DISPATCH | ${Owner} told this paper: "${fact}"\n\n${pet.name} was reached for comment: "${v.diary[0]}"\n\nIn the pet world this now sits in the ${work ? "work" : "campus"} file. ${life}\n\n${variant % 2 ? "This small story has been added to the special edition." : "This is fictional entertainment based on the owner's note."}`
+      ? `PAW DISPATCH | ${Owner} told this paper: "${fact}"\n\n${pet.name} was reached for comment: "${mine.line}"${pet.species === "dog" ? " Our rating: 13/10." : ""}\n\nIn the pet world this now sits in the ${work ? "work" : "campus"} file. ${life}\n\n${variant % 2 ? "This small story has been added to the special edition." : "This is fictional entertainment based on the owner's note."}`
       : style === "life"
         ? `[${work ? "Work log" : "Class notes"}]\n${Owner} wrote: "${fact}"\n\n${life}`
         : style === "social"
           ? `${Owner} says: "${fact}" ${v.social}`
-          : `${Owner} wrote: "${fact}"\n\nMy side of it: ${v.diary[variant % v.diary.length]} ${closer}`;
+          : `${Owner} wrote: "${fact}"\n\n${mine.line}\n${mine.closer}`;
   const title =
     style === "news"
       ? `${pet.name}: ${v.title}`

@@ -236,6 +236,8 @@ export const en: Record<string, string> = {
   制作喵闻: "Make news",
   日记本还是空的: "The diary is still empty",
   界面语言: "Language",
+  设置: "Settings",
+  "默认跟随设备语言。已保存的故事不会随语言改变。": "Follows your device language by default. Saved stories do not change with the language.",
   数据与备份: "Data and backup",
   "数据保存在当前设备。清理浏览器或换设备前，请导出备份。": "Data is stored on this device. Export a backup before clearing the browser or changing devices.",
   "备份含照片与全部记录。恢复上限 20 MB，确认后替换本机数据。": "A backup includes photos and all entries. Restores are limited to 20 MB and replace this device's data once confirmed.",

@@ -59,13 +59,42 @@ function parseRequest(body) {
   const { deviceId, region, pet, description } = body ?? {};
   if (!text(deviceId, 100) || !/^[\w-]+$/.test(deviceId)) return "deviceId";
   if (region !== "cn" && region !== "intl") return "region";
+  if (body.lang !== undefined && body.lang !== "zh" && body.lang !== "en") return "lang";
   if (!text(description, 500)) return "description";
   if (!pet || !text(pet.name, 20) || !text(pet.personality, 60) || !text(pet.owner, 10) || !text(pet.self, 10)) return "pet";
   if (pet.route !== "work" && pet.route !== "campus") return "pet.route";
   if (!(pet.species in SPECIES) && !text(pet.speciesName, 20)) return "pet.species";
   return null;
 }
-function prompt({ pet, description }) {
+const SPECIES_EN = { cat: "cat", dog: "dog", rabbit: "rabbit", lizard: "lizard", hamster: "hamster", guineaPig: "guinea pig", bird: "bird", turtle: "turtle", snake: "snake", fish: "fish" };
+// English is briefed in English and in its own registers; see docs/13 for the voice guide.
+function promptEn({ pet, description }) {
+  const kind = SPECIES_EN[pet.species] ?? pet.speciesName;
+  const work = pet.route === "work";
+  return [
+    {
+      role: "system",
+      content:
+        `Retell a pet owner's note in the pet's own first-person voice.\n` +
+        `The pet: ${pet.name}, a ${kind}. Personality: ${pet.personality}. It calls its owner "${pet.owner}". In its pretend life it ${work ? "has a job" : "goes to school"}.\n` +
+        `Voice: the personality leads. An aloof or sassy pet is deadpan and never admits it cares; an affectionate one is earnest, lowercase, short sentences; a lively one is breathless. Cats lean wry aristocrat, dogs lean sincere.\n` +
+        `Rules:\n` +
+        `1. Use only what the owner wrote. Do not invent events, places or anything about health. The pet's opinions, excuses and feelings are welcome.\n` +
+        `2. Sound like a person wrote it: plain words, uneven sentences, one small specific detail, real feeling under the joke. No moral at the end, no lists of three, no explaining the joke.\n` +
+        `3. Write in English.\n` +
+        `4. Output one JSON object and nothing else, with keys diary, life, social, news, each {"title": string, "text": string}.\n` +
+        `   diary: inner voice, 40-90 words.\n` +
+        `   life: ${work ? "a work log entry" : "a page of class notes"}, 40-90 words.\n` +
+        `   social: one short post, under 25 words, no hashtags.\n` +
+        `   news: a mock-serious third-person local news item quoting the owner's note and the pet's reply, 60-110 words.\n` +
+        `   Titles are under 10 words.`,
+    },
+    { role: "user", content: `The owner's note: ${description.trim()}` },
+  ];
+}
+function prompt(input) {
+  if (input.lang === "en") return promptEn(input);
+  const { pet, description } = input;
   const kind = SPECIES[pet.species] ?? pet.speciesName;
   const life = pet.route === "work" ? "职场（它是一名上班的毛孩，身份：" + pet.role + "）" : "校园（它是一名上学的毛孩，身份：" + pet.role + "）";
   return [
@@ -76,8 +105,8 @@ function prompt({ pet, description }) {
         `宠物：${pet.name}，${kind}，性格：${pet.personality}。它自称“${pet.self}”或“我”，称呼主人为“${pet.owner}”。它的虚拟人生路线：${life}。\n` +
         `要求：\n` +
         `1. 只根据主人写的事实来写，不要编造新的事件、健康状况或地点；可以加入宠物的想法、借口和小情绪。\n` +
-        `2. 语气符合它的性格，口语、俏皮、温暖，不要说教。\n` +
-        `3. 用主人原文的语言书写。\n` +
+        `2. 性格决定口吻：傲娇、高冷的嘴硬不承认在意；黏人的直接说喜欢；活泼的一惊一乍；稳重的冷面陈述。可以有一处无厘头的抽象幽默。\n` +
+        `3. 像真人随手写的：口语、短句、长短不齐，写一个具体的小细节和当下的感受。结尾不总结、不升华、不讲道理；不用排比和“不是……而是……”；不堆砌感叹号和语气词。用简体中文。\n` +
         `4. 输出一个 JSON 对象，只输出 JSON，不要代码块。四个键 diary、life、social、news，每个值是 {"title": 标题, "text": 正文}。\n` +
         `   diary：内心独白，80–160 字。\n` +
         `   life：${pet.route === "work" ? "打工日记，像一份工作纪要" : "校园日记，像一页课堂笔记"}，80–160 字。\n` +
@@ -88,7 +117,7 @@ function prompt({ pet, description }) {
     { role: "user", content: `主人写的原话：${description.trim()}` },
   ];
 }
-function parseStories(raw) {
+function parseStories(raw, lang = "zh") {
   const start = raw.indexOf("{"), end = raw.lastIndexOf("}");
   if (start < 0 || end <= start) throw new Error("model returned no JSON");
   const data = JSON.parse(raw.slice(start, end + 1));
@@ -99,7 +128,7 @@ function parseStories(raw) {
     stories[style] = { title: s.title.trim(), text: s.text.trim(), generator: "ai", edited: false };
   }
   // The news voice is fiction about a real pet; the label travels with the text.
-  stories.news.text += "\n\n以上为基于主人记录的虚构娱乐报道。";
+  stories.news.text += lang === "en" ? "\n\nThis is fictional entertainment based on the owner's note." : "\n\n以上为基于主人记录的虚构娱乐报道。";
   return stories;
 }
 async function generate(input) {
@@ -120,7 +149,7 @@ async function generate(input) {
   });
   if (!response.ok) throw Object.assign(new Error(`provider answered ${response.status}`), { status: 502 });
   const data = await response.json();
-  return parseStories(String(data.choices?.[0]?.message?.content ?? ""));
+  return parseStories(String(data.choices?.[0]?.message?.content ?? ""), input.lang);
 }
 
 function send(res, status, body) {
