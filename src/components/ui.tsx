@@ -11,8 +11,10 @@ import {
   View,
   ViewStyle,
 } from "react-native";
-import Feather from "@expo/vector-icons/Feather";
+import type Feather from "@expo/vector-icons/Feather";
+import Icon from "./Icon";
 import { Pet } from "../domain/types";
+export { default as Icon } from "./Icon";
 export const colors = {
   bg: "#FAF9F6",
   paper: "#FFFFFF",
@@ -57,17 +59,6 @@ export const styles = StyleSheet.create({
   },
   divider: { height: 1, backgroundColor: colors.line },
 });
-export function Icon({
-  name,
-  size = 20,
-  color = colors.ink,
-}: {
-  name: React.ComponentProps<typeof Feather>["name"];
-  size?: number;
-  color?: string;
-}) {
-  return <Feather name={name} size={size} color={color} />;
-}
 export function Button({
   label,
   onPress,
