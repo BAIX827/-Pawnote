@@ -3,22 +3,68 @@ import React, { useRef, useState } from "react";
 import { Image, Platform, Text, View } from "react-native";
 import { router, useLocalSearchParams } from "expo-router";
 import { useStore } from "../data/store";
-import { formatDate } from "../domain/types";
+import { LifeEvent, formatDate } from "../domain/types";
+import {
+  NEWS_TEMPLATES,
+  NewsTemplate,
+  bounty,
+  isPlainNews,
+  lead,
+} from "../domain/news-card";
+import { speciesEmoji } from "../domain/pet-profile";
 import { exportNews } from "../platform/export";
-import { Button, Empty, Heading, colors, display, shadow, styles } from "../components/ui";
+import { Button, Chip, Empty, Heading, colors, demoPhoto, display, shadow, styles } from "../components/ui";
+
+const LABELS: Record<NewsTemplate, string> = {
+  daily: "日报",
+  extra: "号外",
+  wanted: "通缉令",
+  cover: "封面",
+};
+const RED = "#E0483A";
+const big = (size: number, lineHeight = Math.round(size * 1.25)) =>
+  ({ fontSize: size, lineHeight, fontWeight: "700", fontFamily: display, color: colors.ink }) as const;
+
+function Credit({ event, plain }: { event: LifeEvent; plain?: boolean }) {
+  const story = event.stories.news;
+  return (
+    <Text style={styles.small}>
+      {t("来源：{name}的本人日常记录", { name: event.petSnapshot.name })}
+      {"\n"}
+      {story.generator === "ai" ? t("AI 生成") : t("本机生成")}
+      {story.edited ? t(" · 主人润色") : ""}
+      {plain ? " · " : t(" · 虚构娱乐报道 · ")}
+      {t("爪记 Pawnote")}
+    </Text>
+  );
+}
+// Layouts without a photo of the day fall back to the pet's portrait or its species emoji.
+function Picture({ event, height, demo, onLoad, onError }: { event: LifeEvent; height: number; demo: boolean; onLoad: () => void; onError: () => void }) {
+  const uri = event.photo ?? event.petSnapshot.avatar;
+  return uri || demo ? (
+    <Image onLoad={onLoad} onError={onError} source={uri ? { uri } : demoPhoto} style={{ width: "100%", height }} resizeMode="cover" />
+  ) : (
+    <View style={{ width: "100%", height, backgroundColor: colors.yellow, alignItems: "center", justifyContent: "center" }}>
+      <Text style={{ fontSize: height * 0.45 }}>{speciesEmoji(event.petSnapshot)}</Text>
+    </View>
+  );
+}
+
 export default function News() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const { state, notify } = useStore();
   const event = state.events.find((e) => e.id === id);
   const card = useRef<View>(null);
   const [busy, setBusy] = useState(false);
+  const [template, setTemplate] = useState<NewsTemplate>("daily");
   const [loadedPhoto, setLoadedPhoto] = useState<string>();
-  const photoReady = !event?.photo || loadedPhoto === event.photo;
+  const shown = event?.photo ?? (template === "wanted" || template === "cover" ? event?.petSnapshot.avatar : undefined);
+  const photoReady = !shown || loadedPhoto === shown;
   async function share() {
     if (!event) return;
     setBusy(true);
     try {
-      await exportNews(event, card.current);
+      await exportNews(event, card.current, template);
       notify(
         Platform.OS === "web"
           ? t("新闻卡已导出，可用浏览器打开 SVG 文件。")
@@ -35,91 +81,132 @@ export default function News() {
       <Empty
         title={t("先记录一件小事")}
         subtitle={t("保存日常后，再来制作爪报。")}
-        action={
-          <Button label={t("记录今天")} onPress={() => router.replace("/record")} />
-        }
+        action={<Button label={t("记录今天")} onPress={() => router.replace("/record")} />}
       />
     );
+  const story = event.stories.news,
+    pet = event.petSnapshot,
+    plain = isPlainNews(event);
+  const onLoad = () => setLoadedPhoto(shown),
+    onError = () => notify(t("照片加载失败，请返回检查原始记录。"));
+  const photo = event.photo && (
+    <Image onLoad={onLoad} onError={onError} source={{ uri: event.photo }} style={{ width: "100%", height: 300 }} resizeMode="cover" />
+  );
+  const body = <Text style={[styles.body, { lineHeight: 29, fontSize: 16 }]}>{story.text}</Text>;
+  const frame = { borderColor: colors.ink, borderWidth: 2, padding: 22, gap: 18 };
   return (
-    <View
-      style={{ gap: 22, maxWidth: 740, width: "100%", alignSelf: "center" }}
-    >
+    <View style={{ gap: 22, maxWidth: 740, width: "100%", alignSelf: "center" }}>
       <Heading
         title={t("爪报编辑部")}
         eyebrow={t("PAW POST · 号外")}
         accent={colors.sky}
         action={<Button label={t("返回")} tone="plain" onPress={() => router.replace("/")} />}
       />
-      <View
-        ref={card}
-        collapsable={false}
-        style={[
-          {
-            backgroundColor: "#FFF9EF",
-            borderColor: colors.edge,
-            borderWidth: 2,
-            padding: 22,
-            gap: 18,
-          },
-          shadow(6, colors.lavender),
-        ]}
-      >
-        <View style={styles.between}>
-          <Text style={[styles.small, { color: colors.ink }]}>
-            {t("毛孩市 · 生活特刊")}
-          </Text>
-          <Text style={styles.small}>{formatDate(event.createdAt)}</Text>
+      {plain ? (
+        <Text style={styles.muted}>{t("这一条不适合做成报纸，只保留一张朴素的记录卡。")}</Text>
+      ) : (
+        <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 8 }}>
+          {NEWS_TEMPLATES.map((k) => (
+            <Chip key={k} label={t(LABELS[k])} active={template === k} onPress={() => setTemplate(k)} />
+          ))}
         </View>
-        <Text
-          style={{
-            fontSize: 52,
-            lineHeight: 64,
-            textAlign: "center",
-            letterSpacing: 8,
-            fontWeight: "700",
-            fontFamily: display,
-            color: colors.ink,
-          }}
-        >
-          {t("爪报")}
-        </Text>
-        <Text style={[styles.small, { textAlign: "center", letterSpacing: 3 }]}>
-          PAW POST
-        </Text>
-        <View style={{ height: 4, backgroundColor: colors.ink }} />
-        <Text
-          style={{
-            fontSize: 28,
-            fontWeight: "700",
-            fontFamily: display,
-            lineHeight: 42,
-            color: colors.ink,
-          }}
-        >
-          {event.stories.news.title}
-        </Text>
-        {event.photo && (
-          <Image
-            onLoad={() => setLoadedPhoto(event.photo)}
-            onError={() => notify(t("照片加载失败，请返回检查原始记录。"))}
-            source={{ uri: event.photo }}
-            style={{ width: "100%", height: 300 }}
-            resizeMode="cover"
-          />
-        )}
-        <Text style={[styles.body, { lineHeight: 29, fontSize: 16 }]}>
-          {event.stories.news.text}
-        </Text>
-        <View style={styles.divider} />
-        <Text style={styles.small}>
-          {t("来源：{name}的本人日常记录", { name: event.petSnapshot.name })}
-          {"\n"}
-          {event.stories.news.generator === "ai" ? t("AI 生成") : t("本机生成")}
-          {event.stories.news.edited ? t(" · 主人润色") : ""}
-          {t(" · 虚构娱乐报道 · ")}
-          {t("爪记 Pawnote")}
-        </Text>
-      </View>
+      )}
+
+      {plain ? (
+        <View ref={card} collapsable={false} style={[{ backgroundColor: colors.paper, borderRadius: 20, borderWidth: 1.5, borderColor: colors.edge, padding: 22, gap: 16 }, shadow(4)]}>
+          <Text style={styles.small}>{formatDate(event.createdAt)}</Text>
+          <Text style={big(26)}>{t("{name}的今日记录", { name: pet.name })}</Text>
+          {photo}
+          {body}
+          <View style={styles.divider} />
+          <Credit event={event} plain />
+        </View>
+      ) : template === "daily" ? (
+        <View ref={card} collapsable={false} style={[frame, { backgroundColor: "#FFF9EF" }, shadow(6)]}>
+          <View style={styles.between}>
+            <Text style={[styles.small, { color: colors.ink }]}>{t("毛孩市 · 生活特刊")}</Text>
+            <Text style={styles.small}>{formatDate(event.createdAt)}</Text>
+          </View>
+          <Text style={[big(52, 64), { textAlign: "center", letterSpacing: 8 }]}>{t("爪报")}</Text>
+          <Text style={[styles.small, { textAlign: "center", letterSpacing: 3 }]}>PAW POST</Text>
+          <View style={{ height: 4, backgroundColor: colors.ink }} />
+          <Text style={big(28, 42)}>{story.title}</Text>
+          {photo}
+          {body}
+          <View style={styles.divider} />
+          <Credit event={event} />
+        </View>
+      ) : template === "extra" ? (
+        <View ref={card} collapsable={false} style={[{ backgroundColor: "#FFF9EF", borderColor: colors.ink, borderWidth: 2 }, shadow(6)]}>
+          <View style={{ backgroundColor: RED, paddingHorizontal: 22, paddingVertical: 14, flexDirection: "row", alignItems: "flex-end", justifyContent: "space-between" }}>
+            <Text style={[big(56, 64), { color: "#FFF", letterSpacing: 6 }]}>{t("号外")}</Text>
+            <Text style={{ color: "#FFF", fontWeight: "700", letterSpacing: 2, fontSize: 12, marginBottom: 8 }}>
+              {t("爪报")} · {formatDate(event.createdAt)}
+            </Text>
+          </View>
+          <View style={{ padding: 22, gap: 16 }}>
+            <Text style={big(36, 48)}>{story.title}</Text>
+            {photo}
+            {body}
+          </View>
+          <View style={{ backgroundColor: colors.ink, paddingVertical: 8, paddingHorizontal: 22 }}>
+            <Text numberOfLines={1} style={{ color: "#FFF", fontSize: 13, fontWeight: "700", letterSpacing: 1 }}>
+              {t("快讯")} ▸ {t("目前当事宠物情绪稳定，事件仍在进一步调查中。")}
+            </Text>
+          </View>
+          <View style={{ padding: 22, paddingTop: 14 }}>
+            <Credit event={event} />
+          </View>
+        </View>
+      ) : template === "wanted" ? (
+        <View ref={card} collapsable={false} style={[frame, { backgroundColor: "#F6E7C8", alignItems: "center", borderWidth: 3 }, shadow(6)]}>
+          <Text style={[big(78, 90), { letterSpacing: 16 }]}>{t("通缉")}</Text>
+          <Text style={[styles.caps, { letterSpacing: 5 }]}>WANTED · {formatDate(event.createdAt)}</Text>
+          <View style={{ width: "78%", backgroundColor: "#FFF", padding: 8, borderWidth: 2, borderColor: colors.ink, transform: [{ rotate: "-1.5deg" }] }}>
+            <Picture event={event} height={240} demo={state.demo} onLoad={onLoad} onError={onError} />
+          </View>
+          <Text style={big(34, 44)}>{pet.name}</Text>
+          <View style={{ alignSelf: "stretch", gap: 6 }}>
+            <Text style={[styles.caps, { letterSpacing: 4 }]}>{t("事由")}</Text>
+            <Text style={big(22, 32)}>{story.title}</Text>
+            <Text style={[styles.body, { lineHeight: 27 }]}>{lead(event)}</Text>
+          </View>
+          <View style={{ alignSelf: "stretch", borderTopWidth: 2, borderBottomWidth: 2, borderColor: colors.ink, paddingVertical: 10, flexDirection: "row", justifyContent: "space-between", alignItems: "center" }}>
+            <Text style={[styles.caps, { letterSpacing: 4 }]}>{t("悬赏")}</Text>
+            <Text style={big(26, 34)}>{bounty(event)}</Text>
+          </View>
+          <Text style={[styles.small, { color: colors.ink, textAlign: "center" }]}>
+            {t("知情者请向本报提供线索。当事宠物极其可爱，请勿轻易原谅。")}
+          </Text>
+          <View style={{ alignSelf: "stretch" }}>
+            <Credit event={event} />
+          </View>
+        </View>
+      ) : (
+        <View ref={card} collapsable={false} style={[{ backgroundColor: colors.paper, borderColor: colors.ink, borderWidth: 2 }, shadow(6)]}>
+          <View>
+            <Picture event={event} height={420} demo={state.demo} onLoad={onLoad} onError={onError} />
+            <View style={{ position: "absolute", top: 14, left: 18, right: 18 }}>
+              <Text style={[big(72, 84), { color: "#FFF", letterSpacing: 6, textShadowColor: "#00000088", textShadowOffset: { width: 0, height: 2 }, textShadowRadius: 8 }]}>
+                {t("爪报")}
+              </Text>
+              <Text style={{ color: "#FFF", fontWeight: "700", letterSpacing: 3, fontSize: 12, textShadowColor: "#00000088", textShadowRadius: 6 }}>
+                {pet.name} · {formatDate(event.createdAt)}
+              </Text>
+            </View>
+            <View style={{ position: "absolute", right: 14, bottom: 14, backgroundColor: colors.yellow, borderRadius: 999, paddingHorizontal: 12, paddingVertical: 6, transform: [{ rotate: "-4deg" }] }}>
+              <Text style={[styles.caps, { fontSize: 12 }]}>{t("本期封面人物")}</Text>
+            </View>
+          </View>
+          <View style={{ padding: 22, gap: 12 }}>
+            <Text style={big(30, 42)}>{story.title}</Text>
+            <Text style={[styles.body, { lineHeight: 27 }]}>{lead(event)}</Text>
+            <View style={styles.divider} />
+            <Credit event={event} />
+          </View>
+        </View>
+      )}
+
       <Button
         label={
           busy

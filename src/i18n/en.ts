@@ -473,4 +473,19 @@ export const en: Record<string, string> = {
   到家日期: "Came home on",
   "填了以后，时光机会算它来到你身边的第几天和周年。": "With this, the Time Machine counts the days together and the anniversaries.",
   "到家日期请按 2024-03-15 这样填写，且不晚于今天。": "Enter the date like 2024-03-15, no later than today.",
+
+  // Paw Post templates
+  日报: "Daily",
+  号外: "Extra",
+  通缉令: "Wanted",
+  封面: "Cover",
+  通缉: "WANTED",
+  事由: "FOR",
+  悬赏: "REWARD",
+  快讯: "LATEST",
+  "目前当事宠物情绪稳定，事件仍在进一步调查中。": "The pet involved is calm. The investigation is ongoing.",
+  "知情者请向本报提供线索。当事宠物极其可爱，请勿轻易原谅。": "Anyone with information should contact this paper. Suspect is extremely cute. Do not forgive easily.",
+  本期封面人物: "COVER STAR",
+  "这一条不适合做成报纸，只保留一张朴素的记录卡。": "This one is not for a newspaper. It stays as a plain record card.",
+  "{name}的今日记录": "{name}'s record for today",
 };

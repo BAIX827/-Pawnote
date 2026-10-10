@@ -9,7 +9,7 @@ import {
   generationSignature,
   toPetVoice,
 } from "../src/domain/story-engine";
-import { escapeXML, newsSVG } from "../src/domain/news-card";
+import { NEWS_TEMPLATES, escapeXML, isPlainNews, newsSVG } from "../src/domain/news-card";
 import { Pet, newDraft } from "../src/domain/types";
 import { MAX_BACKUP_BYTES, parseBackup } from "../src/domain/backup";
 import { ageLabel, parseAge, questionnaireTraits, recommendRoute, speciesEmoji, speciesLabel } from "../src/domain/pet-profile";
@@ -317,4 +317,18 @@ test("新闻导出转义XML且保留标识和完整正文", () => {
   assert.ok(svg.includes("模板生成"));
   assert.equal((svg.match(/一/g) || []).length, 1500);
   assert.equal(escapeXML("<>&\"'"), "&lt;&gt;&amp;&quot;&apos;");
+  e.photo = "data:image/jpeg;base64,YQ==";
+  e.stories.news.text = "本报讯｜第一句。\n第二段。";
+  for (const template of NEWS_TEMPLATES) {
+    const out = newsSVG(e, template);
+    assert.ok(out.startsWith("<svg") && out.includes("&lt;测试&gt;") && out.includes("虚构娱乐报道") && out.includes(e.photo));
+    assert.ok(!out.includes("undefined") && !out.includes("NaN"));
+  }
+  assert.ok(newsSVG(e, "wanted").includes("通缉") && newsSVG(e, "extra").includes("号外"));
+  const sick = { ...e, description: "它生病住院了。" };
+  assert.equal(isPlainNews(sick), true);
+  for (const template of NEWS_TEMPLATES) {
+    const out = newsSVG(sick, template);
+    assert.ok(!/通缉|号外|虚构娱乐报道/.test(out) && out.includes("今日记录"));
+  }
 });
