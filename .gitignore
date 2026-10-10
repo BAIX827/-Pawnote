@@ -42,3 +42,7 @@ yarn-error.*
 
 /native-export/
 /artifacts/
+
+# AI gateway
+server/.env
+server/data/

@@ -29,8 +29,10 @@ export default function PersonalityQuiz({
       style={{
         gap: 18,
         padding: 16,
-        backgroundColor: "#F8F8F4",
+        backgroundColor: "#E4DDFB",
         borderRadius: 14,
+        borderWidth: 2,
+        borderColor: "#EBDCC8",
       }}
     >
       <Text style={styles.h2}>它的日常性格观察</Text>

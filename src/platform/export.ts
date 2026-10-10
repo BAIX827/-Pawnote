@@ -17,5 +17,5 @@ export async function exportNews(event: LifeEvent, _view?: View | null) {
     );
 }
 export async function exportBackup(content: string) {
-    download(content, `paw-life-backup-${Date.now()}.json`, "application/json");
+    download(content, `pawnote-backup-${Date.now()}.json`, "application/json");
 }

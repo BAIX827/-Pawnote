@@ -56,3 +56,17 @@ Pet 1:N LifeEvent；LifeEvent 1:N Story；LifeEvent 0:1 Post（首版只允许�
 - routeSource：age/manual。age 模式限定猫狗且年龄必填，route 与 12 个月阈值一致；manual 模式可选任意路线。
 - speciesName：other 类型必填 1–20 字。物种枚举之外的备份输入被拒绝。
 新字段进入事件 petSnapshot 和 JSON 备份。生成签名加入 speciesName 和 ageMonths，变更档案仍需重新生成草稿。
+
+
+## AI 网关接口（2026-10-11，已实现于 server/）
+独立于上文 API v1 草案，当前无会话鉴权，以 deviceId 区分设备。
+- GET /v1/quota?deviceId=… → {quota}。
+- POST /v1/pet-voice：{deviceId, region:"cn"|"intl", description(1–500), pet:{name, species, speciesName?, personality, route, role, owner, self}} → {stories, quota}。stories 为 diary/life/social/news 四项，每项 {title,text,generator:"ai",edited:false}；news 正文由网关追加虚构娱乐报道标识。
+- quota：{member:boolean, used:number, limit:number|null, remaining:number|null, resetsAt:ISO 时间}。会员的 limit 与 remaining 为 null。
+- 错误：400 {error:"bad_request",field}；409 {error:"busy"} 同一设备已有请求在进行；429 {error:"quota_exhausted",quota}；502 {error:"generation_failed"} 服务商失败或返回内容不合格，不扣次数；503 {error:"not_configured"}。
+
+## 本地数据扩展（2026-10-11）
+schemaVersion 仍为 1，新增内容向后兼容：
+- Pet.ownerTitle?：1–10 字，宠物对主人的称呼；进入快照、备份与生成签名。
+- Story.generator：新增取值 "ai"，原有 "template" 表示本机规则生成。
+- 设备标识单独保存在本机存储键 pawlife.deviceId，不进入备份。

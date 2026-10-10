@@ -17,6 +17,7 @@ import {
   roleFor,
 } from "../domain/types";
 import { SPECIES_INFO, parseAge, recommendRoute } from "../domain/pet-profile";
+import { defaultOwnerName } from "../domain/story-engine";
 import { choosePhoto } from "../platform/photo";
 import {
   Avatar,
@@ -67,6 +68,7 @@ export default function Onboarding({ editing = false }: { editing?: boolean }) {
     original?.route ?? "work",
   );
   const [avatar, setAvatar] = useState(original?.avatar);
+  const [ownerTitle, setOwnerTitle] = useState(original?.ownerTitle ?? "");
   const [busy, setBusy] = useState(false);
   let ageMonths: number | undefined,
     ageError = "";
@@ -104,6 +106,7 @@ export default function Onboarding({ editing = false }: { editing?: boolean }) {
     route,
     routeSource: effectiveRouteSource,
     role: roleFor(route),
+    ...(ownerTitle.trim() ? { ownerTitle: ownerTitle.trim() } : {}),
     avatar,
   };
   async function pick() {
@@ -157,7 +160,7 @@ export default function Onboarding({ editing = false }: { editing?: boolean }) {
     <View style={{ gap: 30 }}>
       <Heading
         title={editing ? "编辑居民档案" : "欢迎搬进毛孩市"}
-        eyebrow="RESIDENT REGISTRATION / 居民登记处"
+        eyebrow="居民登记处"
       />
       <View
         style={{
@@ -171,6 +174,9 @@ export default function Onboarding({ editing = false }: { editing?: boolean }) {
             style={{
               backgroundColor: colors.yellow,
               borderRadius: 22,
+              borderWidth: 1.5,
+              borderColor: colors.edge,
+              boxShadow: `4px 4px 0px ${colors.ink}`,
               padding: wide ? 30 : 20,
               gap: 20,
             }}
@@ -197,9 +203,7 @@ export default function Onboarding({ editing = false }: { editing?: boolean }) {
                   {preview.name}
                 </Text>
                 <Text style={styles.small}>{preview.personality}</Text>
-                <Tag
-                  style={{ backgroundColor: colors.paper, color: colors.ink }}
-                >
+                <Tag bg={colors.paper}>
                   {preview.role}
                 </Tag>
               </View>
@@ -382,6 +386,26 @@ export default function Onboarding({ editing = false }: { editing?: boolean }) {
                 }}
               />
             </View>
+          </View>
+          <View style={{ gap: 10 }}>
+            <Label>06 / 它在日记里怎么称呼你</Label>
+            <View style={[styles.row, { flexWrap: "wrap" }]}>
+              {["妈妈", "爸爸", "姐姐", "哥哥", "铲屎官", "主人"].map((t) => (
+                <Chip
+                  key={t}
+                  label={t}
+                  active={ownerTitle.trim() === t}
+                  onPress={() => setOwnerTitle(t)}
+                />
+              ))}
+            </View>
+            <Field
+              accessibilityLabel="宠物对你的称呼"
+              value={ownerTitle}
+              onChangeText={setOwnerTitle}
+              maxLength={10}
+              placeholder={`也可以自己写，例如：老张。留空就叫“${defaultOwnerName(species)}”`}
+            />
           </View>
           <View style={styles.row}>
             <Button

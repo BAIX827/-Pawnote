@@ -1,4 +1,5 @@
-# 毛孩营业中 · Paw Life Club
+# 爪记 · Pawnote
+（原名：毛孩营业中 / Paw Life Club）
 真实宠物 × 轻量模拟人生 × 宠物口吻记录。
 
 最终目标为 iOS / Android App。当前版本 v0.1 使用 Expo + React Native + TypeScript，共享 Web 和移动端代码，首发面向中国大陆，iPhone 优先，随后 Android；Web 用于核心流程预览。
@@ -29,6 +30,16 @@ npm run start:go
 用与 SDK 57 兼容的 Expo Go 扫描终端二维码，当前全部业务模块已在 iOS Expo Go 验证。需要测试独立安装包时使用 development build。真机访问本地服务需要电脑与手机网络可达。本机模拟器可运行 `npm run ios:simulator`；本机真机可运行 `npm run ios:device`，签名由本人 Apple 账号的 Personal Team 或开发者会员配置。详细步骤见 docs/09-iPhone开发与真机验收.md。
 
 若启动失败，先检查 Node 版本、依赖安装结果和端口占用；可使用 `npx expo start --clear` 重建开发缓存。
+
+## AI 生成网关
+App 默认只用本机规则生成。要启用“让 AI 来说”，需要运行 server/ 里的网关并让 App 指向它：
+
+```bash
+cp server/.env.example server/.env   # 填入 CN_API_KEY（DeepSeek），海外服务商可选
+node server/index.mjs
+```
+然后在项目根目录的 .env.local 写入 `EXPO_PUBLIC_API_URL=http://<网关地址>:8787`（海外包另加 `EXPO_PUBLIC_REGION=intl`），重启 `npm run web` 或开发服务。本地联调可用 `AI_MOCK=1 node server/index.mjs`，返回带“模拟 AI”字样的固定文本，不调用任何服务商。
+非会员每设备每周 2 次免费 AI，规则与接口见 docs/01 第 8 节、docs/03 ADR-004、docs/04。
 
 ## 检查与打包
 ```bash

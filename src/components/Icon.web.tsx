@@ -26,6 +26,15 @@ const paths: Partial<Record<IconProps["name"], string>> = {
   "message-circle": "M21 11a9 9 0 0 1-13 8l-6 3 2-6A9 9 0 1 1 21 11Z",
   user: "M16 7a4 4 0 1 1-8 0 4 4 0 0 1 8 0M4 21v-2c0-7 16-7 16 0v2",
   coffee: "M3 7h13v10c0 5-13 5-13 0ZM16 8h2c5 0 5 6 0 6h-2M2 22h18M5 1v3M9 1v3M13 1v3",
+  lock: "M5 11h14v10H5Zm3 0V7a4 4 0 0 1 8 0v4",
+  flag: "M4 22V3m0 1c6-3 9 3 16 0v11c-7 3-10-3-16 0",
+  "map-pin": "M12 22s8-7 8-13a8 8 0 0 0-16 0c0 6 8 13 8 13Zm3-13a3 3 0 1 1-6 0 3 3 0 0 1 6 0",
+  "chevron-down": "m6 9 6 6 6-6",
+  "chevron-up": "m6 15 6-6 6 6",
+  "hard-drive": "M2 13h20v7H2Zm0 0 4-9h12l4 9M6 17h.01M10 17h.01",
+  book: "M5 3h15v15H5a2 2 0 0 0 0 4h15M5 3a2 2 0 0 0-2 2v15",
+  home: "M3 11 12 3l9 8v10h-6v-7H9v7H3Z",
+  repeat: "m17 2 4 4-4 4M3 11V9a3 3 0 0 1 3-3h15M7 22l-4-4 4-4m14-1v2a3 3 0 0 1-3 3H3",
   feather: "M20 4C14-2 7 7 5 13l-3 9 9-3C17 17 26 10 20 4ZM5 19 18 6M8 11h5v5",
 };
 export default function Icon({ name, size = 20, color = "#263830" }: IconProps) {

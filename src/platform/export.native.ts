@@ -22,7 +22,7 @@ export async function exportNews(event: LifeEvent, view?: View | null) {
 }
 export async function exportBackup(content: string) {
   await requireSharing();
-  const file = new File(Paths.cache, `paw-life-backup-${Date.now()}.json`);
+  const file = new File(Paths.cache, `pawnote-backup-${Date.now()}.json`);
   try {
     file.create({ overwrite: true });
     file.write(content);

@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "毛孩营业中",
+    "name": "爪记",
     "slug": "paw-life",
     "version": "0.1.0",
     "orientation": "portrait",
@@ -20,7 +20,7 @@
     "web": {
       "bundler": "metro",
       "output": "single",
-      "name": "毛孩营业中",
+      "name": "爪记",
       "favicon": "./assets/favicon.png"
     },
     "scheme": "pawlife",

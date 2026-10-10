@@ -13,13 +13,13 @@ import { router, usePathname } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useStore } from "../data/store";
 import { exportBackup } from "../platform/export";
-import { Avatar, Button, Icon, colors, styles } from "./ui";
+import { Avatar, Button, Icon, Wash, Wobble, colors, display, shadow, styles } from "./ui";
 import RestoreBackup from "./RestoreBackup";
 const nav = [
-  { route: "/", label: "街区", icon: "sun" as const },
+  { route: "/", label: "街区", icon: "home" as const },
   { route: "/life", label: "人生", icon: "briefcase" as const },
   { route: "/circle", label: "毛圈", icon: "message-circle" as const },
-  { route: "/profile", label: "手账", icon: "user" as const },
+  { route: "/profile", label: "手账", icon: "book-open" as const },
 ];
 export default function Shell({ children }: { children: React.ReactNode }) {
   const { width } = useWindowDimensions();
@@ -40,30 +40,27 @@ export default function Shell({ children }: { children: React.ReactNode }) {
         style={({ pressed }) => ({
           flex: wide ? undefined : 1,
           flexDirection: wide ? "row" : "column",
-          gap: wide ? 12 : 5,
-          alignItems: wide ? "center" : "center",
+          gap: wide ? 12 : 3,
+          alignItems: "center",
           justifyContent: wide ? "flex-start" : "center",
-          paddingHorizontal: wide ? 16 : 4,
-          paddingVertical: wide ? 16 : 9,
-          borderRadius: wide ? 12 : 10,
-          backgroundColor: active
-            ? wide
-              ? colors.yellow
-              : colors.green
-            : "transparent",
+          paddingHorizontal: wide ? 16 : 2,
+          paddingVertical: wide ? 14 : 7,
+          borderRadius: 22,
+          backgroundColor: active ? colors.yellow : "transparent",
+          transform: [{ rotate: "0deg" }],
           opacity: pressed ? 0.65 : 1,
         })}
       >
         <Icon
           name={n.icon}
-          size={wide ? 20 : 21}
-          color={active ? colors.ink : wide ? "#C6CCBF" : colors.muted}
+          size={20}
+          color={active || wide ? (active ? colors.ink : "#E9DDD0") : colors.muted}
         />
         <Text
           style={{
             fontSize: wide ? 15 : 11,
-            fontWeight: active ? "700" : "500",
-            color: active ? colors.ink : wide ? "#C6CCBF" : colors.muted,
+            fontWeight: active ? "900" : "600",
+            color: active ? colors.ink : wide ? "#E9DDD0" : colors.muted,
           }}
         >
           {n.label}
@@ -106,17 +103,18 @@ export default function Shell({ children }: { children: React.ReactNode }) {
               <View>
                 <Text
                   style={{
-                    fontSize: 19,
+                    fontSize: 21,
+                    fontFamily: display,
                     color: colors.paper,
-                    fontWeight: "800",
+                    fontWeight: "700",
                   }}
                 >
-                  毛孩营业中
+                  爪记
                 </Text>
                 <Text
                   style={[styles.small, { letterSpacing: 2, color: "#A2B09D" }]}
                 >
-                  PAW LIFE CLUB
+                  PAWNOTE
                 </Text>
               </View>
             </View>
@@ -150,37 +148,61 @@ export default function Shell({ children }: { children: React.ReactNode }) {
           </View>
         )}
         <View style={{ flex: 1 }}>
+          <View pointerEvents="none" style={{ position: "absolute", top: 0, left: 0, right: 0, bottom: 0, overflow: "hidden" }}>
+            <Wash color={colors.yellow} size={260} style={{ top: 60, right: -110 }} />
+            <Wash color={colors.pink} size={200} style={{ top: 420, left: -90 }} />
+            <Wash color={colors.sky} size={240} style={{ bottom: 40, right: -80 }} />
+            <Wash color={colors.green} size={150} style={{ bottom: 220, left: -60 }} />
+          </View>
           <View
             style={{
-              paddingHorizontal: wide ? 40 : 20,
-              paddingVertical: 12,
+              paddingHorizontal: wide ? 40 : 18,
+              paddingVertical: 10,
               backgroundColor: colors.paper,
-              borderBottomWidth: 1,
-              borderColor: colors.line,
+              borderBottomWidth: 2,
+              borderColor: colors.edge,
               flexDirection: "row",
               justifyContent: "space-between",
               alignItems: "center",
             }}
           >
-            <Text
-              style={{
-                fontSize: wide ? 13 : 16,
-                fontWeight: wide ? "400" : "700",
-                color: wide ? colors.muted : colors.ink,
-              }}
-            >
-              {wide ? "PAW LIFE / 毛孩市" : "🐾 毛孩营业中"}
-            </Text>
+            {wide ? (
+              <Text style={[styles.caps, { color: colors.muted }]}>
+                PAWNOTE / 毛孩市日报
+              </Text>
+            ) : (
+              <View style={[styles.row, { gap: 8 }]}>
+                <Wobble degrees={8}>
+                  <Text style={{ fontSize: 22 }}>🐾</Text>
+                </Wobble>
+                <Text
+                  style={{
+                    fontSize: 21,
+                    fontWeight: "700",
+                    fontFamily: display,
+                    color: colors.ink,
+                    letterSpacing: 1,
+                  }}
+                >
+                  爪记
+                </Text>
+              </View>
+            )}
             {state.pet ? (
-              <View style={[styles.row, { gap: 9 }]}>
+              <Pressable
+                accessibilityRole="button"
+                accessibilityLabel="打开手账"
+                onPress={() => router.navigate("/profile")}
+                style={[styles.row, { gap: 9 }]}
+              >
                 <Text
                   numberOfLines={1}
-                  style={[styles.small, { maxWidth: wide ? 160 : 85 }]}
+                  style={[styles.small, { maxWidth: wide ? 160 : 85, fontWeight: "700", color: colors.ink }]}
                 >
                   {state.pet.name}
                 </Text>
-                <Avatar pet={state.pet} demo={state.demo} size={32} />
-              </View>
+                <Avatar pet={state.pet} demo={state.demo} size={34} />
+              </Pressable>
             ) : (
               <Text style={styles.small}>居民登记处</Text>
             )}
@@ -190,14 +212,16 @@ export default function Shell({ children }: { children: React.ReactNode }) {
               style={{
                 paddingVertical: 7,
                 paddingHorizontal: wide ? 40 : 18,
-                backgroundColor: colors.pale,
+                backgroundColor: colors.pink,
+                borderBottomWidth: 2,
+                borderColor: colors.edge,
                 flexDirection: "row",
                 flexWrap: "wrap",
                 alignItems: "center",
                 justifyContent: "space-between",
               }}
             >
-              <Text style={[styles.small, { color: "#976143" }]}>
+              <Text style={[styles.small, { color: colors.ink, fontWeight: "700" }]}>
                 示例居民 · 橘总
               </Text>
               <Button
@@ -265,8 +289,9 @@ export default function Shell({ children }: { children: React.ReactNode }) {
               Platform.OS === "ios" ? "interactive" : "on-drag"
             }
             contentContainerStyle={{
-              padding: wide ? 36 : 20,
-              paddingBottom: 45,
+              padding: wide ? 36 : 18,
+              paddingTop: wide ? 36 : 22,
+              paddingBottom: 60,
               alignItems: "center",
             }}
           >
@@ -285,16 +310,45 @@ export default function Shell({ children }: { children: React.ReactNode }) {
           </ScrollView>
           {!wide && state.pet && (
             <View
-              style={{
-                flexDirection: "row",
-                backgroundColor: colors.paper,
-                borderTopWidth: 1,
-                borderColor: colors.line,
-                paddingVertical: 7,
-                paddingHorizontal: 4,
-              }}
+              style={[
+                {
+                  flexDirection: "row",
+                  alignItems: "center",
+                  backgroundColor: colors.paper,
+                  borderWidth: 1.5,
+                  borderColor: colors.edge,
+                  borderRadius: 30,
+                  marginHorizontal: 12,
+                  marginBottom: 8,
+                  marginTop: 6,
+                  paddingVertical: 6,
+                  paddingHorizontal: 8,
+                },
+                shadow(4, colors.orange),
+              ]}
             >
-              {nav.map(item)}
+              {nav.slice(0, 2).map(item)}
+              <Pressable
+                accessibilityRole="button"
+                accessibilityLabel="记录今天"
+                onPress={() => router.push("/record")}
+                style={({ pressed }) => ({
+                  width: 58,
+                  height: 58,
+                  borderRadius: 29,
+                  marginTop: -26,
+                  marginHorizontal: 6,
+                  backgroundColor: colors.orange,
+                  borderWidth: 4,
+                  borderColor: colors.paper,
+                  alignItems: "center",
+                  justifyContent: "center",
+                  transform: [{ scale: pressed ? 0.92 : 1 }],
+                })}
+              >
+                <Icon name="plus" size={28} color="#FFF" />
+              </Pressable>
+              {nav.slice(2).map(item)}
             </View>
           )}
         </View>
@@ -304,16 +358,19 @@ export default function Shell({ children }: { children: React.ReactNode }) {
           accessibilityRole="alert"
           style={{
             position: "absolute",
-            bottom: wide ? 30 : 88,
+            bottom: wide ? 30 : 104,
             alignSelf: "center",
-            paddingHorizontal: 22,
-            paddingVertical: 14,
-            borderRadius: 14,
-            backgroundColor: colors.ink,
+            paddingHorizontal: 20,
+            paddingVertical: 12,
+            borderRadius: 999,
+            backgroundColor: colors.yellow,
+            borderWidth: 1.5,
+            borderColor: colors.edge,
+            boxShadow: "0px 6px 18px rgba(150, 110, 80, 0.25)",
             maxWidth: "90%",
           }}
         >
-          <Text style={{ color: "#FFF", fontSize: 14 }}>{toast}</Text>
+          <Text style={{ color: colors.ink, fontSize: 14, fontWeight: "700" }}>{toast}</Text>
         </View>
       )}
     </SafeAreaView>

@@ -6,13 +6,25 @@ import { STYLES, StoryStyle, formatDate } from "../domain/types";
 import { deleteEvent } from "../domain/life";
 import {
   Avatar,
+  Bubble,
   Button,
-  Card,
   Chip,
   Empty,
-  Tag,
+  Heading,
+  Icon,
+  Tape,
+  colors,
+  display,
+  shadow,
   styles,
 } from "../components/ui";
+import { ownerName } from "../domain/story-engine";
+const tones: Record<StoryStyle, string> = {
+  diary: colors.yellow,
+  life: colors.green,
+  social: colors.pink,
+  news: colors.sky,
+};
 export default function Event() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const { state, update, notify } = useStore();
@@ -46,52 +58,90 @@ export default function Event() {
         alignSelf: "center",
       }}
     >
-      <View style={styles.between}>
-        <Text style={styles.h1}>这一天的日记</Text>
-        <Button
-          label="返回档案"
-          tone="plain"
-          onPress={() => router.replace("/profile")}
-        />
-      </View>
-      <Card style={{ gap: 18 }}>
-        <View style={styles.row}>
-          <Avatar pet={event.petSnapshot} demo={state.demo} />
-          <View>
-            <Text style={styles.h2}>{event.petSnapshot.name}</Text>
-            <Text style={styles.small}>
-              {formatDate(event.createdAt)} · {event.petSnapshot.role}
-            </Text>
-          </View>
-        </View>
-        <Tag>真实日常</Tag>
-        <Text style={styles.body}>{event.description}</Text>
-        {event.photo && (
+      <Heading
+        title="这一天"
+        eyebrow={`${formatDate(event.createdAt)} · ${event.petSnapshot.role}`}
+        accent={tones[style]}
+        action={
+          <Button label="返回手账" tone="plain" onPress={() => router.replace("/profile")} />
+        }
+      />
+      {event.photo && (
+        <View
+          style={[
+            {
+              backgroundColor: "#FFF",
+              padding: 10,
+              paddingBottom: 30,
+              borderWidth: 1.5,
+              borderColor: colors.edge,
+              transform: [{ rotate: "-1.2deg" }],
+              marginTop: 6,
+            },
+            shadow(5),
+          ]}
+        >
+          <Tape color={colors.pink} />
           <Image
             source={{ uri: event.photo }}
-            style={{ width: "100%", height: 300, borderRadius: 13 }}
+            style={{ width: "100%", height: 300 }}
             resizeMode="cover"
           />
-        )}
-      </Card>
-      <Card style={{ gap: 18 }}>
+        </View>
+      )}
+      <View style={{ gap: 8 }}>
+        <View style={[styles.row, { justifyContent: "flex-end", gap: 8 }]}>
+          <Text style={styles.caps}>{ownerName(event.petSnapshot)}的原话</Text>
+          <View
+            style={{
+              width: 34,
+              height: 34,
+              borderRadius: 17,
+              borderWidth: 1.5,
+              borderColor: colors.edge,
+              backgroundColor: colors.paper,
+              alignItems: "center",
+              justifyContent: "center",
+            }}
+          >
+            <Icon name="user" size={18} color={colors.ink} />
+          </View>
+        </View>
+        <Bubble tail="right">
+          <Text style={[styles.body, { fontSize: 16 }]}>{event.description}</Text>
+        </Bubble>
+      </View>
+      <View style={{ gap: 8, marginTop: 6 }}>
+        <View style={[styles.row, { gap: 8 }]}>
+          <Avatar pet={event.petSnapshot} demo={state.demo} size={34} />
+          <Text style={styles.caps}>{event.petSnapshot.name}说</Text>
+        </View>
+        <Bubble tail="left" bg={tones[style]}>
+          <Text style={{ fontSize: 22, lineHeight: 32, fontWeight: "700", fontFamily: display, color: colors.ink, marginBottom: 8 }}>
+            {event.stories[style].title}
+          </Text>
+          <Text style={[styles.body, { fontSize: 16, lineHeight: 29 }]}>
+            {event.stories[style].text}
+          </Text>
+        </Bubble>
+      </View>
+      <View style={{ gap: 14, marginTop: 6 }}>
         <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 8 }}>
           {STYLES.map((s) => (
             <Chip
               key={s}
               label={labels[s]}
+              color={tones[s]}
               active={style === s}
               onPress={() => setStyle(s)}
             />
           ))}
         </View>
-        <Text style={styles.h2}>{event.stories[style].title}</Text>
-        <Text style={styles.body}>{event.stories[style].text}</Text>
         <Text style={styles.small}>
-          模板生成{event.stories[style].edited ? " · 主人编辑" : ""} ·
+          {event.stories[style].generator === "ai" ? "AI 生成" : "本机生成"}{event.stories[style].edited ? " · 主人润色过" : ""} ·
           采用保存当天的人设{style === "news" ? " · 虚构娱乐报道" : ""}
         </Text>
-        <View style={styles.row}>
+        <View style={[styles.row, { flexWrap: "wrap" }]}>
           <Button
             label="制作喵闻卡"
             icon="file-text"
@@ -111,7 +161,9 @@ export default function Event() {
           <View
             style={{
               gap: 12,
-              backgroundColor: "#FFF2EC",
+              backgroundColor: colors.pale,
+              borderWidth: 1.5,
+              borderColor: colors.edge,
               padding: 16,
               borderRadius: 12,
             }}
@@ -137,7 +189,7 @@ export default function Event() {
             </View>
           </View>
         )}
-      </Card>
+      </View>
     </View>
   );
 }

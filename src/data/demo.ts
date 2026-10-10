@@ -12,17 +12,17 @@ export function demoState(): AppState {
   const samples = [
     {
       category: "sleep" as const,
-      description: "今天在窗边睡了一整个下午。",
+      description: "橘总今天在窗边睡了一整个下午，叫都叫不醒。",
       published: true,
     },
     {
       category: "snack" as const,
-      description: "趁我转身的时候，偷吃了一块小鱼干。",
+      description: "趁我转身的时候，它偷吃了一块小鱼干。",
       published: false,
     },
     {
       category: "walk" as const,
-      description: "今天出门散步，在树下停了很久。",
+      description: "今天带它出门散步，它在树下停了很久。",
       published: true,
     },
   ];

@@ -4,7 +4,7 @@ import { router, useLocalSearchParams } from "expo-router";
 import { useStore } from "../data/store";
 import { formatDate } from "../domain/types";
 import { exportNews } from "../platform/export";
-import { Button, Empty, colors, styles } from "../components/ui";
+import { Button, Empty, Heading, colors, display, shadow, styles } from "../components/ui";
 export default function News() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const { state, notify } = useStore();
@@ -43,23 +43,25 @@ export default function News() {
     <View
       style={{ gap: 22, maxWidth: 740, width: "100%", alignSelf: "center" }}
     >
-      <View style={[styles.between, { flexWrap: "wrap" }]}>
-        <View>
-          <Text style={styles.h1}>喵闻编辑部</Text>
-        </View>
-        <Button label="返回" tone="plain" onPress={() => router.replace("/")} />
-      </View>
+      <Heading
+        title="喵闻编辑部"
+        eyebrow="THE DAILY PAW · 号外"
+        accent={colors.sky}
+        action={<Button label="返回" tone="plain" onPress={() => router.replace("/")} />}
+      />
       <View
         ref={card}
         collapsable={false}
-        style={{
-          backgroundColor: "#FFF9EF",
-          borderColor: colors.ink,
-          borderWidth: 1,
-          borderRadius: 5,
-          padding: 25,
-          gap: 20,
-        }}
+        style={[
+          {
+            backgroundColor: "#FFF9EF",
+            borderColor: colors.edge,
+            borderWidth: 2,
+            padding: 22,
+            gap: 18,
+          },
+          shadow(6, colors.lavender),
+        ]}
       >
         <View style={styles.between}>
           <Text style={[styles.small, { color: colors.ink }]}>
@@ -69,10 +71,12 @@ export default function News() {
         </View>
         <Text
           style={{
-            fontSize: 47,
+            fontSize: 52,
+            lineHeight: 64,
             textAlign: "center",
-            letterSpacing: 5,
-            fontWeight: "900",
+            letterSpacing: 8,
+            fontWeight: "700",
+            fontFamily: display,
             color: colors.ink,
           }}
         >
@@ -85,7 +89,8 @@ export default function News() {
         <Text
           style={{
             fontSize: 28,
-            fontWeight: "800",
+            fontWeight: "700",
+            fontFamily: display,
             lineHeight: 42,
             color: colors.ink,
           }}
@@ -106,9 +111,9 @@ export default function News() {
         </Text>
         <View style={styles.divider} />
         <Text style={styles.small}>
-          来源：{event.petSnapshot.name}的本人日常记录{"\n"}模板生成
+          来源：{event.petSnapshot.name}的本人日常记录{"\n"}{event.stories.news.generator === "ai" ? "AI 生成" : "本机生成"}
           {event.stories.news.edited ? " · 主人编辑" : ""} · 虚构娱乐报道 ·
-          毛孩营业中
+          爪记 Pawnote
         </Text>
       </View>
       <Button

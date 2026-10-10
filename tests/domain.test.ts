@@ -4,8 +4,10 @@ import { demoState } from "../src/data/demo";
 import { isAppState } from "../src/data/validation";
 import { deleteEvent, progress, saveEvent } from "../src/domain/life";
 import {
+  detectCategory,
   generateStories,
   generationSignature,
+  toPetVoice,
 } from "../src/domain/story-engine";
 import { escapeXML, newsSVG } from "../src/domain/news-card";
 import { Pet, newDraft } from "../src/domain/types";
@@ -21,9 +23,10 @@ test("新物种和自定义性格可生成、备份，旧猫狗备份保持兼�
       personality: "慢热但亲人，喜欢安静地观察", personalitySource: "custom", ageMonths: 8, routeSource: "manual" };
     const stories = generateStories(state.pet, "今天在自己的角落休息。", "other");
     for (const story of Object.values(stories)) {
-      assert.ok(story.text.includes("今天在自己的角落休息。"));
+      assert.ok(story.text.includes("今天我在自己的角落休息。"));
       assert.ok(!story.text.includes("undefined"));
     }
+    assert.ok(stories.news.text.includes("“今天在自己的角落休息。”"));
     if (species !== "cat") assert.ok(!stories.diary.text.includes("本喵"));
     if (species !== "dog") assert.ok(!stories.diary.text.includes("本汪"));
     assert.ok(speciesEmoji(state.pet));
@@ -132,13 +135,39 @@ test("等级在100 XP边界升级，去重统计", () => {
   });
   assert.equal(progress([...events, events[0]]).xp, 100);
 });
+test("主人视角改写为宠物第一人称，并从原话猜出标签", () => {
+  const cat = demoState().pet!;
+  assert.equal(toPetVoice(cat, "今天把我的水杯推下去了，还一脸无辜").text,
+    "今天我把铲屎官的水杯推下去了，还问心无愧。");
+  const snack = toPetVoice(cat, "趁我转身的时候，它偷吃了一块小鱼干。");
+  assert.equal(snack.text, "趁铲屎官转身的时候，我悄悄品鉴了一块小鱼干。");
+  assert.equal(snack.spin, "偷吃");
+  assert.equal(toPetVoice(cat, "橘总又把花瓶打碎了，我气死了！").text, "我又把花瓶打碎了，铲屎官气死了！");
+  assert.equal(toPetVoice(cat, "我们家猫咪和其他小猫玩了一会儿").text, "我和其他小猫玩了一会儿。");
+  const dog: Pet = { ...cat, name: "旺财", species: "dog" };
+  assert.equal(toPetVoice(dog, "我带他去公园玩，我们都很开心").text, "主人带我去公园玩，我和主人都很开心。");
+  assert.match(generateStories(cat, "趁我转身的时候，它偷吃了一块小鱼干。", "snack").diary.text, /管这叫“偷吃”/);
+  const mine: Pet = { ...cat, ownerTitle: "妈妈" };
+  assert.equal(toPetVoice(mine, "我给它买了新玩具").text, "妈妈给我买了新玩具。");
+  assert.notEqual(generationSignature(cat, "x", "other"), generationSignature(mine, "x", "other"));
+  assert.equal(isAppState({ ...demoState(), pet: mine, events: [] }), true);
+  assert.equal(isAppState({ ...demoState(), pet: { ...cat, ownerTitle: "很".repeat(11) }, events: [] }), false);
+  assert.equal(detectCategory("今天把我的水杯推下去了"), "chaos");
+  assert.equal(detectCategory("给它洗澡洗了一小时"), "bath");
+  assert.equal(detectCategory("在窗边睡了一下午"), "sleep");
+  assert.equal(detectCategory("偷吃了小鱼干"), "snack");
+  assert.equal(detectCategory("带它去公园"), "walk");
+  assert.equal(detectCategory("看了一会儿雨"), "other");
+  assert.ok(generateStories(cat, "我".repeat(500), "other").news.text.length <= 2000);
+});
 test("四种风格保留真实描述，人设变化使生成签名失效", () => {
   const s = demoState(),
     p = s.pet!;
   const description = "只在窗边看了一会儿雨。";
   const stories = generateStories(p, description, "other");
   for (const story of Object.values(stories))
-    assert.ok(story.text.includes(description));
+    assert.ok(story.text.includes("我只在窗边看了一会儿雨。"));
+  assert.ok(stories.news.text.includes(description));
   const school: Pet = { ...p, route: "campus", role: "睡眠研究班" };
   assert.match(
     generateStories(school, description, "other").life.title,

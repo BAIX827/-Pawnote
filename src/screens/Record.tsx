@@ -3,48 +3,108 @@ import { Image, Platform, Pressable, Text, View } from "react-native";
 import { router } from "expo-router";
 import { useStore } from "../data/store";
 import {
+  detectCategory,
   generateStories,
   generateStory,
   generationSignature,
+  ownerName,
+  selfName,
 } from "../domain/story-engine";
 import { saveEvent } from "../domain/life";
 import {
   CATEGORIES,
   CATEGORY_LABELS,
+  Category,
   Draft,
   STYLES,
   StoryStyle,
   newDraft,
 } from "../domain/types";
 import { choosePhoto } from "../platform/photo";
+import { AIError, Quota, aiAvailable, fetchQuota, generateWithAI } from "../platform/ai";
 import {
   Avatar,
+  Bubble,
   Button,
-  Card,
   Chip,
   Field,
+  Heading,
   Icon,
-  Label,
-  Tag,
+  Stamp,
+  Sticker,
+  Tape,
+  Wobble,
   colors,
+  display,
+  shadow,
   styles,
 } from "../components/ui";
 import Onboarding from "./Onboarding";
+
+const bare = {
+  borderWidth: 0,
+  backgroundColor: "transparent",
+  paddingHorizontal: 0,
+  paddingVertical: 0,
+  minHeight: 0,
+  // react-native-web draws a focus ring that the bubble already stands in for.
+  ...(Platform.OS === "web" ? ({ outlineStyle: "none" } as object) : {}),
+} as const;
+const tones: Record<StoryStyle, string> = {
+  diary: colors.yellow,
+  life: colors.green,
+  social: colors.pink,
+  news: colors.sky,
+};
+
 export default function Record() {
   const { state, update, notify } = useStore();
   const [seed] = useState(newDraft);
   const [busy, setBusy] = useState(false);
   const [variant, setVariant] = useState(0);
+  const [manualTag, setManualTag] = useState(false);
+  // Bubbles grow with their text, so nothing scrolls inside a speech bubble.
+  const [heights, setHeights] = useState({ owner: 96, pet: 120 });
+  const [quota, setQuota] = useState<Quota>();
+  const [asking, setAsking] = useState(false);
   const submitted = useRef(false);
+  const latest = useRef("");
+  useEffect(() => {
+    void fetchQuota().then(setQuota);
+  }, []);
+  const pet = state.pet,
+    draft = state.draft ?? seed,
+    signature = pet
+      ? generationSignature(pet, draft.description, draft.category)
+      : "",
+    generated = !!draft.stories && draft.signature === signature;
   useEffect(() => {
     if (!submitted.current && state.pet && !state.draft)
       update((s) => ({ ...s, draft: s.draft ?? seed }));
   }, [state.pet, state.draft, seed, update]);
-  if (!state.pet) return <Onboarding />;
-  const pet = state.pet,
-    draft = state.draft ?? seed,
-    signature = generationSignature(pet, draft.description, draft.category),
-    generated = !!draft.stories && draft.signature === signature;
+  // A restored draft, or a pet whose profile changed, gets its pet-voice text refreshed.
+  useEffect(() => {
+    if (submitted.current || !pet || generated || !draft.description.trim()) return;
+    update((s) =>
+      s.draft
+        ? {
+            ...s,
+            draft: {
+              ...s.draft,
+              stories: generateStories(pet, s.draft.description, s.draft.category),
+              signature: generationSignature(pet, s.draft.description, s.draft.category),
+            },
+          }
+        : s,
+    );
+  }, [pet, generated, draft.description, update]);
+  useEffect(() => {
+    latest.current = draft.description;
+  }, [draft.description]);
+  if (!pet) return <Onboarding />;
+  const self = selfName(pet),
+    owner = ownerName(pet),
+    story = generated ? draft.stories![draft.selectedStyle] : undefined;
   const labels: Record<StoryStyle, string> = {
     diary: "内心独白",
     life: pet.route === "work" ? "打工日记" : "校园日记",
@@ -54,16 +114,18 @@ export default function Record() {
   function patch(changes: Partial<Draft>) {
     update((s) => ({ ...s, draft: { ...(s.draft ?? seed), ...changes } }));
   }
-  function generate() {
-    try {
-      patch({
-        stories: generateStories(pet, draft.description, draft.category),
-        signature,
-      });
-      notify("故事准备好了，选一种口吻继续编辑。");
-    } catch (e) {
-      notify(e instanceof Error ? e.message : "生成失败，请重试。");
-    }
+  // Every keystroke on the owner's side re-tells the story on the pet's side.
+  function retell(description: string, category: Category) {
+    patch({
+      description,
+      category,
+      ...(description.trim()
+        ? {
+            stories: generateStories(pet!, description, category),
+            signature: generationSignature(pet!, description, category),
+          }
+        : { stories: undefined, signature: undefined }),
+    });
   }
   function regenerate() {
     if (!draft.stories) return;
@@ -73,7 +135,7 @@ export default function Record() {
       stories: {
         ...draft.stories,
         [draft.selectedStyle]: generateStory(
-          pet,
+          pet!,
           draft.description,
           draft.category,
           draft.selectedStyle,
@@ -81,7 +143,39 @@ export default function Record() {
         ),
       },
     });
-    notify("当前口吻已重新生成。");
+    notify(`${pet!.name}换了个说法。`);
+  }
+  async function askAI() {
+    const asked = { description: draft.description, signature };
+    setAsking(true);
+    try {
+      const result = await generateWithAI(pet!, asked.description);
+      if (result.quota) setQuota(result.quota);
+      // If the owner kept typing while the AI wrote, its answer is about an older sentence.
+      if (latest.current !== asked.description) {
+        notify("原话已经改了，AI 的这一版没有采用。");
+        return;
+      }
+      patch({ stories: result.stories, signature: asked.signature });
+      notify(`${pet!.name}用 AI 重新说了一遍。`);
+    } catch (e) {
+      if (e instanceof AIError && e.quota) setQuota(e.quota);
+      notify(e instanceof Error ? e.message : "AI 生成失败，已保留本机版本。");
+    } finally {
+      setAsking(false);
+    }
+  }
+  function edit(changes: { title?: string; text?: string }) {
+    patch({
+      stories: {
+        ...draft.stories!,
+        [draft.selectedStyle]: {
+          ...draft.stories![draft.selectedStyle],
+          ...changes,
+          edited: true,
+        },
+      },
+    });
   }
   async function pick(source: "library" | "camera" = "library") {
     setBusy(true);
@@ -96,7 +190,7 @@ export default function Record() {
   }
   function save() {
     if (!generated || !draft.stories) {
-      notify("先生成故事，再保存这件小事。");
+      notify(`先写下今天的事，${pet!.name}才能开口。`);
       return;
     }
     if (Object.values(draft.stories).some((s) => !s.text.trim())) {
@@ -109,7 +203,7 @@ export default function Record() {
       category: draft.category,
       photo: draft.photo,
       createdAt: new Date().toISOString(),
-      petSnapshot: { ...pet },
+      petSnapshot: { ...pet! },
       stories: draft.stories,
       selectedStyle: draft.selectedStyle,
       published: draft.published,
@@ -125,89 +219,245 @@ export default function Record() {
     }
   }
   return (
-    <View
-      style={{ gap: 22, maxWidth: 800, width: "100%", alignSelf: "center" }}
-    >
-      <View style={[styles.between, { alignItems: "flex-start" }]}>
-        <View style={{ flex: 1 }}>
-          <Text style={styles.h1}>日记编辑室</Text>
-          <Text style={styles.small}>草稿自动保存在本机</Text>
-        </View>
-        <Button
-          label="返回"
-          icon="x"
-          tone="plain"
-          onPress={() => router.replace("/")}
-        />
-      </View>
-      <Card
-        style={{ gap: 22, borderTopWidth: 5, borderTopColor: colors.orange }}
-      >
-        <View style={styles.row}>
-          <Avatar pet={pet} demo={state.demo} />
-          <View>
-            <Text style={styles.h2}>{pet.name}</Text>
-            <Text style={styles.small}>
-              {pet.role} · {pet.personality}
-            </Text>
+    <View style={{ gap: 22, maxWidth: 760, width: "100%", alignSelf: "center" }}>
+      <Heading
+        title="宠语翻译机"
+        eyebrow={`你说人话 → ${pet.name}说${self === "我" ? "自己的" : self.slice(1)}话`}
+        accent={colors.pink}
+        action={
+          <Button label="返回" icon="x" tone="plain" onPress={() => router.replace("/")} />
+        }
+      />
+
+      <View style={{ gap: 8 }}>
+        <View style={[styles.row, { justifyContent: "flex-end", gap: 8 }]}>
+          <Text style={styles.caps}>你（{owner}）说</Text>
+          <View
+            style={{
+              width: 34,
+              height: 34,
+              borderRadius: 17,
+              borderWidth: 1.5,
+              borderColor: colors.edge,
+              backgroundColor: colors.paper,
+              alignItems: "center",
+              justifyContent: "center",
+            }}
+          >
+            <Icon name="user" size={18} color={colors.ink} />
           </View>
         </View>
-        <View>
-          <Label>今天发生了什么？</Label>
+        <Bubble tail="right" bg={colors.paper}>
           <Field
             accessibilityLabel="今天发生了什么"
             value={draft.description}
             onChangeText={(description) =>
-              patch({ description, stories: undefined, signature: undefined })
+              retell(
+                description,
+                manualTag ? draft.category : detectCategory(description),
+              )
             }
             multiline
             maxLength={500}
-            style={{ minHeight: 115 }}
-            placeholder="例如：今天把我的水杯推下去了，还一脸无辜。"
+            onContentSizeChange={(e) => {
+              const owner = Math.max(96, Math.ceil(e.nativeEvent.contentSize.height));
+              setHeights((h) => (h.owner === owner ? h : { ...h, owner }));
+            }}
+            style={[bare, { height: heights.owner, fontSize: 17, lineHeight: 28 }]}
+            placeholder={`照你看到的写就行。例如：今天${pet.name}把我的水杯推下去了，还一脸无辜。`}
           />
-          <Text style={[styles.small, { textAlign: "right", marginTop: 5 }]}>
-            {draft.description.length} / 500
-          </Text>
+          <View style={[styles.between, { marginTop: 8 }]}>
+            <Text style={styles.small}>草稿自动保存在本机</Text>
+            <Text style={styles.small}>{draft.description.length} / 500</Text>
+          </View>
+        </Bubble>
+      </View>
+
+      <View style={[styles.row, { justifyContent: "center", gap: 14, marginVertical: -4 }]}>
+        <View style={{ flex: 1, height: 2, borderRadius: 1, backgroundColor: colors.edge }} />
+        <Wobble degrees={generated ? 6 : 0}>
+          <Stamp
+            top={generated ? "已翻译" : "待翻译"}
+            main={self === "我" ? "宠语" : `${self.slice(1)}语`}
+            color={generated ? colors.orange : colors.muted}
+            size={72}
+            rotate={0}
+            style={{ backgroundColor: colors.paper }}
+          />
+        </Wobble>
+        <View style={{ flex: 1, height: 2, borderRadius: 1, backgroundColor: colors.edge }} />
+      </View>
+
+      <View style={{ gap: 8 }}>
+        <View style={[styles.row, { gap: 8 }]}>
+          <Avatar pet={pet} demo={state.demo} size={34} />
+          <Text style={styles.caps}>{pet.name}说</Text>
+          {story && (
+            <Sticker bg={story.generator === "ai" ? colors.lilac : colors.paper} rotate={2}>
+              {story.generator === "ai" ? "AI 生成" : "本机生成"}
+              {story.edited ? " · 主人润色" : ""}
+            </Sticker>
+          )}
         </View>
-        <View>
-          <Label>标签</Label>
+        <Bubble tail="left" bg={generated ? tones[draft.selectedStyle] : colors.line}>
+          {story ? (
+            <View style={{ gap: 8 }}>
+              <Field
+                accessibilityLabel="故事标题"
+                value={story.title}
+                maxLength={160}
+                onChangeText={(title) => edit({ title })}
+                style={[
+                  bare,
+                  { fontSize: 20, lineHeight: 28, fontWeight: "700", fontFamily: display },
+                ]}
+              />
+              <View style={{ height: 2, backgroundColor: colors.ink, opacity: 0.25 }} />
+              <Field
+                accessibilityLabel="故事内容"
+                multiline
+                maxLength={2000}
+                value={story.text}
+                onChangeText={(text) => edit({ text })}
+                onContentSizeChange={(e) => {
+                  const pet = Math.max(120, Math.ceil(e.nativeEvent.contentSize.height));
+                  setHeights((h) => (h.pet === pet ? h : { ...h, pet }));
+                }}
+                style={[bare, { height: heights.pet, fontSize: 16, lineHeight: 28 }]}
+              />
+              <Text style={[styles.small, { color: colors.ink, opacity: 0.7 }]}>
+                点文字可以直接改 · 改上面的原话会重新翻译
+              </Text>
+            </View>
+          ) : (
+            <Text style={[styles.body, { color: colors.muted, minHeight: 60 }]}>
+              ……（{pet.name}正盯着你，等你先开口）
+            </Text>
+          )}
+        </Bubble>
+      </View>
+
+      {generated && (
+        <View style={{ gap: 10 }}>
+          <Text style={styles.caps}>换个口吻</Text>
           <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 8 }}>
-            {CATEGORIES.map((c) => (
+            {STYLES.map((s) => (
               <Chip
-                key={c}
-                label={CATEGORY_LABELS[c]}
-                active={draft.category === c}
-                onPress={() =>
-                  patch({
-                    category: c,
-                    stories: undefined,
-                    signature: undefined,
-                  })
-                }
+                key={s}
+                label={labels[s]}
+                color={tones[s]}
+                active={draft.selectedStyle === s}
+                onPress={() => patch({ selectedStyle: s })}
               />
             ))}
+            <Button label="换个说法" icon="refresh-cw" tone="plain" onPress={regenerate} />
           </View>
-          <Text style={[styles.small, { marginTop: 8 }]}>标签影响故事模板</Text>
         </View>
-        <View>
-          <Label>照片（可选）</Label>
-          {draft.photo && (
-            <Image
-              source={{ uri: draft.photo }}
-              style={{
-                width: "100%",
-                height: 220,
-                borderRadius: 14,
-                marginBottom: 10,
+      )}
+
+      {generated && aiAvailable && (
+        <View
+          style={{
+            backgroundColor: colors.lilac,
+            borderRadius: 24,
+            padding: 16,
+            gap: 10,
+          }}
+        >
+          <View style={[styles.between, { flexWrap: "wrap" }]}>
+            <Text style={[styles.body, { fontWeight: "700", flex: 1 }]}>
+              想让它说得更像它自己？
+            </Text>
+            <Text style={styles.small}>
+              {quota
+                ? quota.member
+                  ? "会员 · AI 不限次数"
+                  : `本周免费 AI 还剩 ${quota.remaining} / ${quota.limit} 次`
+                : "暂时查不到剩余次数"}
+            </Text>
+          </View>
+          <Button
+            label={asking ? `${pet.name}正在组织语言…` : "让 AI 来说（用 1 次）"}
+            icon="zap"
+            tone="soft"
+            disabled={asking || (!!quota && !quota.member && quota.remaining === 0)}
+            onPress={() => {
+              void askAI();
+            }}
+          />
+          <Text style={styles.small}>
+            一次生成四种口吻。本机版本不限次数；改上面的原话会回到本机版本。
+          </Text>
+        </View>
+      )}
+
+      <View style={{ gap: 10 }}>
+        <Text style={styles.caps}>
+          这算哪类事{manualTag ? "" : " · 已按原话自动判断"}
+        </Text>
+        <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 8 }}>
+          {CATEGORIES.map((c) => (
+            <Chip
+              key={c}
+              label={CATEGORY_LABELS[c]}
+              active={draft.category === c}
+              onPress={() => {
+                setManualTag(true);
+                retell(draft.description, c);
               }}
-              resizeMode="cover"
             />
-          )}
-          <View style={[styles.row, { flexWrap: "wrap" }]}>
+          ))}
+        </View>
+      </View>
+
+      <View
+        style={[
+          {
+            backgroundColor: "#FFF",
+            borderRadius: 10,
+            padding: 12,
+            gap: 12,
+            marginTop: 6,
+            transform: [{ rotate: "-0.8deg" }],
+          },
+          shadow(4),
+        ]}
+      >
+        <Tape color={colors.sky} />
+        {draft.photo ? (
+          <Image
+            source={{ uri: draft.photo }}
+            style={{ width: "100%", height: 240, backgroundColor: colors.pale }}
+            resizeMode="cover"
+          />
+        ) : (
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel="选择照片"
+            disabled={busy}
+            onPress={() => {
+              void pick();
+            }}
+            style={{
+              height: 120,
+              borderWidth: 2,
+              borderStyle: "dashed",
+              borderColor: colors.muted,
+              alignItems: "center",
+              justifyContent: "center",
+              gap: 6,
+            }}
+          >
+            <Icon name="image" size={26} color={colors.muted} />
+            <Text style={styles.small}>
+              {busy ? "照片处理中…" : "贴一张现场照片（可选）"}
+            </Text>
+          </Pressable>
+        )}
+        <View style={[styles.row, { flexWrap: "wrap" }]}>
+          {draft.photo && (
             <Button
-              label={
-                busy ? "照片处理中…" : draft.photo ? "更换照片" : "选择照片"
-              }
+              label={busy ? "照片处理中…" : "更换照片"}
               icon="image"
               tone="soft"
               disabled={busy}
@@ -215,141 +465,64 @@ export default function Record() {
                 void pick();
               }}
             />
-            {Platform.OS !== "web" && (
-              <Button
-                label="拍一张"
-                icon="camera"
-                tone="soft"
-                disabled={busy}
-                onPress={() => {
-                  void pick("camera");
-                }}
-              />
-            )}
-            {draft.photo && (
-              <Button
-                label="移除照片"
-                tone="plain"
-                disabled={busy}
-                onPress={() => patch({ photo: undefined })}
-              />
-            )}
-          </View>
-          <Text style={[styles.small, { marginTop: 7 }]}>
-            1 张 · ≤25 MB · 压缩后保存
-          </Text>
-        </View>
-        {!generated && (
-          <Button
-            label="生成故事"
-            icon="zap"
-            disabled={!draft.description.trim() || busy}
-            onPress={generate}
-          />
-        )}
-      </Card>
-      {generated && draft.stories && (
-        <Card style={{ gap: 20 }}>
-          <View style={styles.between}>
-            <Text style={styles.h2}>选择口吻</Text>
-            <Tag>模板生成</Tag>
-          </View>
-          <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 8 }}>
-            {STYLES.map((s) => (
-              <Chip
-                key={s}
-                label={labels[s]}
-                active={draft.selectedStyle === s}
-                onPress={() => patch({ selectedStyle: s })}
-              />
-            ))}
-          </View>
-          <View>
-            <Label>
-              {draft.selectedStyle === "news" ? "新闻标题" : "故事标题"}
-            </Label>
-            <Field
-              accessibilityLabel="故事标题"
-              value={draft.stories[draft.selectedStyle].title}
-              maxLength={160}
-              onChangeText={(title) =>
-                patch({
-                  stories: {
-                    ...draft.stories!,
-                    [draft.selectedStyle]: {
-                      ...draft.stories![draft.selectedStyle],
-                      title,
-                      edited: true,
-                    },
-                  },
-                })
-              }
-            />
-          </View>
-          <View>
-            <Label>故事内容</Label>
-            <Field
-              accessibilityLabel="故事内容"
-              multiline
-              style={{ minHeight: 210, lineHeight: 26 }}
-              maxLength={2000}
-              value={draft.stories[draft.selectedStyle].text}
-              onChangeText={(text) =>
-                patch({
-                  stories: {
-                    ...draft.stories!,
-                    [draft.selectedStyle]: {
-                      ...draft.stories![draft.selectedStyle],
-                      text,
-                      edited: true,
-                    },
-                  },
-                })
-              }
-            />
-          </View>
-          <Button
-            label="重新生成当前口吻"
-            icon="refresh-cw"
-            tone="plain"
-            onPress={regenerate}
-          />
-          <View style={styles.divider} />
-          <Pressable
-            accessibilityRole="checkbox"
-            accessibilityLabel="发布到本机毛圈"
-            accessibilityState={{ checked: draft.published }}
-            aria-checked={draft.published}
-            onPress={() => patch({ published: !draft.published })}
-            style={[styles.row, { minHeight: 48 }]}
-          >
-            <View
-              style={{
-                width: 23,
-                height: 23,
-                borderRadius: 6,
-                borderWidth: 1,
-                borderColor: draft.published ? colors.orange : "#C9CCC5",
-                backgroundColor: draft.published ? colors.orange : "#FFF",
-                alignItems: "center",
-                justifyContent: "center",
+          )}
+          {Platform.OS !== "web" && (
+            <Button
+              label="拍一张"
+              icon="camera"
+              tone="soft"
+              disabled={busy}
+              onPress={() => {
+                void pick("camera");
               }}
-            >
-              {draft.published && <Icon name="check" color="#FFF" size={16} />}
-            </View>
-            <View style={{ flex: 1 }}>
-              <Text style={styles.body}>发布到本机毛圈</Text>
-              <Text style={styles.small}>当前口吻 · 仅此设备可见</Text>
-            </View>
-          </Pressable>
-          <Button
-            label="保存日记 · +20 XP"
-            icon="check"
-            disabled={busy}
-            onPress={save}
-          />
-        </Card>
-      )}
+            />
+          )}
+          {draft.photo && (
+            <Button
+              label="移除照片"
+              tone="plain"
+              disabled={busy}
+              onPress={() => patch({ photo: undefined })}
+            />
+          )}
+          <Text style={styles.small}>1 张 · ≤25 MB · 压缩后保存</Text>
+        </View>
+      </View>
+
+      <Pressable
+        accessibilityRole="checkbox"
+        accessibilityLabel="发布到本机毛圈"
+        accessibilityState={{ checked: draft.published }}
+        aria-checked={draft.published}
+        onPress={() => patch({ published: !draft.published })}
+        style={[styles.row, { minHeight: 48 }]}
+      >
+        <View
+          style={{
+            width: 26,
+            height: 26,
+            borderRadius: 7,
+            borderWidth: 1.5,
+            borderColor: colors.edge,
+            backgroundColor: draft.published ? colors.orange : colors.paper,
+            alignItems: "center",
+            justifyContent: "center",
+          }}
+        >
+          {draft.published && <Icon name="check" color="#FFF" size={16} />}
+        </View>
+        <View style={{ flex: 1 }}>
+          <Text style={[styles.body, { fontWeight: "700" }]}>贴到本机毛圈</Text>
+          <Text style={styles.small}>当前口吻 · 仅此设备可见</Text>
+        </View>
+      </Pressable>
+      <Button
+        label="保存日记 · +20 XP"
+        icon="check"
+        disabled={busy || asking || !generated}
+        onPress={save}
+        style={{ minHeight: 54 }}
+      />
     </View>
   );
 }

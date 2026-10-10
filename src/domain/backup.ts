@@ -10,7 +10,7 @@ export function parseBackup(content: string): AppState {
   try {
     value = JSON.parse(content.replace(/^\uFEFF/, ""));
   } catch {
-    throw new Error("文件读取失败，请选择毛孩营业中导出的 JSON 备份。");
+    throw new Error("文件读取失败，请选择爪记导出的 JSON 备份。");
   }
   if (!isAppState(value))
     throw new Error("备份内容或版本无法读取，请检查文件是否完整。");

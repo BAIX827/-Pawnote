@@ -31,6 +31,7 @@ const pet = (v: unknown) =>
     v.route === ((v.ageMonths as number) < 12 ? "campus" : "work"))) &&
   one(v.route, ["work", "campus"]) &&
   str(v.role, 30) &&
+  (v.ownerTitle === undefined || (str(v.ownerTitle, 10) && (v.ownerTitle as string).trim().length > 0)) &&
   photo(v.avatar);
 const stories = (v: unknown) =>
   obj(v) &&
@@ -39,7 +40,7 @@ const stories = (v: unknown) =>
       obj(v[k]) &&
       str(v[k].text, 2000) &&
       str(v[k].title, 160) &&
-      v[k].generator === "template" &&
+      (v[k].generator === "template" || v[k].generator === "ai") &&
       typeof v[k].edited === "boolean",
   );
 export function isAppState(v: unknown): v is AppState {

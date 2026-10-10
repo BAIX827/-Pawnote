@@ -29,12 +29,14 @@ export interface Pet {
   personality: Personality;
   route: Route;
   role: string;
+  /** What the pet calls its owner in stories, chosen by the owner. */
+  ownerTitle?: string;
   avatar?: string;
 }
 export interface Story {
   text: string;
   title: string;
-  generator: "template";
+  generator: "template" | "ai";
   edited: boolean;
 }
 export type Stories = Record<StoryStyle, Story>;
