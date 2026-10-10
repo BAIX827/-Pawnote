@@ -5,6 +5,7 @@ import { router } from "expo-router";
 import { useStore } from "../data/store";
 import { progress, titleFor } from "../domain/life";
 import { formatDate } from "../domain/types";
+import { milestones } from "../domain/timeline";
 import {
   Bubble,
   Button,
@@ -45,6 +46,7 @@ export default function Home() {
     narrow = width < 500,
     now = new Date(),
     m = moment(now.getHours());
+  const anniversary = milestones(pet, state.events, now).anniversaryToday;
   // The pet's latest line as it was saved, so it never changes with the interface language.
   const saying = latest
     ? latest.stories.diary.text.split("\n").find((line) => line.trim()) ?? m.line
@@ -147,6 +149,18 @@ export default function Home() {
         </Bubble>
       </View>
 
+      {anniversary !== undefined && (
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel={t("打开时光机")}
+          onPress={() => router.push("/timemachine")}
+          style={[{ backgroundColor: colors.pink, borderRadius: 22, padding: 16 }, shadow(3)]}
+        >
+          <Text style={[styles.h2, { fontSize: 20 }]}>
+            {t("今天是 {name} 到家 {n} 周年", { name: pet.name, n: anniversary })}
+          </Text>
+        </Pressable>
+      )}
       <Pressable
         accessibilityRole="button"
         accessibilityLabel={t("记录今天，翻成宠物的话")}

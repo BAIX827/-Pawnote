@@ -32,6 +32,8 @@ export interface Pet {
   role: string;
   /** What the pet calls its owner in stories, chosen by the owner. */
   ownerTitle?: string;
+  /** The day the pet came home, as YYYY-MM-DD. */
+  homeDate?: string;
   avatar?: string;
 }
 export interface Story {

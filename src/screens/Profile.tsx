@@ -232,6 +232,13 @@ export default function Profile() {
         />
       )}
       <Button
+        label={t("时光机")}
+        icon="clock"
+        tone="soft"
+        onPress={() => router.push("/timemachine")}
+        style={{ alignSelf: "flex-start" }}
+      />
+      <Button
         label={t("设置")}
         icon="settings"
         tone="soft"

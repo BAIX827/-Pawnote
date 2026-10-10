@@ -19,6 +19,7 @@ import {
 } from "../domain/types";
 import { SPECIES_INFO, parseAge, recommendRoute } from "../domain/pet-profile";
 import { defaultOwnerName } from "../domain/story-engine";
+import { isHomeDate } from "../domain/timeline";
 import { choosePhoto } from "../platform/photo";
 import {
   Avatar,
@@ -70,6 +71,7 @@ export default function Onboarding({ editing = false }: { editing?: boolean }) {
   );
   const [avatar, setAvatar] = useState(original?.avatar);
   const [ownerTitle, setOwnerTitle] = useState(original?.ownerTitle ?? "");
+  const [homeDate, setHomeDate] = useState(original?.homeDate ?? "");
   const [busy, setBusy] = useState(false);
   let ageMonths: number | undefined,
     ageError = "";
@@ -108,6 +110,7 @@ export default function Onboarding({ editing = false }: { editing?: boolean }) {
     routeSource: effectiveRouteSource,
     role: roleFor(route),
     ...(ownerTitle.trim() ? { ownerTitle: ownerTitle.trim() } : {}),
+    ...(isHomeDate(homeDate.trim()) ? { homeDate: homeDate.trim() } : {}),
     avatar,
   };
   async function pick() {
@@ -136,6 +139,10 @@ export default function Onboarding({ editing = false }: { editing?: boolean }) {
     }
     if (ageError) {
       notify(ageError);
+      return;
+    }
+    if (homeDate.trim() && !isHomeDate(homeDate.trim())) {
+      notify(t("到家日期请按 2024-03-15 这样填写，且不晚于今天。"));
       return;
     }
     if (effectiveRouteSource === "age" && !recommended) {
@@ -407,6 +414,18 @@ export default function Onboarding({ editing = false }: { editing?: boolean }) {
               maxLength={10}
               placeholder={t("也可以自己写，例如：老张。留空就叫“{owner}”", { owner: defaultOwnerName(species) })}
             />
+          </View>
+          <View style={{ gap: 10 }}>
+            <Label>{t("07 / 到家日期（可选）")}</Label>
+            <Field
+              accessibilityLabel={t("到家日期")}
+              value={homeDate}
+              onChangeText={setHomeDate}
+              maxLength={10}
+              autoCapitalize="none"
+              placeholder="2024-03-15"
+            />
+            <Text style={styles.small}>{t("填了以后，时光机会算它来到你身边的第几天和周年。")}</Text>
           </View>
           <View style={styles.row}>
             <Button

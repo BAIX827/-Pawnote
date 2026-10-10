@@ -173,6 +173,13 @@ export default function Life() {
             {t("还差 {n} XP · 每条新记录 +20", { n: p.toNext })}
           </Text>
           <Button label={t("添一段经历")} icon="plus" onPress={() => router.push("/record")} />
+          <Button
+            label={work ? t("看本月工资条和考核") : t("看本月成绩单和考核")}
+            icon="file-text"
+            tone="soft"
+            onPress={() => router.push("/report")}
+            style={{ backgroundColor: colors.paper }}
+          />
         </Card>
       </View>
       <View style={{ alignSelf: "flex-start", marginTop: 6 }}>

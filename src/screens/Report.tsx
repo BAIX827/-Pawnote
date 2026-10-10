@@ -1,0 +1,165 @@
+import { locale, t } from "../i18n";
+import React, { useState } from "react";
+import { Text, View } from "react-native";
+import { router } from "expo-router";
+import { useStore } from "../data/store";
+import {
+  appraisal,
+  currency,
+  monthReport,
+  payslip,
+  reportCard,
+  reportMonths,
+} from "../domain/report";
+import { ownerName } from "../domain/story-engine";
+import { CATEGORY_LABELS } from "../domain/types";
+import {
+  Bubble,
+  Button,
+  Card,
+  Chip,
+  Heading,
+  Stamp,
+  Wobble,
+  colors,
+  display,
+  shadow,
+  styles,
+} from "../components/ui";
+import Onboarding from "./Onboarding";
+
+const monthName = (month: string) => {
+  const [y, m] = month.split("-").map(Number);
+  return new Date(y, m - 1, 1).toLocaleDateString(locale(), { year: "numeric", month: "long" });
+};
+const signed = (n: number) => (n > 0 ? `+${n}` : String(n));
+
+export default function Report() {
+  const { state } = useStore();
+  const months = reportMonths(state.events);
+  const [month, setMonth] = useState(months[0]);
+  if (!state.pet) return <Onboarding />;
+  const pet = state.pet,
+    work = pet.route === "work",
+    accent = work ? colors.jade : colors.lavender,
+    soft = work ? colors.green : colors.lilac,
+    report = monthReport(state.events, month),
+    owner = ownerName(pet),
+    words = appraisal(pet, report, owner),
+    pay = payslip(report),
+    card = reportCard(report),
+    unit = currency(pet);
+  const row = { flexDirection: "row" as const, justifyContent: "space-between" as const, gap: 12, paddingVertical: 7 };
+  return (
+    <View style={[styles.stack, { maxWidth: 760, width: "100%", alignSelf: "center" }]}>
+      <Heading
+        title={t("月度考核")}
+        eyebrow={work ? t("工资条 · 绩效 · 考核") : t("成绩单 · 绩效 · 考核")}
+        accent={soft}
+        action={<Button label={t("返回")} tone="plain" onPress={() => router.replace("/life")} />}
+      />
+      <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 8 }}>
+        {months.slice(0, 6).map((m) => (
+          <Chip key={m} label={monthName(m)} active={m === month} color={accent} onPress={() => setMonth(m)} />
+        ))}
+      </View>
+
+      <View
+        style={[
+          { backgroundColor: colors.paper, borderRadius: 20, borderWidth: 1.5, borderColor: colors.edge, padding: 22, gap: 6 },
+          shadow(4),
+        ]}
+      >
+        <View style={styles.between}>
+          <View style={{ flex: 1 }}>
+            <Text style={[styles.caps, { color: accent }]}>{work ? "PAWNOTE GROUP" : "PAWNOTE ACADEMY"}</Text>
+            <Text style={[styles.h1, { fontSize: 30, lineHeight: 40 }]}>
+              {work ? t("工资条") : t("成绩单")}
+            </Text>
+            <Text style={styles.small}>
+              {pet.name} · {t(pet.role)} · {monthName(month)}
+            </Text>
+          </View>
+          <Wobble>
+            <Stamp top={t("绩效")} main={report.grade ?? "—"} color={colors.orange} size={76} rotate={0} />
+          </Wobble>
+        </View>
+        <View style={{ borderTopWidth: 1.5, borderStyle: "dashed", borderColor: colors.edge, marginTop: 10, paddingTop: 8 }}>
+          {work
+            ? pay.lines.map((l) => (
+                <View key={l.label} style={row}>
+                  <Text style={styles.body}>
+                    {l.label}
+                    {l.count !== undefined && <Text style={styles.small}>  × {l.count}</Text>}
+                  </Text>
+                  <Text style={[styles.body, { fontWeight: "700", color: l.amount < 0 ? "#C0564A" : colors.ink }]}>
+                    {signed(l.amount)}
+                  </Text>
+                </View>
+              ))
+            : card.rows.map((r) => (
+                <View key={r.subject} style={row}>
+                  <Text style={styles.body}>
+                    {r.subject}
+                    {r.count > 0 && <Text style={styles.small}>  × {r.count}</Text>}
+                  </Text>
+                  <Text style={[styles.body, { fontWeight: "700", color: r.score === undefined ? colors.muted : colors.ink }]}>
+                    {r.score ?? t("缺考")}
+                  </Text>
+                </View>
+              ))}
+        </View>
+        <View style={[row, { borderTopWidth: 2, borderColor: colors.ink, marginTop: 6, paddingTop: 12, alignItems: "flex-end" }]}>
+          <Text style={[styles.body, { fontWeight: "700" }]}>{work ? t("实发") : t("本月学分")}</Text>
+          <Text style={{ fontFamily: display, fontWeight: "700", fontSize: 34, lineHeight: 40, color: accent }}>
+            {work ? pay.total : card.credits}
+            <Text style={{ fontSize: 14 }}> {work ? unit : t("分")}</Text>
+          </Text>
+        </View>
+        <Text style={styles.small}>{t("按本月已保存的记录计算，纯属娱乐，不影响经验。")}</Text>
+      </View>
+
+      <Card style={{ gap: 14, backgroundColor: soft }}>
+        <Text style={[styles.h2, { fontSize: 24, lineHeight: 32 }]}>{t("考核报告")}</Text>
+        <View style={{ flexDirection: "row", gap: 10 }}>
+          {[
+            { n: report.days, label: t("出勤天数") },
+            { n: report.entries, label: t("记录数") },
+            { n: report.top ? t(CATEGORY_LABELS[report.top]) : "—", label: t("最常做的事") },
+          ].map((s) => (
+            <View key={s.label} style={{ flex: 1, backgroundColor: colors.paper, borderRadius: 16, padding: 12 }}>
+              <Text numberOfLines={1} style={{ fontFamily: display, fontWeight: "700", fontSize: 24, lineHeight: 32, color: colors.ink }}>
+                {s.n}
+              </Text>
+              <Text style={styles.small}>{s.label}</Text>
+            </View>
+          ))}
+        </View>
+        {report.highlight && (
+          <View>
+            <Text style={styles.caps}>{t("本月代表作")}</Text>
+            <Button
+              label={report.highlight.stories[report.highlight.selectedStyle].title}
+              tone="plain"
+              style={{ alignSelf: "flex-start", paddingHorizontal: 0 }}
+              onPress={() => router.push({ pathname: "/event", params: { id: report.highlight!.id } })}
+            />
+          </View>
+        )}
+        <View style={{ gap: 6 }}>
+          <Text style={styles.caps}>{t("主管评语（{owner}）", { owner })}</Text>
+          <Bubble tail="right">
+            <Text style={styles.body}>{words.manager}</Text>
+          </Bubble>
+        </View>
+        <View style={{ gap: 6, marginTop: 6 }}>
+          <Text style={styles.caps}>{t("{name}自评", { name: pet.name })}</Text>
+          <Bubble tail="left" bg={colors.yellow}>
+            <Text style={[styles.body, { fontWeight: "600" }]}>{words.self}</Text>
+          </Bubble>
+        </View>
+      </Card>
+      <Button label={t("添一段经历")} icon="plus" onPress={() => router.push("/record")} />
+    </View>
+  );
+}

@@ -1,4 +1,5 @@
 import { AppState, CATEGORIES, SPECIES, STYLES } from "../domain/types";
+import { isHomeDate } from "../domain/timeline";
 const obj = (v: unknown): v is Record<string, unknown> =>
   !!v && typeof v === "object" && !Array.isArray(v);
 const str = (v: unknown, max: number) =>
@@ -31,6 +32,7 @@ const pet = (v: unknown) =>
     v.route === ((v.ageMonths as number) < 12 ? "campus" : "work"))) &&
   one(v.route, ["work", "campus"]) &&
   str(v.role, 30) &&
+  (v.homeDate === undefined || isHomeDate(v.homeDate)) &&
   (v.ownerTitle === undefined || (str(v.ownerTitle, 10) && (v.ownerTitle as string).trim().length > 0)) &&
   photo(v.avatar);
 const stories = (v: unknown) =>
