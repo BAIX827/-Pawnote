@@ -70,3 +70,5 @@ schemaVersion 仍为 1，新增内容向后兼容：
 - Pet.ownerTitle?：1–10 字，宠物对主人的称呼；进入快照、备份与生成签名。
 - Story.generator：新增取值 "ai"，原有 "template" 表示本机规则生成。
 - 设备标识单独保存在本机存储键 pawlife.deviceId，不进入备份。
+
+- 2026-10-11：POST /v1/pet-voice 的请求体新增可选 lang:"zh"|"en"（缺省 zh），网关据此选用对应语言的提示词。
