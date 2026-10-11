@@ -232,6 +232,13 @@ export default function Profile() {
         />
       )}
       <Button
+        label={t("爪约")}
+        icon="bell"
+        tone="soft"
+        onPress={() => router.push("/dates")}
+        style={{ alignSelf: "flex-start" }}
+      />
+      <Button
         label={t("时光机")}
         icon="clock"
         tone="soft"

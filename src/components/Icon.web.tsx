@@ -38,6 +38,8 @@ const paths: Partial<Record<IconProps["name"], string>> = {
   globe: "M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0ZM3 12h18M12 3c3 3 3 15 0 18M12 3c-3 3-3 15 0 18",
   settings: "M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6ZM19 12l2-1-2-4-2 1-2-1V4h-4v3L9 8 7 7 5 11l2 1v0l-2 1 2 4 2-1 2 1v3h4v-3l2-1 2 1 2-4Z",
   clock: "M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0ZM12 7v5l3 2",
+  bell: "M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9M13.7 21a2 2 0 0 1-3.4 0",
+  "bell-off": "M13.7 21a2 2 0 0 1-3.4 0M18.6 13A17 17 0 0 1 18 8M6.3 6.3A6 6 0 0 0 6 8c0 7-3 9-3 9h14M9 3.5A6 6 0 0 1 18 8M1 1l22 22",
   feather: "M20 4C14-2 7 7 5 13l-3 9 9-3C17 17 26 10 20 4ZM5 19 18 6M8 11h5v5",
 };
 export default function Icon({ name, size = 20, color = "#263830" }: IconProps) {

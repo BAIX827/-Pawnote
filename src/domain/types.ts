@@ -64,12 +64,29 @@ export interface Draft {
   published: boolean;
   signature?: string;
 }
+/** A 爪约: something the pet wants to do with its owner at a set time (docs/01 8.16). */
+export interface Routine {
+  id: string;
+  /** A preset activity key from domain/paw-dates, or "custom" with the owner's own label. */
+  activity: string;
+  label?: string;
+  /** HH:MM, local time. */
+  time: string;
+  /** Weekdays, 0 = Sunday. */
+  days: number[];
+  enabled: boolean;
+  createdAt: string;
+  lastDone?: string;
+  snoozedUntil?: string;
+}
 export interface AppState {
   schemaVersion: 1;
   pet: Pet | null;
   events: LifeEvent[];
   draft: Draft | null;
   demo: boolean;
+  /** Optional so backups made before 爪约 still load. */
+  routines?: Routine[];
 }
 export const CATEGORY_LABELS: Record<Category, string> = {
   sleep: "睡觉",

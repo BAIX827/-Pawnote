@@ -34,11 +34,18 @@ export function demoState(): AppState {
       published: true,
     },
   ];
+  // One date already due, so the 爪窝 card shows up straight away, and one for later tonight.
+  const now = new Date();
+  const created = now.toISOString();
   return {
     schemaVersion: 1,
     pet,
     demo: true,
     draft: null,
+    routines: [
+      { id: "demo-date-0", activity: "snack", time: `${String(now.getHours()).padStart(2, "0")}:00`, days: [0, 1, 2, 3, 4, 5, 6], enabled: true, createdAt: created },
+      { id: "demo-date-1", activity: "wand", time: "20:30", days: [0, 1, 2, 3, 4, 5, 6], enabled: true, createdAt: created },
+    ],
     events: samples.map((s, i) => ({
       ...s,
       id: `demo-${i}`,

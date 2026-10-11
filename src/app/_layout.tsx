@@ -4,6 +4,7 @@ import { StatusBar } from "expo-status-bar";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import { StoreProvider } from "../data/store";
 import { useFonts } from "expo-font";
+import ReminderSync from "../components/ReminderSync";
 export default function RootLayout() {
   // Headline faces ship inside the app (no font CDN, so they work in mainland China and abroad).
   // They load in the background; system fonts show until they arrive.
@@ -15,6 +16,7 @@ export default function RootLayout() {
     <SafeAreaProvider>
       <StoreProvider>
         <StatusBar style="dark" />
+        <ReminderSync />
         <Stack
           screenOptions={{
             headerShown: false,

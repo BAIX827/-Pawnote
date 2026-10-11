@@ -1,5 +1,6 @@
 import { AppState, CATEGORIES, SPECIES, STYLES } from "../domain/types";
 import { isHomeDate } from "../domain/timeline";
+import { MAX_LABEL, MAX_ROUTINES, isActivity, isTime } from "../domain/paw-dates";
 const obj = (v: unknown): v is Record<string, unknown> =>
   !!v && typeof v === "object" && !Array.isArray(v);
 const str = (v: unknown, max: number) =>
@@ -45,6 +46,25 @@ const stories = (v: unknown) =>
       (v[k].generator === "template" || v[k].generator === "ai") &&
       typeof v[k].edited === "boolean",
   );
+const isoDate = (v: unknown) => v === undefined || (str(v, 40) && Number.isFinite(Date.parse(v as string)));
+const routine = (v: unknown) =>
+  obj(v) &&
+  str(v.id, 100) &&
+  typeof v.activity === "string" &&
+  (v.activity === "custom"
+    ? str(v.label, MAX_LABEL) && (v.label as string).trim().length > 0
+    : isActivity(v.activity) && v.label === undefined) &&
+  isTime(v.time) &&
+  Array.isArray(v.days) &&
+  v.days.length > 0 &&
+  v.days.length <= 7 &&
+  new Set(v.days).size === v.days.length &&
+  v.days.every((d) => Number.isInteger(d) && d >= 0 && d <= 6) &&
+  typeof v.enabled === "boolean" &&
+  str(v.createdAt, 40) &&
+  Number.isFinite(Date.parse(v.createdAt as string)) &&
+  isoDate(v.lastDone) &&
+  isoDate(v.snoozedUntil);
 export function isAppState(v: unknown): v is AppState {
   if (
     !obj(v) ||
@@ -76,6 +96,12 @@ export function isAppState(v: unknown): v is AppState {
   )
     return false;
   if (new Set(v.events.map((e) => e.id)).size !== v.events.length) return false;
+  if (
+    v.routines !== undefined &&
+    !(Array.isArray(v.routines) && v.routines.length <= MAX_ROUTINES && v.routines.every(routine) &&
+      new Set(v.routines.map((r) => (r as { id: string }).id)).size === v.routines.length)
+  )
+    return false;
   return (
     v.draft === null ||
     (obj(v.draft) &&
