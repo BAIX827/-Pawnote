@@ -76,3 +76,4 @@ schemaVersion 仍为 1，新增内容向后兼容：
 - 2026-10-11：POST /v1/pet-voice 请求体新增必填 temper（cool/clingy/goofy/drama/curious/calm/shy）与可选 weird:boolean、locale（如 en-AU，用于选英式或美式拼写）；pet.role 必填。网关生成后按禁用词表检查，命中则重写一次，只计 1 次。
 - 2026-10-11：Pet.homeDate?：到家日期，格式 YYYY-MM-DD，须为不晚于当天的有效日期；进入快照与备份，不进入生成签名。月度考核与时光机均由已有记录计算，不新增存储。
 - 2026-10-11：AppState.pawsona?：最近一次爪格测试结果 {version:1, temper, scores:Record<七种脾气, number>, takenAt:ISO 时间}，scores 为 0–8 的整数且合计为 8（PRD 8.17）。AppState.mailRead?：最近读过的周信对应周一的日期 YYYY-MM-DD；AppState.mailReminder?：布尔，周一收信提醒，缺省视为开（PRD 8.18）。三者均为可选，进入备份，旧备份照常读取；爪信内容由记录计算，不存储。
+- 2026-10-11：AppState.circle?：{hiddenNpcs?: string[]（送回小镇的居民 id，最多 7 个）, removed?: string[]（主人删掉的自家宠物评论 id，最多 500 个）}（PRD 8.20）。LifeEvent.published 含义改为“留在窝里”，动态文字取爪友圈口吻。居民动态、点爪、评论与逛街结果由日期和记录计算，不存储。联机阶段：Post 增加 destination(home/lawn)，Comment 只能由服务端为宠物生成，POST /v1/posts/:id/comments 不再接受主人文本；Friendship 改为宠物之间（petA、petB），主人之间不建关系；新增 Report、Block 的宠物维度。
