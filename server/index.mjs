@@ -160,7 +160,9 @@ function parseStories(raw) {
   }
   return stories;
 }
-async function ask(p, messages, region, jsonMode) {
+// Providers disagree on small things: the name of the output limit, whether JSON mode exists.
+// A 400 that names one of those gets one retry with the alternative, so a config works as is.
+async function ask(p, messages, region, jsonMode, limitName = "max_tokens") {
   const response = await fetch(`${p.url.replace(/\/$/, "")}/chat/completions`, {
     method: "POST",
     headers: { "content-type": "application/json", authorization: `Bearer ${p.key}` },
@@ -171,13 +173,17 @@ async function ask(p, messages, region, jsonMode) {
       temperature: Number(env[region === "cn" ? "CN_TEMPERATURE" : "INTL_TEMPERATURE"] ?? (region === "cn" ? 1.3 : 1)),
       // Some models think before they answer and the thinking counts against this limit,
       // so it has to leave room for both or the answer comes back empty.
-      max_tokens: Number(env[region === "cn" ? "CN_MAX_TOKENS" : "INTL_MAX_TOKENS"] ?? 4096),
+      [limitName]: Number(env[region === "cn" ? "CN_MAX_TOKENS" : "INTL_MAX_TOKENS"] ?? 4096),
       ...(jsonMode ? { response_format: { type: "json_object" } } : {}),
     }),
-    signal: AbortSignal.timeout(45000),
+    signal: AbortSignal.timeout(60000),
   });
-  // A provider that rejects JSON mode gets the same request once more without it.
-  if (response.status === 400 && jsonMode) return ask(p, messages, region, false);
+  if (response.status === 400) {
+    const reason = await response.text();
+    if (limitName === "max_tokens" && reason.includes("max_completion_tokens"))
+      return ask(p, messages, region, jsonMode, "max_completion_tokens");
+    if (jsonMode) return ask(p, messages, region, false, limitName);
+  }
   if (!response.ok) throw Object.assign(new Error(`provider answered ${response.status}`), { status: 502 });
   const data = await response.json();
   return String(data.choices?.[0]?.message?.content ?? "");
