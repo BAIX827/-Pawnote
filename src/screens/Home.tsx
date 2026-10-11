@@ -324,7 +324,7 @@ export default function Home() {
               </Text>
               <View style={{ flex: 1, gap: 4 }}>
                 <Text style={styles.small}>
-                  {formatDate(e.createdAt)} · {e.published ? t("本机爪友圈") : t("私密")}
+                  {formatDate(e.createdAt)} · {e.published ? t("留在窝里") : t("私密")}
                 </Text>
                 <Text style={[styles.h2, { fontSize: 18, lineHeight: 26 }]} numberOfLines={2}>
                   {e.stories[e.selectedStyle].title}

@@ -77,6 +77,9 @@ const pawsona = (v: unknown) =>
     TEMPERS.reduce((sum, k) => sum + ((v.scores as Record<string, number>)[k] ?? 0), 0) === PAWSONA_QUESTIONS.length &&
     str(v.takenAt, 40) &&
     Number.isFinite(Date.parse(v.takenAt as string)));
+const ids = (v: unknown, max: number) =>
+  v === undefined || (Array.isArray(v) && v.length <= max && v.every((x) => str(x, 200)));
+const circle = (v: unknown) => obj(v) && ids(v.hiddenNpcs, 7) && ids(v.removed, 500);
 export function isAppState(v: unknown): v is AppState {
   if (
     !obj(v) ||
@@ -117,6 +120,7 @@ export function isAppState(v: unknown): v is AppState {
   if (!pawsona(v.pawsona)) return false;
   if (v.mailRead !== undefined && !(typeof v.mailRead === "string" && /^\d{4}-\d{2}-\d{2}$/.test(v.mailRead))) return false;
   if (v.mailReminder !== undefined && typeof v.mailReminder !== "boolean") return false;
+  if (v.circle !== undefined && !circle(v.circle)) return false;
   return (
     v.draft === null ||
     (obj(v.draft) &&

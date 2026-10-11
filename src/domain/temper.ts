@@ -101,8 +101,8 @@ export function socialLine(pet: Pet, category: Category, owner: string, lang: "z
   const base = fill((lang === "en" ? en : zh)[temperOf(pet)].social[category][variant % 2]);
   // Use a recorded detail to anchor the thought, rather than adding a stock scene.
   if ((pet.species === "cat" || pet.species === "dog") && /闻|嗅|sniff|smell/i.test(description))
-    return base + (lang === "zh" ? "你们看照片，我想把气味里的消息读完。" : "You have the photos. I'd like time to read the scent news.");
+    return base + (lang === "zh" ? "" : " ") + (lang === "zh" ? "你们看照片，我想把气味里的消息读完。" : "You have the photos. I'd like time to read the scent news.");
   if (/窗边|窗台|window/i.test(description))
-    return base + (lang === "zh" ? "窗边那个位置，想留给自己慢慢待着。" : "I'd like some unhurried time in that window spot.");
+    return base + (lang === "zh" ? "" : " ") + (lang === "zh" ? "窗边那个位置，想留给自己慢慢待着。" : "I'd like some unhurried time in that window spot.");
   return base;
 }

@@ -49,7 +49,8 @@ export function demoState(): AppState {
     events: samples.map((s, i) => ({
       ...s,
       id: `demo-${i}`,
-      createdAt: new Date(Date.now() - i * 86400000).toISOString(),
+      // A few hours back, so the town has already dropped by on today's post.
+      createdAt: new Date(Date.now() - i * 86400000 - 3 * 3600000).toISOString(),
       petSnapshot: { ...pet },
       stories: generateStories(pet, s.description, s.category),
       selectedStyle: "diary",

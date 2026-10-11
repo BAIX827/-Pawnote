@@ -168,7 +168,7 @@ export default function Profile() {
                 <View style={[styles.between, { flexWrap: "wrap" }]}>
                   <Text style={styles.small}>{formatDate(e.createdAt)}</Text>
                   <Tag bg={e.published ? colors.green : colors.paper}>
-                    {e.published ? t("本机爪友圈") : t("私密")}
+                    {e.published ? t("留在窝里") : t("私密")}
                   </Tag>
                 </View>
                 <Pressable

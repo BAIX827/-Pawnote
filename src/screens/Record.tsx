@@ -13,6 +13,7 @@ import {
 } from "../domain/story-engine";
 import { saveEvent } from "../domain/life";
 import { isLoss } from "../domain/temper";
+import { postBlock } from "../domain/paw-circle";
 import {
   CATEGORIES,
   CATEGORY_LABELS,
@@ -107,6 +108,8 @@ export default function Record() {
   const self = selfName(pet),
     owner = ownerName(pet),
     story = generated ? draft.stories![draft.selectedStyle] : undefined;
+  const block = postBlock(state, draft.description),
+    posting = draft.published && !block;
   const labels: Record<StoryStyle, string> = {
     diary: t("内心独白"),
     life: pet.route === "work" ? t("打工日记") : t("校园日记"),
@@ -208,7 +211,7 @@ export default function Record() {
       petSnapshot: { ...pet! },
       stories: draft.stories,
       selectedStyle: draft.selectedStyle,
-      published: draft.published,
+      published: draft.published && !postBlock(state, draft.description),
     };
     try {
       const next = saveEvent(state, event);
@@ -495,11 +498,12 @@ export default function Record() {
 
       <Pressable
         accessibilityRole="checkbox"
-        accessibilityLabel={t("发布到本机爪友圈")}
-        accessibilityState={{ checked: draft.published }}
-        aria-checked={draft.published}
+        accessibilityLabel={t("让{name}发到爪友圈", { name: pet.name })}
+        accessibilityState={{ checked: posting, disabled: !!block }}
+        aria-checked={posting}
+        disabled={!!block}
         onPress={() => patch({ published: !draft.published })}
-        style={[styles.row, { minHeight: 48 }]}
+        style={[styles.row, { minHeight: 48, opacity: block ? 0.6 : 1 }]}
       >
         <View
           style={{
@@ -508,16 +512,24 @@ export default function Record() {
             borderRadius: 7,
             borderWidth: 2.5,
             borderColor: colors.ink,
-            backgroundColor: draft.published ? colors.orange : colors.paper,
+            backgroundColor: posting ? colors.orange : colors.paper,
             alignItems: "center",
             justifyContent: "center",
           }}
         >
-          {draft.published && <Icon name="check" color={colors.ink} size={16} />}
+          {posting && <Icon name="check" color={colors.ink} size={16} />}
         </View>
         <View style={{ flex: 1 }}>
-          <Text style={[styles.body, { fontWeight: "700" }]}>{t("贴到本机爪友圈")}</Text>
-          <Text style={styles.small}>{t("当前口吻 · 仅此设备可见")}</Text>
+          <Text style={[styles.body, { fontWeight: "700" }]}>
+            {t("让{name}发到爪友圈", { name: pet.name })}
+          </Text>
+          <Text style={styles.small}>
+            {block === "sensitive"
+              ? t("写到不舒服、走失或离开的事，这次不发动态。")
+              : block === "limit"
+                ? t("今天已经发了 2 条，{name}说明天再发。", { name: pet.name })
+                : t("它用爪友圈口吻自己写 · 留在窝里，只在这台设备上")}
+          </Text>
         </View>
       </Pressable>
       <Button

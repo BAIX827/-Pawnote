@@ -80,6 +80,10 @@ export interface Routine {
   lastDone?: string;
   snoozedUntil?: string;
 }
+export interface CircleSettings {
+  hiddenNpcs?: string[];
+  removed?: string[];
+}
 export interface AppState {
   schemaVersion: 1;
   pet: Pet | null;
@@ -94,6 +98,8 @@ export interface AppState {
   mailRead?: string;
   /** The Monday 爪信 notification; absent means on. */
   mailReminder?: boolean;
+  /** 爪友圈 choices (docs/01 8.20): residents sent back to town, and the pet's comments the owner deleted. */
+  circle?: CircleSettings;
 }
 export const CATEGORY_LABELS: Record<Category, string> = {
   sleep: "睡觉",
@@ -117,7 +123,7 @@ export const newDraft = (): Draft => ({
   description: "",
   category: "other",
   selectedStyle: "diary",
-  published: false,
+  published: true,
 });
 export const roleFor = (route: Route) =>
   route === "work" ? "零食鉴定员" : "睡眠研究班";
