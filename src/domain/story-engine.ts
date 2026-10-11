@@ -207,7 +207,7 @@ export function generateStory(
     style === "news"
       ? `${pet.name}：${v.title}`
       : style === "life"
-        ? `${pet.name}的${pet.route === "work" ? "营业报告" : "校园笔记"}`
+        ? `${pet.name}的${pet.route === "work" ? "工作日记" : "校园笔记"}`
         : style === "social"
           ? `${pet.name}的今日动态`
           : `${pet.name}的小心思`;

@@ -6,7 +6,7 @@
   "name": "pawnote-gateway",
   "main": "worker.mjs",
   "compatibility_date": "2026-10-01",
-  "kv_namespaces": [{ "binding": "USAGE", "id": "REPLACE_WITH_KV_NAMESPACE_ID" }],
+  "kv_namespaces": [{ "binding": "USAGE", "id": "89d318b1da2c42dea5742355ca9d7689" }],
   // Not secret. Keys are never written here; they are set with `wrangler secret put`.
   "vars": {
     "FREE_AI_PER_WEEK": "2",

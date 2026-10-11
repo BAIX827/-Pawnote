@@ -304,6 +304,7 @@ export const en: Record<string, string> = {
   你的宠物: "Your pet",
   "照片读取失败，请重试。": "The photo could not be read. Please try again.",
   "给小动物起个名字吧。": "Give your pet a name.",
+  "保存小动物数据备份": "Save pet data backup",
   "请填写宠物类型，例如刺猬、蜜袋鼯。": "Enter the kind of pet, such as hedgehog or sugar glider.",
   "选一个性格标签，或写下你了解的它。": "Pick a personality tag, or describe them in your own words.",
   "填写年龄后可推荐路线，也可以手动选择上学或职场。": "Enter an age for a suggested path, or choose school or work yourself.",

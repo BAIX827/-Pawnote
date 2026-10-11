@@ -80,7 +80,8 @@ export function createGateway(env, store) {
           `5. If the note mentions illness, injury or a lost pet, nothing is a joke: quiet, sincere, short.\n` +
           `6. Write in ${british(locale) ? "British" : "American"} English.\n` +
           `7. Let the social world appear through a question to friends, a private opinion or a playful use of the pet's school/job role. Named friends, encounters, replies, likes and shared history require evidence in the owner's note. Use at most one social gesture per piece.\n` +
-          `8. Use the pet's name or species. Town name: Pawtown. Remove archive announcements and explanations of the fictional setting.\n\n` +
+          `8. Use the pet's name or species. Town name: Pawtown. Remove archive announcements and explanations of the fictional setting.\n` +
+          `9. Check each sentence before returning it. An unrecorded action, sensory observation or response by the owner must be removed or phrased wholly as a future wish or hypothetical. "I guess" does not justify saying something already happened. If the note only says they went out, do not claim they sniffed anything, were called back, returned on command, lingered or met anyone. All four pieces use the same factual boundary.\n\n` +
           `Return one JSON object with keys diary, life, social, news, each {"title": string, "text": string}.\n` +
           `- diary: inner voice, usually 40-100 words. Give the event a private meaning or a little hope for next time. Let the mood change naturally.\n` +
           `- life: a ${work ? "work diary" : "school diary"}, usually 30-80 words. Connect one actual detail to its role with one light metaphor. Conversational prose; avoid compulsory numbered reports and a formal Note line.\n` +
@@ -116,7 +117,8 @@ export function createGateway(env, store) {
           `5. 不用：排比、“不是……而是……”“不仅……更是……”、仿佛、宛如、治愈、岁月静好、满满的、喵星人、汪星人、哈基米、萌萌哒。\n` +
           `6. 如果主人写到生病、受伤或走失：四段都不开玩笑，安静、真诚、短。\n` +
           `7. 用简体中文。称呼只用宠物名字、具体物种或“小动物”；城镇叫“爪爪镇”，公司叫“爪爪公司”。删掉“在小动物世界里”“写进档案”“已收录为校园生活笔记”“新增独家记录”等背景解释和归档说明。\n` +
-          `8. 小社会的感觉来自它自己的偏好、对熟人的语气、给读者留的一句轻问题，或身份带来的一个小比喻。一篇选一种就够。朋友姓名、相遇、评论、点赞、共同经历都需要主人原话依据；学校或职场用作想象里的比喻，别编成实际发生的课程和会议。\n\n` +
+          `8. 小社会的感觉来自它自己的偏好、对熟人的语气、给读者留的一句轻问题，或身份带来的一个小比喻。一篇选一种就够。朋友姓名、相遇、评论、点赞、共同经历都需要主人原话依据；学校或职场用作想象里的比喻，别编成实际发生的课程和会议。\n` +
+          `9. 输出前逐句核对：新增的已发生动作、感官观察或主人回应，删除或完整改成未来愿望、假设。“我猜”也不能用来断言已经发生的事。原话只有“出去玩”时，省去“没闻够”“妈妈一叫我就回来”“路过谁”“跑了多久”等补写经过；可以写“下次想慢慢闻”“希望妈妈多陪我一会儿”。四种体裁共享这条事实边界。\n\n` +
           `输出一个 JSON 对象，只输出 JSON。四个键 diary、life、social、news，每个值是 {"title": "...", "text": "..."}。\n` +
           `- diary 内心独白：通常 70–160 字。写真实日常在它心里的分量，一点自己的偏好、犹豫或下一次的小期待。情绪有变化，结尾留在它想说的那句话。\n` +
           `- life ${work ? "打工日记" : "校园日记"}：通常 50–120 字，自然的日记段落，用一个${work ? "工作" : "上学"}小比喻连接真实经过和身份。省去编号纪要、固定“备注”和完成任务式结尾。\n` +
