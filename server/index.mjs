@@ -149,7 +149,7 @@ function prompt(input) {
 }
 function parseStories(raw) {
   const start = raw.indexOf("{"), end = raw.lastIndexOf("}");
-  if (start < 0 || end <= start) throw new Error("model returned no JSON");
+  if (start < 0 || end <= start) throw Object.assign(new Error("model returned no JSON"), { status: 502 });
   const data = JSON.parse(raw.slice(start, end + 1));
   const stories = {};
   const names = value => value.replace(/\u6bdb\u5b69市/g, "爪爪镇").replace(/\u6bdb\u5b69公司/g, "爪爪公司").replace(/\u6bdb\u5b69(?:儿|子)?/g, "小动物");
@@ -169,7 +169,9 @@ async function ask(p, messages, region, jsonMode) {
       messages,
       // DeepSeek recommends a higher temperature for creative writing than other providers need.
       temperature: Number(env[region === "cn" ? "CN_TEMPERATURE" : "INTL_TEMPERATURE"] ?? (region === "cn" ? 1.3 : 1)),
-      max_tokens: 1400,
+      // Some models think before they answer and the thinking counts against this limit,
+      // so it has to leave room for both or the answer comes back empty.
+      max_tokens: Number(env[region === "cn" ? "CN_MAX_TOKENS" : "INTL_MAX_TOKENS"] ?? 4096),
       ...(jsonMode ? { response_format: { type: "json_object" } } : {}),
     }),
     signal: AbortSignal.timeout(45000),
