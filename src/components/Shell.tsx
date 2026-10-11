@@ -14,7 +14,7 @@ import { router, usePathname } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useStore } from "../data/store";
 import { exportBackup } from "../platform/export";
-import { Avatar, Button, Icon, Wobble, colors, display, styles } from "./ui";
+import { Avatar, Button, Icon, PawMark, Wobble, colors, display, styles } from "./ui";
 import RestoreBackup from "./RestoreBackup";
 const nav = [
   { route: "/", label: "爪窝", icon: "home" as const },
@@ -102,7 +102,7 @@ export default function Shell({ children }: { children: React.ReactNode }) {
             }}
           >
             <View style={[styles.row, { marginTop: 12 }]}>
-              <Text style={{ fontSize: 31 }}>🐾</Text>
+              <PawMark size={34} outline={colors.paper} />
               <View>
                 <Text
                   style={{
@@ -172,7 +172,7 @@ export default function Shell({ children }: { children: React.ReactNode }) {
             ) : (
               <View style={[styles.row, { gap: 8 }]}>
                 <Wobble degrees={8}>
-                  <Text style={{ fontSize: 22 }}>🐾</Text>
+                  <PawMark size={26} />
                 </Wobble>
                 <Text
                   style={{

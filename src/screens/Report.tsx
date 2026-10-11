@@ -110,9 +110,24 @@ export default function Report() {
                 </View>
               ))}
         </View>
-        <View style={[row, { borderTopWidth: 2, borderColor: colors.ink, marginTop: 6, paddingTop: 12, alignItems: "flex-end" }]}>
+        <View
+          style={[
+            row,
+            {
+              alignItems: "flex-end",
+              marginTop: 12,
+              paddingHorizontal: 14,
+              paddingVertical: 10,
+              backgroundColor: accent,
+              borderWidth: 2.5,
+              borderColor: colors.ink,
+              borderRadius: 12,
+            },
+            shadow(3),
+          ]}
+        >
           <Text style={[styles.body, { fontWeight: "700" }]}>{work ? t("实发") : t("本月学分")}</Text>
-          <Text style={{ fontFamily: numeric, fontSize: 44, lineHeight: 50, color: colors.ink }}>
+          <Text style={{ fontFamily: numeric, fontSize: 48, lineHeight: 54, color: colors.ink }}>
             {work ? pay.total : card.credits}
             <Text style={{ fontSize: 14 }}> {work ? unit : t("分")}</Text>
           </Text>

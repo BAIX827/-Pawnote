@@ -14,8 +14,8 @@ import {
   Meter,
   Sticker,
   Tape,
+  Ticker,
   demoPhoto,
-  numeric,
   colors,
   display,
   shadow,
@@ -120,11 +120,7 @@ export default function Home() {
             <Text style={{ fontSize: narrow ? 64 : 96 }}>{speciesEmoji(pet)}</Text>
           )}
         </View>
-        <View style={{ backgroundColor: colors.ink, paddingHorizontal: 12, height: 28, justifyContent: "center" }}>
-          <Text numberOfLines={1} style={{ color: colors.green, fontFamily: numeric, fontSize: 12, letterSpacing: 1 }}>
-            {t("今日主角")} ★ {pet.name} ★ {t("今日主角")} ★ {pet.name} ★ {t("今日主角")} ★ {pet.name} ★
-          </Text>
-        </View>
+        <Ticker text={`${t("今日主角")} ★ ${pet.name} ★ ${t("今日主角")} ★ ${pet.name} ★ ${t("今日主角")} ★ ${pet.name} ★`} />
       </View>
       <View style={[{ backgroundColor: colors.paper, borderRadius: 14, borderWidth: 2.5, borderColor: colors.ink, padding: 14, gap: 8, marginTop: 4 }, shadow(4)]}>
         <View

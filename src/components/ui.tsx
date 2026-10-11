@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import {
+  AccessibilityInfo,
   Animated,
   Easing,
   Image,
@@ -37,10 +38,19 @@ export const colors = {
   pink: "#FF9EC7",
   sky: "#B9A6FF",
 };
-// Bundled display faces: ZCOOL QingKe HuangYou for headlines, Archivo Black for numerals and
-// Latin. Both are loaded in the root layout; system fonts show until they arrive.
-export const display = "ZCOOLQingKeHuangYou_400Regular";
-export const numeric = "ArchivoBlack_400Regular";
+// Bundled display faces (assets/fonts, SIL OFL): ZCOOL QingKe HuangYou for headlines, Archivo
+// Black for numerals and Latin. The headline face is subset to common Chinese plus every
+// character in the interface; rarer characters (in pet names, say) fall back to the system face,
+// which iOS and Android do on their own and the web does through the stack below.
+const cjkFallback = '"PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Noto Sans SC", sans-serif';
+export const display = Platform.select({
+  web: `ZCOOLQingKeHuangYou_400Regular, ${cjkFallback}`,
+  default: "ZCOOLQingKeHuangYou_400Regular",
+}) as string;
+export const numeric = Platform.select({
+  web: `ArchivoBlack_400Regular, ${cjkFallback}`,
+  default: "ArchivoBlack_400Regular",
+}) as string;
 /** A hard, unblurred offset shadow in ink. */
 export const shadow = (size = 4, _tint?: string): ViewStyle => ({
   boxShadow: `${size}px ${size}px 0px ${colors.ink}`,
@@ -508,6 +518,64 @@ export function Wobble({
     </Animated.View>
   );
 }
+/** A strip of text that scrolls sideways forever; it holds still when the device asks for reduced motion. */
+export function Ticker({
+  text,
+  color = colors.green,
+  background = colors.ink,
+  height = 28,
+}: {
+  text: string;
+  color?: string;
+  background?: string;
+  height?: number;
+}) {
+  const [x] = useState(() => new Animated.Value(0));
+  const [width, setWidth] = useState(0);
+  const [still, setStill] = useState(false);
+  useEffect(() => {
+    AccessibilityInfo.isReduceMotionEnabled().then(setStill).catch(() => {});
+    const sub = AccessibilityInfo.addEventListener("reduceMotionChanged", setStill);
+    return () => sub.remove();
+  }, []);
+  useEffect(() => {
+    if (!width || still) {
+      x.setValue(0);
+      return;
+    }
+    const loop = Animated.loop(
+      Animated.timing(x, {
+        toValue: -width,
+        duration: width * 28,
+        easing: Easing.linear,
+        useNativeDriver: Platform.OS !== "web",
+      }),
+    );
+    loop.start();
+    return () => loop.stop();
+  }, [width, still, x]);
+  const label = { color, fontFamily: numeric, fontSize: 12, letterSpacing: 1 } as const;
+  return (
+    <View
+      accessible
+      accessibilityLabel={text}
+      style={{ backgroundColor: background, height, justifyContent: "center", overflow: "hidden" }}
+    >
+      <Animated.View style={{ position: "absolute", left: 0, width: 4000, flexDirection: "row", transform: [{ translateX: x }] }}>
+        <Text
+          numberOfLines={1}
+          style={[label, { paddingRight: 8, flexShrink: 0 }]}
+          onLayout={(e) => setWidth(e.nativeEvent.layout.width)}
+        >
+          {text}
+        </Text>
+        <Text numberOfLines={1} style={[label, { paddingRight: 8, flexShrink: 0 }]}>
+          {text}
+        </Text>
+      </Animated.View>
+    </View>
+  );
+}
 export const demoPhoto = require("../../assets/demo-cat.jpg");
 export function Avatar({
   pet,
@@ -542,6 +610,61 @@ export function Avatar({
     </View>
   );
 }
+/** The app's paw print drawn in house colours: an orange pad and four toes, outlined in ink. */
+export function PawMark({
+  size = 32,
+  fill = colors.orange,
+  outline = colors.ink,
+}: {
+  size?: number;
+  fill?: string;
+  outline?: string;
+}) {
+  const border = Math.max(1.5, size / 18);
+  const toe = size * 0.24;
+  const toes = [
+    { left: 0.02, top: 0.3 },
+    { left: 0.22, top: 0.06 },
+    { left: 0.54, top: 0.06 },
+    { left: 0.74, top: 0.3 },
+  ];
+  return (
+    <View accessible={false} style={{ width: size, height: size }}>
+      {toes.map((p, i) => (
+        <View
+          key={i}
+          style={{
+            position: "absolute",
+            left: p.left * size,
+            top: p.top * size,
+            width: toe,
+            height: toe * 1.2,
+            borderRadius: toe,
+            backgroundColor: fill,
+            borderWidth: border,
+            borderColor: outline,
+          }}
+        />
+      ))}
+      <View
+        style={{
+          position: "absolute",
+          left: size * 0.22,
+          top: size * 0.46,
+          width: size * 0.56,
+          height: size * 0.48,
+          borderTopLeftRadius: size * 0.28,
+          borderTopRightRadius: size * 0.28,
+          borderBottomLeftRadius: size * 0.22,
+          borderBottomRightRadius: size * 0.22,
+          backgroundColor: fill,
+          borderWidth: border,
+          borderColor: outline,
+        }}
+      />
+    </View>
+  );
+}
 export function Empty({
   title,
   subtitle,
@@ -563,7 +686,7 @@ export function Empty({
       }}
     >
       <Wobble>
-        <Text style={{ fontSize: 44 }}>🐾</Text>
+        <PawMark size={52} />
       </Wobble>
       <Text style={[styles.h2, { textAlign: "center" }]}>{title}</Text>
       {subtitle && (
