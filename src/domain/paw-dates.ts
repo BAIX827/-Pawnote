@@ -354,6 +354,8 @@ export interface PlannedReminder {
   minute: number;
   /** 1 = Sunday … 7 = Saturday; absent for a daily reminder. */
   weekday?: number;
+  /** Where tapping the notification goes; 爪窝 when absent. */
+  url?: string;
 }
 /** Every system notification the app should have scheduled for the current state. */
 export function plannedReminders(state: AppState, lang: Lang = getLang(), now = new Date()): PlannedReminder[] {

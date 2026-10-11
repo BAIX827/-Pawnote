@@ -18,6 +18,7 @@ import {
   styles,
 } from "../components/ui";
 import Onboarding from "./Onboarding";
+import { pawsonaCard } from "../domain/pawsona";
 import { ageLabel, speciesLabel } from "../domain/pet-profile";
 export default function Profile() {
   const { state } = useStore();
@@ -236,6 +237,20 @@ export default function Profile() {
         icon="bell"
         tone="soft"
         onPress={() => router.push("/dates")}
+        style={{ alignSelf: "flex-start" }}
+      />
+      <Button
+        label={state.pawsona ? t("爪格：{name}", { name: pawsonaCard(pet, state.pawsona).name }) : t("爪格测试")}
+        icon="zap"
+        tone="soft"
+        onPress={() => router.push("/pawsona")}
+        style={{ alignSelf: "flex-start" }}
+      />
+      <Button
+        label={t("爪信")}
+        icon="mail"
+        tone="soft"
+        onPress={() => router.push("/mail")}
         style={{ alignSelf: "flex-start" }}
       />
       <Button

@@ -1,4 +1,5 @@
 import { locale } from "../i18n/core";
+import type { Temper } from "./temper";
 export const CATEGORIES = [
   "sleep",
   "snack",
@@ -87,6 +88,12 @@ export interface AppState {
   demo: boolean;
   /** Optional so backups made before 爪约 still load. */
   routines?: Routine[];
+  /** The latest 爪格 result (docs/01 8.17). */
+  pawsona?: { version: 1; temper: Temper; scores: Record<Temper, number>; takenAt: string };
+  /** The Monday (YYYY-MM-DD) of the newest weekly 爪信 the owner has opened (docs/01 8.18). */
+  mailRead?: string;
+  /** The Monday 爪信 notification; absent means on. */
+  mailReminder?: boolean;
 }
 export const CATEGORY_LABELS: Record<Category, string> = {
   sleep: "睡觉",

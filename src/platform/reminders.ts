@@ -7,4 +7,4 @@ export const reminderPermission = async (): Promise<ReminderPermission> => "unsu
 export const requestReminderPermission = async (): Promise<ReminderPermission> => "unsupported";
 export async function syncReminders(_planned: PlannedReminder[]) {}
 export async function remindLater(_title: string, _body: string, _minutes: number) {}
-export const onReminderOpened = (_open: () => void) => () => {};
+export const onReminderOpened = (_open: (url: string) => void) => () => {};

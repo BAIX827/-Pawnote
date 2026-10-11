@@ -23,6 +23,7 @@ import {
 } from "../components/ui";
 import Neighborhood from "../components/Neighborhood";
 import PawDatesCard from "../components/PawDatesCard";
+import HomeLetters from "../components/HomeLetters";
 import Onboarding from "./Onboarding";
 
 // The poster changes with the hour, the way a pet's day does.
@@ -137,6 +138,7 @@ export default function Home() {
       </View>
 
       <PawDatesCard />
+      <HomeLetters />
       {anniversary !== undefined && (
         <Pressable
           accessibilityRole="button"

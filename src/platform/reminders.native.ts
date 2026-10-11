@@ -52,7 +52,7 @@ export async function syncReminders(planned: PlannedReminder[]) {
   for (const p of planned)
     await Notifications.scheduleNotificationAsync({
       identifier: `${KIND}-${p.key}`,
-      content: { title: p.title, body: p.body, data: { kind: KIND, url: "/" } },
+      content: { title: p.title, body: p.body, data: { kind: KIND, url: p.url ?? "/" } },
       trigger:
         p.weekday === undefined
           ? { type: Notifications.SchedulableTriggerInputTypes.DAILY, hour: p.hour, minute: p.minute, channelId: CHANNEL }
@@ -67,11 +67,11 @@ export async function remindLater(title: string, body: string, minutes: number) 
     trigger: { type: Notifications.SchedulableTriggerInputTypes.TIME_INTERVAL, seconds: minutes * 60, channelId: CHANNEL },
   });
 }
-/** Opens 爪窝 when the owner taps a 爪约 notification. */
-export function onReminderOpened(open: () => void) {
+/** Opens the notification's page (爪窝 for 爪约, 爪信 for the weekly letter) when the owner taps it. */
+export function onReminderOpened(open: (url: string) => void) {
   const sub = Notifications.addNotificationResponseReceivedListener((response) => {
-    const kind = response.notification.request.content.data?.kind;
-    if (kind === KIND || kind === "paw-date-later") open();
+    const data = response.notification.request.content.data;
+    if (data?.kind === KIND || data?.kind === "paw-date-later") open(typeof data.url === "string" ? data.url : "/");
   });
   return () => sub.remove();
 }

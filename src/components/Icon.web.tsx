@@ -7,6 +7,8 @@ const paths: Partial<Record<IconProps["name"], string>> = {
   x: "m5 5 14 14M19 5 5 19",
   check: "m4 12 5 5L20 6",
   "arrow-right": "M3 12h18m-7-7 7 7-7 7",
+  "arrow-left": "M21 12H3m7-7-7 7 7 7",
+  mail: "M3 5h18v14H3zm0 0 9 8 9-8",
   "arrow-up-right": "M6 18 18 6M6 6h12v12",
   upload: "M12 16V3m-5 5 5-5 5 5M4 15v6h16v-6",
   download: "M12 3v13m-5-5 5 5 5-5M4 15v6h16v-6",

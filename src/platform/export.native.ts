@@ -22,6 +22,17 @@ export async function exportNews(event: LifeEvent, view?: View | null, _template
     releaseCapture(uri);
   }
 }
+/** A share card (爪格, 爪信) as a PNG of the on-screen view; the SVG is for the web build. */
+export async function exportCard(_svg: string, _filename: string, view?: View | null, title?: string) {
+  if (!view) throw new Error(t("卡片正在准备，请稍后重试。"));
+  await requireSharing();
+  const uri = await captureRef(view, { format: "png", result: "tmpfile" });
+  try {
+    await Sharing.shareAsync(uri, { mimeType: "image/png", UTI: "public.png", dialogTitle: title });
+  } finally {
+    releaseCapture(uri);
+  }
+}
 export async function exportBackup(content: string) {
   await requireSharing();
   const file = new File(Paths.cache, `pawnote-backup-${Date.now()}.json`);

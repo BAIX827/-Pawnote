@@ -1,6 +1,7 @@
 import { AppState, CATEGORIES, SPECIES, STYLES } from "../domain/types";
 import { isHomeDate } from "../domain/timeline";
 import { MAX_LABEL, MAX_ROUTINES, isActivity, isTime } from "../domain/paw-dates";
+import { PAWSONA_QUESTIONS, TEMPERS } from "../domain/pawsona";
 const obj = (v: unknown): v is Record<string, unknown> =>
   !!v && typeof v === "object" && !Array.isArray(v);
 const str = (v: unknown, max: number) =>
@@ -65,6 +66,17 @@ const routine = (v: unknown) =>
   Number.isFinite(Date.parse(v.createdAt as string)) &&
   isoDate(v.lastDone) &&
   isoDate(v.snoozedUntil);
+const pawsona = (v: unknown) =>
+  v === undefined ||
+  (obj(v) &&
+    v.version === 1 &&
+    one(v.temper, TEMPERS) &&
+    obj(v.scores) &&
+    Object.keys(v.scores).every((k) => TEMPERS.includes(k as never)) &&
+    TEMPERS.every((k) => optionalInt((v.scores as Record<string, unknown>)[k], PAWSONA_QUESTIONS.length) && (v.scores as Record<string, unknown>)[k] !== undefined) &&
+    TEMPERS.reduce((sum, k) => sum + ((v.scores as Record<string, number>)[k] ?? 0), 0) === PAWSONA_QUESTIONS.length &&
+    str(v.takenAt, 40) &&
+    Number.isFinite(Date.parse(v.takenAt as string)));
 export function isAppState(v: unknown): v is AppState {
   if (
     !obj(v) ||
@@ -102,6 +114,9 @@ export function isAppState(v: unknown): v is AppState {
       new Set(v.routines.map((r) => (r as { id: string }).id)).size === v.routines.length)
   )
     return false;
+  if (!pawsona(v.pawsona)) return false;
+  if (v.mailRead !== undefined && !(typeof v.mailRead === "string" && /^\d{4}-\d{2}-\d{2}$/.test(v.mailRead))) return false;
+  if (v.mailReminder !== undefined && typeof v.mailReminder !== "boolean") return false;
   return (
     v.draft === null ||
     (obj(v.draft) &&
