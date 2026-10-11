@@ -30,6 +30,9 @@ jobs:
         run: npx expo export --platform web --output-dir web-build
         env:
           EXPO_BASE_URL: /${{ github.event.repository.name }}
+          # The AI gateway address is a repository variable; unset means on-device generation only.
+          EXPO_PUBLIC_API_URL: ${{ vars.PAWNOTE_API_URL }}
+          EXPO_PUBLIC_REGION: intl
       - name: Let deep links fall back to the app, and keep underscore folders
         run: |
           cp web-build/index.html web-build/404.html

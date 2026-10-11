@@ -36,14 +36,27 @@ npm run start:go
 运行 `npm run install:mac`，安装到 `~/Applications/爪记.app`。内置界面和本机记录，可从 Finder 或 Spotlight 打开；更新前先退出应用。Mac 文件选择与导出已接入，详细步骤见 [Mac 安装与使用](docs/14-Mac安装与使用.md)。
 
 ## AI 生成网关
-App 默认只用本机规则生成。要启用“让 AI 来说”，需要运行 server/ 里的网关并让 App 指向它：
+App 默认只用本机规则生成。要启用“让 AI 来说”，需要一个网关替 App 保管模型密钥并计次数。网关的逻辑在 server/core.mjs，有两个入口：
 
+本机（开发调试）：
 ```bash
-cp server/.env.example server/.env   # 填入 CN_API_KEY（DeepSeek），海外服务商可选
+cp server/.env.example server/.env   # 填入 CN_API_KEY，海外服务商可选
 node server/index.mjs
 ```
-然后在项目根目录的 .env.local 写入 `EXPO_PUBLIC_API_URL=http://<网关地址>:8787`（海外包另加 `EXPO_PUBLIC_REGION=intl`），重启 `npm run web` 或开发服务。本地联调可用 `AI_MOCK=1 node server/index.mjs`，返回带“模拟 AI”字样的固定文本，不调用任何服务商。
-非会员每设备每周 2 次免费 AI，规则与接口见 docs/01 第 8 节、docs/03 ADR-004、docs/04。
+然后在项目根目录的 .env.local 写入 `EXPO_PUBLIC_API_URL=http://<这台电脑的地址>:8787`，重启开发服务。`AI_MOCK=1 node server/index.mjs` 返回固定的模拟文本，不调用任何服务商。
+
+Cloudflare Workers（线上）：
+```bash
+cd server
+npx wrangler login
+npx wrangler kv namespace create USAGE     # 把输出的 id 填进 wrangler.jsonc
+npx wrangler secret put CN_API_KEY
+npx wrangler secret put INTL_API_KEY
+npx wrangler deploy
+```
+部署后把得到的地址设为 GitHub 仓库变量 `PAWNOTE_API_URL`，网页版下次构建就会带上 AI 入口；打包 App 时用环境变量 `EXPO_PUBLIC_API_URL` 和 `EXPO_PUBLIC_REGION`（cn 或 intl）。
+密钥只存在于 server/.env（已被 git 忽略）或 Cloudflare 的 secret 里，不要写进 wrangler.jsonc、app.json 或任何 EXPO_PUBLIC_ 变量。
+规则与接口见 docs/01 第 8 节、docs/03 ADR-004 与 ADR-006、docs/04。
 
 ## 检查与打包
 ```bash

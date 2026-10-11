@@ -1,0 +1,19 @@
+// Cloudflare Workers config for the Pawnote AI gateway. Deploy from this folder:
+//   npx wrangler kv namespace create USAGE      (once; paste the id below)
+//   npx wrangler secret put CN_API_KEY          (and INTL_API_KEY)
+//   npx wrangler deploy
+{
+  "name": "pawnote-gateway",
+  "main": "worker.mjs",
+  "compatibility_date": "2026-10-01",
+  "kv_namespaces": [{ "binding": "USAGE", "id": "REPLACE_WITH_KV_NAMESPACE_ID" }],
+  // Not secret. Keys are never written here; they are set with `wrangler secret put`.
+  "vars": {
+    "FREE_AI_PER_WEEK": "2",
+    "CN_BASE_URL": "https://api.deepseek.com",
+    "CN_MODEL": "deepseek-flash",
+    "INTL_BASE_URL": "https://api.openai.com/v1",
+    "INTL_MODEL": "gpt-5.4-mini",
+    "ALLOW_ORIGIN": "*"
+  }
+}
