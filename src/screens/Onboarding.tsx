@@ -1,11 +1,12 @@
 import { t, tList } from "../i18n";
-import React, { useState } from "react";
+import { useState } from "react";
 import RestoreBackup from "../components/RestoreBackup";
 import PersonalityQuiz from "../components/PersonalityQuiz";
 import { Text, View, useWindowDimensions } from "react-native";
 import { router } from "expo-router";
 import { useStore } from "../data/store";
 import { demoState } from "../data/demo";
+import { savePet } from "../domain/life";
 import {
   PERSONALITIES,
   SPECIES,
@@ -150,13 +151,7 @@ export default function Onboarding({ editing = false }: { editing?: boolean }) {
       return;
     }
     const pet = { ...preview, id: original?.id ?? id(), name: name.trim() };
-    update((s) => ({
-      ...s,
-      pet,
-      events: editing ? s.events : [],
-      draft: null,
-      demo: editing ? s.demo : false,
-    }));
+    update((s) => savePet(s, pet));
     notify(
       editing
         ? t("人设已更新，历史故事保留原来的身份。")

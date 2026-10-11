@@ -1,12 +1,10 @@
-import { monthKey } from "./report";
+import { dayNumber, monthKey, startOfDay } from "./dates";
+import { newestFirst } from "./life";
 import { CATEGORIES, Category, LifeEvent, Pet } from "./types";
 
 // The time machine: growth photos by month, "first time" moments and anniversaries.
 // Everything is derived from saved entries and the pet profile.
-const DAY = 86400000;
-const startOfDay = (d: Date) => new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime();
-const oldestFirst = (events: LifeEvent[]) =>
-  [...events].sort((a, b) => a.createdAt.localeCompare(b.createdAt));
+const oldestFirst = (events: LifeEvent[]) => newestFirst(events).reverse();
 
 /** A YYYY-MM-DD date that exists and is not in the future. */
 export function isHomeDate(value: unknown, now = new Date()): value is string {
@@ -15,7 +13,7 @@ export function isHomeDate(value: unknown, now = new Date()): value is string {
   const date = new Date(y, m - 1, d);
   return (
     date.getFullYear() === y && date.getMonth() === m - 1 && date.getDate() === d &&
-    y >= 1970 && date.getTime() <= startOfDay(now)
+    y >= 1970 && date.getTime() <= startOfDay(now).getTime()
   );
 }
 
@@ -54,18 +52,18 @@ export interface Milestones {
   nextAnniversary?: { years: number; inDays: number };
 }
 export function milestones(pet: Pet, events: LifeEvent[], now = new Date()): Milestones {
-  const today = startOfDay(now);
+  const today = dayNumber(now);
   const out: Milestones = {};
   const first = oldestFirst(events)[0];
-  if (first) out.recordingDay = Math.max(1, Math.round((today - startOfDay(new Date(first.createdAt))) / DAY) + 1);
+  if (first) out.recordingDay = Math.max(1, today - dayNumber(new Date(first.createdAt)) + 1);
   if (isHomeDate(pet.homeDate, now)) {
     const [y, m, d] = pet.homeDate.split("-").map(Number);
-    out.homeDay = Math.round((today - new Date(y, m - 1, d).getTime()) / DAY) + 1;
+    out.homeDay = today - dayNumber(new Date(y, m - 1, d)) + 1;
     let years = now.getFullYear() - y;
-    let next = new Date(y + years, m - 1, d).getTime();
+    let next = dayNumber(new Date(y + years, m - 1, d));
     if (next === today && years > 0) out.anniversaryToday = years;
-    if (next <= today) next = new Date(y + ++years, m - 1, d).getTime();
-    out.nextAnniversary = { years, inDays: Math.round((next - today) / DAY) };
+    if (next <= today) next = dayNumber(new Date(y + ++years, m - 1, d));
+    out.nextAnniversary = { years, inDays: next - today };
   }
   return out;
 }

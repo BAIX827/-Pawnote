@@ -1,4 +1,4 @@
-import { getLang } from "../i18n/core";
+import { Lang, getLang } from "../i18n/core";
 import { ownerName } from "./story-engine";
 import { Temper } from "./temper";
 import { Pet } from "./types";
@@ -6,7 +6,6 @@ import { Pet } from "./types";
 // 爪格 / Pawsona (docs/01 8.17): a playful eight-question test that lands on one of the seven
 // tempers, with a shareable result card. Copy is written separately in Chinese and English
 // (docs/13 §11); nothing here is a behaviour assessment.
-type Lang = "zh" | "en";
 type Text = Record<Lang, string>;
 
 export const TEMPERS: Temper[] = ["cool", "clingy", "goofy", "drama", "curious", "calm", "shy"];

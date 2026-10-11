@@ -1,11 +1,11 @@
-import { getLang, t } from "../i18n/core";
+import { dayKey } from "./dates";
+import { Lang, getLang, t } from "../i18n/core";
 import { detectCategory, ownerName } from "./story-engine";
 import { Temper, isLoss, isSensitive, temperOf } from "./temper";
 import { AppState, Category, LifeEvent, Pet, Routine, Species, id } from "./types";
 
 // 爪约 (docs/01 8.16): the pet calls its owner over for something they do together.
 // Every line is a local template, written separately in Chinese and English (docs/13 §10).
-type Lang = "zh" | "en";
 interface Activity {
   /** Chinese label; doubles as the i18n key. */
   label: string;
@@ -223,7 +223,6 @@ export function normalizeTime(input: string): string | undefined {
   return isTime(out) ? out : undefined;
 }
 const minutesOf = (time: string) => Number(time.slice(0, 2)) * 60 + Number(time.slice(3));
-const dayKey = (d: Date) => `${d.getFullYear()}-${d.getMonth() + 1}-${d.getDate()}`;
 const doneOn = (r: Routine, now: Date) => !!r.lastDone && dayKey(new Date(r.lastDone)) === dayKey(now);
 
 /** The routine's name as shown: a built-in activity in the interface language, or the owner's words as written. */
@@ -231,7 +230,12 @@ export const activityLabel = (r: Pick<Routine, "activity" | "label">) =>
   isActivity(r.activity) ? t(ACTIVITIES[r.activity].label) : (r.label ?? "");
 
 /** The latest entry says the pet died: 爪约 stops speaking for it. */
-export const remindersPaused = (events: LifeEvent[]) => !!events[0] && isLoss(events[0].description);
+export const remindersPaused = (events: LifeEvent[]) => {
+  let latest: LifeEvent | undefined;
+  for (const event of events)
+    if (!latest || Date.parse(event.createdAt) > Date.parse(latest.createdAt)) latest = event;
+  return !!latest && isLoss(latest.description);
+};
 const quiet = (events: LifeEvent[], now: Date) =>
   events.some((e) => now.getTime() - Date.parse(e.createdAt) < QUIET_DAYS * 86400000 && isSensitive(e.description));
 

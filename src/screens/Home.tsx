@@ -1,9 +1,8 @@
 import { locale, t, tList } from "../i18n";
-import React from "react";
 import { Image, Pressable, Text, View, useWindowDimensions } from "react-native";
 import { router } from "expo-router";
 import { useStore } from "../data/store";
-import { progress, titleFor } from "../domain/life";
+import { newestFirst, progress, titleFor } from "../domain/life";
 import { formatDate } from "../domain/types";
 import { speciesEmoji } from "../domain/pet-profile";
 import { milestones } from "../domain/timeline";
@@ -40,9 +39,10 @@ export default function Home() {
   const { state } = useStore();
   const { width } = useWindowDimensions();
   if (!state.pet) return <Onboarding />;
+  const events = newestFirst(state.events);
   const pet = state.pet,
     p = progress(state.events),
-    latest = state.events[0],
+    latest = events[0],
     wide = width >= 1100,
     narrow = width < 500,
     now = new Date(),
@@ -245,7 +245,7 @@ export default function Home() {
                   gap: 10,
                   transform: [{ rotate: "1deg" }],
                 },
-                shadow(5, colors.lavender),
+                shadow(5),
               ]}
             >
               <View style={styles.between}>
@@ -289,7 +289,7 @@ export default function Home() {
       </View>
       {state.events.length ? (
         <View style={{ gap: 20 }}>
-          {state.events.slice(0, 3).map((e, i) => (
+          {events.slice(0, 3).map((e, i) => (
             <Pressable
               key={e.id}
               accessibilityRole="button"

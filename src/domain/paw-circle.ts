@@ -1,4 +1,7 @@
-import { Temper, isLoss, isSensitive, temperOf } from "./temper";
+import type { Lang } from "../i18n/core";
+import { dayKey, dayNumber, startOfDay, addDays } from "./dates";
+import { remindersPaused } from "./paw-dates";
+import { Temper, isSensitive, temperOf } from "./temper";
 import { AppState, Category, LifeEvent, Pet, Species } from "./types";
 
 // 爪友圈 2.0, local edition (docs/01 8.20). Only animals speak here: the owner's pet drafts its
@@ -6,7 +9,6 @@ import { AppState, Category, LifeEvent, Pet, Species } from "./types";
 // comments in their own temper. Nothing below is stored: posts, likes, comments and the pet's
 // browsing are worked out from the date and the saved records, so the same moment always shows
 // the same circle. Chinese and English are written separately (docs/15), never translated.
-type Lang = "zh" | "en";
 type Text = Record<Lang, string>;
 
 export interface Resident {
@@ -381,7 +383,6 @@ export const BROWSE_HOURS = [10, 19];
 /** Residents' posts older than this drop out of the circle. */
 export const FEED_DAYS = 14;
 const MINUTE = 60_000;
-const DAY = 86_400_000;
 
 /** FNV-1a: a small stable hash so every choice below is the same each time it's worked out. */
 export function hash(s: string): number {
@@ -392,12 +393,6 @@ export function hash(s: string): number {
   }
   return h >>> 0;
 }
-const dayKey = (d: Date) =>
-  `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
-const startOfDay = (d: Date) => new Date(d.getFullYear(), d.getMonth(), d.getDate());
-const addDays = (d: Date, n: number) => new Date(d.getFullYear(), d.getMonth(), d.getDate() + n);
-/** Whole local days since 1970, so consecutive posting days walk through a resident's posts in order. */
-const dayNumber = (d: Date) => Math.round(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()) / DAY);
 const fill = (s: string, vars: Record<string, string>) =>
   s.replace(/\{(\w+)\}/g, (whole, k: string) => vars[k] ?? whole);
 
@@ -439,15 +434,10 @@ export interface Circle {
   today: BrowseLog;
 }
 
-export const residentName = (r: Resident, lang: Lang) => r.name[lang];
-export const residentById = (id: string) => RESIDENTS.find((r) => r.id === id);
 const actorOf = (r: Resident, lang: Lang): Actor => ({ kind: "resident", id: r.id, name: r.name[lang] });
 
 /** True when the pet's latest record says it has died: it no longer posts or goes out. */
-export const petIsGone = (state: AppState) => {
-  const latest = [...state.events].sort((a, b) => b.createdAt.localeCompare(a.createdAt))[0];
-  return !!latest && isLoss(latest.description);
-};
+export const petIsGone = (state: AppState) => remindersPaused(state.events);
 
 /** Posts the pet has already left at home today. */
 export const postsToday = (state: AppState, now = new Date()) =>

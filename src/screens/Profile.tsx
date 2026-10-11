@@ -1,8 +1,8 @@
 import { locale, t, tList } from "../i18n";
-import React from "react";
 import { Image, Pressable, Text, View } from "react-native";
 import { router } from "expo-router";
 import { useStore } from "../data/store";
+import { newestFirst } from "../domain/life";
 import { formatDate } from "../domain/types";
 import {
   Button,
@@ -108,7 +108,7 @@ export default function Profile() {
         <Text style={styles.small}>{t("{n} 条真实记录", { n: state.events.length })}</Text>
       </View>
       {state.events.length ? (
-        state.events.map((e, i) => {
+        newestFirst(state.events).map((e, i) => {
           const date = new Date(e.createdAt);
           return (
             <View key={e.id} style={{ flexDirection: "row", gap: 12 }}>

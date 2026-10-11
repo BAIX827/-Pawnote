@@ -1,5 +1,4 @@
 import { t, tList } from "../i18n";
-import React from "react";
 import { Text, View, useWindowDimensions } from "react-native";
 import { router } from "expo-router";
 import { useStore } from "../data/store";
@@ -68,7 +67,7 @@ export default function Life() {
               borderColor: colors.ink,
               transform: [{ rotate: "-1deg" }],
             },
-            shadow(6, accent),
+            shadow(6),
           ]}
         >
           <View

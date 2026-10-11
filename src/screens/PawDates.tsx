@@ -1,5 +1,5 @@
 import { locale, t } from "../i18n";
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { Pressable, Text, View } from "react-native";
 import { router } from "expo-router";
 import { useStore } from "../data/store";
@@ -117,8 +117,7 @@ export default function PawDates() {
 
   function apply(change: (s: AppState) => AppState) {
     try {
-      change(state);
-      update(change);
+      update(change(state));
       return true;
     } catch (e) {
       notify(e instanceof Error ? e.message : t("保存失败。"));

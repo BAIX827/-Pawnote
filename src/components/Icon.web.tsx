@@ -1,4 +1,3 @@
-import React from "react";
 import type { IconProps } from "./Icon";
 
 // Inline vectors keep web navigation independent of font downloads.

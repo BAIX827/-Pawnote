@@ -1,5 +1,6 @@
+import StoryStylePicker, { storyColors } from "../components/StoryStylePicker";
 import { t } from "../i18n";
-import React, { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Image, Platform, Pressable, Text, View } from "react-native";
 import { router } from "expo-router";
 import { useStore } from "../data/store";
@@ -19,8 +20,6 @@ import {
   CATEGORY_LABELS,
   Category,
   Draft,
-  STYLES,
-  StoryStyle,
   newDraft,
 } from "../domain/types";
 import { choosePhoto } from "../platform/photo";
@@ -53,12 +52,6 @@ const bare = {
   // react-native-web draws a focus ring that the bubble already stands in for.
   ...(Platform.OS === "web" ? ({ outlineStyle: "none" } as object) : {}),
 } as const;
-const tones: Record<StoryStyle, string> = {
-  diary: colors.yellow,
-  life: colors.green,
-  social: colors.pink,
-  news: colors.sky,
-};
 
 export default function Record() {
   const { state, update, notify } = useStore();
@@ -110,12 +103,6 @@ export default function Record() {
     story = generated ? draft.stories![draft.selectedStyle] : undefined;
   const block = postBlock(state, draft.description),
     posting = draft.published && !block;
-  const labels: Record<StoryStyle, string> = {
-    diary: t("内心独白"),
-    life: pet.route === "work" ? t("打工日记") : t("校园日记"),
-    social: t("爪友圈动态"),
-    news: t("爪报"),
-  };
   function patch(changes: Partial<Draft>) {
     update((s) => ({ ...s, draft: { ...(s.draft ?? seed), ...changes } }));
   }
@@ -304,7 +291,7 @@ export default function Record() {
             </Sticker>
           )}
         </View>
-        <Bubble tail="left" bg={generated ? tones[draft.selectedStyle] : colors.line}>
+        <Bubble tail="left" bg={generated ? storyColors[draft.selectedStyle] : colors.line}>
           {story ? (
             <View style={{ gap: 8 }}>
               <Field
@@ -347,18 +334,9 @@ export default function Record() {
       {generated && (
         <View style={{ gap: 10 }}>
           <Text style={styles.caps}>{t("换个口吻")}</Text>
-          <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 8 }}>
-            {STYLES.map((s) => (
-              <Chip
-                key={s}
-                label={labels[s]}
-                color={tones[s]}
-                active={draft.selectedStyle === s}
-                onPress={() => patch({ selectedStyle: s })}
-              />
-            ))}
+          <StoryStylePicker route={pet.route} selected={draft.selectedStyle} onSelect={(selectedStyle) => patch({ selectedStyle })}>
             <Button label={t("换个说法")} icon="refresh-cw" tone="plain" onPress={regenerate} />
-          </View>
+          </StoryStylePicker>
         </View>
       )}
 

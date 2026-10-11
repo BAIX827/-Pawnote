@@ -1,15 +1,15 @@
+import StoryStylePicker, { storyColors } from "../components/StoryStylePicker";
 import { t } from "../i18n";
-import React, { useState } from "react";
+import { useState } from "react";
 import { Image, Text, View } from "react-native";
 import { router, useLocalSearchParams } from "expo-router";
 import { useStore } from "../data/store";
-import { STYLES, StoryStyle, formatDate } from "../domain/types";
+import { StoryStyle, formatDate } from "../domain/types";
 import { deleteEvent } from "../domain/life";
 import {
   Avatar,
   Bubble,
   Button,
-  Chip,
   Empty,
   Heading,
   Icon,
@@ -20,12 +20,6 @@ import {
   styles,
 } from "../components/ui";
 import { ownerName } from "../domain/story-engine";
-const tones: Record<StoryStyle, string> = {
-  diary: colors.yellow,
-  life: colors.green,
-  social: colors.pink,
-  news: colors.sky,
-};
 export default function Event() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const { state, update, notify } = useStore();
@@ -44,12 +38,6 @@ export default function Event() {
         }
       />
     );
-  const labels: Record<StoryStyle, string> = {
-    diary: t("内心独白"),
-    life: event.petSnapshot.route === "work" ? t("打工日记") : t("校园日记"),
-    social: t("爪友圈动态"),
-    news: t("爪报"),
-  };
   return (
     <View
       style={{
@@ -62,7 +50,7 @@ export default function Event() {
       <Heading
         title={t("这一天")}
         eyebrow={`${formatDate(event.createdAt)} · ${t(event.petSnapshot.role)}`}
-        accent={tones[style]}
+        accent={storyColors[style]}
         action={
           <Button label={t("返回爪册")} tone="plain" onPress={() => router.replace("/profile")} />
         }
@@ -117,7 +105,7 @@ export default function Event() {
           <Avatar pet={event.petSnapshot} demo={state.demo} size={34} />
           <Text style={styles.caps}>{t("{name}说", { name: event.petSnapshot.name })}</Text>
         </View>
-        <Bubble tail="left" bg={tones[style]}>
+        <Bubble tail="left" bg={storyColors[style]}>
           <Text style={{ fontSize: 22, lineHeight: 32, fontWeight: "400", fontFamily: display, color: colors.ink, marginBottom: 8 }}>
             {event.stories[style].title}
           </Text>
@@ -127,17 +115,7 @@ export default function Event() {
         </Bubble>
       </View>
       <View style={{ gap: 14, marginTop: 6 }}>
-        <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 8 }}>
-          {STYLES.map((s) => (
-            <Chip
-              key={s}
-              label={labels[s]}
-              color={tones[s]}
-              active={style === s}
-              onPress={() => setStyle(s)}
-            />
-          ))}
-        </View>
+        <StoryStylePicker route={event.petSnapshot.route} selected={style} onSelect={setStyle} />
         <Text style={styles.small}>
           {event.stories[style].generator === "ai" ? t("AI 生成") : t("本机生成")}{event.stories[style].edited ? t(" · 主人润色过") : ""} ·
           {t("采用保存当天的人设")}{style === "news" ? t(" · 虚构娱乐报道") : ""}

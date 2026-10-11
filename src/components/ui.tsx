@@ -52,7 +52,7 @@ export const numeric = Platform.select({
   default: "ArchivoBlack_400Regular",
 }) as string;
 /** A hard, unblurred offset shadow in ink. */
-export const shadow = (size = 4, _tint?: string): ViewStyle => ({
+export const shadow = (size = 4): ViewStyle => ({
   boxShadow: `${size}px ${size}px 0px ${colors.ink}`,
 });
 export const styles = StyleSheet.create({
@@ -124,8 +124,6 @@ export function Button({
   disabled?: boolean;
   style?: StyleProp<ViewStyle>;
 }) {
-  const fg =
-    colors.ink;
   const flat = tone === "plain";
   return (
     <Pressable
@@ -160,10 +158,10 @@ export function Button({
         style,
       ]}
     >
-      {icon && <Icon name={icon} size={17} color={fg} />}
+      {icon && <Icon name={icon} size={17} color={colors.ink} />}
       <Text
         style={{
-          color: fg,
+          color: colors.ink,
           fontWeight: "700",
           fontSize: 14,
           textDecorationLine: flat ? "underline" : "none",
@@ -283,22 +281,6 @@ export function Tag({
     </View>
   );
 }
-/** A watercolour wash: a soft blot of colour that bleeds past its own edge. */
-export function Wash({
-  color,
-  size = 160,
-  style,
-}: {
-  color: string;
-  size?: number;
-  style?: StyleProp<ViewStyle>;
-}) {
-  // The orange pop style has no watercolour washes; kept so older call sites stay valid.
-  void color;
-  void size;
-  void style;
-  return null;
-}
 /** A tilted label, like a price sticker slapped on a zine page. */
 export function Sticker({
   children,
@@ -396,7 +378,7 @@ export function Stamp({
           backgroundColor: color,
           alignItems: "center",
           justifyContent: "center",
-          transform: [{ rotate: `${rotate || 4}deg` }],
+          transform: [{ rotate: `${rotate}deg` }],
         },
         shadow(3),
         style,

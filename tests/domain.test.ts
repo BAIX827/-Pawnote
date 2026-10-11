@@ -2,7 +2,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { demoState } from "../src/data/demo";
 import { isAppState } from "../src/data/validation";
-import { deleteEvent, progress, saveEvent } from "../src/domain/life";
+import { deleteEvent, newestFirst, progress, saveEvent, savePet } from "../src/domain/life";
 import {
   detectCategory,
   generateStory,
@@ -11,7 +11,7 @@ import {
   toPetVoice,
 } from "../src/domain/story-engine";
 import { NEWS_TEMPLATES, escapeXML, isPlainNews, newsSVG } from "../src/domain/news-card";
-import { Pet, newDraft } from "../src/domain/types";
+import { Pet, emptyState, newDraft } from "../src/domain/types";
 import { MAX_BACKUP_BYTES, parseBackup } from "../src/domain/backup";
 import { ageLabel, parseAge, questionnaireTraits, recommendRoute, speciesEmoji, speciesLabel } from "../src/domain/pet-profile";
 import { SPECIES } from "../src/domain/types";
@@ -20,7 +20,67 @@ import { appraisal, monthReport, payslip, reportCard, reportMonths } from "../sr
 import { firsts, isHomeDate, milestones, monthlyPhotos } from "../src/domain/timeline";
 import type { Category } from "../src/domain/types";
 import { isLoss, isSensitive, temperOf } from "../src/domain/temper";
+import { allReminders, writeMail } from "../src/domain/paw-mail";
+import { petIsGone } from "../src/domain/paw-circle";
+import { remindersPaused } from "../src/domain/paw-dates";
+import { takePawsona } from "../src/domain/pawsona";
+import { addDays, dayKey, dayNumber, monthKey } from "../src/domain/dates";
 applyLang("zh");
+test("编辑宠物保留它的记录，新建宠物清除上一只的约定、爪格、读信与圈子设置", () => {
+  const state = {
+    ...demoState(),
+    draft: newDraft(),
+    pawsona: takePawsona([0, 0, 0, 0, 0, 0, 0, 0]),
+    mailRead: "2026-10-05",
+    mailReminder: false,
+    circle: { hiddenNpcs: ["npc"], removed: ["comment"] },
+  };
+  const edited = { ...state.pet!, name: "新名字" };
+  assert.deepEqual(savePet(state, edited), { ...state, pet: edited, draft: null });
+  assert.equal(state.events[0].petSnapshot.name, "橘总");
+  const newPet = { ...edited, id: "new-pet" };
+  const next = savePet(state, newPet);
+  assert.deepEqual(next, { ...emptyState(), pet: newPet });
+  assert.equal(isAppState(next), true);
+});
+test("导入乱序且带时区偏移的记录后，排序、重存和离世判断按实际时间一致", () => {
+  const state = demoState();
+  const older = { ...state.events[0], id: "older", createdAt: "2026-10-06T22:00:00+14:00" };
+  const latest = { ...state.events[1], id: "latest", createdAt: "2026-10-05T21:00:00-12:00", description: "它离世了" };
+  state.events = [older, latest];
+  const restored = parseBackup(JSON.stringify(state));
+  assert.deepEqual(newestFirst(restored.events).map((e) => e.id), ["latest", "older"]);
+  assert.deepEqual(restored.events.map((e) => e.id), ["older", "latest"]);
+  const saved = saveEvent(restored, { ...older, createdAt: new Date().toISOString() });
+  assert.deepEqual(saved.events.map((e) => e.id), ["latest", "older"]);
+  assert.equal(saved.events[1].createdAt, older.createdAt);
+  assert.equal(remindersPaused(restored.events), true);
+  assert.equal(petIsGone(restored), true);
+  assert.equal(writeMail(restored, "week"), undefined);
+  assert.deepEqual(allReminders(restored), []);
+  assert.equal(firsts(restored.events)[0].event.id, "older");
+});
+test("本地日期和纪念天数跨月、跨年与夏令时仍按日历计算", () => {
+  const previousTZ = process.env.TZ;
+  process.env.TZ = "Australia/Melbourne";
+  try {
+    // The clocks jump forward on 4 October: these midnights are only 23 hours apart.
+    const before = new Date(2026, 9, 4), after = addDays(before, 1);
+    assert.equal(after.getTime() - before.getTime(), 23 * 60 * 60 * 1000);
+    assert.equal(dayNumber(after) - dayNumber(before), 1);
+    assert.equal(dayKey("2026-10-03T14:00:00Z"), "2026-10-04");
+    assert.equal(dayKey(addDays(new Date(2026, 11, 31), 1)), "2027-01-01");
+    assert.equal(monthKey(addDays(new Date(2026, 9, 31), 1)), "2026-11");
+    const state = demoState();
+    const event = { ...state.events[0], createdAt: before.toISOString() };
+    const marks = milestones({ ...state.pet!, homeDate: "2026-10-04" }, [event], after);
+    assert.equal(marks.recordingDay, 2);
+    assert.equal(marks.homeDay, 2);
+  } finally {
+    if (previousTZ === undefined) delete process.env.TZ;
+    else process.env.TZ = previousTZ;
+  }
+});
 test("新物种和自定义性格可生成、备份，旧猫狗备份保持兼容", () => {
   assert.equal(isAppState(demoState()), true);
   assert.doesNotThrow(() => generateStories({ ...demoState().pet!, personality: "constructor" }, "在休息。", "other"));

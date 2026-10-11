@@ -1,4 +1,3 @@
-import React from "react";
 import { useLocalSearchParams } from "expo-router";
 import Shell from "../components/Shell";
 import Onboarding from "../screens/Onboarding";

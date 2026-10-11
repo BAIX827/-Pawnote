@@ -1,3 +1,5 @@
+import { dayKey, monthKey } from "./dates";
+import { newestFirst } from "./life";
 import { t } from "../i18n/core";
 import { isSensitive, temperOf, Temper } from "./temper";
 import { CATEGORIES, Category, LifeEvent, Pet } from "./types";
@@ -15,25 +17,13 @@ export interface MonthReport {
   grade: Grade;
 }
 
-const pad = (n: number) => String(n).padStart(2, "0");
-/** The owner's local calendar month of a timestamp, as YYYY-MM. */
-export const monthKey = (date: string | Date) => {
-  const d = new Date(date);
-  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}`;
-};
-const dayKey = (date: string) => {
-  const d = new Date(date);
-  return `${monthKey(d)}-${pad(d.getDate())}`;
-};
 /** Months that have entries, newest first; the current month is always offered. */
 export function reportMonths(events: LifeEvent[], now = new Date()): string[] {
   return [...new Set([monthKey(now), ...events.map((e) => monthKey(e.createdAt))])].sort().reverse();
 }
 
 export function monthReport(events: LifeEvent[], month: string): MonthReport {
-  const mine = events
-    .filter((e) => monthKey(e.createdAt) === month)
-    .sort((a, b) => b.createdAt.localeCompare(a.createdAt));
+  const mine = newestFirst(events.filter((e) => monthKey(e.createdAt) === month));
   const counts = Object.fromEntries(CATEGORIES.map((c) => [c, 0])) as Record<Category, number>;
   // A hard day still counts as showing up, but never as a "chaos deduction" or a joke line.
   for (const e of mine) if (!isSensitive(e.description)) counts[e.category]++;
