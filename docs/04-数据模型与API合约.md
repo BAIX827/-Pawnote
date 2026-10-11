@@ -14,7 +14,8 @@ XPTransaction：eventId、petId、delta(+20)、createdAt；eventId 唯一。
 Report：id、reporterUserId、targetType、targetId、reason、status、handledAt。
 Asset：id、ownerId、objectKey、mimeType、byteSize、moderationState、createdAt。
 
-v0.1 用包含 Pet、LifeEvent、四种故事、本机发布标志的 JSON 状态；持久化有 schemaVersion。ownerId、好友和审核字段在联机阶段启用。
+v0.1 用包含 Pet、LifeEvent、四种故事、本机发布标志的 JSON 状态；持久化有 schemaVersion。
+Routine（爪约，2026-10-11，本机可选字段 routines，最多 12 条）：id、activity（预设键或 custom）、label?（自定义 1–20 字）、time（HH:MM）、days（0–6，周日为 0，至少一个）、enabled、createdAt、lastDone?（最近完成时间）、snoozedUntil?。ownerId、好友和审核字段在联机阶段启用。
 
 ## 关系与一致性
 Pet 1:N LifeEvent；LifeEvent 1:N Story；LifeEvent 0:1 Post（首版只允许一条动态）。
