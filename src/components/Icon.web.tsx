@@ -42,7 +42,7 @@ const paths: Partial<Record<IconProps["name"], string>> = {
 };
 export default function Icon({ name, size = 20, color = "#263830" }: IconProps) {
   return <svg width={size} height={size} viewBox="0 0 24 24" fill="none"
-    stroke={color} strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round"
+    stroke={color} strokeWidth="2.3" strokeLinecap="round" strokeLinejoin="round"
     aria-hidden="true" focusable="false" style={{ flexShrink: 0 }}>
     <path d={paths[name] ?? paths.feather} />
   </svg>;

@@ -59,10 +59,10 @@ export default function Circle() {
       {events.length ? (
         <View
           style={{
-            backgroundColor: "#F5E8D5",
-            borderWidth: 1.5,
-            borderColor: colors.edge,
-            borderRadius: 30,
+            backgroundColor: colors.orange,
+            borderWidth: 2.5,
+            borderColor: colors.ink,
+            borderRadius: 14,
             paddingHorizontal: 16,
             paddingVertical: 30,
             gap: 34,
@@ -74,9 +74,9 @@ export default function Circle() {
               style={[
                 {
                   backgroundColor: notes[i % notes.length],
-                  borderWidth: 1.5,
-                  borderColor: colors.edge,
-                  borderRadius: 20,
+                  borderWidth: 2.5,
+                  borderColor: colors.ink,
+                  borderRadius: 14,
                   padding: 18,
                   gap: 14,
                   transform: [{ rotate: `${[-1.4, 1.1, -0.6, 1.6][i % 4]}deg` }],
@@ -97,7 +97,7 @@ export default function Circle() {
                   style={{
                     color: colors.ink,
                     fontSize: 30,
-                    fontWeight: "700",
+                    fontWeight: "400",
                     fontFamily: display,
                     opacity: 0.35,
                   }}
@@ -114,8 +114,8 @@ export default function Circle() {
                     backgroundColor: "#FFF",
                     padding: 8,
                     paddingBottom: 26,
-                    borderWidth: 1.5,
-                    borderColor: colors.edge,
+                    borderWidth: 2.5,
+                    borderColor: colors.ink,
                     transform: [{ rotate: i % 2 ? "-1.5deg" : "1.5deg" }],
                   }}
                 >

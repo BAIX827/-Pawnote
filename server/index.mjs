@@ -85,26 +85,28 @@ function promptEn({ pet, description, temper, weird, locale }) {
     {
       role: "system",
       content:
-        `You are writing a pet's diary. The owner wrote what happened today; retell it in the pet's own voice.\n` +
+        `You are writing for a pet with a little social life of its own: private thoughts, a school/work diary, a post to friends and a neighbourhood news item. The owner's note provides the actual event.\n` +
         `The pet: ${pet.name}, a ${kind}. Personality: ${pet.personality}. It calls its owner "${pet.owner}". In its pretend life it ${work ? `has a job as ${pet.role}` : "goes to school"}.\n\n` +
         `Voice: ${withOwner(TEMPER_CARD.en[temper], pet.owner)}\n` +
         `${weird ? "This one is a bit unhinged: include one deadpan absurd thought per piece." : "One absurd beat is welcome but optional."}\n` +
         `Species: ${SPECIES_CARD.en[pet.species] ?? SPECIES_CARD.en.other}\n\n` +
         `How to write:\n` +
         `1. Use only what the owner wrote. No new events, places or anything about health. The pet's opinions, excuses and misreadings are welcome.\n` +
-        `2. Start from one concrete detail in the note. Vary sentence length; a two-word line is fine. Show feeling through actions, not declarations (unless the voice is clingy).\n` +
+        `2. Let one detail in the note carry a feeling: what the pet notices, hopes for, misunderstands or is reluctant to admit. Sensory detail must come from the note; inner interpretations and wishes can be imagined. Vary sentence length.\n` +
         `3. End on an action or a petty remark. No moral, no summary, no explaining the joke.\n` +
         `4. No em dashes. No lists of three. At most one pet-internet word (zoomies, loaf, blep...). Never: fren, hooman twice, heckin pupperino, i can haz, fur-ever, pawsitively, testament, tapestry, boundless, journey.\n` +
         `5. If the note mentions illness, injury or a lost pet, nothing is a joke: quiet, sincere, short.\n` +
-        `6. Write in ${british(locale) ? "British" : "American"} English.\n\n` +
+        `6. Write in ${british(locale) ? "British" : "American"} English.\n` +
+        `7. Let the social world appear through a question to friends, a private opinion or a playful use of the pet's school/job role. Named friends, encounters, replies, likes and shared history require evidence in the owner's note. Use at most one social gesture per piece.\n` +
+        `8. Use the pet's name or species. Town name: Pawtown. Remove archive announcements and explanations of the fictional setting.\n\n` +
         `Return one JSON object with keys diary, life, social, news, each {"title": string, "text": string}.\n` +
-        `- diary: inner voice, 30-90 words, two or three short paragraphs.\n` +
-        `- life: a ${work ? "work log" : "page of class notes"}, numbered 2-4 items and a final "Note:" line. Concrete, short jargon.\n` +
-        `- social: one post, under 25 words, no hashtags, at most one emoji.\n` +
-        `- news: an Onion-style local news item, deadpan serious. Title Case headline. Quote the owner's note, cite "a source close to the food bowl" or similar, give the pet's reply in its own voice (or "declined to comment"), end with "The investigation is ongoing." or similar. 60-110 words.\n` +
+        `- diary: inner voice, usually 40-100 words. Give the event a private meaning or a little hope for next time. Let the mood change naturally.\n` +
+        `- life: a ${work ? "work diary" : "school diary"}, usually 30-80 words. Connect one actual detail to its role with one light metaphor. Conversational prose; avoid compulsory numbered reports and a formal Note line.\n` +
+        `- social: a personal post to friends, usually 15-45 words. An actual detail plus a feeling or a gentle question to readers. No hashtags; at most one emoji. Let it stand alone, rather than tacking a slogan onto the note.\n` +
+        `- news: a short, lightly playful pet news item. Use a concrete Title Case headline, tell the event once, then optionally add one brief opinion in the pet's voice. Prefer 15-45 words; a simple note can be shorter. No invented sources, formal reporting preamble, repeated retelling, stock investigation ending, archive/notebook announcements or explanation of the fictional setting. Stop at the pet's reaction.\n` +
         `Titles under 10 words.\n\n` +
         `An example of this voice on a different event. Feel the voice; do not reuse its sentences or structure.\n` +
-        `Owner's note: ${shown.note}\nDiary:\n${withOwner(shown.diary, pet.owner)}`,
+        `Owner's note: ${shown.note}\nDiary:\n${withOwner(shown.diary, pet.owner)}\n\nA separate feed example, based only on "Went out together today":\n${withOwner(shown.social, pet.owner)}`,
     },
     { role: "user", content: `The owner's note: ${description.trim()}` },
   ];
@@ -114,49 +116,48 @@ function prompt(input) {
   const { pet, description, temper, weird } = input;
   const kind = SPECIES[pet.species] ?? pet.speciesName;
   const work = pet.route === "work";
-  const witness = pet.species === "cat" ? "猫士" : pet.species === "dog" ? "汪士" : "人士";
   const shown = example("zh", temper, description);
   return [
     {
       role: "system",
       content:
-        `你在替一只宠物写日记。主人写了今天发生的事，你用这只宠物自己的口吻重新讲一遍。\n` +
-        `宠物：${pet.name}，${kind}。性格：${pet.personality}。它叫主人“${pet.owner}”。它的虚拟身份：${work ? "上班的毛孩" : "上学的毛孩"}，${pet.role}。\n\n` +
+        `你在替一只小动物写它自己的生活：私下的心事、上学或上班的日常、发给朋友的动态和邻里小报。真实经过来自主人记录，表达来自它自己的视角。\n` +
+        `宠物：${pet.name}，${kind}。性格：${pet.personality}。它叫主人“${pet.owner}”。它的虚拟身份：${work ? "上班的小动物" : "上学的小动物"}，${pet.role}。\n\n` +
         `【它的语气】${withOwner(TEMPER_CARD.zh[temper], pet.owner)}\n` +
         `${weird ? "它是个抽象的家伙：每篇放一处一本正经的离谱想法。" : "可以有一处无厘头的抽象，没有也行。"}\n` +
         `【物种】${SPECIES_CARD.zh[pet.species] ?? SPECIES_CARD.zh.other}\n\n` +
         `写法：\n` +
         `1. 只写主人写到的事。不编新事件、地点和健康状况；宠物的想法、借口、误会可以加。\n` +
-        `2. 从主人原话里的一个具体细节写起。长短句交错，可以只有两个字。感情放在动作里，不直接抒情（黏人的除外）。\n` +
+        `2. 从原话的一个细节写进它心里：它注意到什么，惦记什么，误会了什么，想让谁理解。原话里的气味、声音、触感或动作可以承载情绪；未提供的动作和感官细节保持为愿望、假设，或省去。让心情有小小的转折，长短句自然交错。\n` +
         `3. 结尾停在动作或一句嘴硬上。不总结，不升华，不讲道理。\n` +
         `4. 默认自称“我”${pet.self !== "我" ? `，“${pet.self}”全篇最多用一次` : ""}。一篇最多一个网络梗。\n` +
         `5. 不用：排比、“不是……而是……”“不仅……更是……”、仿佛、宛如、治愈、岁月静好、满满的、喵星人、汪星人、哈基米、萌萌哒。\n` +
         `6. 如果主人写到生病、受伤或走失：四段都不开玩笑，安静、真诚、短。\n` +
-        `7. 用简体中文。\n\n` +
+        `7. 用简体中文。称呼只用宠物名字、具体物种或“小动物”；城镇叫“爪爪镇”，公司叫“爪爪公司”。删掉“在小动物世界里”“写进档案”“已收录为校园生活笔记”“新增独家记录”等背景解释和归档说明。\n` +
+        `8. 小社会的感觉来自它自己的偏好、对熟人的语气、给读者留的一句轻问题，或身份带来的一个小比喻。一篇选一种就够。朋友姓名、相遇、评论、点赞、共同经历都需要主人原话依据；学校或职场用作想象里的比喻，别编成实际发生的课程和会议。\n\n` +
         `输出一个 JSON 对象，只输出 JSON。四个键 diary、life、social、news，每个值是 {"title": "...", "text": "..."}。\n` +
-        `- diary 内心独白：50–120 字，两三段。\n` +
-        `- life ${work ? "打工日记：写成工作纪要" : "校园日记：写成课堂笔记"}，1. 2. 3. 列两到四条，最后一行“备注：”，${work ? "职场" : "校园"}词两三个。\n` +
-        `- social 动态：30 字以内，一两句，停在反应上，不加话题标签，最多一个表情。\n` +
-        `- news 小报：第三人称，一本正经。用“本报讯”“据知情${witness}透露”，引用主人原话，再写“当事${kind}${pet.name}随后回应：……”（用它自己的语气），结尾“目前当事${kind}情绪稳定”或“事件仍在调查中”。100–180 字。\n` +
+        `- diary 内心独白：通常 70–160 字。写真实日常在它心里的分量，一点自己的偏好、犹豫或下一次的小期待。情绪有变化，结尾留在它想说的那句话。\n` +
+        `- life ${work ? "打工日记" : "校园日记"}：通常 50–120 字，自然的日记段落，用一个${work ? "工作" : "上学"}小比喻连接真实经过和身份。省去编号纪要、固定“备注”和完成任务式结尾。\n` +
+        `- social 爪友圈动态：通常 25–80 字，像它发给熟人的朋友圈。一件具体小事加一点心思，可以偶尔问读者一句。全文自己讲清楚，省去“主人说”开场和重复改写；避免句句喊口号、固定结尾问“谁懂”。不加话题标签，最多一个表情。\n` +
+        `- news 小报：简短、自然，可以带一点轻松的幽默。标题直接写宠物和具体小事。正文把事情讲一遍，可加一句宠物自己的想法，回应要增加态度，避免把原话换个人称又说一遍。通常 20–60 字，简单的事可以更短。省去“本报讯”“据主人爆料”“当事宠物随后回应”等报道套话；结尾停在反应上，省去“情绪稳定”“事件仍在调查中”和收录说明。例：主人写“今天带她出去玩了”，标题“小黄出门啦”，正文“今天主人带小黄出去玩了。小黄：‘明天还想去！’”。\n` +
         `标题都不超过 20 个字。\n\n` +
         `下面是同一种语气写另一件事的示范，只用来感受语气，不要照抄句子和结构。\n` +
-        `主人原话：${shown.note}\n内心独白：\n${withOwner(shown.diary, pet.owner)}`,
+        `主人原话：${shown.note}\n内心独白：\n${withOwner(shown.diary, pet.owner)}\n\n另一条独立的爪友圈示范，原话只有“今天带她出去玩了”：\n${withOwner(shown.social, pet.owner)}`,
     },
     { role: "user", content: `主人写的原话：${description.trim()}` },
   ];
 }
-function parseStories(raw, lang = "zh") {
+function parseStories(raw) {
   const start = raw.indexOf("{"), end = raw.lastIndexOf("}");
   if (start < 0 || end <= start) throw new Error("model returned no JSON");
   const data = JSON.parse(raw.slice(start, end + 1));
   const stories = {};
+  const names = value => value.replace(/\u6bdb\u5b69市/g, "爪爪镇").replace(/\u6bdb\u5b69公司/g, "爪爪公司").replace(/\u6bdb\u5b69(?:儿|子)?/g, "小动物");
   for (const style of STYLES) {
     const s = data[style];
     if (!s || !text(s.title, 160) || !text(s.text, 1900)) throw new Error(`model returned a bad ${style} story`);
-    stories[style] = { title: s.title.trim(), text: s.text.trim(), generator: "ai", edited: false };
+    stories[style] = { title: names(s.title.trim()).slice(0, 160), text: names(s.text.trim()).slice(0, 1900), generator: "ai", edited: false };
   }
-  // The news voice is fiction about a real pet; the label travels with the text.
-  stories.news.text += lang === "en" ? "\n\nThis is fictional entertainment based on the owner's note." : "\n\n以上为基于主人记录的虚构娱乐报道。";
   return stories;
 }
 async function ask(p, messages, region, jsonMode) {
@@ -185,7 +186,7 @@ async function generate(input) {
   if (MOCK) {
     const { pet, description } = input;
     const said = `【模拟 AI · ${input.temper}】${pet.self}听见${pet.owner}说：“${description.trim()}”`;
-    return parseStories(JSON.stringify(Object.fromEntries(STYLES.map((s) => [s, { title: `【模拟 AI】${pet.name}的${s}`, text: said }]))), lang);
+    return parseStories(JSON.stringify(Object.fromEntries(STYLES.map((s) => [s, { title: `【模拟 AI】${pet.name}的${s}`, text: said }]))));
   }
   const region = providers[input.region].key && providers[input.region].url && providers[input.region].model ? input.region : "cn";
   const p = providers[region];
@@ -193,7 +194,7 @@ async function generate(input) {
   const jsonMode = env[region === "cn" ? "CN_JSON_MODE" : "INTL_JSON_MODE"] !== "0";
   const messages = prompt({ ...input, lang });
   const raw = await ask(p, messages, region, jsonMode);
-  const first = parseStories(raw, lang);
+  const first = parseStories(raw);
   const hit = flat(first).match(BANNED[lang]);
   if (!hit) return first;
   // One rewrite when the text uses a stock phrase; the caller is charged once either way.
@@ -203,7 +204,7 @@ async function generate(input) {
       { role: "assistant", content: raw },
       { role: "user", content: lang === "en" ? `The last version used: "${hit[0]}". Say it another way. Everything else stays the same.` : `上一版用了：“${hit[0]}”。换个说法，其他要求不变。` },
     ], region, jsonMode);
-    return parseStories(again, lang);
+    return parseStories(again);
   } catch {
     return first;
   }

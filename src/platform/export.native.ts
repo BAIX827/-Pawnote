@@ -29,7 +29,7 @@ export async function exportBackup(content: string) {
     file.create({ overwrite: true });
     file.write(content);
     await Sharing.shareAsync(file.uri, {
-      mimeType: "application/json", UTI: "public.json", dialogTitle: "保存毛孩数据备份",
+      mimeType: "application/json", UTI: "public.json", dialogTitle: "保存小动物数据备份",
     });
   } finally {
     if (file.exists) file.delete();

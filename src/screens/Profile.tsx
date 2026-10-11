@@ -46,7 +46,7 @@ export default function Profile() {
             backgroundColor: colors.lavender,
             padding: 22,
             paddingTop: 28,
-            borderRadius: 30,
+            borderRadius: 14,
             gap: 20,
           },
           shadow(6),
@@ -56,22 +56,22 @@ export default function Profile() {
           <Portrait pet={pet} demo={state.demo} size={90} />
           <View style={{ flex: 1, gap: 6 }}>
             <Sticker bg={colors.yellow} rotate={-3}>
-              {state.demo ? t("示例居民") : t("毛孩市居民")}
+              {state.demo ? t("示例居民") : t("爪爪镇居民")}
             </Sticker>
-            <Text numberOfLines={2} style={[styles.h1, { fontSize: 36, color: "#FFF" }]}>
+            <Text numberOfLines={2} style={[styles.h1, { fontSize: 36, color: colors.ink }]}>
               {pet.name}
             </Text>
-            <Text style={[styles.body, { color: "#FFF", fontWeight: "700" }]}>
+            <Text style={[styles.body, { color: colors.ink, fontWeight: "700" }]}>
               {speciesLabel(pet)} · {ageLabel(pet.ageMonths)}
             </Text>
-            <Text style={[styles.small, { color: "#E4DDFB" }]}>{tList(pet.personality)}</Text>
+            <Text style={[styles.small, { color: colors.ink }]}>{tList(pet.personality)}</Text>
           </View>
         </View>
         <View
           style={{
             backgroundColor: colors.paper,
-            borderWidth: 1.5,
-            borderColor: colors.edge,
+            borderWidth: 2.5,
+            borderColor: colors.ink,
             borderRadius: 14,
             padding: 14,
             flexDirection: "row",
@@ -116,8 +116,8 @@ export default function Profile() {
                   style={[
                     {
                       width: 54,
-                      borderWidth: 1.5,
-                      borderColor: colors.edge,
+                      borderWidth: 2.5,
+                      borderColor: colors.ink,
                       borderRadius: 10,
                       backgroundColor: colors.paper,
                       overflow: "hidden",
@@ -131,7 +131,7 @@ export default function Profile() {
                       alignSelf: "stretch",
                       textAlign: "center",
                       backgroundColor: colors.orange,
-                      color: "#FFF",
+                      color: colors.ink,
                       fontSize: 11,
                       fontWeight: "700",
                       lineHeight: 18,
@@ -139,24 +139,24 @@ export default function Profile() {
                   >
                     {date.toLocaleDateString(locale(), { month: "short" })}
                   </Text>
-                  <Text style={{ fontFamily: display, fontWeight: "700", fontSize: 24, lineHeight: 32, color: colors.ink }}>
+                  <Text style={{ fontFamily: display, fontWeight: "400", fontSize: 24, lineHeight: 32, color: colors.ink }}>
                     {date.getDate()}
                   </Text>
                 </View>
                 <View
-                  style={{ flex: 1, width: 0, borderLeftWidth: 2, borderStyle: "dashed", borderColor: colors.edge, marginTop: 4 }}
+                  style={{ flex: 1, width: 0, borderLeftWidth: 2, borderStyle: "dashed", borderColor: colors.ink, marginTop: 4 }}
                 />
               </View>
               <View
                 style={[
                   {
                     flex: 1,
-                    backgroundColor: [colors.paper, "#FFF3C4", "#E3F3FC"][i % 3],
+                    backgroundColor: [colors.paper, colors.green, colors.lavender][i % 3],
                     padding: 16,
                     gap: 10,
-                    borderRadius: 20,
-                    borderWidth: 1.5,
-                    borderColor: colors.edge,
+                    borderRadius: 14,
+                    borderWidth: 2.5,
+                    borderColor: colors.ink,
                     marginBottom: 8,
                     transform: [{ rotate: `${i % 2 ? 0.6 : -0.6}deg` }],
                   },
@@ -192,8 +192,8 @@ export default function Profile() {
                         style={{
                           width: 70,
                           height: 84,
-                          borderWidth: 1.5,
-                          borderColor: colors.edge,
+                          borderWidth: 2.5,
+                          borderColor: colors.ink,
                           transform: [{ rotate: "-4deg" }],
                         }}
                       />

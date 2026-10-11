@@ -46,8 +46,8 @@ export default function Life() {
     height: 26,
     borderRadius: 13,
     backgroundColor: colors.bg,
-    borderWidth: 1.5,
-    borderColor: colors.edge,
+    borderWidth: 2.5,
+    borderColor: colors.ink,
     top: -13,
   };
   return (
@@ -62,10 +62,10 @@ export default function Life() {
           style={[
             {
               flex: wide ? 1.3 : undefined,
-              borderRadius: 22,
+              borderRadius: 14,
               backgroundColor: soft,
-              borderWidth: 1.5,
-              borderColor: colors.edge,
+              borderWidth: 2.5,
+              borderColor: colors.ink,
               transform: [{ rotate: "-1deg" }],
             },
             shadow(6, accent),
@@ -78,21 +78,21 @@ export default function Life() {
               borderTopLeftRadius: 19,
               borderTopRightRadius: 19,
               borderBottomWidth: 2,
-              borderColor: colors.edge,
+              borderColor: colors.ink,
               flexDirection: "row",
               justifyContent: "space-between",
               alignItems: "center",
             }}
           >
             <View>
-              <Text style={{ color: "#FFF", fontSize: 11, letterSpacing: 3, fontWeight: "700" }}>
+              <Text style={{ color: colors.ink, fontSize: 11, letterSpacing: 3, fontWeight: "700" }}>
                 {work ? "PAWNOTE GROUP" : "PAWNOTE ACADEMY"}
               </Text>
-              <Text style={{ color: "#FFF", fontSize: 28, fontWeight: "700", fontFamily: display }}>
+              <Text style={{ color: colors.ink, fontSize: 28, fontWeight: "400", fontFamily: display }}>
                 {work ? t("员工通行证") : t("学生通行证")}
               </Text>
             </View>
-            <Icon name={work ? "briefcase" : "book"} color="#FFF" size={30} />
+            <Icon name={work ? "briefcase" : "book"} color={colors.ink} size={30} />
           </View>
           <View style={{ padding: 22, paddingTop: 30, flexDirection: "row", gap: 20, alignItems: "center" }}>
             <Portrait pet={pet} demo={state.demo} size={width < 500 ? 88 : 116} rotate={-4} tape={colors.yellow} />
@@ -116,7 +116,7 @@ export default function Life() {
             style={{
               borderTopWidth: 2,
               borderStyle: "dashed",
-              borderColor: colors.edge,
+              borderColor: colors.ink,
               padding: 22,
               gap: 14,
             }}
@@ -132,7 +132,7 @@ export default function Life() {
               </View>
               <Wobble>
                 <Stamp
-                  top={state.demo ? t("示例") : t("毛孩市")}
+                  top={state.demo ? t("示例") : t("爪爪镇")}
                   main={`Lv.${p.level}`}
                   color={colors.orange}
                   size={78}
@@ -164,7 +164,7 @@ export default function Life() {
             <Text style={styles.caps}>{t("下一站")} · Lv.{p.level + 1}</Text>
             <Icon name="flag" size={24} color={colors.ink} />
           </View>
-          <Text style={{ fontSize: 68, lineHeight: 76, fontWeight: "700", fontFamily: display, color: colors.ink }}>
+          <Text style={{ fontSize: 68, lineHeight: 76, fontWeight: "400", fontFamily: display, color: colors.ink }}>
             {p.xp}
             <Text style={{ fontSize: 20 }}> XP</Text>
           </Text>
@@ -206,10 +206,10 @@ export default function Life() {
                   {
                     width: 78,
                     height: 78,
-                    borderRadius: 39,
+                    borderRadius: 14,
                     backgroundColor: done ? accent : colors.paper,
-                    borderWidth: 1.5,
-                    borderColor: colors.edge,
+                    borderWidth: 2.5,
+                    borderColor: colors.ink,
                     borderStyle: done ? "solid" : "dashed",
                     justifyContent: "center",
                     alignItems: "center",
@@ -220,9 +220,9 @@ export default function Life() {
                 <Text
                   style={{
                     fontFamily: display,
-                    fontWeight: "700",
+                    fontWeight: "400",
                     fontSize: 34,
-                    color: done ? "#FFF" : colors.muted,
+                    color: done ? colors.ink : colors.muted,
                   }}
                 >
                   {m.at}
@@ -233,10 +233,10 @@ export default function Life() {
                   {
                     flex: 1,
                     backgroundColor: done ? soft : colors.paper,
-                    borderWidth: 1.5,
-                    borderColor: colors.edge,
+                    borderWidth: 2.5,
+                    borderColor: colors.ink,
                     borderStyle: done ? "solid" : "dashed",
-                    borderRadius: 16,
+                    borderRadius: 14,
                     padding: 14,
                     transform: [{ rotate: `${i % 2 ? 1 : -1}deg` }],
                   },

@@ -81,8 +81,8 @@ export default function Settings() {
                 gap: 12,
                 padding: 16,
                 backgroundColor: colors.pale,
-                borderWidth: 1.5,
-                borderColor: colors.edge,
+                borderWidth: 2.5,
+                borderColor: colors.ink,
                 borderRadius: 12,
               }}
             >

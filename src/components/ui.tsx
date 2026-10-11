@@ -19,42 +19,40 @@ import { Pet } from "../domain/types";
 import { speciesEmoji } from "../domain/pet-profile";
 import { t } from "../i18n";
 export { default as Icon } from "./Icon";
+// Orange pop (docs/12): flat clashing blocks, thick black outlines, hard offset shadows.
 export const colors = {
-  bg: "#FBF5EC",
-  paper: "#FFFDF9",
-  ink: "#5A493F",
-  muted: "#A59486",
-  orange: "#F2958A",
-  pale: "#FDE7E0",
-  line: "#F0E4D4",
-  edge: "#EBDCC8",
-  green: "#DCEEDA",
-  jade: "#7DB89E",
-  lavender: "#A99CDA",
-  lilac: "#EDE7F8",
-  yellow: "#FBE6A6",
-  pink: "#F9D3DB",
-  sky: "#D3E8F4",
+  bg: "#FFF3DF",
+  paper: "#FFFFFF",
+  ink: "#111111",
+  muted: "#5C534A",
+  orange: "#FF7A1A",
+  pale: "#FFD3E5",
+  line: "#111111",
+  edge: "#111111",
+  green: "#C6F432",
+  jade: "#FF7A1A",
+  lavender: "#B9A6FF",
+  lilac: "#DDD2FF",
+  yellow: "#C6F432",
+  pink: "#FF9EC7",
+  sky: "#B9A6FF",
 };
-// Rounded system typefaces give headlines a soft, picture-book voice without shipping a font file.
-export const display = Platform.select({
-  ios: "Yuanti SC",
-  android: "sans-serif-medium",
-  default:
-    '"Yuanti SC", "YouYuan", "HarmonyOS Sans SC", ui-rounded, "PingFang SC", sans-serif',
-}) as string;
-/** A soft, diffuse shadow; larger sizes float higher off the page. */
+// Bundled display faces: ZCOOL QingKe HuangYou for headlines, Archivo Black for numerals and
+// Latin. Both are loaded in the root layout; system fonts show until they arrive.
+export const display = "ZCOOLQingKeHuangYou_400Regular";
+export const numeric = "ArchivoBlack_400Regular";
+/** A hard, unblurred offset shadow in ink. */
 export const shadow = (size = 4, _tint?: string): ViewStyle => ({
-  boxShadow: `0px ${size * 2}px ${size * 6}px rgba(150, 110, 80, 0.16)`,
+  boxShadow: `${size}px ${size}px 0px ${colors.ink}`,
 });
 export const styles = StyleSheet.create({
   card: {
     backgroundColor: colors.paper,
-    borderRadius: 28,
-    padding: 22,
-    borderWidth: 1.5,
-    borderColor: colors.edge,
-    boxShadow: "0px 8px 24px rgba(150, 110, 80, 0.16)",
+    borderRadius: 14,
+    padding: 20,
+    borderWidth: 2.5,
+    borderColor: colors.ink,
+    boxShadow: `4px 4px 0px ${colors.ink}`,
   },
   row: { flexDirection: "row", alignItems: "center", gap: 12 },
   between: {
@@ -65,16 +63,16 @@ export const styles = StyleSheet.create({
   },
   stack: { gap: 24 },
   h1: {
-    fontSize: 36,
+    fontSize: 38,
     lineHeight: 46,
-    fontWeight: "700",
+    fontWeight: "400",
     color: colors.ink,
     fontFamily: display,
   },
   h2: {
     fontSize: 21,
     lineHeight: 30,
-    fontWeight: "700",
+    fontWeight: "400",
     color: colors.ink,
     fontFamily: display,
   },
@@ -89,17 +87,17 @@ export const styles = StyleSheet.create({
     color: colors.ink,
   },
   input: {
-    borderWidth: 1.5,
+    borderWidth: 2.5,
     borderColor: colors.edge,
     backgroundColor: colors.paper,
-    borderRadius: 18,
+    borderRadius: 14,
     paddingHorizontal: 15,
     paddingVertical: 13,
     fontSize: 15,
     color: colors.ink,
     minHeight: 48,
   },
-  divider: { height: 1.5, backgroundColor: colors.edge },
+  divider: { height: 2.5, backgroundColor: colors.ink },
 });
 export function Button({
   label,
@@ -117,7 +115,7 @@ export function Button({
   style?: StyleProp<ViewStyle>;
 }) {
   const fg =
-    tone === "primary" ? "#FFFFFF" : tone === "danger" ? "#C0564A" : colors.ink;
+    colors.ink;
   const flat = tone === "plain";
   return (
     <Pressable
@@ -135,18 +133,20 @@ export function Button({
           justifyContent: "center",
           flexDirection: "row",
           gap: 8,
+          borderWidth: flat ? 0 : 2.5,
+          borderColor: colors.ink,
           backgroundColor:
             tone === "primary"
-              ? colors.orange
+              ? colors.green
               : tone === "soft"
-                ? colors.yellow
+                ? colors.paper
                 : tone === "danger"
-                  ? colors.pale
+                  ? colors.pink
                   : "transparent",
           opacity: disabled ? 0.4 : flat && pressed ? 0.6 : 1,
         },
         !flat && shadow(pressed ? 1 : 3),
-        !flat && pressed && { transform: [{ scale: 0.97 }] },
+        !flat && pressed && { transform: [{ translateX: 2 }, { translateY: 2 }] },
         style,
       ]}
     >
@@ -175,7 +175,8 @@ export function Chip({
   onPress?: () => void;
   color?: string;
 }) {
-  const light = color !== colors.ink && color !== colors.lavender && color !== colors.jade && color !== colors.orange;
+  // Only the default black chip needs light text; every colour block in this palette takes ink.
+  const light = color !== colors.ink;
   return (
     <Pressable
       accessibilityRole={onPress ? "button" : "text"}
@@ -188,8 +189,8 @@ export function Chip({
         paddingHorizontal: 15,
         paddingVertical: 8,
         borderRadius: 999,
-        borderWidth: 1.5,
-        borderColor: active ? color : colors.edge,
+        borderWidth: 2.5,
+        borderColor: colors.ink,
         backgroundColor: active ? color : colors.paper,
         justifyContent: "center",
       }}
@@ -198,7 +199,7 @@ export function Chip({
         style={{
           fontSize: 13,
           fontWeight: active ? "800" : "500",
-          color: active && !light ? "#FFF" : colors.ink,
+          color: active && !light ? colors.green : colors.ink,
         }}
       >
         {label}
@@ -282,23 +283,11 @@ export function Wash({
   size?: number;
   style?: StyleProp<ViewStyle>;
 }) {
-  return (
-    <View
-      pointerEvents="none"
-      style={[
-        {
-          position: "absolute",
-          width: size,
-          height: size * 0.82,
-          borderRadius: size / 2,
-          backgroundColor: color,
-          opacity: 0.55,
-          boxShadow: `0px 0px ${size * 0.35}px ${size * 0.14}px ${color}`,
-        },
-        style,
-      ]}
-    />
-  );
+  // The orange pop style has no watercolour washes; kept so older call sites stay valid.
+  void color;
+  void size;
+  void style;
+  return null;
 }
 /** A tilted label, like a price sticker slapped on a zine page. */
 export function Sticker({
@@ -367,13 +356,13 @@ export function Tape({
     />
   );
 }
-/** A round rubber stamp with two lines of text. */
+/** A tilted colour block that reads like a stamp: a small caption over one big word. */
 export function Stamp({
   top,
   main,
-  color = colors.orange,
+  color = colors.lavender,
   size = 84,
-  rotate = -12,
+  rotate = 4,
   style,
 }: {
   top: string;
@@ -388,44 +377,35 @@ export function Stamp({
       accessibilityLabel={`${top} ${main}`}
       style={[
         {
-          width: size,
-          height: size,
-          borderRadius: size / 2,
+          minWidth: size,
+          minHeight: size * 0.86,
+          paddingHorizontal: 8,
+          borderRadius: 12,
           borderWidth: 2.5,
-          borderColor: color,
-          padding: 4,
-          transform: [{ rotate: `${rotate}deg` }],
+          borderColor: colors.ink,
+          backgroundColor: color,
+          alignItems: "center",
+          justifyContent: "center",
+          transform: [{ rotate: `${rotate || 4}deg` }],
         },
+        shadow(3),
         style,
       ]}
     >
-      <View
+      <Text style={{ fontSize: Math.max(10, size * 0.14), letterSpacing: 1, color: colors.ink, fontWeight: "700" }}>
+        {top}
+      </Text>
+      <Text
+        numberOfLines={1}
         style={{
-          flex: 1,
-          borderRadius: size / 2,
-          borderWidth: 1,
-          borderColor: color,
-          borderStyle: "dashed",
-          alignItems: "center",
-          justifyContent: "center",
+          fontSize: size * 0.36,
+          lineHeight: size * 0.44,
+          color: colors.ink,
+          fontFamily: /^[\x20-\x7E—]+$/.test(main) ? numeric : display,
         }}
       >
-        <Text style={{ fontSize: size * 0.11, letterSpacing: 1, color, fontWeight: "700" }}>
-          {top}
-        </Text>
-        <Text
-          numberOfLines={1}
-          style={{
-            fontSize: size * 0.22,
-            lineHeight: size * 0.3,
-            color,
-            fontWeight: "700",
-            fontFamily: display,
-          }}
-        >
-          {main}
-        </Text>
-      </View>
+        {main}
+      </Text>
     </View>
   );
 }
@@ -447,9 +427,9 @@ export function Bubble({
         style={[
           {
             backgroundColor: bg,
-            borderWidth: 1.5,
+            borderWidth: 2.5,
             borderColor: colors.edge,
-            borderRadius: 26,
+            borderRadius: 14,
             padding: 18,
           },
           shadow(4),
@@ -467,10 +447,9 @@ export function Bubble({
             width: 20,
             height: 20,
             backgroundColor: bg,
-            borderRightWidth: 1.5,
-            borderBottomWidth: 1.5,
-            borderColor: colors.edge,
-            borderBottomRightRadius: 5,
+            borderRightWidth: 2.5,
+            borderBottomWidth: 2.5,
+            borderColor: colors.ink,
             transform: [{ rotate: "45deg" }],
           }}
         />
@@ -543,8 +522,8 @@ export function Avatar({
     width: size,
     height: size,
     borderRadius: size / 2,
-    borderWidth: 2,
-    borderColor: "#FFFFFF",
+    borderWidth: 2.5,
+    borderColor: colors.ink,
   };
   return pet.avatar || demo ? (
     <Image source={pet.avatar ? { uri: pet.avatar } : demoPhoto} style={frame} />
@@ -656,7 +635,8 @@ export function Portrait({
           paddingBottom: 10,
           backgroundColor: "#FFFFFF",
           transform: [{ rotate: `${rotate}deg` }],
-          borderRadius: 6,
+          borderWidth: 2.5,
+          borderColor: colors.ink,
         },
         shadow(4),
       ]}
@@ -690,7 +670,7 @@ export function Portrait({
           marginTop: 7,
           letterSpacing: 1,
           fontFamily: display,
-          fontWeight: "700",
+          fontWeight: "400",
         }}
       >
         {pet.name}
@@ -712,7 +692,7 @@ export function Meter({
         height: 18,
         backgroundColor: colors.paper,
         borderRadius: 9,
-        borderWidth: 1.5,
+        borderWidth: 2.5,
         borderColor: colors.edge,
         overflow: "hidden",
         flexDirection: "row",
@@ -723,7 +703,8 @@ export function Meter({
           height: "100%",
           width: `${value}%`,
           backgroundColor: color,
-          borderRadius: 9,
+          borderRightWidth: value > 0 && value < 100 ? 2.5 : 0,
+          borderColor: colors.ink,
         }}
       />
     </View>

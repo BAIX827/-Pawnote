@@ -1,5 +1,4 @@
 import { Category, Pet, Stories, Story, StoryStyle } from "./types";
-import { speciesLabel } from "./pet-profile";
 import { getLang, t } from "../i18n/core";
 import { isLoss, isSensitive, reaction, socialLine, temperOf } from "./temper";
 const incidents: Record<
@@ -8,44 +7,37 @@ const incidents: Record<
     work: string;
     campus: string;
     title: string;
-    topic: string;
   }
 > = {
   sleep: {
-    work: "沉浸式带薪休息研究已完成。工作可以等，午觉的黄金窗口只有一次。",
-    campus: "睡眠研究课已完成实地实践。闭眼认真听讲，也是我的学习方式。",
-    title: "睡眠研究员今日再次延长实验时间",
-    topic: "睡觉这件事",
+    work: "午觉想排进今天的日程。上班的事，等我睡够了再商量。",
+    campus: "这门休息课，我想按自己的进度学。醒来再聊下一节。",
+    title: "今天忙着睡觉",
   },
   snack: {
-    work: "作为零食鉴定员，我对产品进行了深入抽样。建议补货，继续研究。",
-    campus: "食堂风味调研已完成，样本数量仍有提升空间。申请下一轮实践经费。",
-    title: "零食抽样研究取得阶段性进展",
-    topic: "吃这件事",
+    work: "关于吃的，我愿意多花点心思。下一份试吃机会，希望还考虑我。",
+    campus: "要是开一门吃饭课，我应该很愿意认真听。课后也想继续研究。",
+    title: "开饭时间到",
   },
   bath: {
-    work: "清洁主题团建已参加，并当场提出用零食补偿的建议。",
-    campus: "卫生实践课顺利结束，建议下次改为阳光浴选修课。",
-    title: "泡泡主题活动引发当事宠物热议",
-    topic: "洗澡这件事",
+    work: "今天的清洁流程到这里。我想申请一点自由时间，慢慢恢复自己的节奏。",
+    campus: "洗澡这门课先上到这里。下一节想选自己喜欢的，最好由我决定。",
+    title: "洗澡这件小事",
   },
   chaos: {
-    work: "环境结构压力测试已完成。项目经验增加，预算请另行讨论。",
-    campus: "空间改造实践作业已提交，期待老师给出有创意的评语。",
-    title: "毛孩创意改造项目引发家庭关注",
-    topic: "今天的现场",
+    work: "这件事要是开会讨论，也请给我留个发言位置。我的想法还没讲完。",
+    campus: "这道题我有自己的解法。结果可以聊，思路也想让大家听听。",
+    title: "今天有点小状况",
   },
   walk: {
-    work: "外勤巡逻结束，沿途气味信息已收集。申请零食作为差旅补助。",
-    campus: "户外观察课已完成，气味地图又增加了一页。",
-    title: "街区巡逻员完成新一轮外勤任务",
-    topic: "出门这件事",
+    work: "今天的外出算我喜欢的安排。下次想把时间留宽一点，按自己的节奏来。",
+    campus: "户外这门课，下次还想选。好奇心想多留一点时间。",
+    title: "出门啦",
   },
   other: {
-    work: "已将这段日常归档为今日工作纪要。",
-    campus: "已将这段日常收录为校园生活笔记。",
-    title: "毛孩生活档案新增一段独家记录",
-    topic: "今天这件事",
+    work: "",
+    campus: "",
+    title: "今天的小事",
   },
 };
 const SELF: Partial<Record<Pet["species"], string>> = {
@@ -59,7 +51,7 @@ const ALIASES: Partial<Record<Pet["species"], string[]>> = {
   dog: ["狗狗", "狗子", "小狗"],
   rabbit: ["小兔子", "兔兔", "兔子"],
 };
-const COMMON_ALIASES = ["小家伙", "小东西", "小祖宗", "毛孩子", "崽崽"];
+const COMMON_ALIASES = ["小家伙", "小东西", "小祖宗", "小动物", "崽崽"];
 // Words an owner uses about the pet, and how the pet would rather put it.
 const SPINS: [string, string][] = [
   ["偷吃", "悄悄品鉴"],
@@ -122,6 +114,10 @@ export function toPetVoice(
     .replace(new RegExp(`(?:我们家的?|我家的?|咱家的?|这只|这个|那只)${P}`, "g"), P)
     .replace(/我们|咱们/g, W)
     .replace(/我/g, O);
+  const time = TIME.exec(s)?.[0] ?? "";
+  // "今天带她出去玩" has an omitted owner subject; keep who did what intact.
+  if (new RegExp(`^(?:带着?|给|帮|替|为)${P}`).test(s.slice(time.length)))
+    s = time + O + s.slice(time.length);
   const first = s.split(/[，。！？,.!?；;\n]/)[0];
   if (!s.includes(P) && !first.startsWith(O) && !first.startsWith(W)) {
     const time = TIME.exec(s)?.[0] ?? "";
@@ -149,7 +145,7 @@ export function toPetVoice(
 const HINTS: [Category, RegExp][] = [
   ["chaos", /拆|推下|推倒|打翻|打碎|咬坏|抓坏|撕|弄乱|捣乱|闯祸|摔/],
   ["bath", /洗澡|洗了|泡泡|吹风|吹毛|美容|剪指甲|梳毛/],
-  ["walk", /散步|遛|出门|公园|楼下|外面|巡逻|草地|晒太阳/],
+  ["walk", /散步|遛|出门|出去|外出|公园|楼下|外面|巡逻|草地|晒太阳/],
   ["sleep", /睡|困|打盹|午觉|做梦|呼噜|赖床|哈欠/],
   ["snack", /吃|零食|罐头|小鱼干|冻干|喝|饭|粮|肉|啃/],
 ];
@@ -192,67 +188,63 @@ export function generateStory(
   if (getLang() === "en") return englishStory(pet, fact, category, style, variant);
   const v = incidents[category];
   const grave = isSensitive(fact);
-  const self = selfName(pet),
-    owner = ownerName(pet),
+  const owner = ownerName(pet),
     said = toPetVoice(pet, fact, grave);
   const mine = reaction(pet, category, owner, "zh", variant, fact);
   if (grave && style === "news") return done(`${pet.name}的今日记录`, `${owner}写下：“${fact}”\n\n${mine.line}`);
   if (grave && style !== "diary")
     return done(`${pet.name}的今日记录`, `${said.text}\n\n${style === "social" ? mine.closer : mine.line}`);
-  const note = said.spin
-    ? `\n（注：${owner}管这叫“${said.spin}”，${self}保留意见。）`
-    : "";
   const life = pet.route === "work" ? v.work : v.campus;
   const text =
     style === "news"
-      ? `本报讯｜据${owner}向本报爆料：“${fact}”\n\n当事${speciesLabel(pet)} ${pet.name} 随后回应：“${said.text}”\n\n在毛孩世界里，这被写进了${pet.route === "work" ? "营业" : "校园"}档案。${life}\n\n${variant % 2 ? "这件小事，已收录进爪报特刊。" : "以上为基于主人记录的虚构娱乐报道。"}`
+      ? `${pet.ownerTitle?.trim() || "主人"}说：“${fact}”\n\n${pet.name}：“${mine.line}”`
       : style === "life"
-        ? `【${pet.route === "work" ? "今日工作纪要" : "今日课堂笔记"}】\n1. ${said.text}\n2. ${life}\n备注：${mine.closer}${note}`
+        ? `【${pet.route === "work" ? "今日工作日记" : "今日校园日记"}】\n${said.text}\n\n${life || mine.line}`
         : style === "social"
-          ? `${said.text}${socialLine(pet, category, owner, "zh", fact)}`
-          : `${said.text}\n\n${mine.line}\n${mine.closer}${note}`;
+          ? `${said.text}\n${socialLine(pet, category, owner, "zh", fact, variant)}`
+          : `${said.text}\n\n${mine.line}${variant ? `\n${mine.closer}` : ""}`;
   const title =
     style === "news"
       ? `${pet.name}：${v.title}`
       : style === "life"
         ? `${pet.name}的${pet.route === "work" ? "营业报告" : "校园笔记"}`
         : style === "social"
-          ? `${pet.name}正在营业`
-          : `关于${v.topic}，${self}有话说`;
+          ? `${pet.name}的今日动态`
+          : `${pet.name}的小心思`;
   return done(title, text);
 }
 // English has no safe rule for swapping grammatical person, so the offline version quotes
 // the owner and lets the pet comment; the AI gateway provides a true first-person retelling.
 const asides: Record<Category, { work: string; campus: string; title: string }> = {
   sleep: {
-    work: "Paid rest research completed. Work can wait; the afternoon nap window cannot.",
-    campus: "Sleep studies: field practice complete. Listening with my eyes closed still counts.",
-    title: "Sleep researcher extends experiment yet again",
+    work: "I'd like a nap on today's schedule. Work can be discussed when I've rested.",
+    campus: "I'd like to study rest at my own pace. The next class can wait until I wake up.",
+    title: "Busy Sleeping",
   },
   snack: {
-    work: "As snack inspector, I sampled the product thoroughly. Recommend restocking for further study.",
-    campus: "Cafeteria flavour survey done. Sample size still too small; requesting more funding.",
-    title: "Snack sampling study reports early progress",
+    work: "Happy to give food some serious thought. Please consider me for the next tasting slot.",
+    campus: "A class about food sounds interesting. I'd happily keep thinking about it afterwards.",
+    title: "Snack Time",
   },
   bath: {
-    work: "Attended the cleaning-themed team event and proposed compensation in treats.",
-    campus: "Hygiene practical complete. Suggest replacing it with a sunbathing elective.",
-    title: "Bubble event sparks debate from the party involved",
+    work: "Cleaning routine complete. I'd like some free time to settle back into my own pace.",
+    campus: "That's enough bath class for now. I'd like a say in the next elective.",
+    title: "Bath Day",
   },
   chaos: {
-    work: "Structural stress test of the environment complete. Budget to be discussed separately.",
-    campus: "Space redesign assignment submitted. Looking forward to creative feedback.",
-    title: "Creative renovation project draws household attention",
+    work: "If there's a meeting about this, save me a speaking slot. I have thoughts too.",
+    campus: "I have my own approach to this question. I'd like my reasoning heard alongside the result.",
+    title: "A Little Chaos Today",
   },
   walk: {
-    work: "Field patrol finished, scent data collected. Requesting treats as travel allowance.",
-    campus: "Outdoor observation class complete. One more page in the scent map.",
-    title: "Neighbourhood patroller completes another field mission",
+    work: "An outing belongs on my preferred schedule. I'd like more time and my own pace next time.",
+    campus: "I'd choose outdoor class again. My curiosity could use a little more time.",
+    title: "Out and About",
   },
   other: {
-    work: "Filed under today's work notes.",
-    campus: "Added to my campus notebook.",
-    title: "Life archive gains an exclusive new entry",
+    work: "",
+    campus: "",
+    title: "A Little Moment Today",
   },
 };
 function englishStory(pet: Pet, fact: string, category: Category, style: StoryStyle, variant: number): Story {
@@ -269,20 +261,20 @@ function englishStory(pet: Pet, fact: string, category: Category, style: StorySt
     };
   const text =
     style === "news"
-      ? `PAW DISPATCH | ${Owner} told this paper: "${fact}"\n\n${pet.name} was reached for comment: "${mine.line}"${pet.species === "dog" ? " Our rating: 13/10." : ""}\n\nIn the pet world this now sits in the ${work ? "work" : "campus"} file. ${life}\n\n${variant % 2 ? "This small story has been added to the special edition." : "This is fictional entertainment based on the owner's note."}`
+      ? `${Owner} said: "${fact}"\n\n${pet.name}: "${mine.line}"`
       : style === "life"
-        ? `${work ? "Work log" : "Class notes"}\n1. ${Owner} reports: "${fact}"\n2. ${life}\nNote: ${mine.closer}`
+        ? `${work ? "Work diary" : "School diary"}\n${Owner} wrote: "${fact}"\n\n${life || mine.line}`
         : style === "social"
-          ? `${Owner} says: "${fact}" ${socialLine(pet, category, owner, "en", fact)}`
-          : `${Owner} wrote: "${fact}"\n\n${mine.line}\n${mine.closer}`;
+          ? `${Owner} says: "${fact}"\n${socialLine(pet, category, owner, "en", fact, variant)}`
+          : `${Owner} wrote: "${fact}"\n\n${mine.line}${variant ? `\n${mine.closer}` : ""}`;
   const title =
     style === "news"
       ? `${pet.name}: ${v.title}`
       : style === "life"
         ? `${pet.name}'s ${work ? "work report" : "campus notes"}`
         : style === "social"
-          ? `${pet.name} is open for business`
-          : `${pet.name} has something to say`;
+          ? `${pet.name}'s Little Update`
+          : `${pet.name}'s Little Thoughts`;
   return { title, text: text.slice(0, 2000), generator: "template", edited: false };
 }
 export function generateStories(

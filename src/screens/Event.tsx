@@ -74,8 +74,8 @@ export default function Event() {
               backgroundColor: "#FFF",
               padding: 10,
               paddingBottom: 30,
-              borderWidth: 1.5,
-              borderColor: colors.edge,
+              borderWidth: 2.5,
+              borderColor: colors.ink,
               transform: [{ rotate: "-1.2deg" }],
               marginTop: 6,
             },
@@ -98,8 +98,8 @@ export default function Event() {
               width: 34,
               height: 34,
               borderRadius: 17,
-              borderWidth: 1.5,
-              borderColor: colors.edge,
+              borderWidth: 2.5,
+              borderColor: colors.ink,
               backgroundColor: colors.paper,
               alignItems: "center",
               justifyContent: "center",
@@ -118,7 +118,7 @@ export default function Event() {
           <Text style={styles.caps}>{t("{name}说", { name: event.petSnapshot.name })}</Text>
         </View>
         <Bubble tail="left" bg={tones[style]}>
-          <Text style={{ fontSize: 22, lineHeight: 32, fontWeight: "700", fontFamily: display, color: colors.ink, marginBottom: 8 }}>
+          <Text style={{ fontSize: 22, lineHeight: 32, fontWeight: "400", fontFamily: display, color: colors.ink, marginBottom: 8 }}>
             {event.stories[style].title}
           </Text>
           <Text style={[styles.body, { fontSize: 16, lineHeight: 29 }]}>
@@ -163,8 +163,8 @@ export default function Event() {
             style={{
               gap: 12,
               backgroundColor: colors.pale,
-              borderWidth: 1.5,
-              borderColor: colors.edge,
+              borderWidth: 2.5,
+              borderColor: colors.ink,
               padding: 16,
               borderRadius: 12,
             }}

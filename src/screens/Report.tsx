@@ -23,6 +23,7 @@ import {
   Wobble,
   colors,
   display,
+  numeric,
   shadow,
   styles,
 } from "../components/ui";
@@ -66,7 +67,7 @@ export default function Report() {
 
       <View
         style={[
-          { backgroundColor: colors.paper, borderRadius: 20, borderWidth: 1.5, borderColor: colors.edge, padding: 22, gap: 6 },
+          { backgroundColor: colors.paper, borderRadius: 14, borderWidth: 2.5, borderColor: colors.ink, padding: 22, gap: 6 },
           shadow(4),
         ]}
       >
@@ -84,7 +85,7 @@ export default function Report() {
             <Stamp top={t("绩效")} main={report.grade ?? "—"} color={colors.orange} size={76} rotate={0} />
           </Wobble>
         </View>
-        <View style={{ borderTopWidth: 1.5, borderStyle: "dashed", borderColor: colors.edge, marginTop: 10, paddingTop: 8 }}>
+        <View style={{ borderTopWidth: 1.5, borderStyle: "dashed", borderColor: colors.ink, marginTop: 10, paddingTop: 8 }}>
           {work
             ? pay.lines.map((l) => (
                 <View key={l.label} style={row}>
@@ -92,9 +93,9 @@ export default function Report() {
                     {l.label}
                     {l.count !== undefined && <Text style={styles.small}>  × {l.count}</Text>}
                   </Text>
-                  <Text style={[styles.body, { fontWeight: "700", color: l.amount < 0 ? "#C0564A" : colors.ink }]}>
-                    {signed(l.amount)}
-                  </Text>
+                  <View style={l.amount < 0 ? { backgroundColor: colors.pink, borderWidth: 2, borderColor: colors.ink, borderRadius: 5, paddingHorizontal: 5 } : undefined}>
+                    <Text style={{ fontFamily: numeric, fontSize: 16, lineHeight: 24, color: colors.ink }}>{signed(l.amount)}</Text>
+                  </View>
                 </View>
               ))
             : card.rows.map((r) => (
@@ -111,7 +112,7 @@ export default function Report() {
         </View>
         <View style={[row, { borderTopWidth: 2, borderColor: colors.ink, marginTop: 6, paddingTop: 12, alignItems: "flex-end" }]}>
           <Text style={[styles.body, { fontWeight: "700" }]}>{work ? t("实发") : t("本月学分")}</Text>
-          <Text style={{ fontFamily: display, fontWeight: "700", fontSize: 34, lineHeight: 40, color: accent }}>
+          <Text style={{ fontFamily: numeric, fontSize: 44, lineHeight: 50, color: colors.ink }}>
             {work ? pay.total : card.credits}
             <Text style={{ fontSize: 14 }}> {work ? unit : t("分")}</Text>
           </Text>
@@ -127,8 +128,8 @@ export default function Report() {
             { n: report.entries, label: t("记录数") },
             { n: report.top ? t(CATEGORY_LABELS[report.top]) : "—", label: t("最常做的事") },
           ].map((s) => (
-            <View key={s.label} style={{ flex: 1, backgroundColor: colors.paper, borderRadius: 16, padding: 12 }}>
-              <Text numberOfLines={1} style={{ fontFamily: display, fontWeight: "700", fontSize: 24, lineHeight: 32, color: colors.ink }}>
+            <View key={s.label} style={{ flex: 1, backgroundColor: colors.paper, borderRadius: 14, padding: 12 }}>
+              <Text numberOfLines={1} style={{ fontFamily: display, fontWeight: "400", fontSize: 24, lineHeight: 32, color: colors.ink }}>
                 {s.n}
               </Text>
               <Text style={styles.small}>{s.label}</Text>

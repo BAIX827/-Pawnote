@@ -14,6 +14,7 @@ import {
   Tape,
   colors,
   display,
+  numeric,
   shadow,
   styles,
 } from "../components/ui";
@@ -42,12 +43,12 @@ function Polaroid({ event, caption, size, tilt }: { event: LifeEvent; caption: s
       accessibilityLabel={t("打开日记：{text}", { text: event.description })}
       onPress={() => open(event)}
       style={[
-        { backgroundColor: "#FFF", padding: 7, paddingBottom: 8, borderRadius: 6, transform: [{ rotate: `${tilt}deg` }] },
+        { backgroundColor: "#FFF", padding: 7, paddingBottom: 8, borderWidth: 2.5, borderColor: colors.ink, transform: [{ rotate: `${tilt}deg` }] },
         shadow(3),
       ]}
     >
       <Image source={{ uri: event.photo }} style={{ width: size, height: size, backgroundColor: colors.pale }} />
-      <Text numberOfLines={1} style={{ width: size, textAlign: "center", marginTop: 6, fontSize: 12, fontFamily: display, fontWeight: "700", color: colors.ink }}>
+      <Text numberOfLines={1} style={{ width: size, textAlign: "center", marginTop: 6, fontSize: 12, fontFamily: display, fontWeight: "400", color: colors.ink }}>
         {caption}
       </Text>
     </Pressable>
@@ -62,9 +63,9 @@ export default function TimeMachine() {
     photos = monthlyPhotos(state.events),
     moments = firsts(state.events);
   const stat = (n: number, label: string, bg: string) => (
-    <View style={[{ flex: 1, minWidth: 140, backgroundColor: bg, borderRadius: 22, padding: 16 }, shadow(3)]}>
+    <View style={[{ flex: 1, minWidth: 140, backgroundColor: bg, borderRadius: 14, padding: 16 }, shadow(3)]}>
       <Text style={styles.small}>{label}</Text>
-      <Text style={{ fontFamily: display, fontWeight: "700", fontSize: 44, lineHeight: 52, color: colors.ink }}>
+      <Text style={{ fontFamily: numeric, fontSize: 44, lineHeight: 52, color: colors.ink }}>
         {n}
         <Text style={{ fontSize: 14 }}> {t("天")}</Text>
       </Text>
@@ -101,7 +102,7 @@ export default function TimeMachine() {
           accessibilityRole="button"
           accessibilityLabel={t("填写到家日期")}
           onPress={() => router.push({ pathname: "/onboarding", params: { edit: "1" } })}
-          style={[styles.row, { backgroundColor: colors.paper, borderRadius: 18, borderWidth: 1.5, borderStyle: "dashed", borderColor: colors.edge, padding: 14 }]}
+          style={[styles.row, { backgroundColor: colors.paper, borderRadius: 14, borderWidth: 2.5, borderStyle: "dashed", borderColor: colors.ink, padding: 14 }]}
         >
           <Icon name="edit-2" color={colors.muted} />
           <Text style={[styles.muted, { flex: 1 }]}>
@@ -146,10 +147,10 @@ export default function TimeMachine() {
               onPress={() => open(m.event)}
               style={[
                 {
-                  backgroundColor: [colors.paper, "#FFF3C4", "#E3F3FC"][i % 3],
-                  borderRadius: 20,
-                  borderWidth: 1.5,
-                  borderColor: colors.edge,
+                  backgroundColor: [colors.paper, colors.green, colors.lavender][i % 3],
+                  borderRadius: 14,
+                  borderWidth: 2.5,
+                  borderColor: colors.ink,
                   padding: 16,
                   flexDirection: "row",
                   alignItems: "center",
@@ -169,7 +170,7 @@ export default function TimeMachine() {
               {m.event.photo && (
                 <Image
                   source={{ uri: m.event.photo }}
-                  style={{ width: 58, height: 68, borderRadius: 8, borderWidth: 3, borderColor: "#FFF", transform: [{ rotate: "4deg" }] }}
+                  style={{ width: 58, height: 68, borderWidth: 2.5, borderColor: colors.ink, transform: [{ rotate: "4deg" }] }}
                 />
               )}
             </Pressable>

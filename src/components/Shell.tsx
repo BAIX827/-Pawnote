@@ -14,7 +14,7 @@ import { router, usePathname } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useStore } from "../data/store";
 import { exportBackup } from "../platform/export";
-import { Avatar, Button, Icon, Wash, Wobble, colors, display, shadow, styles } from "./ui";
+import { Avatar, Button, Icon, Wobble, colors, display, styles } from "./ui";
 import RestoreBackup from "./RestoreBackup";
 const nav = [
   { route: "/", label: "爪窝", icon: "home" as const },
@@ -50,22 +50,20 @@ export default function Shell({ children }: { children: React.ReactNode }) {
           justifyContent: wide ? "flex-start" : "center",
           paddingHorizontal: wide ? 16 : 2,
           paddingVertical: wide ? 14 : 7,
-          borderRadius: 22,
-          backgroundColor: active ? colors.yellow : "transparent",
-          transform: [{ rotate: "0deg" }],
-          opacity: pressed ? 0.65 : 1,
+          borderRadius: 14,
+          opacity: pressed ? 0.65 : active ? 1 : 0.6,
         })}
       >
         <Icon
           name={n.icon}
           size={20}
-          color={active || wide ? (active ? colors.ink : "#E9DDD0") : colors.muted}
+          color={active ? colors.green : colors.bg}
         />
         <Text
           style={{
             fontSize: wide ? 15 : 11,
-            fontWeight: active ? "900" : "600",
-            color: active ? colors.ink : wide ? "#E9DDD0" : colors.muted,
+            fontWeight: "700",
+            color: active ? colors.green : colors.bg,
           }}
         >
           {t(n.label)}
@@ -111,7 +109,7 @@ export default function Shell({ children }: { children: React.ReactNode }) {
                     fontSize: 21,
                     fontFamily: display,
                     color: colors.paper,
-                    fontWeight: "700",
+                    fontWeight: "400",
                   }}
                 >
                   {t("爪记")}
@@ -144,7 +142,7 @@ export default function Shell({ children }: { children: React.ReactNode }) {
               <Text
                 style={{ color: colors.paper, fontSize: 15, fontWeight: "700" }}
               >
-                {t("毛孩市")}
+                {t("爪爪镇")}
               </Text>
               <Text style={{ color: "#A2B09D", fontSize: 12 }}>
                 {t("本机体验版 · v0.1")}
@@ -154,10 +152,6 @@ export default function Shell({ children }: { children: React.ReactNode }) {
         )}
         <View style={{ flex: 1 }}>
           <View pointerEvents="none" style={{ position: "absolute", top: 0, left: 0, right: 0, bottom: 0, overflow: "hidden" }}>
-            <Wash color={colors.yellow} size={260} style={{ top: 60, right: -110 }} />
-            <Wash color={colors.pink} size={200} style={{ top: 420, left: -90 }} />
-            <Wash color={colors.sky} size={240} style={{ bottom: 40, right: -80 }} />
-            <Wash color={colors.green} size={150} style={{ bottom: 220, left: -60 }} />
           </View>
           <View
             style={{
@@ -165,7 +159,7 @@ export default function Shell({ children }: { children: React.ReactNode }) {
               paddingVertical: 10,
               backgroundColor: colors.paper,
               borderBottomWidth: 2,
-              borderColor: colors.edge,
+              borderColor: colors.ink,
               flexDirection: "row",
               justifyContent: "space-between",
               alignItems: "center",
@@ -173,7 +167,7 @@ export default function Shell({ children }: { children: React.ReactNode }) {
           >
             {wide ? (
               <Text style={[styles.caps, { color: colors.muted }]}>
-                {t("PAWNOTE / 毛孩市日报")}
+                {t("PAWNOTE / 爪爪镇日报")}
               </Text>
             ) : (
               <View style={[styles.row, { gap: 8 }]}>
@@ -183,7 +177,7 @@ export default function Shell({ children }: { children: React.ReactNode }) {
                 <Text
                   style={{
                     fontSize: 21,
-                    fontWeight: "700",
+                    fontWeight: "400",
                     fontFamily: display,
                     color: colors.ink,
                     letterSpacing: 1,
@@ -200,7 +194,7 @@ export default function Shell({ children }: { children: React.ReactNode }) {
               onPress={() => router.navigate("/settings")}
               hitSlop={10}
             >
-              <Icon name="settings" color={colors.muted} size={22} />
+              <Icon name="settings" color={colors.ink} size={22} />
             </Pressable>
             {state.pet ? (
               <Pressable
@@ -229,7 +223,7 @@ export default function Shell({ children }: { children: React.ReactNode }) {
                 paddingHorizontal: wide ? 40 : 18,
                 backgroundColor: colors.pink,
                 borderBottomWidth: 2,
-                borderColor: colors.edge,
+                borderColor: colors.ink,
                 flexDirection: "row",
                 flexWrap: "wrap",
                 alignItems: "center",
@@ -330,17 +324,14 @@ export default function Shell({ children }: { children: React.ReactNode }) {
                 {
                   flexDirection: "row",
                   alignItems: "center",
-                  backgroundColor: colors.paper,
-                  borderWidth: 1.5,
-                  borderColor: colors.edge,
-                  borderRadius: 30,
+                  backgroundColor: colors.ink,
+                  borderRadius: 18,
                   marginHorizontal: 12,
                   marginBottom: 8,
                   marginTop: 6,
                   paddingVertical: 6,
                   paddingHorizontal: 8,
                 },
-                shadow(4, colors.orange),
               ]}
             >
               {nav.slice(0, 2).map(item)}
@@ -349,20 +340,19 @@ export default function Shell({ children }: { children: React.ReactNode }) {
                 accessibilityLabel={t("记录今天")}
                 onPress={() => router.push("/record")}
                 style={({ pressed }) => ({
-                  width: 58,
-                  height: 58,
-                  borderRadius: 29,
-                  marginTop: -26,
-                  marginHorizontal: 6,
+                  width: 50,
+                  height: 50,
+                  borderRadius: 12,
+                  marginHorizontal: 8,
                   backgroundColor: colors.orange,
-                  borderWidth: 4,
-                  borderColor: colors.paper,
+                  borderWidth: 2.5,
+                  borderColor: colors.bg,
                   alignItems: "center",
                   justifyContent: "center",
-                  transform: [{ scale: pressed ? 0.92 : 1 }],
+                  transform: [{ rotate: "-6deg" }, { scale: pressed ? 0.92 : 1 }],
                 })}
               >
-                <Icon name="plus" size={28} color="#FFF" />
+                <Icon name="plus" size={26} color={colors.ink} />
               </Pressable>
               {nav.slice(2).map(item)}
             </View>
@@ -380,9 +370,9 @@ export default function Shell({ children }: { children: React.ReactNode }) {
             paddingVertical: 12,
             borderRadius: 999,
             backgroundColor: colors.yellow,
-            borderWidth: 1.5,
-            borderColor: colors.edge,
-            boxShadow: "0px 6px 18px rgba(150, 110, 80, 0.25)",
+            borderWidth: 2.5,
+            borderColor: colors.ink,
+            boxShadow: `4px 4px 0px ${colors.ink}`,
             maxWidth: "90%",
           }}
         >

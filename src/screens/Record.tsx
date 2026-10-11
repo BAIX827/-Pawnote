@@ -239,8 +239,8 @@ export default function Record() {
               width: 34,
               height: 34,
               borderRadius: 17,
-              borderWidth: 1.5,
-              borderColor: colors.edge,
+              borderWidth: 2.5,
+              borderColor: colors.ink,
               backgroundColor: colors.paper,
               alignItems: "center",
               justifyContent: "center",
@@ -311,7 +311,7 @@ export default function Record() {
                 onChangeText={(title) => edit({ title })}
                 style={[
                   bare,
-                  { fontSize: 20, lineHeight: 28, fontWeight: "700", fontFamily: display },
+                  { fontSize: 20, lineHeight: 28, fontWeight: "400", fontFamily: display },
                 ]}
               />
               <View style={{ height: 2, backgroundColor: colors.ink, opacity: 0.25 }} />
@@ -363,7 +363,7 @@ export default function Record() {
         <View
           style={{
             backgroundColor: colors.lilac,
-            borderRadius: 24,
+            borderRadius: 14,
             padding: 16,
             gap: 10,
           }}
@@ -506,14 +506,14 @@ export default function Record() {
             width: 26,
             height: 26,
             borderRadius: 7,
-            borderWidth: 1.5,
-            borderColor: colors.edge,
+            borderWidth: 2.5,
+            borderColor: colors.ink,
             backgroundColor: draft.published ? colors.orange : colors.paper,
             alignItems: "center",
             justifyContent: "center",
           }}
         >
-          {draft.published && <Icon name="check" color="#FFF" size={16} />}
+          {draft.published && <Icon name="check" color={colors.ink} size={16} />}
         </View>
         <View style={{ flex: 1 }}>
           <Text style={[styles.body, { fontWeight: "700" }]}>{t("贴到本机爪友圈")}</Text>

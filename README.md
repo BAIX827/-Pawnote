@@ -1,5 +1,5 @@
 # 爪记 · Pawnote
-（原名：毛孩营业中 / Paw Life Club）
+（原名：宠物营业中 / Paw Life Club）
 真实宠物 × 轻量模拟人生 × 宠物口吻记录。
 
 最终目标为 iOS / Android App。当前版本 v0.1 使用 Expo + React Native + TypeScript，共享 Web 和移动端代码，首发面向中国大陆，iPhone 优先，随后 Android；Web 用于核心流程预览。
@@ -30,6 +30,10 @@ npm run start:go
 用与 SDK 57 兼容的 Expo Go 扫描终端二维码，当前全部业务模块已在 iOS Expo Go 验证。需要测试独立安装包时使用 development build。真机访问本地服务需要电脑与手机网络可达。本机模拟器可运行 `npm run ios:simulator`；本机真机可运行 `npm run ios:device`，签名由本人 Apple 账号的 Personal Team 或开发者会员配置。详细步骤见 docs/09-iPhone开发与真机验收.md。
 
 若启动失败，先检查 Node 版本、依赖安装结果和端口占用；可使用 `npx expo start --clear` 重建开发缓存。
+
+## Mac 本地版
+
+运行 `npm run install:mac`，安装到 `~/Applications/爪记.app`。内置界面和本机记录，可从 Finder 或 Spotlight 打开；更新前先退出应用。Mac 文件选择与导出已接入，详细步骤见 [Mac 安装与使用](docs/14-Mac安装与使用.md)。
 
 ## AI 生成网关
 App 默认只用本机规则生成。要启用“让 AI 来说”，需要运行 server/ 里的网关并让 App 指向它：

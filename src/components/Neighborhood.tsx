@@ -15,7 +15,7 @@ export default function Neighborhood({ work }: { work: boolean }) {
       tilt: -2,
     },
     {
-      label: work ? t("毛孩公司") : t("联合学院"),
+      label: work ? t("爪爪公司") : t("联合学院"),
       route: "/life" as const,
       icon: work ? ("briefcase" as const) : ("book" as const),
       color: colors.jade,
@@ -36,9 +36,9 @@ export default function Neighborhood({ work }: { work: boolean }) {
       style={[
         {
           backgroundColor: colors.sky,
-          borderRadius: 24,
-          borderWidth: 1.5,
-          borderColor: colors.edge,
+          borderRadius: 14,
+          borderWidth: 2.5,
+          borderColor: colors.ink,
           overflow: "hidden",
         },
         shadow(5),
@@ -46,7 +46,7 @@ export default function Neighborhood({ work }: { work: boolean }) {
     >
       <View style={{ padding: 18, paddingBottom: 0 }}>
         <Sticker bg={colors.paper} rotate={-2}>
-          {t("毛孩市 · 生活地图")}
+          {t("爪爪镇 · 生活地图")}
         </Sticker>
       </View>
       <Wobble degrees={10} style={{ position: "absolute", right: 26, top: 20 }}>
@@ -55,9 +55,9 @@ export default function Neighborhood({ work }: { work: boolean }) {
             width: 54,
             height: 54,
             backgroundColor: colors.yellow,
-            borderRadius: 27,
-            borderWidth: 1.5,
-            borderColor: colors.edge,
+            borderRadius: 14,
+            borderWidth: 2.5,
+            borderColor: colors.ink,
             alignItems: "center",
             justifyContent: "center",
           }}
@@ -80,8 +80,8 @@ export default function Neighborhood({ work }: { work: boolean }) {
             height: 18,
             borderRadius: 9,
             backgroundColor: colors.paper,
-            borderWidth: 1.5,
-            borderColor: colors.edge,
+            borderWidth: 2.5,
+            borderColor: colors.ink,
           }}
         />
       ))}
@@ -126,7 +126,7 @@ export default function Neighborhood({ work }: { work: boolean }) {
                   paddingTop: 12,
                   borderWidth: 2,
                   borderBottomWidth: 0,
-                  borderColor: colors.edge,
+                  borderColor: colors.ink,
                 }}
               >
                 <Icon name={d.icon} size={22} color="#FFFBF1" />
@@ -138,8 +138,8 @@ export default function Neighborhood({ work }: { work: boolean }) {
                         width: 16,
                         height: 20,
                         backgroundColor: colors.yellow,
-                        borderWidth: 1.5,
-                        borderColor: colors.edge,
+                        borderWidth: 2.5,
+                        borderColor: colors.ink,
                       }}
                     />
                   ))}
@@ -162,7 +162,7 @@ export default function Neighborhood({ work }: { work: boolean }) {
         style={{
           backgroundColor: colors.green,
           borderTopWidth: 2,
-          borderColor: colors.edge,
+          borderColor: colors.ink,
           flexDirection: "row",
           gap: 10,
           paddingHorizontal: 16,

@@ -126,7 +126,7 @@ export default function Onboarding({ editing = false }: { editing?: boolean }) {
   }
   function create() {
     if (!name.trim()) {
-      notify(t("给毛孩起个名字吧。"));
+      notify(t("给小动物起个名字吧。"));
       return;
     }
     if (species === "other" && !speciesName.trim()) {
@@ -167,7 +167,7 @@ export default function Onboarding({ editing = false }: { editing?: boolean }) {
   return (
     <View style={{ gap: 30 }}>
       <Heading
-        title={editing ? t("编辑居民档案") : t("欢迎搬进毛孩市")}
+        title={editing ? t("编辑居民档案") : t("欢迎搬进爪爪镇")}
         eyebrow={t("居民登记处")}
       />
       <View
@@ -181,16 +181,16 @@ export default function Onboarding({ editing = false }: { editing?: boolean }) {
           <View
             style={{
               backgroundColor: colors.yellow,
-              borderRadius: 22,
-              borderWidth: 1.5,
-              borderColor: colors.edge,
+              borderRadius: 14,
+              borderWidth: 2.5,
+              borderColor: colors.ink,
               boxShadow: "0px 8px 24px rgba(150, 110, 80, 0.16)",
               padding: wide ? 30 : 20,
               gap: 20,
             }}
           >
             <Text style={{ letterSpacing: 2, fontSize: 11, color: colors.ink }}>
-              {t("毛孩市 · 居民证 / PREVIEW")}
+              {t("爪爪镇 · 居民证 / PREVIEW")}
             </Text>
             <View
               style={{
@@ -222,7 +222,7 @@ export default function Onboarding({ editing = false }: { editing?: boolean }) {
           <View style={styles.between}>
             <View>
               <Text style={styles.h2}>
-                {editing ? t("编辑宠物档案") : t("办理毛孩居民证")}
+                {editing ? t("编辑宠物档案") : t("办理小镇居民证")}
               </Text>
             </View>
             <Avatar pet={preview} demo={editing && state.demo} size={54} />

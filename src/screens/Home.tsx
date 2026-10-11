@@ -5,18 +5,17 @@ import { router } from "expo-router";
 import { useStore } from "../data/store";
 import { progress, titleFor } from "../domain/life";
 import { formatDate } from "../domain/types";
+import { speciesEmoji } from "../domain/pet-profile";
 import { milestones } from "../domain/timeline";
 import {
-  Bubble,
   Button,
   Empty,
   Icon,
   Meter,
-  Portrait,
-  Stamp,
   Sticker,
   Tape,
-  Wobble,
+  demoPhoto,
+  numeric,
   colors,
   display,
   shadow,
@@ -27,13 +26,13 @@ import Onboarding from "./Onboarding";
 
 // The poster changes with the hour, the way a pet's day does.
 function moment(hour: number) {
-  if (hour < 6) return { bg: colors.lilac, fg: colors.ink, label: t("深夜档"), line: t("嘘，夜间巡逻中。"), icon: "moon" as const };
-  if (hour < 11) return { bg: colors.yellow, fg: colors.ink, label: t("早安档"), line: t("早，今天的早饭呢？"), icon: "sun" as const };
-  if (hour < 14) return { bg: colors.pale, fg: colors.ink, label: t("午间档"), line: t("中午了，适合找块太阳躺下。"), icon: "sun" as const };
-  if (hour < 18) return { bg: colors.pink, fg: colors.ink, label: t("下午档"), line: t("下午的风不错，我批准了。"), icon: "coffee" as const };
-  return { bg: colors.green, fg: colors.ink, label: t("晚间档"), line: t("你回来啦？我可没有在等你。"), icon: "moon" as const };
+  if (hour < 6) return { label: t("深夜档"), line: t("嘘，夜间巡逻中。"), icon: "moon" as const };
+  if (hour < 11) return { label: t("早安档"), line: t("早，今天的早饭呢？"), icon: "sun" as const };
+  if (hour < 14) return { label: t("午间档"), line: t("中午了，适合找块太阳躺下。"), icon: "sun" as const };
+  if (hour < 18) return { label: t("下午档"), line: t("下午的风不错，我批准了。"), icon: "coffee" as const };
+  return { label: t("晚间档"), line: t("你回来啦？我可没有在等你。"), icon: "moon" as const };
 }
-const notes = [colors.paper, colors.sky, colors.yellow, colors.green];
+const notes = [colors.paper, colors.lavender, colors.green, colors.pink];
 
 export default function Home() {
   const { state } = useStore();
@@ -56,97 +55,88 @@ export default function Home() {
       <View
         style={[
           {
-            backgroundColor: m.bg,
-            borderRadius: 28,
-            borderWidth: 1.5,
-            borderColor: colors.edge,
-            padding: narrow ? 20 : 30,
-            gap: 18,
+            backgroundColor: colors.orange,
+            borderRadius: 14,
+            borderWidth: 2.5,
+            borderColor: colors.ink,
             overflow: "hidden",
           },
-          shadow(6),
+          shadow(4),
         ]}
       >
-        <View
-          pointerEvents="none"
-          style={{
-            position: "absolute",
-            right: -60,
-            top: -60,
-            width: 220,
-            height: 220,
-            borderRadius: 110,
-            borderWidth: 1.5,
-            borderColor: colors.edge,
-            backgroundColor: "#FFFFFF33",
-          }}
-        />
-        <View
-          pointerEvents="none"
-          style={{
-            position: "absolute",
-            right: -20,
-            top: -20,
-            width: 140,
-            height: 140,
-            borderRadius: 70,
-            borderWidth: 1.5,
-            borderColor: colors.edge,
-            borderStyle: "dashed",
-          }}
-        />
-        <View style={styles.between}>
-          <Sticker bg={colors.paper} rotate={-3}>
-            {now.toLocaleDateString(locale(), { month: "long", day: "numeric", weekday: "short" })}
-            {" · "}
-            {m.label}
-          </Sticker>
-          <Icon name={m.icon} color={m.fg} size={24} />
-        </View>
-        <View style={{ flexDirection: "row", alignItems: "flex-end", gap: 14 }}>
-          <View style={{ flex: 1, gap: 4 }}>
-            <Text style={[styles.caps, { color: m.fg, opacity: 0.85 }]}>
-              {t("今日主角")}
-            </Text>
-            <Text
-              numberOfLines={2}
-              adjustsFontSizeToFit
-              style={{
-                fontFamily: display,
-                fontWeight: "700",
-                color: m.fg,
-                fontSize: narrow ? 52 : 76,
-                lineHeight: narrow ? 62 : 88,
-              }}
-            >
-              {pet.name}
-            </Text>
-            <Text style={{ color: m.fg, fontSize: 14, fontWeight: "600" }}>
-              {titleFor(p.level, pet.route)} · {tList(pet.personality)}
-            </Text>
+        <View style={{ padding: narrow ? 14 : 24, paddingBottom: 14, minHeight: narrow ? 190 : 250, justifyContent: "space-between", gap: 10 }}>
+          <View style={[styles.row, { gap: 8, flexWrap: "wrap", marginRight: narrow ? 120 : 190 }]}>
+            <Sticker bg={colors.paper} rotate={0}>
+              {now.toLocaleDateString(locale(), { month: "long", day: "numeric", weekday: "short" })}
+              {" · "}
+              {m.label}
+            </Sticker>
           </View>
-          <View style={{ marginBottom: 8, marginRight: 6 }}>
-            <Portrait pet={pet} demo={state.demo} size={narrow ? 96 : 140} tape={colors.sky} />
-            <Wobble style={{ position: "absolute", left: -34, bottom: -22 }}>
-              <Stamp
-                top="PAWNOTE"
-                main={`Lv.${p.level}`}
-                color={colors.ink}
-                size={66}
-                rotate={0}
-                style={{ backgroundColor: colors.paper }}
-              />
-            </Wobble>
+          <Text
+            numberOfLines={2}
+            adjustsFontSizeToFit
+            style={{
+              fontFamily: display,
+              color: colors.ink,
+              fontSize: narrow ? 70 : 104,
+              lineHeight: narrow ? 74 : 108,
+              marginRight: narrow ? 118 : 190,
+            }}
+          >
+            {pet.name}
+          </Text>
+          <View style={{ alignItems: "flex-start", gap: 6, marginRight: narrow ? 118 : 190 }}>
+            <View style={{ backgroundColor: colors.ink, borderRadius: 6, paddingHorizontal: 8, paddingVertical: 5 }}>
+              <Text style={{ color: colors.bg, fontSize: 12, fontWeight: "700" }}>
+                {titleFor(p.level, pet.route)} · Lv.{p.level}
+              </Text>
+            </View>
+            <View style={{ backgroundColor: colors.lavender, borderWidth: 2, borderColor: colors.ink, borderRadius: 6, paddingHorizontal: 8, paddingVertical: 4, transform: [{ rotate: "-4deg" }] }}>
+              <Text numberOfLines={1} style={{ color: colors.ink, fontSize: 12, fontWeight: "700", maxWidth: 170 }}>
+                {tList(pet.personality)}
+              </Text>
+            </View>
           </View>
         </View>
-        <Bubble tail="right" bg={colors.paper} style={{ marginTop: 6, marginBottom: 8 }}>
-          <Text style={[styles.caps, { color: colors.orange, marginBottom: 4 }]}>
-            {t("{name}说", { name: pet.name })}
+        <View
+          style={{
+            position: "absolute",
+            right: -3,
+            bottom: 26,
+            width: narrow ? 118 : 180,
+            height: narrow ? 160 : 220,
+            borderWidth: 2.5,
+            borderColor: colors.ink,
+            borderTopLeftRadius: 12,
+            overflow: "hidden",
+            backgroundColor: colors.pink,
+            alignItems: "center",
+            justifyContent: "center",
+          }}
+        >
+          {pet.avatar || state.demo ? (
+            <Image source={pet.avatar ? { uri: pet.avatar } : demoPhoto} style={{ width: "100%", height: "100%" }} resizeMode="cover" />
+          ) : (
+            <Text style={{ fontSize: narrow ? 64 : 96 }}>{speciesEmoji(pet)}</Text>
+          )}
+        </View>
+        <View style={{ backgroundColor: colors.ink, paddingHorizontal: 12, height: 28, justifyContent: "center" }}>
+          <Text numberOfLines={1} style={{ color: colors.green, fontFamily: numeric, fontSize: 12, letterSpacing: 1 }}>
+            {t("今日主角")} ★ {pet.name} ★ {t("今日主角")} ★ {pet.name} ★ {t("今日主角")} ★ {pet.name} ★
           </Text>
-          <Text numberOfLines={3} style={[styles.body, { fontSize: 16, fontWeight: "600" }]}>
-            {saying}
-          </Text>
-        </Bubble>
+        </View>
+      </View>
+      <View style={[{ backgroundColor: colors.paper, borderRadius: 14, borderWidth: 2.5, borderColor: colors.ink, padding: 14, gap: 8, marginTop: 4 }, shadow(4)]}>
+        <View
+          pointerEvents="none"
+          style={{ position: "absolute", left: 28, top: -11, width: 18, height: 18, backgroundColor: colors.paper, borderLeftWidth: 2.5, borderTopWidth: 2.5, borderColor: colors.ink, transform: [{ rotate: "45deg" }] }}
+        />
+        <View style={{ alignSelf: "flex-start", backgroundColor: colors.pink, borderWidth: 2, borderColor: colors.ink, borderRadius: 5, paddingHorizontal: 6, paddingVertical: 2 }}>
+          <Text style={{ fontFamily: display, fontSize: 13, color: colors.ink }}>{t("{name}说", { name: pet.name })}</Text>
+        </View>
+        <Text numberOfLines={3} style={[styles.body, { fontSize: 15, fontWeight: "700" }]}>
+          {saying}
+        </Text>
       </View>
 
       {anniversary !== undefined && (
@@ -154,7 +144,7 @@ export default function Home() {
           accessibilityRole="button"
           accessibilityLabel={t("打开时光机")}
           onPress={() => router.push("/timemachine")}
-          style={[{ backgroundColor: colors.pink, borderRadius: 22, padding: 16 }, shadow(3)]}
+          style={[{ backgroundColor: colors.pink, borderRadius: 14, padding: 16 }, shadow(3)]}
         >
           <Text style={[styles.h2, { fontSize: 20 }]}>
             {t("今天是 {name} 到家 {n} 周年", { name: pet.name, n: anniversary })}
@@ -167,40 +157,30 @@ export default function Home() {
         onPress={() => router.push("/record")}
         style={({ pressed }) => [
           {
-            backgroundColor: colors.paper,
-            borderWidth: 1.5,
-            borderColor: colors.edge,
-            borderRadius: 28,
-            padding: 18,
+            backgroundColor: colors.green,
+            borderWidth: 2.5,
+            borderColor: colors.ink,
+            borderRadius: 14,
+            padding: 14,
             flexDirection: "row",
             alignItems: "center",
-            gap: 14,
-            transform: [{ scale: pressed ? 0.98 : 1 }],
+            gap: 12,
+            transform: [{ translateX: pressed ? 2 : 0 }, { translateY: pressed ? 2 : 0 }],
           },
-          shadow(pressed ? 2 : 5, colors.orange),
+          shadow(pressed ? 2 : 4),
         ]}
       >
-        <View
-          style={{
-            width: 52,
-            height: 52,
-            borderRadius: 26,
-            backgroundColor: colors.yellow,
-            alignItems: "center",
-            justifyContent: "center",
-          }}
-        >
-          <Icon name="edit-3" color={colors.ink} size={24} />
-        </View>
         <View style={{ flex: 1 }}>
-          <Text style={{ color: colors.ink, fontSize: 20, fontWeight: "700", fontFamily: display }}>
+          <Text style={{ color: colors.ink, fontSize: 24, lineHeight: 30, fontFamily: display }}>
             {t("它今天干了啥？")}
           </Text>
-          <Text style={{ color: colors.muted, fontSize: 13, lineHeight: 20 }}>
+          <Text style={{ color: colors.ink, fontSize: 12, lineHeight: 18, fontWeight: "500" }}>
             {t("你照实写，{name}用自己的口吻再说一遍", { name: pet.name })}
           </Text>
         </View>
-        <Icon name="arrow-right" color={colors.orange} size={24} />
+        <View style={{ width: 44, height: 44, borderRadius: 22, backgroundColor: colors.ink, alignItems: "center", justifyContent: "center" }}>
+          <Icon name="arrow-right" color={colors.green} size={22} />
+        </View>
       </Pressable>
 
       <View style={{ flexDirection: wide ? "row" : "column", gap: 24 }}>
@@ -220,9 +200,9 @@ export default function Home() {
                   {
                     flex: 1,
                     backgroundColor: s.bg,
-                    borderWidth: 1.5,
-                    borderColor: colors.edge,
-                    borderRadius: 16,
+                    borderWidth: 2.5,
+                    borderColor: colors.ink,
+                    borderRadius: 14,
                     paddingVertical: 12,
                     paddingHorizontal: 10,
                     transform: [{ rotate: `${[-2, 1.5, -1][i]}deg` }],
@@ -230,7 +210,7 @@ export default function Home() {
                   shadow(3),
                 ]}
               >
-                <Text style={{ fontFamily: display, fontWeight: "700", fontSize: 30, lineHeight: 36, color: colors.ink }}>
+                <Text style={{ fontFamily: display, fontWeight: "400", fontSize: 30, lineHeight: 36, color: colors.ink }}>
                   {s.n}
                   <Text style={{ fontSize: 12 }}> {s.unit}</Text>
                 </Text>
@@ -258,9 +238,9 @@ export default function Home() {
               style={[
                 {
                   backgroundColor: colors.paper,
-                  borderWidth: 1.5,
-                  borderColor: colors.edge,
-                  borderRadius: 22,
+                  borderWidth: 2.5,
+                  borderColor: colors.ink,
+                  borderRadius: 14,
                   padding: 20,
                   gap: 10,
                   transform: [{ rotate: "1deg" }],
@@ -276,7 +256,7 @@ export default function Home() {
                 style={{
                   fontSize: 40,
                   lineHeight: 50,
-                  fontWeight: "700",
+                  fontWeight: "400",
                   fontFamily: display,
                   color: colors.ink,
                   letterSpacing: 4,
@@ -318,9 +298,9 @@ export default function Home() {
               style={({ pressed }) => [
                 {
                   backgroundColor: notes[i % notes.length],
-                  borderWidth: 1.5,
-                  borderColor: colors.edge,
-                  borderRadius: 22,
+                  borderWidth: 2.5,
+                  borderColor: colors.ink,
+                  borderRadius: 14,
                   padding: 18,
                   flexDirection: "row",
                   gap: 14,
@@ -335,7 +315,7 @@ export default function Home() {
                   color: colors.ink,
                   fontSize: 44,
                   lineHeight: 50,
-                  fontWeight: "700",
+                  fontWeight: "400",
                   fontFamily: display,
                   width: 52,
                 }}

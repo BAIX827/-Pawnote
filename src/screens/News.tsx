@@ -23,7 +23,7 @@ const LABELS: Record<NewsTemplate, string> = {
 };
 const RED = "#E0483A";
 const big = (size: number, lineHeight = Math.round(size * 1.25)) =>
-  ({ fontSize: size, lineHeight, fontWeight: "700", fontFamily: display, color: colors.ink }) as const;
+  ({ fontSize: size, lineHeight, fontWeight: "400", fontFamily: display, color: colors.ink }) as const;
 
 function Credit({ event, plain }: { event: LifeEvent; plain?: boolean }) {
   const story = event.stories.news;
@@ -113,7 +113,7 @@ export default function News() {
       )}
 
       {plain ? (
-        <View ref={card} collapsable={false} style={[{ backgroundColor: colors.paper, borderRadius: 20, borderWidth: 1.5, borderColor: colors.edge, padding: 22, gap: 16 }, shadow(4)]}>
+        <View ref={card} collapsable={false} style={[{ backgroundColor: colors.paper, borderRadius: 14, borderWidth: 2.5, borderColor: colors.ink, padding: 22, gap: 16 }, shadow(4)]}>
           <Text style={styles.small}>{formatDate(event.createdAt)}</Text>
           <Text style={big(26)}>{t("{name}的今日记录", { name: pet.name })}</Text>
           {photo}
@@ -124,7 +124,7 @@ export default function News() {
       ) : template === "daily" ? (
         <View ref={card} collapsable={false} style={[frame, { backgroundColor: "#FFF9EF" }, shadow(6)]}>
           <View style={styles.between}>
-            <Text style={[styles.small, { color: colors.ink }]}>{t("毛孩市 · 生活特刊")}</Text>
+            <Text style={[styles.small, { color: colors.ink }]}>{t("爪爪镇 · 生活特刊")}</Text>
             <Text style={styles.small}>{formatDate(event.createdAt)}</Text>
           </View>
           <Text style={[big(52, 64), { textAlign: "center", letterSpacing: 8 }]}>{t("爪报")}</Text>
