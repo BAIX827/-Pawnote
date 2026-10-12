@@ -68,3 +68,11 @@ Expo Go 模拟器替代入口：先执行 `REACT_NATIVE_PACKAGER_HOSTNAME=localh
 
 ## 官方来源
 [Expo Go](https://docs.expo.dev/get-started/start-developing/) · [SDK 57 基线](https://docs.expo.dev/versions/v57.0.0/) · [Expo 本机构建](https://docs.expo.dev/guides/local-app-development/) · [Apple Personal Team](https://developer.apple.com/help/account/basics/about-your-developer-account) · [xtool 官方仓库](https://github.com/xtool-org/xtool) · [EAS 配置](https://docs.expo.dev/build/eas-json/) · [Developer Mode](https://docs.expo.dev/guides/ios-developer-mode/)
+
+
+## 2026-10-12 iOS 27 / Xcode 27 启动闪退与场景生命周期
+- 现象：用 Xcode 27 构建的开发包在 iOS 27 模拟器上一启动就退出，崩溃栈停在 UIKit 的 `_UIApplicationEvaluateRuntimeIssueForNoSceneLifecycleAdoption`。
+- 原因：iOS 27 SDK 要求 App 采用 UIScene 生命周期。Expo SDK 57 的工程模板仍在 AppDelegate 里创建窗口，Info.plist 没有场景清单，于是系统在启动时直接终止。与业务代码无关。
+- 处理（Expo 官方 expo/fyi 的 ios-scene-lifecycle 指引）：expo 保持在 57.0.23 以上；安装 expo-build-properties 并在 app.json 的插件里设置 `ios.enableSceneSupport: true`；执行 `npx expo prebuild --clean` 重新生成 ios/，再重新构建。ios/ 是生成目录，不手改。
+- 这是 SDK 57 上的过渡开关；升级到 SDK 58 后默认采用场景生命周期，届时移除该设置。
+- EAS 云构建同样受影响：用带 Xcode 27 的镜像构建时必须带上这个设置。
