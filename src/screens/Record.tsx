@@ -1,7 +1,7 @@
 import { t } from "../i18n";
 import React, { useEffect, useRef, useState } from "react";
 import { Image, Platform, Pressable, Text, View } from "react-native";
-import { router } from "expo-router";
+import { router, useLocalSearchParams } from "expo-router";
 import { useStore } from "../data/store";
 import {
   detectCategory,
@@ -11,6 +11,7 @@ import {
   ownerName,
   selfName,
 } from "../domain/story-engine";
+import { eventDay, eventTimestamp, localDay } from "../domain/dates";
 import { saveEvent } from "../domain/life";
 import { isLoss } from "../domain/temper";
 import { postBlock } from "../domain/paw-circle";
@@ -19,6 +20,7 @@ import {
   CATEGORY_LABELS,
   Category,
   Draft,
+  LifeEvent,
   STYLES,
   StoryStyle,
   newDraft,
@@ -31,6 +33,8 @@ import {
   Button,
   Chip,
   Field,
+  Empty,
+  Label,
   Heading,
   Icon,
   Stamp,
@@ -61,8 +65,21 @@ const tones: Record<StoryStyle, string> = {
 };
 
 export default function Record() {
+  const { id, date } = useLocalSearchParams<{ id?: string; date?: string }>();
+  const { state } = useStore();
+  const original = state.events.find((e) => e.id === id);
+  if (id && !original) return <Empty title={t("这条记录已移除")} action={<Button label={t("返回爪册")} onPress={() => router.replace("/profile")} />} />;
+  return <Recorder key={id ?? "new"} original={original} initialDate={date} />;
+}
+function Recorder({ original, initialDate }: { original?: LifeEvent; initialDate?: string }) {
   const { state, update, notify } = useStore();
-  const [seed] = useState(newDraft);
+  const [seed] = useState(() => ({ ...newDraft(), occurredOn: initialDate ?? localDay() }));
+  const [editDraft, setEditDraft] = useState<Draft | undefined>(() => original ? {
+    id: original.id, description: original.description, category: original.category,
+    photo: original.photo, stories: original.stories, selectedStyle: original.selectedStyle,
+    published: original.published, occurredOn: eventDay(original),
+    signature: generationSignature(original.petSnapshot, original.description, original.category),
+  } : undefined);
   const [busy, setBusy] = useState(false);
   const [variant, setVariant] = useState(0);
   const [manualTag, setManualTag] = useState(false);
@@ -75,32 +92,29 @@ export default function Record() {
   useEffect(() => {
     void fetchQuota().then(setQuota);
   }, []);
-  const pet = state.pet,
-    draft = state.draft ?? seed,
+  const pet = original?.petSnapshot ?? state.pet,
+    draft = editDraft ?? state.draft ?? seed,
     signature = pet
       ? generationSignature(pet, draft.description, draft.category)
       : "",
     generated = !!draft.stories && draft.signature === signature;
   useEffect(() => {
-    if (!submitted.current && state.pet && !state.draft)
+    if (!original && !submitted.current && state.pet && !state.draft)
       update((s) => ({ ...s, draft: s.draft ?? seed }));
-  }, [state.pet, state.draft, seed, update]);
+  }, [original, state.pet, state.draft, seed, update]);
   // A restored draft, or a pet whose profile changed, gets its pet-voice text refreshed.
   useEffect(() => {
     if (submitted.current || !pet || generated || !draft.description.trim()) return;
-    update((s) =>
-      s.draft
-        ? {
-            ...s,
-            draft: {
-              ...s.draft,
-              stories: generateStories(pet, s.draft.description, s.draft.category),
-              signature: generationSignature(pet, s.draft.description, s.draft.category),
-            },
-          }
-        : s,
-    );
-  }, [pet, generated, draft.description, update]);
+    if (original) {
+      setEditDraft((d) => d ? { ...d, stories: generateStories(pet, d.description, d.category),
+        signature: generationSignature(pet, d.description, d.category) } : d);
+    } else {
+      update((s) => s.draft ? { ...s, draft: { ...s.draft,
+        stories: generateStories(pet, s.draft.description, s.draft.category),
+        signature: generationSignature(pet, s.draft.description, s.draft.category),
+      } } : s);
+    }
+  }, [original, pet, generated, draft.description, update]);
   useEffect(() => {
     latest.current = draft.description;
   }, [draft.description]);
@@ -108,7 +122,8 @@ export default function Record() {
   const self = selfName(pet),
     owner = ownerName(pet),
     story = generated ? draft.stories![draft.selectedStyle] : undefined;
-  const block = postBlock(state, draft.description),
+  const postingState = { ...state, events: state.events.filter((e) => e.id !== original?.id) };
+  const block = postBlock(postingState, draft.description),
     posting = draft.published && !block;
   const labels: Record<StoryStyle, string> = {
     diary: t("内心独白"),
@@ -117,7 +132,8 @@ export default function Record() {
     news: t("爪报"),
   };
   function patch(changes: Partial<Draft>) {
-    update((s) => ({ ...s, draft: { ...(s.draft ?? seed), ...changes } }));
+    if (original) setEditDraft((d) => ({ ...(d ?? seed), ...changes }));
+    else update((s) => ({ ...s, draft: { ...(s.draft ?? seed), ...changes } }));
   }
   // Every keystroke on the owner's side re-tells the story on the pet's side.
   function retell(description: string, category: Category) {
@@ -202,23 +218,30 @@ export default function Record() {
       notify(t("故事内容需要至少一个字。"));
       return;
     }
+    if (original && !state.events.some((e) => e.id === original.id)) {
+      notify(t("这条记录已移除")); return;
+    }
+    let createdAt: string;
+    try { createdAt = eventTimestamp(draft.occurredOn ?? localDay(), original); }
+    catch { notify(t("记录日期请填写真实日期，且不晚于今天。")); return; }
     const event = {
       id: draft.id,
       description: draft.description.trim(),
       category: draft.category,
       photo: draft.photo,
-      createdAt: new Date().toISOString(),
+      createdAt,
+      occurredOn: draft.occurredOn ?? localDay(),
       petSnapshot: { ...pet! },
       stories: draft.stories,
       selectedStyle: draft.selectedStyle,
-      published: draft.published && !postBlock(state, draft.description),
+      published: draft.published && !postBlock(postingState, draft.description),
     };
     try {
       const next = saveEvent(state, event);
       submitted.current = true;
       update(next);
-      notify(t("日常已保存 · +20 XP"));
-      router.replace("/");
+      notify(original ? t("日记已更新，经验保持不变。") : t("日常已保存 · +20 XP"));
+      router.replace({ pathname: "/event", params: { id: event.id } });
     } catch (e) {
       notify(e instanceof Error ? e.message : t("保存失败。"));
     }
@@ -226,14 +249,24 @@ export default function Record() {
   return (
     <View style={{ gap: 22, maxWidth: 760, width: "100%", alignSelf: "center" }}>
       <Heading
-        title={t("爪语")}
+        title={original ? t("编辑日记") : t("爪语")}
         eyebrow={t("你说人话 → {name}说{kind}话", { name: pet.name, kind: self.length > 1 ? self.slice(1) : t("自己的") })}
         accent={colors.pink}
         action={
-          <Button label={t("返回")} icon="x" tone="plain" onPress={() => router.replace("/")} />
+          <Button label={t("返回")} icon="x" tone="plain" onPress={() => original ? router.replace({ pathname: "/event", params: { id: original.id } }) : router.replace("/")} />
         }
       />
 
+      <View style={{ gap: 8 }}>
+        <Label>{t("实际发生日期")}</Label>
+        <Field accessibilityLabel={t("实际发生日期")} value={draft.occurredOn ?? localDay()} maxLength={10}
+          autoCapitalize="none" placeholder="2024-03-15" onChangeText={(occurredOn) => patch({ occurredOn })} />
+        <View style={[styles.row, { flexWrap: "wrap" }]}>
+          <Button label={t("今天")} tone="plain" onPress={() => patch({ occurredOn: localDay() })} />
+          <Text style={[styles.small, { flex: 1 }]}>{t("旧照片也可以补上，日记会按这一天排列。")}</Text>
+        </View>
+        {original && <Text style={styles.small}>{t("沿用这条日记当时的人设；修改原话会重新生成表达。")}</Text>}
+      </View>
       <View style={{ gap: 8 }}>
         <View style={[styles.row, { justifyContent: "flex-end", gap: 8 }]}>
           <Text style={styles.caps}>{t("你（{owner}）说", { owner })}</Text>
@@ -533,7 +566,7 @@ export default function Record() {
         </View>
       </Pressable>
       <Button
-        label={t("保存日记 · +20 XP")}
+        label={original ? t("保存修改") : t("保存日记 · +20 XP")}
         icon="check"
         disabled={busy || asking || !generated}
         onPress={save}

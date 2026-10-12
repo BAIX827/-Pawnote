@@ -3,6 +3,17 @@ import type { IconProps } from "./Icon";
 
 // Inline vectors keep web navigation independent of font downloads.
 const paths: Partial<Record<IconProps["name"], string>> = {
+  calendar: "M3 5h18v16H3ZM3 10h18M7 2v6M17 2v6M7 14h.01M12 14h.01M17 14h.01M7 18h.01M12 18h.01",
+  gift: "M3 8h18v4H3ZM5 12v10h14V12M12 8v14M12 8C3 8 5 0 9 3l3 5c9 0 7-8 3-5Z",
+  "chevron-left": "m15 6-6 6 6 6",
+  "chevron-right": "m9 6 6 6-6 6",
+  mic: "M9 5a3 3 0 0 1 6 0v7a3 3 0 0 1-6 0ZM5 10v2a7 7 0 0 0 14 0v-2M12 19v3M8 22h8",
+  film: "M3 3h18v18H3ZM7 3v18M17 3v18M3 8h4m-4 8h4M17 8h4m-4 8h4M7 12h10",
+  play: "m6 3 15 9-15 9Z",
+  pause: "M6 3h4v18H6ZM14 3h4v18h-4Z",
+  square: "M4 4h16v16H4Z",
+  "volume-2": "M11 5 6 9H2v6h4l5 4ZM15 8a6 6 0 0 1 0 8M18 5a10 10 0 0 1 0 14",
+  scissors: "M6 6a3 3 0 1 1-6 0 3 3 0 0 1 6 0M6 18a3 3 0 1 1-6 0 3 3 0 0 1 6 0M5 8l16 13M5 16 21 3",
   plus: "M12 4v16M4 12h16",
   x: "m5 5 14 14M19 5 5 19",
   check: "m4 12 5 5L20 6",

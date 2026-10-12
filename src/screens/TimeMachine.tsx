@@ -111,6 +111,11 @@ export default function TimeMachine() {
         </Pressable>
       )}
 
+      <Card style={{ backgroundColor: colors.green, gap: 10 }}>
+        <View style={styles.row}><Icon name="mic" /><Text style={styles.h2}>{t("听它慢慢长大")}</Text></View>
+        <Text style={styles.body}>{t("{n} 段叫声，留住每个成长阶段的声音。", { n: state.sounds?.length ?? 0 })}</Text>
+        <Button label={t("打开声音相册")} tone="soft" onPress={() => router.push("/sounds")} />
+      </Card>
       <Text style={[styles.h2, { fontSize: 24, lineHeight: 32, marginTop: 4 }]}>{t("成长对比")}</Text>
       {photos.length ? (
         <>

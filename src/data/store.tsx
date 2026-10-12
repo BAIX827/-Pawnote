@@ -6,7 +6,7 @@ import React, {
   useRef,
   useState,
 } from "react";
-import AsyncStorage from "@react-native-async-storage/async-storage";
+import { getStoredState, setStoredState } from "../platform/state-storage";
 import { AppState, emptyState } from "../domain/types";
 import { isAppState } from "./validation";
 const KEY = "paw-life:v1";
@@ -37,7 +37,7 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
   const initial = useRef(true);
   useEffect(() => {
     let alive = true;
-    AsyncStorage.getItem(KEY)
+    getStoredState(KEY)
       .then((value) => {
         if (!alive) return;
         if (value) {
@@ -73,7 +73,7 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
     const serialized = JSON.stringify(state);
     queue.current = queue.current.then(async () => {
       try {
-        await AsyncStorage.setItem(KEY, serialized);
+        await setStoredState(KEY, serialized);
         setError("");
         setRaw(serialized);
       } catch {
@@ -100,7 +100,7 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
     restoreLock.current = true;
     setRestoring(true);
     const serialized = JSON.stringify(backup);
-    const write = queue.current.then(() => AsyncStorage.setItem(KEY, serialized));
+    const write = queue.current.then(() => setStoredState(KEY, serialized));
     queue.current = write.catch(() => {});
     try {
       await write;

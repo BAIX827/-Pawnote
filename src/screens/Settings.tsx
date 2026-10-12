@@ -87,7 +87,7 @@ export default function Settings() {
               }}
             >
               <Text style={styles.body}>
-                {t("将清空这台设备上的宠物、照片、日记和草稿。请先导出备份。")}
+                {t("将清空这台设备上的宠物、照片、日记、声音和草稿。请先导出备份。")}
               </Text>
               <View style={styles.row}>
                 <Button

@@ -1,5 +1,7 @@
 // English text, keyed by the Chinese source string used in the code.
+import { soundsEn } from "./sounds-en";
 export const en: Record<string, string> = {
+  ...soundsEn,
   // Navigation and shell
   爪记: "Pawnote",
   "爪记 Pawnote": "Pawnote",

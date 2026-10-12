@@ -1,0 +1,5 @@
+{
+  "platforms": ["apple", "android"],
+  "apple": { "modules": ["PawAudioModule"] },
+  "android": { "modules": ["expo.modules.pawaudio.PawAudioModule"] }
+}

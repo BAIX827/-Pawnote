@@ -1,5 +1,8 @@
 import { locale, t, tList } from "../i18n";
-import React from "react";
+import React, { useState } from "react";
+import JournalFilters from "../components/JournalFilters";
+import { filterJournal, JournalFilter } from "../domain/memories";
+import { eventDate } from "../domain/dates";
 import { Image, Pressable, Text, View } from "react-native";
 import { router } from "expo-router";
 import { useStore } from "../data/store";
@@ -22,6 +25,9 @@ import { pawsonaCard } from "../domain/pawsona";
 import { ageLabel, speciesLabel } from "../domain/pet-profile";
 export default function Profile() {
   const { state } = useStore();
+  const [filter, setFilter] = useState<JournalFilter>({});
+  const [limit, setLimit] = useState(30);
+  const events = filterJournal(state.events, filter);
   if (!state.pet) return <Onboarding />;
   const pet = state.pet;
   return (
@@ -97,6 +103,12 @@ export default function Profile() {
           </View>
         </View>
       </View>
+      <Button label={t("声音相册 · {n} 段叫声", { n: state.sounds?.length ?? 0 })} icon="mic" tone="soft" onPress={() => router.push("/sounds")} />
+      <View style={[styles.row, { flexWrap: "wrap" }]}>
+        <Button label={t("成长纪念册")} icon="book" tone="soft" onPress={() => router.push("/keepsake")} />
+        <Button label={t("生日与纪念日")} icon="gift" tone="soft" onPress={() => router.push("/anniversaries")} />
+      </View>
+      <JournalFilters events={state.events} filter={filter} onChange={(value) => { setFilter(value); setLimit(30); }} />
       <View style={[styles.between, { marginTop: 6 }]}>
         <View>
           <View
@@ -105,11 +117,11 @@ export default function Profile() {
           />
           <Text style={[styles.h2, { fontSize: 26, lineHeight: 34 }]}>{t("人生日记")}</Text>
         </View>
-        <Text style={styles.small}>{t("{n} 条真实记录", { n: state.events.length })}</Text>
+        <Text style={styles.small}>{t("{n} 条真实记录", { n: events.length })}</Text>
       </View>
-      {state.events.length ? (
-        state.events.map((e, i) => {
-          const date = new Date(e.createdAt);
+      {events.length ? (
+        events.slice(0, limit).map((e, i) => {
+          const date = eventDate(e);
           return (
             <View key={e.id} style={{ flexDirection: "row", gap: 12 }}>
               <View style={{ alignItems: "center", width: 54 }}>
@@ -166,7 +178,7 @@ export default function Profile() {
               >
                 <Tape color={[colors.pink, colors.sky, colors.green][i % 3]} rotate={i % 2 ? 4 : -4} style={{ left: "auto", right: 24, marginLeft: 0 }} />
                 <View style={[styles.between, { flexWrap: "wrap" }]}>
-                  <Text style={styles.small}>{formatDate(e.createdAt)}</Text>
+                  <Text style={styles.small}>{formatDate(eventDate(e).toISOString())}</Text>
                   <Tag bg={e.published ? colors.green : colors.paper}>
                     {e.published ? t("留在窝里") : t("私密")}
                   </Tag>
@@ -225,13 +237,14 @@ export default function Profile() {
         })
       ) : (
         <Empty
-          title={t("日记本还是空的")}
+          title={state.events.length ? t("没有符合筛选的日记") : t("日记本还是空的")}
 
           action={
-            <Button label={t("记录今天")} onPress={() => router.push("/record")} />
+            <Button label={filter.day ? t("补记这一天") : t("记录今天")} onPress={() => router.push({ pathname: "/record", params: { date: filter.day } })} />
           }
         />
       )}
+      {events.length > limit && <Button label={t("看更早的日记")} tone="soft" onPress={() => setLimit(limit + 30)} />}
       <Button
         label={t("爪约")}
         icon="bell"

@@ -76,3 +76,11 @@ Expo Go 模拟器替代入口：先执行 `REACT_NATIVE_PACKAGER_HOSTNAME=localh
 - 处理（Expo 官方 expo/fyi 的 ios-scene-lifecycle 指引）：expo 保持在 57.0.23 以上；安装 expo-build-properties 并在 app.json 的插件里设置 `ios.enableSceneSupport: true`；执行 `npx expo prebuild --clean` 重新生成 ios/，再重新构建。ios/ 是生成目录，不手改。
 - 这是 SDK 57 上的过渡开关；升级到 SDK 58 后默认采用场景生命周期，届时移除该设置。
 - EAS 云构建同样受影响：用带 Xcode 27 的镜像构建时必须带上这个设置。
+- 已验证（2026-10-12）：开启后重新生成的 Info.plist 带 UIApplicationSceneManifest（EXExpoAppSceneDelegate）；用 Xcode 27 构建的开发包在 iPhone 17 / iOS 27 模拟器上正常启动并显示登记页，没有新的崩溃报告。
+
+### 在这台 Mac 上做原生构建的注意事项
+项目放在 iCloud 云盘（路径含空格的 “Mobile Documents”），直接在这里做原生构建会失败：
+- CocoaPods 需要 UTF-8 终端环境，命令前加 `LANG=en_US.UTF-8 LC_ALL=en_US.UTF-8`。
+- EXConstants 的构建脚本不接受带空格的路径，报 `No such file or directory: /Users/…/Mobile`。
+- iCloud 会把 node_modules 里的文件收回云端，直接拷贝出来的依赖不完整。
+做法：把项目同步到不含空格的本地目录（如 `~/Library/Caches/com.baricy.pawnote/ios27`，不带 node_modules 和 ios），在那里执行 `npm ci`、`npx expo prebuild --clean -p ios`、`npx expo run:ios`。长期建议把仓库移出 iCloud 云盘。

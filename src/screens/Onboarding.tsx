@@ -154,6 +154,7 @@ export default function Onboarding({ editing = false }: { editing?: boolean }) {
       ...s,
       pet,
       events: editing ? s.events : [],
+      sounds: editing ? s.sounds : [],
       draft: null,
       demo: editing ? s.demo : false,
     }));

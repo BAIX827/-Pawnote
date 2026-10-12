@@ -1,4 +1,5 @@
 import { t } from "../i18n/core";
+import { isPastDay, newestEvents } from "./dates";
 import { AppState, LifeEvent } from "./types";
 export function progress(events: LifeEvent[]) {
   const xp = new Set(events.map((e) => e.id)).size * 20;
@@ -20,14 +21,19 @@ export function saveEvent(state: AppState, event: LifeEvent): AppState {
     )
   )
     throw new Error(t("故事需要 1–2000 字。"));
+  if (!Number.isFinite(Date.parse(event.createdAt)) ||
+      (event.occurredOn !== undefined && !isPastDay(event.occurredOn)))
+    throw new Error(t("记录日期请填写真实日期，且不晚于今天。"));
   const previous = state.events.find((e) => e.id === event.id);
   return {
     ...state,
-    draft: null,
-    events: [
-      { ...event, createdAt: previous?.createdAt ?? event.createdAt },
+    draft: previous ? state.draft : null,
+    events: newestEvents([
+      { ...event, petSnapshot: previous?.petSnapshot ?? event.petSnapshot,
+        savedAt: previous?.savedAt ?? previous?.createdAt ?? event.savedAt ?? new Date().toISOString(),
+        editedAt: previous ? new Date().toISOString() : undefined },
       ...state.events.filter((e) => e.id !== event.id),
-    ],
+    ]),
   };
 }
 export const deleteEvent = (state: AppState, eventId: string): AppState => ({

@@ -35,6 +35,8 @@ export interface Pet {
   ownerTitle?: string;
   /** The day the pet came home, as YYYY-MM-DD. */
   homeDate?: string;
+  /** Actual birth date; optional for pets whose birthday is unknown. */
+  birthDate?: string;
   avatar?: string;
 }
 export interface Story {
@@ -50,6 +52,10 @@ export interface LifeEvent {
   category: Category;
   photo?: string;
   createdAt: string;
+  /** Calendar date of the experience, independent of its save time. */
+  occurredOn?: string;
+  savedAt?: string;
+  editedAt?: string;
   petSnapshot: Pet;
   stories: Stories;
   selectedStyle: StoryStyle;
@@ -57,6 +63,7 @@ export interface LifeEvent {
 }
 export interface Draft {
   id: string;
+  occurredOn?: string;
   description: string;
   category: Category;
   photo?: string;
@@ -100,6 +107,23 @@ export interface AppState {
   mailReminder?: boolean;
   /** 爪友圈 choices (docs/01 8.20): residents sent back to town, and the pet's comments the owner deleted. */
   circle?: CircleSettings;
+  /** Audio is embedded so JSON backups keep the actual sound across devices. */
+  sounds?: SoundMemory[];
+}
+export const SOUND_STAGES = ["baby", "young", "adult", "senior", "unknown"] as const;
+export type SoundStage = (typeof SOUND_STAGES)[number];
+export interface SoundMemory {
+  id: string;
+  petId: string;
+  title: string;
+  note: string;
+  recordedOn: string;
+  createdAt: string;
+  ageMonths?: number;
+  stage: SoundStage;
+  source: "recording" | "video";
+  duration: number;
+  audio: string;
 }
 export const CATEGORY_LABELS: Record<Category, string> = {
   sleep: "睡觉",

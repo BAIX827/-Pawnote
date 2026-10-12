@@ -4,6 +4,7 @@ import { Image, Text, View } from "react-native";
 import { router, useLocalSearchParams } from "expo-router";
 import { useStore } from "../data/store";
 import { STYLES, StoryStyle, formatDate } from "../domain/types";
+import { eventDate } from "../domain/dates";
 import { deleteEvent } from "../domain/life";
 import {
   Avatar,
@@ -61,7 +62,7 @@ export default function Event() {
     >
       <Heading
         title={t("这一天")}
-        eyebrow={`${formatDate(event.createdAt)} · ${t(event.petSnapshot.role)}`}
+        eyebrow={`${formatDate(eventDate(event).toISOString())} · ${t(event.petSnapshot.role)}`}
         accent={tones[style]}
         action={
           <Button label={t("返回爪册")} tone="plain" onPress={() => router.replace("/profile")} />
@@ -143,6 +144,8 @@ export default function Event() {
           {t("采用保存当天的人设")}{style === "news" ? t(" · 虚构娱乐报道") : ""}
         </Text>
         <View style={[styles.row, { flexWrap: "wrap" }]}>
+          <Button label={t("编辑日记")} icon="edit-2" tone="soft"
+            onPress={() => router.push({ pathname: "/record", params: { id: event.id } })} />
           <Button
             label={t("制作爪报卡")}
             icon="file-text"

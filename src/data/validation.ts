@@ -1,4 +1,6 @@
-import { AppState, CATEGORIES, SPECIES, STYLES } from "../domain/types";
+import { AppState, CATEGORIES, SPECIES, STYLES, SOUND_STAGES } from "../domain/types";
+import { isSoundDay, validSoundAudio, MAX_SOUNDS, MAX_SOUND_TOTAL, MAX_SOUND_SECONDS } from "../domain/sounds";
+import { isPastDay } from "../domain/dates";
 import { isHomeDate } from "../domain/timeline";
 import { MAX_LABEL, MAX_ROUTINES, isActivity, isTime } from "../domain/paw-dates";
 import { PAWSONA_QUESTIONS, TEMPERS } from "../domain/pawsona";
@@ -35,6 +37,7 @@ const pet = (v: unknown) =>
   one(v.route, ["work", "campus"]) &&
   str(v.role, 30) &&
   (v.homeDate === undefined || isHomeDate(v.homeDate)) &&
+  (v.birthDate === undefined || isPastDay(v.birthDate)) &&
   (v.ownerTitle === undefined || (str(v.ownerTitle, 10) && (v.ownerTitle as string).trim().length > 0)) &&
   photo(v.avatar);
 const stories = (v: unknown) =>
@@ -100,6 +103,8 @@ export function isAppState(v: unknown): v is AppState {
         photo(e.photo) &&
         str(e.createdAt, 40) &&
         Number.isFinite(Date.parse(e.createdAt as string)) &&
+        (e.occurredOn === undefined || isPastDay(e.occurredOn)) &&
+        isoDate(e.savedAt) && isoDate(e.editedAt) &&
         obj(e.petSnapshot) &&
         pet(e.petSnapshot) &&
         stories(e.stories) &&
@@ -121,10 +126,22 @@ export function isAppState(v: unknown): v is AppState {
   if (v.mailRead !== undefined && !(typeof v.mailRead === "string" && /^\d{4}-\d{2}-\d{2}$/.test(v.mailRead))) return false;
   if (v.mailReminder !== undefined && typeof v.mailReminder !== "boolean") return false;
   if (v.circle !== undefined && !circle(v.circle)) return false;
+  if (v.sounds !== undefined) {
+    if (!Array.isArray(v.sounds) || v.sounds.length > MAX_SOUNDS || !v.sounds.every((s) =>
+      obj(s) && str(s.id, 100) && (s.id as string).length > 0 && obj(v.pet) && s.petId === v.pet.id &&
+      str(s.title, 40) && (s.title as string).trim().length > 0 && str(s.note, 300) &&
+      isSoundDay(s.recordedOn) && str(s.createdAt, 40) && Number.isFinite(Date.parse(s.createdAt as string)) &&
+      optionalInt(s.ageMonths, 1200) && one(s.stage, SOUND_STAGES) && one(s.source, ["recording", "video"]) &&
+      typeof s.duration === "number" && Number.isFinite(s.duration) && s.duration >= 0.1 && s.duration <= MAX_SOUND_SECONDS + 0.5 &&
+      validSoundAudio(s.audio))) return false;
+    if (new Set(v.sounds.map((s) => s.id)).size !== v.sounds.length ||
+        v.sounds.reduce((n, s) => n + s.audio.length, 0) > MAX_SOUND_TOTAL) return false;
+  }
   return (
     v.draft === null ||
     (obj(v.draft) &&
       str(v.draft.id, 100) &&
+      (v.draft.occurredOn === undefined || str(v.draft.occurredOn, 10)) &&
       str(v.draft.description, 500) &&
       one(v.draft.category, CATEGORIES) &&
       one(v.draft.selectedStyle, STYLES) &&

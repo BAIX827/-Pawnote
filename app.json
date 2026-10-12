@@ -11,7 +11,10 @@
       "bundleIdentifier": "com.baricy.pawlife.dev",
       "infoPlist": {
         "CFBundleDevelopmentRegion": "zh_CN",
-        "CFBundleLocalizations": ["zh-Hans", "en"]
+        "CFBundleLocalizations": [
+          "zh-Hans",
+          "en"
+        ]
       }
     },
     "android": {
@@ -35,8 +38,25 @@
         }
       ],
       "expo-font",
+      "expo-asset",
+      [
+        "expo-build-properties",
+        {
+          "ios": {
+            "enableSceneSupport": true
+          }
+        }
+      ],
       "expo-sharing",
-      "expo-notifications"
+      "expo-notifications",
+      [
+        "expo-audio",
+        {
+          "microphonePermission": "录下宠物的叫声，留住成长中的声音。",
+          "enableBackgroundRecording": false,
+          "enableBackgroundPlayback": false
+        }
+      ]
     ]
   }
 }

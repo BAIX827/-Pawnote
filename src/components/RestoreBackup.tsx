@@ -24,7 +24,7 @@ export default function RestoreBackup() {
       await restore(pending);
       setPending(undefined);
       router.replace("/");
-      notify(t("备份已恢复，照片与日记保留原有状态。"));
+      notify(t("备份已恢复，照片、日记与声音已保留。"));
     } catch (e) { notify(e instanceof Error ? e.message : t("恢复失败，请重试。")); }
     finally { setBusy(false); }
   }
@@ -35,6 +35,7 @@ export default function RestoreBackup() {
       <Text style={styles.body}>
         {t("将恢复 {name} · {n} 条记录", { name: pending.pet?.name ?? t("空白档案"), n: pending.events.length })}
         {pending.draft ? t(" · 含草稿") : ""}{pending.demo ? t(" · 示例数据") : ""}
+        {pending.sounds?.length ? t(" · {n} 段声音", { n: pending.sounds.length }) : ""}
         {"\n"}{t("确认后将替换本机全部数据。请先导出当前备份。")}
       </Text>
       <View style={[styles.row, { flexWrap: "wrap" }]}>
