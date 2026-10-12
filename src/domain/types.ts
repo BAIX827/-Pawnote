@@ -152,4 +152,4 @@ export const newDraft = (): Draft => ({
 export const roleFor = (route: Route) =>
   route === "work" ? "零食鉴定员" : "睡眠研究班";
 export const formatDate = (date: string) =>
-  new Date(date).toLocaleDateString(locale(), { month: "long", day: "numeric" });
+  new Date(date).toLocaleDateString(locale(), { year: "numeric", month: "long", day: "numeric" });

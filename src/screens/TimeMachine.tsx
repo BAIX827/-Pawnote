@@ -3,6 +3,7 @@ import React from "react";
 import { Image, Pressable, ScrollView, Text, View } from "react-native";
 import { router } from "expo-router";
 import { useStore } from "../data/store";
+import { eventDate } from "../domain/dates";
 import { firsts, milestones, monthlyPhotos } from "../domain/timeline";
 import { LifeEvent, formatDate } from "../domain/types";
 import {
@@ -116,6 +117,10 @@ export default function TimeMachine() {
         <Text style={styles.body}>{t("{n} 段叫声，留住每个成长阶段的声音。", { n: state.sounds?.length ?? 0 })}</Text>
         <Button label={t("打开声音相册")} tone="soft" onPress={() => router.push("/sounds")} />
       </Card>
+      <View style={[styles.row, { flexWrap: "wrap" }]}>
+        <Button label={t("成长纪念册")} icon="book" tone="soft" onPress={() => router.push("/keepsake")} />
+        <Button label={t("生日与纪念日")} icon="gift" tone="soft" onPress={() => router.push("/anniversaries")} />
+      </View>
       <Text style={[styles.h2, { fontSize: 24, lineHeight: 32, marginTop: 4 }]}>{t("成长对比")}</Text>
       {photos.length ? (
         <>
@@ -166,7 +171,7 @@ export default function TimeMachine() {
             >
               <Tape color={[colors.pink, colors.sky, colors.green][i % 3]} rotate={i % 2 ? 4 : -4} style={{ left: "auto", right: 26, marginLeft: 0 }} />
               <View style={{ flex: 1, gap: 2 }}>
-                <Text style={styles.small}>{formatDate(m.event.createdAt)}</Text>
+                <Text style={styles.small}>{formatDate(eventDate(m.event).toISOString())}</Text>
                 <Text style={[styles.h2, { fontSize: 19, lineHeight: 27 }]}>{t(FIRST_LABELS[m.kind])}</Text>
                 <Text style={styles.muted} numberOfLines={2}>
                   {m.event.description}

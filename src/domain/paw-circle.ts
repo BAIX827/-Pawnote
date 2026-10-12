@@ -1,3 +1,4 @@
+import { eventDate, newestEvents } from "./dates";
 import { Temper, isLoss, isSensitive, temperOf } from "./temper";
 import { AppState, Category, LifeEvent, Pet, Species } from "./types";
 
@@ -445,13 +446,13 @@ const actorOf = (r: Resident, lang: Lang): Actor => ({ kind: "resident", id: r.i
 
 /** True when the pet's latest record says it has died: it no longer posts or goes out. */
 export const petIsGone = (state: AppState) => {
-  const latest = [...state.events].sort((a, b) => b.createdAt.localeCompare(a.createdAt))[0];
+  const latest = newestEvents(state.events)[0];
   return !!latest && isLoss(latest.description);
 };
 
 /** Posts the pet has already left at home today. */
 export const postsToday = (state: AppState, now = new Date()) =>
-  state.events.filter((e) => e.published && dayKey(new Date(e.createdAt)) === dayKey(now)).length;
+  state.events.filter((e) => e.published && dayKey(eventDate(e)) === dayKey(now)).length;
 
 /**
  * Whether a new record can become a post, and why not. Sick, hurt, lost or gone pets do not post,
@@ -489,7 +490,7 @@ export function residentPostsOn(day: Date, lang: Lang, hidden: string[] = []): C
 
 /** Residents who come by the pet's post, with their likes and comments, and the pet's one reply. */
 function visitorsFor(e: LifeEvent, pet: Pet, lang: Lang, hidden: string[], now: Date): Pick<CirclePost, "likes" | "comments"> {
-  const at = new Date(e.createdAt).getTime();
+  const at = eventDate(e).getTime();
   const residents = RESIDENTS.filter((r) => !hidden.includes(r.id));
   const comments: CircleComment[] = [];
   if (isSensitive(e.description)) {
@@ -561,7 +562,7 @@ export function buildCircle(state: AppState, now: Date, lang: Lang): Circle {
       category: e.category,
       text: e.stories.social.text,
       photo: e.photo,
-      at: new Date(e.createdAt),
+      at: eventDate(e),
       ...visitorsFor(e, pet, lang, hidden, now),
     }));
   const town: CirclePost[] = [];
@@ -581,7 +582,7 @@ export function buildCircle(state: AppState, now: Date, lang: Lang): Circle {
         const round = new Date(startOfDay(day).getTime() + hour * 60 * MINUTE);
         if (round > now) break;
         const did = new Set(
-          state.events.filter((e) => dayKey(new Date(e.createdAt)) === key && new Date(e.createdAt) <= round).map((e) => e.category),
+          state.events.filter((e) => dayKey(eventDate(e)) === key && eventDate(e) <= round).map((e) => e.category),
         );
         const candidates = town
           .filter((p) => !seen.has(p.id) && p.at <= round && p.at.getTime() > round.getTime() - 36 * 60 * MINUTE)

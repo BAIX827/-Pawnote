@@ -1,3 +1,4 @@
+import DateField from "../components/DateField";
 import { t, tList } from "../i18n";
 import React, { useState } from "react";
 import RestoreBackup from "../components/RestoreBackup";
@@ -71,6 +72,7 @@ export default function Onboarding({ editing = false }: { editing?: boolean }) {
   );
   const [avatar, setAvatar] = useState(original?.avatar);
   const [ownerTitle, setOwnerTitle] = useState(original?.ownerTitle ?? "");
+  const [birthDate, setBirthDate] = useState(original?.birthDate ?? "");
   const [homeDate, setHomeDate] = useState(original?.homeDate ?? "");
   const [busy, setBusy] = useState(false);
   let ageMonths: number | undefined,
@@ -110,6 +112,7 @@ export default function Onboarding({ editing = false }: { editing?: boolean }) {
     routeSource: effectiveRouteSource,
     role: roleFor(route),
     ...(ownerTitle.trim() ? { ownerTitle: ownerTitle.trim() } : {}),
+    ...(isHomeDate(birthDate.trim()) ? { birthDate: birthDate.trim() } : {}),
     ...(isHomeDate(homeDate.trim()) ? { homeDate: homeDate.trim() } : {}),
     avatar,
   };
@@ -140,6 +143,9 @@ export default function Onboarding({ editing = false }: { editing?: boolean }) {
     if (ageError) {
       notify(ageError);
       return;
+    }
+    if (birthDate.trim() && !isHomeDate(birthDate.trim())) {
+      notify(t("生日请按 2024-03-15 这样填写，且不晚于今天。")); return;
     }
     if (homeDate.trim() && !isHomeDate(homeDate.trim())) {
       notify(t("到家日期请按 2024-03-15 这样填写，且不晚于今天。"));
@@ -418,15 +424,13 @@ export default function Onboarding({ editing = false }: { editing?: boolean }) {
           </View>
           <View style={{ gap: 10 }}>
             <Label>{t("07 / 到家日期（可选）")}</Label>
-            <Field
-              accessibilityLabel={t("到家日期")}
-              value={homeDate}
-              onChangeText={setHomeDate}
-              maxLength={10}
-              autoCapitalize="none"
-              placeholder="2024-03-15"
-            />
+            <DateField label={t("到家日期")} value={homeDate} onChange={setHomeDate} />
             <Text style={styles.small}>{t("填了以后，时光机会算它来到你身边的第几天和周年。")}</Text>
+          </View>
+          <View style={{ gap: 10 }}>
+            <Label>{t("08 / 生日（可选）")}</Label>
+            <DateField label={t("宠物生日")} value={birthDate} onChange={setBirthDate} />
+            <Text style={styles.small}>{t("知道生日就填上，生日卡与信会按这一天生成。也可以留空。")}</Text>
           </View>
           <View style={styles.row}>
             <Button

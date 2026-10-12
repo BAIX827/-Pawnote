@@ -5,7 +5,7 @@ import { locale, t } from "../i18n";
 import { CATEGORIES, CATEGORY_LABELS, LifeEvent } from "../domain/types";
 import { eventDay, dayDate, localDay } from "../domain/dates";
 import { calendarDays, filterJournal, JournalFilter, shiftMonth } from "../domain/memories";
-import { Button, Card, Chip, Field, colors, styles } from "./ui";
+import { Button, Card, Chip, Field, Icon, colors, styles } from "./ui";
 
 export default function JournalFilters({ events, filter, onChange }: {
   events: LifeEvent[]; filter: JournalFilter; onChange: (filter: JournalFilter) => void;
@@ -37,9 +37,13 @@ export default function JournalFilters({ events, filter, onChange }: {
     </ScrollView>
     {calendar && <View style={{ gap: 10 }}>
       <View style={styles.between}>
-        <Button label={t("上个月")} icon="chevron-left" tone="plain" disabled={month <= "1970-01"} onPress={() => patch({ month: shiftMonth(month, -1), day: undefined })} />
+        <Pressable accessibilityRole="button" accessibilityLabel={t("上个月")} disabled={month <= "1970-01"}
+          onPress={() => patch({ month: shiftMonth(month, -1), day: undefined })}
+          style={{ minWidth: 44, minHeight: 44, alignItems: "center", justifyContent: "center", opacity: month <= "1970-01" ? 0.3 : 1 }}><Icon name="chevron-left" /></Pressable>
         <Text style={[styles.body, { flex: 1, textAlign: "center", fontWeight: "700" }]}>{heading}</Text>
-        <Button label={t("下个月")} icon="chevron-right" tone="plain" disabled={month >= today.slice(0, 7)} onPress={() => patch({ month: shiftMonth(month, 1), day: undefined })} />
+        <Pressable accessibilityRole="button" accessibilityLabel={t("下个月")} disabled={month >= today.slice(0, 7)}
+          onPress={() => patch({ month: shiftMonth(month, 1), day: undefined })}
+          style={{ minWidth: 44, minHeight: 44, alignItems: "center", justifyContent: "center", opacity: month >= today.slice(0, 7) ? 0.3 : 1 }}><Icon name="chevron-right" /></Pressable>
       </View>
       <View style={{ flexDirection: "row" }}>
         {["一", "二", "三", "四", "五", "六", "日"].map((d) => <Text key={d} style={[styles.small, { width: "14.2857%", textAlign: "center" }]}>{t(`周${d}`)}</Text>)}

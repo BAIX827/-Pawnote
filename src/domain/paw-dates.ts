@@ -1,3 +1,4 @@
+import { eventDate, newestEvents } from "./dates";
 import { getLang, t } from "../i18n/core";
 import { detectCategory, ownerName } from "./story-engine";
 import { Temper, isLoss, isSensitive, temperOf } from "./temper";
@@ -231,9 +232,9 @@ export const activityLabel = (r: Pick<Routine, "activity" | "label">) =>
   isActivity(r.activity) ? t(ACTIVITIES[r.activity].label) : (r.label ?? "");
 
 /** The latest entry says the pet died: 爪约 stops speaking for it. */
-export const remindersPaused = (events: LifeEvent[]) => !!events[0] && isLoss(events[0].description);
+export const remindersPaused = (events: LifeEvent[]) => { const latest = newestEvents(events)[0]; return !!latest && isLoss(latest.description); };
 const quiet = (events: LifeEvent[], now: Date) =>
-  events.some((e) => now.getTime() - Date.parse(e.createdAt) < QUIET_DAYS * 86400000 && isSensitive(e.description));
+  events.some((e) => now.getTime() - eventDate(e).getTime() < QUIET_DAYS * 86400000 && isSensitive(e.description));
 
 const fill = (s: string, owner: string, thing: string, lang: Lang) => {
   const out = s.split("{owner}").join(owner).split("{thing}").join(thing);

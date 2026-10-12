@@ -1,3 +1,4 @@
+import { eventDate } from "../domain/dates";
 import { t } from "../i18n";
 import React, { useRef, useState } from "react";
 import { Image, Platform, Text, View } from "react-native";
@@ -114,7 +115,7 @@ export default function News() {
 
       {plain ? (
         <View ref={card} collapsable={false} style={[{ backgroundColor: colors.paper, borderRadius: 14, borderWidth: 2.5, borderColor: colors.ink, padding: 22, gap: 16 }, shadow(4)]}>
-          <Text style={styles.small}>{formatDate(event.createdAt)}</Text>
+          <Text style={styles.small}>{formatDate(eventDate(event).toISOString())}</Text>
           <Text style={big(26)}>{t("{name}的今日记录", { name: pet.name })}</Text>
           {photo}
           {body}
@@ -125,7 +126,7 @@ export default function News() {
         <View ref={card} collapsable={false} style={[frame, { backgroundColor: "#FFF9EF" }, shadow(6)]}>
           <View style={styles.between}>
             <Text style={[styles.small, { color: colors.ink }]}>{t("爪爪镇 · 生活特刊")}</Text>
-            <Text style={styles.small}>{formatDate(event.createdAt)}</Text>
+            <Text style={styles.small}>{formatDate(eventDate(event).toISOString())}</Text>
           </View>
           <Text style={[big(52, 64), { textAlign: "center", letterSpacing: 8 }]}>{t("爪报")}</Text>
           <Text style={[styles.small, { textAlign: "center", letterSpacing: 3 }]}>PAW POST</Text>
@@ -141,7 +142,7 @@ export default function News() {
           <View style={{ backgroundColor: RED, paddingHorizontal: 22, paddingVertical: 14, flexDirection: "row", alignItems: "flex-end", justifyContent: "space-between" }}>
             <Text style={[big(56, 64), { color: "#FFF", letterSpacing: 6 }]}>{t("号外")}</Text>
             <Text style={{ color: "#FFF", fontWeight: "700", letterSpacing: 2, fontSize: 12, marginBottom: 8 }}>
-              {t("爪报")} · {formatDate(event.createdAt)}
+              {t("爪报")} · {formatDate(eventDate(event).toISOString())}
             </Text>
           </View>
           <View style={{ padding: 22, gap: 16 }}>
@@ -161,7 +162,7 @@ export default function News() {
       ) : template === "wanted" ? (
         <View ref={card} collapsable={false} style={[frame, { backgroundColor: "#F6E7C8", alignItems: "center", borderWidth: 3 }, shadow(6)]}>
           <Text style={[big(78, 90), { letterSpacing: 16 }]}>{t("通缉")}</Text>
-          <Text style={[styles.caps, { letterSpacing: 5 }]}>WANTED · {formatDate(event.createdAt)}</Text>
+          <Text style={[styles.caps, { letterSpacing: 5 }]}>WANTED · {formatDate(eventDate(event).toISOString())}</Text>
           <View style={{ width: "78%", backgroundColor: "#FFF", padding: 8, borderWidth: 2, borderColor: colors.ink, transform: [{ rotate: "-1.5deg" }] }}>
             <Picture event={event} height={240} demo={state.demo} onLoad={onLoad} onError={onError} />
           </View>
@@ -191,7 +192,7 @@ export default function News() {
                 {t("爪报")}
               </Text>
               <Text style={{ color: "#FFF", fontWeight: "700", letterSpacing: 3, fontSize: 12, textShadowColor: "#00000088", textShadowRadius: 6 }}>
-                {pet.name} · {formatDate(event.createdAt)}
+                {pet.name} · {formatDate(eventDate(event).toISOString())}
               </Text>
             </View>
             <View style={{ position: "absolute", right: 14, bottom: 14, backgroundColor: colors.yellow, borderRadius: 999, paddingHorizontal: 12, paddingVertical: 6, transform: [{ rotate: "-4deg" }] }}>

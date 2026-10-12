@@ -6,7 +6,6 @@ import { useStore } from "../data/store";
 import { progress, titleFor } from "../domain/life";
 import { formatDate } from "../domain/types";
 import { speciesEmoji } from "../domain/pet-profile";
-import { milestones } from "../domain/timeline";
 import {
   Button,
   Empty,
@@ -23,6 +22,9 @@ import {
 } from "../components/ui";
 import Neighborhood from "../components/Neighborhood";
 import PawDatesCard from "../components/PawDatesCard";
+import PastMemories from "../components/PastMemories";
+import { eventDate, newestEvents } from "../domain/dates";
+import OccasionPreview from "../components/OccasionPreview";
 import HomeLetters from "../components/HomeLetters";
 import Onboarding from "./Onboarding";
 
@@ -42,12 +44,11 @@ export default function Home() {
   if (!state.pet) return <Onboarding />;
   const pet = state.pet,
     p = progress(state.events),
-    latest = state.events[0],
+    latest = newestEvents(state.events)[0],
     wide = width >= 1100,
     narrow = width < 500,
     now = new Date(),
     m = moment(now.getHours());
-  const anniversary = milestones(pet, state.events, now).anniversaryToday;
   // The pet's latest line as it was saved, so it never changes with the interface language.
   const saying = latest
     ? latest.stories.diary.text.split("\n").find((line) => line.trim()) ?? m.line
@@ -139,18 +140,8 @@ export default function Home() {
 
       <PawDatesCard />
       <HomeLetters />
-      {anniversary !== undefined && (
-        <Pressable
-          accessibilityRole="button"
-          accessibilityLabel={t("打开时光机")}
-          onPress={() => router.push("/timemachine")}
-          style={[{ backgroundColor: colors.pink, borderRadius: 14, padding: 16 }, shadow(3)]}
-        >
-          <Text style={[styles.h2, { fontSize: 20 }]}>
-            {t("今天是 {name} 到家 {n} 周年", { name: pet.name, n: anniversary })}
-          </Text>
-        </Pressable>
-      )}
+      <PastMemories />
+      <OccasionPreview />
       <Pressable
         accessibilityRole="button"
         accessibilityLabel={t("记录今天，翻成宠物的话")}
@@ -289,7 +280,7 @@ export default function Home() {
       </View>
       {state.events.length ? (
         <View style={{ gap: 20 }}>
-          {state.events.slice(0, 3).map((e, i) => (
+          {newestEvents(state.events).slice(0, 3).map((e, i) => (
             <Pressable
               key={e.id}
               accessibilityRole="button"
@@ -324,7 +315,7 @@ export default function Home() {
               </Text>
               <View style={{ flex: 1, gap: 4 }}>
                 <Text style={styles.small}>
-                  {formatDate(e.createdAt)} · {e.published ? t("留在窝里") : t("私密")}
+                  {formatDate(eventDate(e).toISOString())} · {e.published ? t("留在窝里") : t("私密")}
                 </Text>
                 <Text style={[styles.h2, { fontSize: 18, lineHeight: 26 }]} numberOfLines={2}>
                   {e.stories[e.selectedStyle].title}

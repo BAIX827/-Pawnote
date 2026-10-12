@@ -1,3 +1,4 @@
+import { eventDate, eventDay, newestEvents } from "./dates";
 import { getLang } from "../i18n/core";
 import { PlannedReminder, plannedReminders, remindersPaused } from "./paw-dates";
 import { ownerName } from "./story-engine";
@@ -150,12 +151,11 @@ export function writeMail(state: Pick<AppState, "pet" | "events">, kind: MailKin
   const pet = state.pet;
   if (!pet || remindersPaused(state.events)) return undefined;
   const { start, end } = mailPeriod(kind, now);
-  const mine = state.events
+  const mine = newestEvents(state.events)
     .filter((e) => {
-      const at = Date.parse(e.createdAt);
+      const at = eventDate(e).getTime();
       return at >= start.getTime() && at < end.getTime();
-    })
-    .sort((a, b) => b.createdAt.localeCompare(a.createdAt));
+    });
   const temper = temperOf(pet), owner = ownerName(pet);
   // Clingy pets write in lowercase in English (docs/13 §4).
   const voice = (s: string) => (lang === "en" && temper === "clingy" ? s.toLowerCase() : s);
@@ -177,7 +177,7 @@ export function writeMail(state: Pick<AppState, "pet" | "events">, kind: MailKin
     owner,
     greeting: voice(fill(GREETING[lang])),
     entries: mine.length,
-    days: new Set(mine.map((e) => dateKey(new Date(e.createdAt)))).size,
+    days: new Set(mine.map((e) => eventDay(e))).size,
     photos: mine.filter((e) => e.photo).length,
     xp: mine.length * 20,
     top,
@@ -205,7 +205,7 @@ const NOTE_TITLE: Text = { zh: "{name}给你写了一封信", en: "{name} sent y
 export function plannedMail(state: AppState, lang: Lang = getLang(), now = new Date()): PlannedReminder | undefined {
   const pet = state.pet;
   if (!pet || state.mailReminder === false || remindersPaused(state.events)) return undefined;
-  const recent = state.events.some((e) => now.getTime() - Date.parse(e.createdAt) < 7 * 86400000 && isSensitive(e.description));
+  const recent = state.events.some((e) => now.getTime() - eventDate(e).getTime() < 7 * 86400000 && isSensitive(e.description));
   const temper = temperOf(pet);
   return {
     key: "mail-weekly",

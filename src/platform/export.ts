@@ -23,3 +23,8 @@ export async function exportCard(svg: string, filename: string, _view?: View | n
 export async function exportBackup(content: string) {
     download(content, `pawnote-backup-${Date.now()}.json`, "application/json");
 }
+
+/** Photos and audio travel inside the offline album. */
+export async function exportKeepsake(content: string, filename: string) {
+  download(content, `${filename}.html`, "text/html;charset=utf-8");
+}

@@ -1,3 +1,4 @@
+import { eventDay, newestEvents } from "./dates";
 import { t } from "../i18n/core";
 import { isSensitive, temperOf, Temper } from "./temper";
 import { CATEGORIES, Category, LifeEvent, Pet } from "./types";
@@ -21,19 +22,13 @@ export const monthKey = (date: string | Date) => {
   const d = new Date(date);
   return `${d.getFullYear()}-${pad(d.getMonth() + 1)}`;
 };
-const dayKey = (date: string) => {
-  const d = new Date(date);
-  return `${monthKey(d)}-${pad(d.getDate())}`;
-};
 /** Months that have entries, newest first; the current month is always offered. */
 export function reportMonths(events: LifeEvent[], now = new Date()): string[] {
-  return [...new Set([monthKey(now), ...events.map((e) => monthKey(e.createdAt))])].sort().reverse();
+  return [...new Set([monthKey(now), ...events.map((e) => eventDay(e).slice(0, 7))])].sort().reverse();
 }
 
 export function monthReport(events: LifeEvent[], month: string): MonthReport {
-  const mine = events
-    .filter((e) => monthKey(e.createdAt) === month)
-    .sort((a, b) => b.createdAt.localeCompare(a.createdAt));
+  const mine = newestEvents(events).filter((e) => eventDay(e).slice(0, 7) === month);
   const counts = Object.fromEntries(CATEGORIES.map((c) => [c, 0])) as Record<Category, number>;
   // A hard day still counts as showing up, but never as a "chaos deduction" or a joke line.
   for (const e of mine) if (!isSensitive(e.description)) counts[e.category]++;
@@ -42,7 +37,7 @@ export function monthReport(events: LifeEvent[], month: string): MonthReport {
   return {
     month,
     entries: n,
-    days: new Set(mine.map((e) => dayKey(e.createdAt))).size,
+    days: new Set(mine.map((e) => eventDay(e))).size,
     counts,
     top,
     highlight: mine[0],

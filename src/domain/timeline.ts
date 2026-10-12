@@ -1,29 +1,16 @@
-import { monthKey } from "./report";
+import { dayDistance, eventDay, isPastDay, localDay, newestEvents } from "./dates";
 import { CATEGORIES, Category, LifeEvent, Pet } from "./types";
 
 // The time machine: growth photos by month, "first time" moments and anniversaries.
 // Everything is derived from saved entries and the pet profile.
-const DAY = 86400000;
-const startOfDay = (d: Date) => new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime();
-const oldestFirst = (events: LifeEvent[]) =>
-  [...events].sort((a, b) => a.createdAt.localeCompare(b.createdAt));
-
-/** A YYYY-MM-DD date that exists and is not in the future. */
-export function isHomeDate(value: unknown, now = new Date()): value is string {
-  if (typeof value !== "string" || !/^\d{4}-\d{2}-\d{2}$/.test(value)) return false;
-  const [y, m, d] = value.split("-").map(Number);
-  const date = new Date(y, m - 1, d);
-  return (
-    date.getFullYear() === y && date.getMonth() === m - 1 && date.getDate() === d &&
-    y >= 1970 && date.getTime() <= startOfDay(now)
-  );
-}
+const oldestFirst = (events: LifeEvent[]) => newestEvents(events).reverse();
+export const isHomeDate = isPastDay;
 
 /** The first entry with a photo in each month, oldest month first. */
 export function monthlyPhotos(events: LifeEvent[]): { month: string; event: LifeEvent }[] {
   const seen = new Map<string, LifeEvent>();
   for (const e of oldestFirst(events)) {
-    const month = monthKey(e.createdAt);
+    const month = eventDay(e).slice(0, 7);
     if (e.photo && !seen.has(month)) seen.set(month, e);
   }
   return [...seen].map(([month, event]) => ({ month, event }));
@@ -54,18 +41,19 @@ export interface Milestones {
   nextAnniversary?: { years: number; inDays: number };
 }
 export function milestones(pet: Pet, events: LifeEvent[], now = new Date()): Milestones {
-  const today = startOfDay(now);
+  const today = localDay(now);
   const out: Milestones = {};
   const first = oldestFirst(events)[0];
-  if (first) out.recordingDay = Math.max(1, Math.round((today - startOfDay(new Date(first.createdAt))) / DAY) + 1);
+  if (first) out.recordingDay = Math.max(1, dayDistance(eventDay(first), today) + 1);
   if (isHomeDate(pet.homeDate, now)) {
     const [y, m, d] = pet.homeDate.split("-").map(Number);
-    out.homeDay = Math.round((today - new Date(y, m - 1, d).getTime()) / DAY) + 1;
+    out.homeDay = dayDistance(pet.homeDate, today) + 1;
+    const occurrence = (year: number) => localDay(new Date(year, m - 1, Math.min(d, new Date(year, m, 0).getDate())));
     let years = now.getFullYear() - y;
-    let next = new Date(y + years, m - 1, d).getTime();
+    let next = occurrence(y + years);
     if (next === today && years > 0) out.anniversaryToday = years;
-    if (next <= today) next = new Date(y + ++years, m - 1, d).getTime();
-    out.nextAnniversary = { years, inDays: Math.round((next - today) / DAY) };
+    if (next <= today) next = occurrence(y + ++years);
+    out.nextAnniversary = { years, inDays: dayDistance(today, next) };
   }
   return out;
 }

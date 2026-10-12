@@ -11,7 +11,7 @@ import {
   ownerName,
   selfName,
 } from "../domain/story-engine";
-import { eventDay, eventTimestamp, localDay } from "../domain/dates";
+import { dayDate, eventDay, eventTimestamp, isPastDay, localDay } from "../domain/dates";
 import { saveEvent } from "../domain/life";
 import { isLoss } from "../domain/temper";
 import { postBlock } from "../domain/paw-circle";
@@ -46,6 +46,7 @@ import {
   shadow,
   styles,
 } from "../components/ui";
+import DateField from "../components/DateField";
 import Onboarding from "./Onboarding";
 
 const bare = {
@@ -82,7 +83,7 @@ function Recorder({ original, initialDate }: { original?: LifeEvent; initialDate
   } : undefined);
   const [busy, setBusy] = useState(false);
   const [variant, setVariant] = useState(0);
-  const [manualTag, setManualTag] = useState(false);
+  const [manualTag, setManualTag] = useState(!!original);
   // Bubbles grow with their text, so nothing scrolls inside a speech bubble.
   const [heights, setHeights] = useState({ owner: 96, pet: 120 });
   const [quota, setQuota] = useState<Quota>();
@@ -92,6 +93,11 @@ function Recorder({ original, initialDate }: { original?: LifeEvent; initialDate
   useEffect(() => {
     void fetchQuota().then(setQuota);
   }, []);
+  useEffect(() => {
+    if (!original && initialDate && isPastDay(initialDate)) {
+      update((s) => ({ ...s, draft: { ...(s.draft ?? seed), occurredOn: initialDate } }));
+    }
+  }, [initialDate, original, seed, update]);
   const pet = original?.petSnapshot ?? state.pet,
     draft = editDraft ?? state.draft ?? seed,
     signature = pet
@@ -104,16 +110,11 @@ function Recorder({ original, initialDate }: { original?: LifeEvent; initialDate
   }, [original, state.pet, state.draft, seed, update]);
   // A restored draft, or a pet whose profile changed, gets its pet-voice text refreshed.
   useEffect(() => {
-    if (submitted.current || !pet || generated || !draft.description.trim()) return;
-    if (original) {
-      setEditDraft((d) => d ? { ...d, stories: generateStories(pet, d.description, d.category),
-        signature: generationSignature(pet, d.description, d.category) } : d);
-    } else {
-      update((s) => s.draft ? { ...s, draft: { ...s.draft,
-        stories: generateStories(pet, s.draft.description, s.draft.category),
-        signature: generationSignature(pet, s.draft.description, s.draft.category),
-      } } : s);
-    }
+    if (original || submitted.current || !pet || generated || !draft.description.trim()) return;
+    update((s) => s.draft ? { ...s, draft: { ...s.draft,
+      stories: generateStories(pet, s.draft.description, s.draft.category),
+      signature: generationSignature(pet, s.draft.description, s.draft.category),
+    } } : s);
   }, [original, pet, generated, draft.description, update]);
   useEffect(() => {
     latest.current = draft.description;
@@ -123,7 +124,8 @@ function Recorder({ original, initialDate }: { original?: LifeEvent; initialDate
     owner = ownerName(pet),
     story = generated ? draft.stories![draft.selectedStyle] : undefined;
   const postingState = { ...state, events: state.events.filter((e) => e.id !== original?.id) };
-  const block = postBlock(postingState, draft.description),
+  const postingDate = isPastDay(draft.occurredOn) ? dayDate(draft.occurredOn) : new Date();
+  const block = postBlock(postingState, draft.description, postingDate),
     posting = draft.published && !block;
   const labels: Record<StoryStyle, string> = {
     diary: t("内心独白"),
@@ -210,6 +212,7 @@ function Recorder({ original, initialDate }: { original?: LifeEvent; initialDate
     }
   }
   function save() {
+    if (submitted.current) return;
     if (!generated || !draft.stories) {
       notify(t("先写下今天的事，{name}才能开口。", { name: pet!.name }));
       return;
@@ -234,7 +237,7 @@ function Recorder({ original, initialDate }: { original?: LifeEvent; initialDate
       petSnapshot: { ...pet! },
       stories: draft.stories,
       selectedStyle: draft.selectedStyle,
-      published: draft.published && !postBlock(postingState, draft.description),
+      published: draft.published && !postBlock(postingState, draft.description, postingDate),
     };
     try {
       const next = saveEvent(state, event);
@@ -259,8 +262,7 @@ function Recorder({ original, initialDate }: { original?: LifeEvent; initialDate
 
       <View style={{ gap: 8 }}>
         <Label>{t("实际发生日期")}</Label>
-        <Field accessibilityLabel={t("实际发生日期")} value={draft.occurredOn ?? localDay()} maxLength={10}
-          autoCapitalize="none" placeholder="2024-03-15" onChangeText={(occurredOn) => patch({ occurredOn })} />
+        <DateField label={t("实际发生日期")} value={draft.occurredOn ?? localDay()} onChange={(occurredOn) => patch({ occurredOn })} />
         <View style={[styles.row, { flexWrap: "wrap" }]}>
           <Button label={t("今天")} tone="plain" onPress={() => patch({ occurredOn: localDay() })} />
           <Text style={[styles.small, { flex: 1 }]}>{t("旧照片也可以补上，日记会按这一天排列。")}</Text>
@@ -305,7 +307,7 @@ function Recorder({ original, initialDate }: { original?: LifeEvent; initialDate
             placeholder={t("照你看到的写就行。例如：今天{name}把我的水杯推下去了，还一脸无辜。", { name: pet.name })}
           />
           <View style={[styles.between, { marginTop: 8 }]}>
-            <Text style={styles.small}>{t("草稿自动保存在本机")}</Text>
+            <Text style={styles.small}>{original ? t("修改在保存后生效。") : t("草稿自动保存在本机")}</Text>
             <Text style={styles.small}>{draft.description.length} / 500</Text>
           </View>
         </Bubble>

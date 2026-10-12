@@ -46,3 +46,15 @@ export async function exportBackup(content: string) {
     if (file.exists) file.delete();
   }
 }
+
+export async function exportKeepsake(content: string, filename: string) {
+  await requireSharing();
+  const file = new File(Paths.cache, `${filename}.html`);
+  try {
+    file.create({ overwrite: true });
+    file.write(content);
+    await Sharing.shareAsync(file.uri, { mimeType: "text/html", UTI: "public.html", dialogTitle: t("保存成长纪念册") });
+  } finally {
+    if (file.exists) file.delete();
+  }
+}
