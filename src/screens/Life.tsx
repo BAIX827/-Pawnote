@@ -35,9 +35,12 @@ export default function Life() {
     accent = work ? colors.jade : colors.lavender,
     soft = work ? colors.green : colors.lilac,
     wide = width >= 1100;
+  // Every level from 1 to 5, so the "next stop" is always on the route (docs/01 8.24).
   const steps = [
     { at: 1, name: work ? t("第一次营业") : t("第一次入学") },
+    { at: 2, name: work ? t("转正面谈") : t("第一次小测") },
     { at: 3, name: work ? t("正式营业员") : t("校园活跃分子") },
+    { at: 4, name: work ? t("拿到工牌") : t("当上课代表") },
     { at: 5, name: work ? t("资深摸鱼专家") : t("校园传说") },
   ];
   const notch = {
@@ -54,6 +57,7 @@ export default function Life() {
     <View style={styles.stack}>
       <Heading
         title={t("爪迹")}
+        hint={t("成长和等级")}
         accent={soft}
       />
       <View style={{ flexDirection: wide ? "row" : "column", gap: 26 }}>
@@ -102,7 +106,7 @@ export default function Life() {
               >
                 {pet.name}
               </Text>
-              <Text style={[styles.body, { fontWeight: "700" }]}>{t(pet.role)}</Text>
+              <Text style={[styles.small, { color: colors.ink }]}>{t("岗位 · {role}", { role: t(pet.role) })}</Text>
               <Text style={[styles.small, { color: colors.ink }]}>
                 {speciesLabel(pet)} · {ageLabel(pet.ageMonths)}
               </Text>

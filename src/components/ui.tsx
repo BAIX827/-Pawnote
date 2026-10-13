@@ -231,9 +231,10 @@ export function Label({ children }: { children: React.ReactNode }) {
     </Text>
   );
 }
-export function Field(props: TextInputProps) {
+export function Field({ ref, ...props }: TextInputProps & { ref?: React.Ref<TextInput> }) {
   return (
     <TextInput
+      ref={ref}
       placeholderTextColor="#A39C8C"
       {...props}
       style={[
@@ -704,8 +705,11 @@ export function Heading({
   eyebrow,
   action,
   accent = colors.yellow,
+  hint,
 }: {
   title: string;
+  /** A plain line under the title saying what the module is for. */
+  hint?: string;
   eyebrow?: string;
   action?: React.ReactNode;
   accent?: string;
@@ -734,6 +738,7 @@ export function Heading({
           />
           <Text style={[styles.h1, { fontSize: 40, lineHeight: 50 }]}>{title}</Text>
         </View>
+        {hint && <Text style={[styles.small, { color: colors.ink }]}>{hint}</Text>}
       </View>
       {action}
     </View>

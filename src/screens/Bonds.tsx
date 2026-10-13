@@ -8,6 +8,7 @@ import { MAX_PETS, homePets } from "../domain/household";
 import { BOND_LEVELS, BondLevel, formatDate } from "../domain/types";
 import { eventDate } from "../domain/dates";
 import { Avatar, Button, Chip, Empty, Heading, colors, shadow, styles } from "../components/ui";
+import { homeNames, residentName } from "../domain/paw-circle";
 import Onboarding from "./Onboarding";
 
 // 关系网 (docs/01 8.23): the household's pets in the middle, 爪爪镇 residents around them, and a line
@@ -17,7 +18,7 @@ const LINE: Record<BondLevel, { color: string; width: number; faint?: boolean }>
   bestie: { color: "#5E9E00", width: 5 },
   friend: { color: "#8CC63F", width: 3 },
   normal: { color: "#A89F95", width: 2 },
-  stranger: { color: "#A89F95", width: 1.5, faint: true },
+  stranger: { color: "#C9C1B6", width: 1.5, faint: true },
   foe: { color: RED, width: 3 },
 };
 const CHIP: Record<BondLevel, string> = {
@@ -38,7 +39,8 @@ export default function Bonds() {
   const network = useMemo(() => bondNetwork(state, new Date(), homeOnly), [state, homeOnly]);
   if (!state.pet) return <Onboarding />;
   const byId = new Map(network.nodes.map((n) => [n.id, n]));
-  const name = (n: BondNode) => n.pet?.name ?? n.resident!.name[lang];
+  const taken = homeNames(state);
+  const name = (n: BondNode) => n.pet?.name ?? residentName(n.resident!, lang, taken);
   const size = Math.min(width - 32, 560);
   const pos = layout(network.nodes, size);
   const touches = (l: BondLink) => !focus || l.a === focus || l.b === focus;
@@ -54,6 +56,7 @@ export default function Bonds() {
     <View style={styles.stack}>
       <Heading
         title={t("关系网")}
+        hint={t("谁和谁要好")}
         accent={colors.green}
         action={<Button label={t("返回")} icon="x" tone="plain" onPress={() => router.canGoBack() ? router.back() : router.replace("/circle")} />}
       />
@@ -150,21 +153,22 @@ export default function Bonds() {
                 <Text style={[styles.body, { fontWeight: "800", flex: 1 }]}>{name(a)} × {name(b)}</Text>
                 <View style={[styles.row, { gap: 8 }]}>
                   <Chip label={t(BOND_LABELS[l.level])} active color={CHIP[l.level]} />
-                  <Text style={[styles.small, { color: l.score < 0 ? RED : colors.ink, fontWeight: "700" }]}>{l.score > 0 ? `+${l.score}` : l.score}</Text>
+                  <Steps level={l.level} />
                 </View>
               </View>
-              <Text style={styles.small}>
-                {l.editable
-                  ? l.chosen ? t("初始：{level}（你设的）", { level: t(BOND_LABELS[l.start]) }) : t("初始：{level}（默认）", { level: t(BOND_LABELS[l.start]) })
-                  : t("爪爪镇的老相识")}
-                {l.circle > 0 ? t(" · 爪友圈互动 +{n}", { n: l.circle }) : ""}
-              </Text>
+              {(l.editable || a.kind === "resident" && b.kind === "resident" || l.circle > 0) && (
+                <Text style={styles.small}>
+                  {l.editable
+                    ? l.chosen ? t("初始：{level}（你设的）", { level: t(BOND_LABELS[l.start]) }) : t("初始：{level}（默认）", { level: t(BOND_LABELS[l.start]) })
+                    : a.kind === "resident" && b.kind === "resident" ? t("爪爪镇的老相识") : t("在爪友圈里有来往")}
+                  {l.editable && l.circle > 0 ? t(" · 在爪友圈里有来往") : ""}
+                </Text>
+              )}
               {last && (
                 <Text style={styles.small} numberOfLines={2}>
-                  {t("最近：{date} {tone} {delta}「{text}」", {
+                  {t("最近：{date} {tone}「{text}」", {
                     date: formatDate(eventDate(last.event).toISOString()),
                     tone: t(TONE_LABELS[last.event.together!.tone]),
-                    delta: last.delta > 0 ? `+${last.delta}` : String(last.delta),
                     text: last.event.description,
                   })}
                   {l.history.length > 1 ? t(" · 共 {n} 件事", { n: l.history.length }) : ""}
@@ -198,6 +202,21 @@ export default function Bonds() {
   );
 }
 
+/** Five little blocks, one per level, filled up to this pair's level: no raw scores (docs/01 8.24). */
+function Steps({ level }: { level: BondLevel }) {
+  const n = BOND_LEVELS.indexOf(level) + 1;
+  return (
+    <View accessibilityLabel={t(BOND_LABELS[level])} style={[styles.row, { gap: 3 }]}>
+      {BOND_LEVELS.map((l, i) => (
+        <View
+          key={l}
+          style={{ width: 10, height: 14, borderRadius: 3, borderWidth: 1.5, borderColor: colors.ink, backgroundColor: i < n ? LINE[level].color : colors.paper }}
+        />
+      ))}
+    </View>
+  );
+}
+
 /** Own pets together first, then pets with residents, then residents among themselves. */
 const rank = (l: BondLink, byId: Map<string, BondNode>) =>
   (byId.get(l.a)!.kind === "resident" ? 1 : 0) + (byId.get(l.b)!.kind === "resident" ? 1 : 0);
@@ -215,7 +234,8 @@ function layout(nodes: BondNode[], size: number) {
   const outer = c - 40;
   if (!town.length) ring(pets, pets.length < 2 ? 0 : outer * 0.75, pets.length === 2 ? Math.PI / 2 : 0);
   else {
-    ring(pets, pets.length < 2 ? 0 : outer * 0.38, pets.length === 2 ? Math.PI / 2 : 0);
+    // Wide enough apart that two household pets and the line between them stay readable.
+    ring(pets, pets.length < 2 ? 0 : outer * 0.55, pets.length === 2 ? Math.PI / 2 : 0);
     ring(town, outer, Math.PI / town.length);
   }
   return pos;

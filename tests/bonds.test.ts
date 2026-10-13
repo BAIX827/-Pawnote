@@ -69,7 +69,9 @@ test("全部展示含居民和居民之间的关系，只看自家宠物时只�
   const all = bondNetwork(home(), now);
   assert.equal(all.nodes.length, 9);
   assert.ok(all.links.some((l) => l.a.startsWith("npc:") && l.b.startsWith("npc:") && !l.editable));
-  assert.ok(all.links.filter((l) => l.a === "cat" || l.b === "cat").every((l) => l.editable));
+  // Only pairs of the owner's own pets take a starting level from the owner (docs/01 8.24).
+  const cats = all.links.filter((l) => l.a === "cat" || l.b === "cat");
+  assert.ok(cats.every((l) => l.editable === !(l.a.startsWith("npc:") || l.b.startsWith("npc:"))));
   const mine = bondNetwork(home(), now, true);
   assert.deepEqual(mine.nodes.map((n) => n.id), ["cat", "dog"]);
   assert.equal(mine.links.length, 1);

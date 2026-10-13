@@ -13,6 +13,8 @@ type Text = Record<Lang, string>;
 export interface Resident {
   id: string;
   name: Text;
+  /** Where it works, put before its name when one of the owner's pets has the same name. */
+  place: Text;
   species: Species;
   emoji: string;
   temper: Temper;
@@ -34,6 +36,7 @@ const all: Category[] = ["sleep", "snack", "bath", "chaos", "walk", "other"];
 export const RESIDENTS: Resident[] = [
   {
     id: "coal",
+    place: { zh: "便利店", en: "Shop" },
     name: { zh: "煤球", en: "Coal" },
     species: "cat",
     emoji: "🐈‍⬛",
@@ -70,6 +73,7 @@ export const RESIDENTS: Resident[] = [
   },
   {
     id: "biscuit",
+    place: { zh: "幼儿园", en: "School" },
     name: { zh: "阿福", en: "Biscuit" },
     species: "dog",
     emoji: "🦮",
@@ -106,6 +110,7 @@ export const RESIDENTS: Resident[] = [
   },
   {
     id: "bao",
+    place: { zh: "快递站", en: "Depot" },
     name: { zh: "豆包", en: "Bao" },
     species: "dog",
     emoji: "🐕",
@@ -142,6 +147,7 @@ export const RESIDENTS: Resident[] = [
   },
   {
     id: "duchess",
+    place: { zh: "剧团", en: "Theatre" },
     name: { zh: "公主", en: "Duchess" },
     species: "cat",
     emoji: "🐈",
@@ -178,6 +184,7 @@ export const RESIDENTS: Resident[] = [
   },
   {
     id: "pip",
+    place: { zh: "气象站", en: "Station" },
     name: { zh: "啾啾", en: "Pip" },
     species: "bird",
     emoji: "🦜",
@@ -214,6 +221,7 @@ export const RESIDENTS: Resident[] = [
   },
   {
     id: "basil",
+    place: { zh: "档案馆", en: "Archive" },
     name: { zh: "老绿", en: "Basil" },
     species: "lizard",
     emoji: "🦎",
@@ -250,6 +258,7 @@ export const RESIDENTS: Resident[] = [
   },
   {
     id: "mochi",
+    place: { zh: "图书馆", en: "Library" },
     name: { zh: "年糕", en: "Mochi" },
     species: "rabbit",
     emoji: "🐇",
@@ -440,9 +449,23 @@ export interface Circle {
   today: BrowseLog;
 }
 
-export const residentName = (r: Resident, lang: Lang) => r.name[lang];
+const sameName = (a: string, b: string) => a.trim().toLowerCase() === b.trim().toLowerCase();
+/** Names of every pet in the home, current one included, so residents never share a name with them. */
+export const homeNames = (state: Pick<AppState, "pet" | "household">) =>
+  [state.pet, ...(state.household ?? []).map((b) => b.pet)].flatMap((p) => (p ? [p.name] : []));
+/** A resident's name, with its workplace in front when one of the owner's pets is called the same. */
+export const residentName = (r: Resident, lang: Lang, taken: string[] = []) =>
+  taken.some((n) => sameName(n, r.name[lang]))
+    ? `${r.place[lang]}${lang === "zh" ? "" : " "}${r.name[lang]}`
+    : r.name[lang];
+/** Resident text that mentions a resident whose name is taken uses the longer name too. */
+const renameIn = (text: string, lang: Lang, taken: string[]) =>
+  RESIDENTS.reduce((s, r) => {
+    const name = residentName(r, lang, taken);
+    return name === r.name[lang] ? s : s.split(r.name[lang]).join(name);
+  }, text);
 export const residentById = (id: string) => RESIDENTS.find((r) => r.id === id);
-const actorOf = (r: Resident, lang: Lang): Actor => ({ kind: "resident", id: r.id, name: r.name[lang] });
+const actorOf = (r: Resident, lang: Lang, taken: string[] = []): Actor => ({ kind: "resident", id: r.id, name: residentName(r, lang, taken) });
 
 /** True when the pet's latest record says it has died: it no longer posts or goes out. */
 export const petIsGone = (state: AppState) => {
@@ -465,7 +488,7 @@ export function postBlock(state: AppState, description: string, now = new Date()
 }
 
 /** Residents' own posts from the given day, if any of them posted. */
-export function residentPostsOn(day: Date, lang: Lang, hidden: string[] = []): CirclePost[] {
+export function residentPostsOn(day: Date, lang: Lang, hidden: string[] = [], taken: string[] = []): CirclePost[] {
   const key = dayKey(day), n = dayNumber(day);
   return RESIDENTS.flatMap((r, i) => {
     if (hidden.includes(r.id)) return [];
@@ -477,10 +500,10 @@ export function residentPostsOn(day: Date, lang: Lang, hidden: string[] = []): C
     return [{
       id: `npc:${r.id}:${key}`,
       kind: "resident" as const,
-      author: actorOf(r, lang),
+      author: actorOf(r, lang, taken),
       resident: r,
       category: post.category,
-      text: post.text[lang],
+      text: renameIn(post.text[lang], lang, taken),
       at,
       likes: [],
       comments: [],
@@ -489,7 +512,7 @@ export function residentPostsOn(day: Date, lang: Lang, hidden: string[] = []): C
 }
 
 /** Residents who come by the pet's post, with their likes and comments, and the pet's one reply. */
-function visitorsFor(e: LifeEvent, pet: Pet, lang: Lang, hidden: string[], now: Date): Pick<CirclePost, "likes" | "comments"> {
+function visitorsFor(e: LifeEvent, pet: Pet, lang: Lang, hidden: string[], now: Date, taken: string[]): Pick<CirclePost, "likes" | "comments"> {
   const at = eventDate(e).getTime();
   const residents = RESIDENTS.filter((r) => !hidden.includes(r.id));
   const comments: CircleComment[] = [];
@@ -497,7 +520,7 @@ function visitorsFor(e: LifeEvent, pet: Pet, lang: Lang, hidden: string[], now: 
     residents.filter((r) => QUIET[r.id]).forEach((r, k) => {
       const when = new Date(at + (12 + 30 * k) * MINUTE);
       if (when <= now)
-        comments.push({ id: `c:${e.id}:${r.id}`, author: actorOf(r, lang), text: QUIET[r.id][lang], at: when, removable: false });
+        comments.push({ id: `c:${e.id}:${r.id}`, author: actorOf(r, lang, taken), text: QUIET[r.id][lang], at: when, removable: false });
     });
     return { likes: [], comments };
   }
@@ -510,7 +533,7 @@ function visitorsFor(e: LifeEvent, pet: Pet, lang: Lang, hidden: string[], now: 
   const h = hash(e.id);
   const likers = ranked.slice(0, 1 + (h % 4));
   const likes = likers
-    .map(({ r }, k) => ({ who: actorOf(r, lang), at: new Date(at + (3 + 11 * k + (h % 7)) * MINUTE) }))
+    .map(({ r }, k) => ({ who: actorOf(r, lang, taken), at: new Date(at + (3 + 11 * k + (h % 7)) * MINUTE) }))
     .filter((l) => l.at <= now);
   const keen = likers.filter(({ r }) => r.likes.includes(e.category) || r.species === pet.species);
   const commenters = (keen.length ? keen : likers).slice(0, 1 + ((h >>> 4) % 2));
@@ -519,7 +542,7 @@ function visitorsFor(e: LifeEvent, pet: Pet, lang: Lang, hidden: string[], now: 
     if (when > now) return;
     comments.push({
       id: `c:${e.id}:${r.id}`,
-      author: actorOf(r, lang),
+      author: actorOf(r, lang, taken),
       text: fill(r.comments[e.category][lang], { name: pet.name }),
       at: when,
       removable: false,
@@ -552,6 +575,7 @@ export function buildCircle(state: AppState, now: Date, lang: Lang): Circle {
   if (!pet) return { posts: [], today };
   const hidden = state.circle?.hiddenNpcs ?? [];
   const removed = new Set(state.circle?.removed ?? []);
+  const taken = homeNames(state);
   const own: CirclePost[] = state.events
     .filter((e) => e.published)
     .map((e) => ({
@@ -563,11 +587,17 @@ export function buildCircle(state: AppState, now: Date, lang: Lang): Circle {
       text: e.stories.social.text,
       photo: e.photo,
       at: eventDate(e),
-      ...visitorsFor(e, pet, lang, hidden, now),
+      ...visitorsFor(e, pet, lang, hidden, now, taken),
     }));
   const town: CirclePost[] = [];
-  for (let d = FEED_DAYS - 1; d >= 0; d--)
-    town.push(...residentPostsOn(addDays(now, -d), lang, hidden).filter((p) => p.at <= now));
+  // A resident's post can come round again within two weeks; only the newest copy is shown.
+  const shown = new Set<string>();
+  for (let d = 0; d < FEED_DAYS; d++)
+    for (const p of residentPostsOn(addDays(now, -d), lang, hidden, taken))
+      if (p.at <= now && !shown.has(`${p.author.id}:${p.text}`)) {
+        shown.add(`${p.author.id}:${p.text}`);
+        town.push(p);
+      }
 
   // The pet's rounds: twice a day it looks through residents' posts from that day and the day before.
   if (!petIsGone(state)) {
@@ -609,7 +639,7 @@ export function buildCircle(state: AppState, now: Date, lang: Lang): Circle {
           p.comments.push({
             id,
             author: { kind: "pet", id: pet.id, name: pet.name },
-            text: fill(PET_COMMENTS[temper][p.category][lang], { friend: r.name[lang] }),
+            text: fill(PET_COMMENTS[temper][p.category][lang], { friend: residentName(r, lang, taken) }),
             at: when,
             removable: true,
           });
@@ -618,7 +648,7 @@ export function buildCircle(state: AppState, now: Date, lang: Lang): Circle {
           if (back <= now)
             p.comments.push({
               id: `r:${p.id}:${r.id}`,
-              author: actorOf(r, lang),
+              author: actorOf(r, lang, taken),
               text: fill(r.replies[h % r.replies.length][lang], { name: pet.name }),
               at: back,
               replyTo: id,

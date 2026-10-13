@@ -6,7 +6,8 @@ import { calendarDays, shiftMonth } from "../domain/memories";
 import { Button, Field, Icon, colors, styles } from "./ui";
 
 /** Calendar selection and direct typing share the same local YYYY-MM-DD value. */
-export default function DateField({ value, onChange, label }: { value: string; onChange: (day: string) => void; label: string }) {
+/** `compact` drops the text box: one button shows the date and opens the calendar (docs/01 8.24). */
+export default function DateField({ value, onChange, label, compact = false }: { value: string; onChange: (day: string) => void; label: string; compact?: boolean }) {
   const [open, setOpen] = useState(false), [month, setMonth] = useState(() => isPastDay(value) ? value.slice(0, 7) : localDay().slice(0, 7));
   const today = localDay(), cells = calendarDays(month, []);
   const nav = (delta: number, text: string, icon: "chevron-left" | "chevron-right") => {
@@ -15,8 +16,9 @@ export default function DateField({ value, onChange, label }: { value: string; o
       style={{ minHeight: 44, minWidth: 44, alignItems: "center", justifyContent: "center", opacity: disabled ? 0.3 : 1 }}><Icon name={icon} /></Pressable>;
   };
   return <View style={{ gap: 8 }}>
-    <Field accessibilityLabel={label} value={value} onChangeText={onChange} maxLength={10} placeholder="2024-03-15" autoCapitalize="none" />
-    <Button label={open ? t("收起日期选择") : t("选择日期")} icon="calendar" tone="plain" style={{ alignSelf: "flex-start" }} onPress={() => {
+    {!compact && <Field accessibilityLabel={label} value={value} onChangeText={onChange} maxLength={10} placeholder={t("比如 2024-03-15")} autoCapitalize="none" />}
+    <Button label={compact ? (isPastDay(value) ? dayDate(value).toLocaleDateString(locale(), { year: "numeric", month: "long", day: "numeric", weekday: "short" }) : t("选择日期")) : open ? t("收起日期选择") : t("选择日期")}
+      icon="calendar" tone={compact ? "soft" : "plain"} style={{ alignSelf: "flex-start" }} onPress={() => {
       if (!open && isPastDay(value)) setMonth(value.slice(0, 7)); setOpen(!open);
     }} />
     {open && <View style={{ borderWidth: 2, borderColor: colors.ink, borderRadius: 12, padding: 8, gap: 8, backgroundColor: colors.paper }}>

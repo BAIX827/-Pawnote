@@ -126,7 +126,7 @@ export default function PawDatesCard() {
         </View>
         <View style={{ flex: 1 }}>
           <Text style={{ fontFamily: display, fontSize: 22, lineHeight: 28, color: colors.ink }}>{t("爪约")}</Text>
-          {nextLine && <Text numberOfLines={1} style={[styles.small, { color: colors.ink }]}>{nextLine}</Text>}
+          <Text numberOfLines={1} style={[styles.small, { color: colors.ink }]}>{nextLine ?? t("它想和你一起做的事")}</Text>
         </View>
         {routines.length > 0 && (
           <Text style={{ fontFamily: numeric, fontSize: 22, color: colors.ink }}>{routines.filter((r) => r.enabled).length}</Text>

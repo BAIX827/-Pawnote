@@ -308,6 +308,14 @@ export function addRoutine(state: AppState, input: RoutineInput, now = new Date(
   const routine: Routine = { id: id(), ...cleanRoutine(input), enabled: true, createdAt: now.toISOString() };
   return { ...state, routines: [...routines, routine] };
 }
+/** A new pet starts with its species' first two 爪约 switched on, so 爪窝 has something to call about (docs/01 8.24). */
+export function withStarterRoutines(state: AppState, now = new Date()): AppState {
+  if (!state.pet || state.routines?.length) return state;
+  return PRESETS[state.pet.species].slice(0, 2).reduce<AppState>(
+    (s, activity) => addRoutine(s, { activity, time: ACTIVITIES[activity].time }, now),
+    { ...state, routines: [] },
+  );
+}
 export function updateRoutine(state: AppState, routineId: string, changes: Partial<Pick<Routine, "time" | "days" | "enabled">>): AppState {
   return {
     ...state,

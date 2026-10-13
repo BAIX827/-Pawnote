@@ -40,6 +40,10 @@ export const allEvents = (state: AppState): LifeEvent[] => [
   ...(state.household ?? []).flatMap((b) => b.events),
 ];
 
+/** Ids of the pets whose names appear in what the owner wrote. */
+export const mentionedPets = (description: string, pets: Pet[]): string[] =>
+  pets.filter((p) => p.name.trim() && description.toLowerCase().includes(p.name.trim().toLowerCase())).map((p) => p.id);
+
 /** Makes the pet with this id the current one. */
 export function switchPet(state: AppState, petId: string): AppState {
   if (state.pet?.id === petId) return state;

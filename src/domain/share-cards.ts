@@ -51,7 +51,7 @@ export function pawsonaSVG(pet: Pet, result: Pick<PawsonaResult, "temper" | "sco
   }
   y += 20;
   for (const bar of card.bars) {
-    parts.push(`<text x="40" y="${y}" font-size="20" font-weight="bold">${escapeXML(bar.label)}</text><text x="680" y="${y}" font-size="20" text-anchor="end">${bar.percent}%</text>`);
+    parts.push(`<text x="40" y="${y}" font-size="20" font-weight="bold">${escapeXML(bar.label)}</text>`);
     parts.push(`<rect x="40" y="${y + 12}" width="640" height="22" rx="11" fill="#FFFFFF" stroke="${INK}" stroke-width="3"/><rect x="40" y="${y + 12}" width="${Math.max(22, 6.4 * bar.percent)}" height="22" rx="11" fill="${card.color}" stroke="${INK}" stroke-width="3"/>`);
     y += 66;
   }

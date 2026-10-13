@@ -1,6 +1,6 @@
 import { Category, Pet } from "./types";
 import { en, zh } from "./voice-bank";
-import { eventContext } from "./event-context";
+import { actionLine, eventContext } from "./event-context";
 
 // The on-device voice bank. See docs/13 (宠物语气指南 v2) for the brief.
 // Seven tempers: goofy is split out of warm, drama and curious out of hyper,
@@ -93,7 +93,10 @@ export function reaction(
   const weirdOk = isWeird(pet) || (temper !== "shy" && temper !== "clingy");
   if (weirdOk && (isWeird(pet) || variant % 3 === 2)) closer = weird[lang][(variant + Object.keys(set).indexOf(category)) % weird[lang].length];
   const context = eventContext(description, owner, lang);
-  return { line: context ? `${context}${lang === "zh" ? "" : " "}${fill(closer)}` : fill(line), closer: fill(closer), contextual: !!context };
+  const sep = lang === "zh" ? "" : " ";
+  if (context) return { line: `${context}${sep}${fill(closer)}`, closer: fill(closer), contextual: true };
+  const action = actionLine(description, lang);
+  return { line: action ? `${action}${sep}${fill(line)}` : fill(line), closer: fill(closer), contextual: !!action };
 }
 
 /** A brief post addressed to friends, with a second version for "say it another way". */
@@ -101,7 +104,7 @@ export function socialLine(pet: Pet, category: Category, owner: string, lang: "z
   const fill = fillWith(owner, lang);
   if (isSensitive(description)) return fill(QUIET[lang].closer);
   const base = fill((lang === "en" ? en : zh)[temperOf(pet)].social[category][variant % 2]);
-  const context = eventContext(description, owner, lang);
+  const context = eventContext(description, owner, lang) ?? actionLine(description, lang);
   if (context) return `${context}${lang === "zh" ? "" : " "}${base}`;
   // Use a recorded detail to anchor the thought, rather than adding a stock scene.
   if ((pet.species === "cat" || pet.species === "dog") && /闻|嗅|sniff|smell/i.test(description))

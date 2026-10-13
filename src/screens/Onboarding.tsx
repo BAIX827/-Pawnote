@@ -1,9 +1,9 @@
 import DateField from "../components/DateField";
 import { t, tList } from "../i18n";
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 import RestoreBackup from "../components/RestoreBackup";
 import PersonalityQuiz from "../components/PersonalityQuiz";
-import { Text, View, useWindowDimensions } from "react-native";
+import { Text, TextInput, View, useWindowDimensions } from "react-native";
 import { router } from "expo-router";
 import { useStore } from "../data/store";
 import { demoState } from "../data/demo";
@@ -19,7 +19,8 @@ import {
   roleFor,
 } from "../domain/types";
 import { SPECIES_INFO, ageFromBirthday, parseAge, recommendRoute } from "../domain/pet-profile";
-import { defaultOwnerName } from "../domain/story-engine";
+import { defaultOwnerName, ownerName } from "../domain/story-engine";
+import { withStarterRoutines } from "../domain/paw-dates";
 import { isHomeDate } from "../domain/timeline";
 import { MAX_PETS, addPet, homePets } from "../domain/household";
 import { choosePhoto } from "../platform/photo";
@@ -72,7 +73,10 @@ export default function Onboarding({ editing = false, adding = false }: { editin
     original?.route ?? "work",
   );
   const [avatar, setAvatar] = useState(original?.avatar);
-  const [ownerTitle, setOwnerTitle] = useState(original?.ownerTitle ?? "");
+  // A second pet calls the owner what the current one does, unless the owner changes it.
+  const [ownerTitle, setOwnerTitle] = useState(original?.ownerTitle ?? (adding && state.pet ? ownerName(state.pet) : ""));
+  const [nameMissing, setNameMissing] = useState(false);
+  const nameField = useRef<TextInput>(null);
   const [birthDate, setBirthDate] = useState(original?.birthDate ?? "");
   const [homeDate, setHomeDate] = useState(original?.homeDate ?? "");
   const [busy, setBusy] = useState(false);
@@ -111,7 +115,7 @@ export default function Onboarding({ editing = false, adding = false }: { editin
       : {}),
     route,
     routeSource: effectiveRouteSource,
-    role: roleFor(route),
+    role: original && original.route === route ? original.role : roleFor(route, species),
     ...(ownerTitle.trim() ? { ownerTitle: ownerTitle.trim() } : {}),
     ...(isHomeDate(birthDate.trim()) ? { birthDate: birthDate.trim() } : {}),
     ...(isHomeDate(homeDate.trim()) ? { homeDate: homeDate.trim() } : {}),
@@ -130,6 +134,8 @@ export default function Onboarding({ editing = false, adding = false }: { editin
   }
   function create() {
     if (!name.trim()) {
+      setNameMissing(true);
+      nameField.current?.focus();
       notify(t("给小动物起个名字吧。"));
       return;
     }
@@ -158,19 +164,22 @@ export default function Onboarding({ editing = false, adding = false }: { editin
         notify(t("最多养 {n} 只。", { n: MAX_PETS }));
         return;
       }
-      update((s) => addPet(s, pet));
-      notify(t("{name}搬进来了，现在是{name}的视角。", { name: pet.name }));
+      update((s) => withStarterRoutines(addPet(s, pet)));
+      notify(t("{name}搬进来了，点右上角头像随时切换。", { name: pet.name }));
       router.replace("/");
       return;
     }
-    update((s) => ({
-      ...s,
-      pet,
-      events: editing ? s.events : [],
-      sounds: editing ? s.sounds : [],
-      draft: null,
-      demo: editing ? s.demo : false,
-    }));
+    update((s) => {
+      const next = {
+        ...s,
+        pet,
+        events: editing ? s.events : [],
+        sounds: editing ? s.sounds : [],
+        draft: null,
+        demo: editing ? s.demo : false,
+      };
+      return editing ? next : withStarterRoutines({ ...next, routines: [] });
+    });
     notify(
       editing
         ? t("人设已更新，历史故事保留原来的身份。")
@@ -183,6 +192,18 @@ export default function Onboarding({ editing = false, adding = false }: { editin
       <Heading
         title={editing ? t("编辑居民档案") : adding && state.pet ? t("添加宠物") : t("欢迎搬进爪爪镇")}
       />
+      {!editing && !state.pet && (
+        <Button
+          label={t("先逛逛橘总的生活")}
+          icon="arrow-right"
+          tone="soft"
+          style={{ alignSelf: "flex-start", marginTop: -14 }}
+          onPress={() => {
+            update(demoState());
+            router.replace("/");
+          }}
+        />
+      )}
       <View
         style={{
           flexDirection: wide ? "row" : "column",
@@ -203,7 +224,7 @@ export default function Onboarding({ editing = false, adding = false }: { editin
             }}
           >
             <Text style={{ letterSpacing: 2, fontSize: 11, color: colors.ink }}>
-              {t("爪爪镇 · 居民证 / PREVIEW")}
+              {t("爪爪镇 · 居民证 · 预览")}
             </Text>
             <View
               style={{
@@ -243,12 +264,22 @@ export default function Onboarding({ editing = false, adding = false }: { editin
           <View>
             <Label>{t("01 / 名字")}</Label>
             <Field
+              ref={nameField}
               accessibilityLabel={t("宠物名字")}
               value={name}
-              onChangeText={setName}
+              onChangeText={(value) => {
+                setName(value);
+                if (value.trim()) setNameMissing(false);
+              }}
               maxLength={20}
               placeholder={t("例如：橘总、糯米、旺财")}
+              style={nameMissing ? { borderColor: "#AE4434", borderWidth: 3 } : undefined}
             />
+            {nameMissing && (
+              <Text accessibilityRole="alert" style={{ color: "#AE4434", marginTop: 6 }}>
+                {t("给小动物起个名字吧。")}
+              </Text>
+            )}
           </View>
           <View style={{ gap: 10 }}>
             <Label>{t("02 / 宠物类型")}</Label>

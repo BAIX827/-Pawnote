@@ -54,14 +54,48 @@ export default function PawMail() {
   if (!mail)
     return (
       <View style={styles.stack}>
-        <Heading title={t("爪信")} accent={colors.pink} action={back} />
+        <Heading title={t("爪信")}
+        hint={t("它写给你的信")} accent={colors.pink} action={back} />
         <Empty title={t("最新的记录写到它离开了。爪信先停下，这里不替它说话。")} />
       </View>
     );
+  const big = { fontFamily: display, fontSize: 30, lineHeight: 40, color: colors.ink };
+  const open = (e?: LifeEvent) => e && router.push({ pathname: "/event", params: { id: e.id } });
+  if (mail.inProgress) {
+    const newest = mail.highlight;
+    return (
+      <View style={[styles.stack, { maxWidth: 760, width: "100%", alignSelf: "center" }]}>
+        <Heading title={t("爪信")}
+          hint={t("它写给你的信")} accent={colors.pink} action={back} />
+        <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 8 }}>
+          {MAIL_KINDS.map((k) => (
+            <Chip key={k} label={t(KIND_LABELS[k])} active={k === kind} color={colors.orange} onPress={() => { setKind(k); setPage(0); }} />
+          ))}
+        </View>
+        <View style={[{ minHeight: 280, backgroundColor: colors.paper, borderWidth: 2.5, borderColor: colors.ink, borderRadius: 14, padding: 22, gap: 14, justifyContent: "center" }, shadow(5)]}>
+          <Avatar pet={pet} size={72} demo={state.demo} />
+          <Text style={big}>{kind === "week" ? t("这周的信还在写") : t("这个月的信还在写")}</Text>
+          <Text style={styles.body}>
+            {mail.entries
+              ? t(kind === "week" ? "这周已经记了 {n} 件事，下周一写完给你。" : "这个月已经记了 {n} 件事，下个月初写完给你。", { n: mail.entries })
+              : t(kind === "week" ? "这周还没有记录，记下一件，信里就有内容了。" : "这个月还没有记录，记下一件，信里就有内容了。")}
+          </Text>
+          {newest ? (
+            <Pressable accessibilityRole="button" onPress={() => open(newest)}>
+              <Text style={[styles.body, { fontWeight: "700", textDecorationLine: "underline" }]}>
+                {t("最新一件：{title}", { title: newest.stories[newest.selectedStyle].title })}
+              </Text>
+            </Pressable>
+          ) : (
+            <Button label={t("记录今天")} icon="plus" onPress={() => router.push("/record")} style={{ alignSelf: "flex-start" }} />
+          )}
+        </View>
+      </View>
+    );
+  }
   const pages = pagesOf(mail);
   const at = Math.min(page, pages.length - 1);
   const current = pages[at];
-  const open = (e?: LifeEvent) => e && router.push({ pathname: "/event", params: { id: e.id } });
   async function share() {
     try {
       await exportCard(mailSVG(pet, mail!), `paw-mail-${mail!.kind}`, card.current, mail!.title);
@@ -76,7 +110,6 @@ export default function PawMail() {
     else notify(t("没有通知权限。可以在系统设置里打开。"));
   }
 
-  const big = { fontFamily: display, fontSize: 30, lineHeight: 40, color: colors.ink };
   const body = (() => {
     switch (current) {
       case "cover":
@@ -197,7 +230,8 @@ export default function PawMail() {
 
   return (
     <View style={[styles.stack, { maxWidth: 760, width: "100%", alignSelf: "center" }]}>
-      <Heading title={t("爪信")} accent={colors.pink} action={back} />
+      <Heading title={t("爪信")}
+        hint={t("它写给你的信")} accent={colors.pink} action={back} />
       <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 8 }}>
         {MAIL_KINDS.map((k) => (
           <Chip key={k} label={t(KIND_LABELS[k])} active={k === kind} color={colors.orange} onPress={() => { setKind(k); setPage(0); }} />
