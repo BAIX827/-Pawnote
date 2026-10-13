@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { Pressable, Text, View } from "react-native";
 import { locale, t } from "../i18n";
 import { dayDate, isPastDay, localDay } from "../domain/dates";

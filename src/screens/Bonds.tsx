@@ -1,5 +1,5 @@
 import { t, useLang } from "../i18n";
-import React, { useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { Pressable, Text, View, useWindowDimensions } from "react-native";
 import { router } from "expo-router";
 import { useStore } from "../data/store";

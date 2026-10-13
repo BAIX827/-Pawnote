@@ -20,7 +20,7 @@ export const eventDate = (event: LifeEvent) => {
   return !event.occurredOn || localDay(date) === event.occurredOn ? date : dayDate(event.occurredOn);
 };
 export const newestEvents = (events: LifeEvent[]) => [...events].sort((a, b) =>
-  eventDay(b).localeCompare(eventDay(a)) || b.createdAt.localeCompare(a.createdAt));
+  eventDay(b).localeCompare(eventDay(a)) || Date.parse(b.createdAt) - Date.parse(a.createdAt));
 /** Calendar arithmetic uses UTC ordinals to avoid daylight-saving hour offsets. */
 export const dayDistance = (from: string, to: string) => {
   const ordinal = (day: string) => { const [y, m, d] = day.split("-").map(Number); return Date.UTC(y, m - 1, d); };
@@ -31,3 +31,20 @@ export function eventTimestamp(day: string, previous?: LifeEvent, now = new Date
   if (previous && eventDay(previous) === day) return previous.createdAt;
   return day === localDay(now) ? now.toISOString() : dayDate(day).toISOString();
 }
+const pad = (value: number) => String(value).padStart(2, "0");
+/** Calendar keys use the owner's local time, including timestamps with a UTC offset. */
+export const monthKey = (value: string | Date) => {
+  const date = new Date(value);
+  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}`;
+};
+export const dayKey = (value: string | Date) => {
+  const date = new Date(value);
+  return `${monthKey(date)}-${pad(date.getDate())}`;
+};
+export const startOfDay = (date: Date) =>
+  new Date(date.getFullYear(), date.getMonth(), date.getDate());
+export const addDays = (date: Date, days: number) =>
+  new Date(date.getFullYear(), date.getMonth(), date.getDate() + days);
+/** A local calendar day number; daylight saving changes do not change the day count. */
+export const dayNumber = (date: Date) =>
+  Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()) / 86_400_000;

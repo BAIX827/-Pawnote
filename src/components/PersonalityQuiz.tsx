@@ -1,5 +1,5 @@
 import { t } from "../i18n";
-import React, { useState } from "react";
+import { useState } from "react";
 import { Text, View } from "react-native";
 import { QUESTIONS, questionnaireTraits } from "../domain/pet-profile";
 import { Button, Chip, styles } from "./ui";

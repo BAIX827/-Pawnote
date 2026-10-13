@@ -1,5 +1,4 @@
 import { locale, t, tList } from "../i18n";
-import React from "react";
 import { Image, Pressable, Text, View, useWindowDimensions } from "react-native";
 import { router } from "expo-router";
 import { useStore } from "../data/store";
@@ -304,7 +303,7 @@ export default function Home() {
                     gap: 10,
                     transform: [{ rotate: "1deg" }],
                   },
-                  shadow(5, colors.lavender),
+                  shadow(5),
                 ]}
               >
                 <View style={styles.between}>

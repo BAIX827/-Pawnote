@@ -1,6 +1,6 @@
 import { eventDate } from "../domain/dates";
 import { t, useLang } from "../i18n";
-import React, { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Image, Platform, Text, View } from "react-native";
 import { router, useLocalSearchParams } from "expo-router";
 import { useStore } from "../data/store";
