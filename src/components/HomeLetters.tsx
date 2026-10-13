@@ -5,7 +5,7 @@ import { router } from "expo-router";
 import { useStore } from "../data/store";
 import { remindersPaused } from "../domain/paw-dates";
 import { hasNewMail } from "../domain/paw-mail";
-import { Icon, colors, display, shadow, styles } from "./ui";
+import { Icon, colors, display, shadow } from "./ui";
 
 /** 爪窝's corner for 爪信 (a new weekly letter) and 爪格 (until the test has been taken). */
 export default function HomeLetters() {
@@ -15,7 +15,7 @@ export default function HomeLetters() {
   const mail = hasNewMail(state);
   const quiz = !state.pawsona && !remindersPaused(state.events);
   if (!mail && !quiz) return null;
-  const tile = (label: string, sub: string, bg: string, icon: "mail" | "zap", to: "/mail" | "/pawsona") => (
+  const tile = (label: string, bg: string, icon: "mail" | "zap", to: "/mail" | "/pawsona") => (
     <Pressable
       accessibilityRole="button"
       accessibilityLabel={label}
@@ -28,14 +28,13 @@ export default function HomeLetters() {
       <Icon name={icon} size={26} color={colors.ink} />
       <View style={{ flex: 1 }}>
         <Text style={{ fontFamily: display, fontSize: 19, lineHeight: 26, color: colors.ink }}>{label}</Text>
-        <Text style={styles.small}>{sub}</Text>
       </View>
     </Pressable>
   );
   return (
     <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 12 }}>
-      {mail && tile(t("{name}给你写了一封信", { name: pet.name }), t("上周的周信，点开看看"), colors.pink, "mail", "/mail")}
-      {quiz && tile(t("测测{name}的爪格", { name: pet.name }), t("8 道题，看看它是哪种小动物"), colors.lavender, "zap", "/pawsona")}
+      {mail && tile(t("{name}给你写了一封信", { name: pet.name }), colors.pink, "mail", "/mail")}
+      {quiz && tile(t("测测{name}的爪格", { name: pet.name }), colors.lavender, "zap", "/pawsona")}
     </View>
   );
 }

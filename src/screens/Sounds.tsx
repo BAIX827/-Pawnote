@@ -9,7 +9,7 @@ import { ageLabel } from "../domain/pet-profile";
 import { soundCopy } from "../domain/sound-copy";
 import { canExtractVideo, chooseSoundVideo, extractSound, releaseVideo } from "../platform/sounds";
 import type { PickedVideo, SoundClip } from "../platform/sounds.types";
-import { Button, Card, Chip, Empty, Field, Heading, Icon, Label, Sticker, Tag, Tape, colors, styles } from "../components/ui";
+import { Button, Card, Chip, Empty, Field, Heading, Icon, Label, Tag, Tape, colors, styles } from "../components/ui";
 import SoundRecorder from "../components/SoundRecorder";
 import SoundPlayer from "../components/SoundPlayer";
 import Onboarding from "./Onboarding";
@@ -125,14 +125,9 @@ export default function Sounds() {
   };
   return (
     <View style={[styles.stack, { maxWidth: 760, width: "100%", alignSelf: "center" }]}>
-      <Heading title={t("声音相册")} eyebrow="VOICE MEMORIES" accent={colors.pink}
+      <Heading title={t("声音相册")} accent={colors.pink}
         action={<Button label={t("返回")} tone="plain" disabled={busy} onPress={() => router.canGoBack() ? router.back() : router.replace("/profile")} />} />
-      <Card style={{ backgroundColor: colors.green, gap: 12 }}>
-        <Sticker bg={colors.paper} rotate={-2}>{t("长大了，声音也值得被记住")}</Sticker>
-        <Text style={[styles.h2, { fontSize: 28, lineHeight: 36 }]}>{t("把 {name} 的这一声，留给以后的你。", { name: pet.name })}</Text>
-        <Text style={styles.body}>{copy.description}</Text>
-        <Text style={styles.small}>{t("{n} 段声音 · 私密保存在本机 · 随备份一起带走", { n: sounds.length })}</Text>
-      </Card>
+      <Text style={styles.caps}>{t("全部声音")} · {sounds.length}</Text>
       {!mode && (
         <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 12 }}>
           <Button label={t("直接录音")} icon="mic" onPress={() => open("recording")} style={{ flex: 1, minWidth: 140 }} />
@@ -150,7 +145,7 @@ export default function Sounds() {
             <View style={{ gap: 14 }}>
               {canExtractVideo() ? (
                 <>
-                  <Text style={styles.muted}>{t("选择 5 分钟 / 100 MB 以内的视频，提取其中 0.5–60 秒。整个过程在本机完成。")}</Text>
+                  <Text style={styles.muted}>{t("视频 ≤5 分钟 / 100 MB · 片段 0.5–60 秒")}</Text>
                   <Button label={video ? t("换一个视频") : t("选择视频")} icon="film" disabled={busy} tone="soft" onPress={() => void pick()} />
                   {video && (
                     <>
@@ -176,13 +171,12 @@ export default function Sounds() {
               <SoundPlayer audio={clip.audio} duration={clip.duration} />
               <View><Label>{t("给这一声起个名字")}</Label><Field accessibilityLabel={t("给这一声起个名字")} value={title} onChangeText={setTitle} maxLength={40} placeholder={copy.example} /></View>
               <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 12 }}>
-                <View style={{ flex: 2, minWidth: 160 }}><Label>{t("声音日期")}</Label><Field accessibilityLabel={t("声音日期")} value={day} onChangeText={setDate} maxLength={10} placeholder="YYYY-MM-DD" /><Text style={styles.small}>{t("旧视频可以填拍摄当天的日期。")}</Text></View>
+                <View style={{ flex: 2, minWidth: 160 }}><Label>{t("声音日期")}</Label><Field accessibilityLabel={t("声音日期")} value={day} onChangeText={setDate} maxLength={10} placeholder="YYYY-MM-DD" /></View>
                 <View style={{ flex: 1, minWidth: 100 }}><Label>{t("当时月龄")}</Label><Field accessibilityLabel={t("当时月龄")} value={months} onChangeText={setAge} keyboardType="number-pad" maxLength={4} placeholder={t("可留空")} /></View>
               </View>
               <View style={{ gap: 10 }}>
                 <Label>{t("成长阶段")}</Label>
                 <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 8 }}>{SOUND_STAGES.map((s) => <Chip key={s} label={t(SOUND_STAGE_LABELS[s])} active={stage === s} color={colors.green} onPress={() => setStage(s)} />)}</View>
-                <Text style={styles.small}>{t("阶段按月龄预填，你可以按它的成长情况调整。")}</Text>
               </View>
               <View><Label>{t("这一声发生了什么？")}</Label><Field accessibilityLabel={t("这一声发生了什么？")} value={note} onChangeText={setNote} maxLength={300} multiline placeholder={t("当时在做什么，声音听起来怎样…")} /></View>
               <Button label={t("保存这一声")} icon="check" disabled={!title.trim() || busy} onPress={save} />
@@ -200,7 +194,7 @@ export default function Sounds() {
         </View>
       </View>
       {filtered.length ? filtered.map((sound) => <Memory key={sound.id} sound={sound} selected={selected === sound.id && !mode} onSelect={() => setSelected(selected === sound.id ? null : sound.id)} onDelete={() => { update((s) => ({ ...s, sounds: (s.sounds ?? []).filter((item) => item.id !== sound.id) })); if (selected === sound.id) setSelected(null); notify(t("声音片段已删除。")); }} />) :
-        <Empty title={t("第一声，等你来收藏")} subtitle={copy.empty} />}
+        <Empty title={t("第一声，等你来收藏")} />}
     </View>
   );
 }

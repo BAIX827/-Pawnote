@@ -36,7 +36,6 @@ export default function Profile() {
     <View style={styles.stack}>
       <Heading
         title={t("爪册")}
-        eyebrow={t("居民档案 · JOURNAL")}
         accent={colors.lilac}
         action={
           <Button
@@ -282,7 +281,6 @@ export default function Profile() {
       ) : (
         <Empty
           title={state.events.length ? t("没有符合筛选的日记") : t("日记本还是空的")}
-
           action={
             <Button label={filter.day ? t("补记这一天") : t("记录今天")} onPress={() => router.push({ pathname: "/record", params: { date: filter.day } })} />
           }

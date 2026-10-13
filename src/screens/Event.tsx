@@ -39,7 +39,6 @@ export default function Event() {
     return (
       <Empty
         title={t("这条记录已移除")}
-        subtitle={t("在爪册中查看其他记录。")}
         action={
           <Button label={t("返回档案")} onPress={() => router.replace("/profile")} />
         }
@@ -139,10 +138,6 @@ export default function Event() {
             />
           ))}
         </View>
-        <Text style={styles.small}>
-          {event.stories[style].generator === "ai" ? t("AI 生成") : t("本机生成")}{event.stories[style].edited ? t(" · 主人润色过") : ""} ·
-          {t("采用保存当天的人设")}{style === "news" ? t(" · 虚构娱乐报道") : ""}
-        </Text>
         <View style={[styles.row, { flexWrap: "wrap" }]}>
           <Button label={t("编辑日记")} icon="edit-2" tone="soft"
             onPress={() => router.push({ pathname: "/record", params: { id: event.id } })} />

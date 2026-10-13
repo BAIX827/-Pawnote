@@ -13,7 +13,6 @@ import {
 } from "../domain/story-engine";
 import { dayDate, eventDay, eventTimestamp, isPastDay, localDay } from "../domain/dates";
 import { saveEvent } from "../domain/life";
-import { isLoss } from "../domain/temper";
 import { postBlock } from "../domain/paw-circle";
 import {
   CATEGORIES,
@@ -227,7 +226,6 @@ function Recorder({ original, initialDate }: { original?: LifeEvent; initialDate
     <View style={{ gap: 22, maxWidth: 760, width: "100%", alignSelf: "center" }}>
       <Heading
         title={original ? t("编辑日记") : t("爪语")}
-        eyebrow={t("你说人话 → {name}说{kind}话", { name: pet.name, kind: self.length > 1 ? self.slice(1) : t("自己的") })}
         accent={colors.pink}
         action={
           <Button label={t("返回")} icon="x" tone="plain" onPress={() => router.canGoBack() ? router.back() : router.replace("/")} />
@@ -309,7 +307,6 @@ function Recorder({ original, initialDate }: { original?: LifeEvent; initialDate
               onPress={() => patch({ photo: undefined })}
             />
           )}
-          <Text style={styles.small}>{t("1 张 · ≤25 MB · 压缩后保存")}</Text>
         </View>
       </View>
 
@@ -351,8 +348,7 @@ function Recorder({ original, initialDate }: { original?: LifeEvent; initialDate
             style={[bare, { height: heights.owner, fontSize: 17, lineHeight: 28 }]}
             placeholder={t("照你看到的写就行。例如：今天{name}把我的水杯推下去了，还一脸无辜。", { name: pet.name })}
           />
-          <View style={[styles.between, { marginTop: 8 }]}>
-            <Text style={styles.small}>{original ? t("修改在保存后生效。") : t("草稿自动保存在本机")}</Text>
+          <View style={[styles.row, { marginTop: 8, justifyContent: "flex-end" }]}>
             <Text style={styles.small}>{draft.description.length} / 500</Text>
           </View>
         </Bubble>
@@ -410,11 +406,6 @@ function Recorder({ original, initialDate }: { original?: LifeEvent; initialDate
                 }}
                 style={[bare, { height: heights.pet, fontSize: 16, lineHeight: 28 }]}
               />
-              <Text style={[styles.small, { color: colors.ink, opacity: 0.7 }]}>
-                {isLoss(draft.description)
-                  ? t("写到离别的这一条，按你的原话保存，不让它开口。")
-                  : t("点文字可以直接改 · 润色后的表达会保留供你确认")}
-              </Text>
             </View>
           ) : (
             <Text style={[styles.body, { color: colors.muted, minHeight: 60 }]}>
@@ -426,9 +417,7 @@ function Recorder({ original, initialDate }: { original?: LifeEvent; initialDate
 
       {generated && <View style={{ gap: 8 }}>
         <Sticker bg={tones[draft.selectedStyle]} rotate={0}>{labels[draft.selectedStyle]}</Sticker>
-        {state.preferences?.randomStyle !== false && !original
-          ? <Text style={styles.small}>{t("本篇口吻已随机选好，写字时保持不变；可在设置关闭随机。")}</Text>
-          : <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 8 }}>
+        {(state.preferences?.randomStyle === false || !!original) && <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 8 }}>
               {STYLES.map((s) => <Chip key={s} label={labels[s]} color={tones[s]}
                 active={draft.selectedStyle === s} onPress={() => patch({ selectedStyle: s })} />)}
             </View>}
@@ -474,12 +463,8 @@ function Recorder({ original, initialDate }: { original?: LifeEvent; initialDate
               void askAI();
             }}
           />
-          <Text style={styles.small}>
-            {t("一次生成四种口吻。本机版本不限次数；改上面的原话会回到本机版本。")}
-          </Text>
         </View>
       )}
-
       <Button label={more ? t("收起更多选项") : t("更多选项 · 日期、分类与动态")}
         icon="sliders" tone="plain" onPress={() => setMore(!more)} />
       {more && <View style={{ gap: 22 }}>
@@ -488,9 +473,7 @@ function Recorder({ original, initialDate }: { original?: LifeEvent; initialDate
           <DateField label={t("实际发生日期")} value={draft.occurredOn ?? localDay()} onChange={(occurredOn) => patch({ occurredOn })} />
           <View style={[styles.row, { flexWrap: "wrap" }]}>
             <Button label={t("今天")} tone="plain" onPress={() => patch({ occurredOn: localDay() })} />
-            <Text style={[styles.small, { flex: 1 }]}>{t("旧照片也可以补上，日记会按这一天排列。")}</Text>
           </View>
-          {original && <Text style={styles.small}>{t("沿用这条日记当时的人设，保留已润色的表达供你确认。")}</Text>}
         </View>
         <View style={{ gap: 10 }}>
           <Text style={styles.caps}>
@@ -538,13 +521,11 @@ function Recorder({ original, initialDate }: { original?: LifeEvent; initialDate
             <Text style={[styles.body, { fontWeight: "700" }]}>
               {t("让{name}发到爪友圈", { name: pet.name })}
             </Text>
-            <Text style={styles.small}>
+            {block && <Text style={styles.small}>
               {block === "sensitive"
                 ? t("写到不舒服、走失或离开的事，这次不发动态。")
-                : block === "limit"
-                  ? t("今天已经发了 2 条，{name}说明天再发。", { name: pet.name })
-                  : t("它用爪友圈口吻自己写 · 留在窝里，只在这台设备上")}
-            </Text>
+                : t("今天已经发了 2 条，{name}说明天再发。", { name: pet.name })}
+            </Text>}
           </View>
         </Pressable>
       </View>}

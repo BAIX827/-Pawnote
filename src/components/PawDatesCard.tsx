@@ -54,7 +54,7 @@ export default function PawDatesCard() {
       })
     : routines.length
       ? t("约定都关着")
-      : t("{name}有些想和你一起做的事", { name: pet.name });
+      : null;
 
   return (
     <View style={{ gap: 14 }}>
@@ -105,7 +105,7 @@ export default function PawDatesCard() {
           <Text style={[styles.h2, { fontSize: 19, lineHeight: 26 }]}>
             {t("{label}，陪过了。", { label: activityLabel(done) })}
           </Text>
-          <Text style={styles.small}>{t("想留下来的话，记进爪语，它会用自己的话再说一遍。")}</Text>
+
           <View style={[styles.row, { gap: 10, flexWrap: "wrap" }]}>
             <Button label={t("记进爪语")} icon="edit-3" tone="soft" onPress={() => log(done)} />
             <Button label={t("不用了")} tone="plain" onPress={() => setDone(undefined)} />
@@ -126,7 +126,7 @@ export default function PawDatesCard() {
         </View>
         <View style={{ flex: 1 }}>
           <Text style={{ fontFamily: display, fontSize: 22, lineHeight: 28, color: colors.ink }}>{t("爪约")}</Text>
-          <Text numberOfLines={1} style={[styles.small, { color: colors.ink }]}>{nextLine}</Text>
+          {nextLine && <Text numberOfLines={1} style={[styles.small, { color: colors.ink }]}>{nextLine}</Text>}
         </View>
         {routines.length > 0 && (
           <Text style={{ fontFamily: numeric, fontSize: 22, color: colors.ink }}>{routines.filter((r) => r.enabled).length}</Text>

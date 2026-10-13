@@ -27,13 +27,10 @@ const big = (size: number, lineHeight = Math.round(size * 1.25)) =>
   ({ fontSize: size, lineHeight, fontWeight: "400", fontFamily: display, color: colors.ink }) as const;
 
 function Credit({ event, plain }: { event: LifeEvent; plain?: boolean }) {
-  const story = event.stories.news;
   return (
     <Text style={styles.small}>
       {t("来源：{name}的本人日常记录", { name: event.petSnapshot.name })}
       {"\n"}
-      {story.generator === "ai" ? t("AI 生成") : t("本机生成")}
-      {story.edited ? t(" · 主人润色") : ""}
       {plain ? " · " : t(" · 虚构娱乐报道 · ")}
       {t("爪记 Pawnote")}
     </Text>
@@ -95,7 +92,6 @@ export default function News() {
     return (
       <Empty
         title={t("先记录一件小事")}
-        subtitle={t("保存日常后，再来制作爪报。")}
         action={<Button label={t("记录今天")} onPress={() => router.replace("/record")} />}
       />
     );
@@ -113,7 +109,6 @@ export default function News() {
     <View style={{ gap: 22, maxWidth: 740, width: "100%", alignSelf: "center" }}>
       <Heading
         title={t("爪报编辑部")}
-        eyebrow={t("PAW POST · 号外")}
         accent={colors.sky}
         action={<Button label={t("返回")} tone="plain" onPress={() => router.canGoBack() ? router.back() : router.replace("/")} />}
       />
@@ -242,9 +237,6 @@ export default function News() {
           void share();
         }}
       />}
-      <Text style={[styles.small, { textAlign: "center" }]}>
-        {canShareNews() ? t("PNG · 系统分享") : t("保存图片后，可直接发给朋友。")}
-      </Text>
     </View>
   );
 }

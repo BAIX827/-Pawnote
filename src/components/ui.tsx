@@ -704,7 +704,7 @@ export function Heading({
   accent = colors.yellow,
 }: {
   title: string;
-  eyebrow: string;
+  eyebrow?: string;
   action?: React.ReactNode;
   accent?: string;
 }) {
@@ -713,9 +713,9 @@ export function Heading({
       style={[styles.between, { flexWrap: "wrap", alignItems: "flex-end" }]}
     >
       <View style={{ gap: 10 }}>
-        <Sticker bg={accent} rotate={-2}>
+        {eyebrow && <Sticker bg={accent} rotate={-2}>
           {eyebrow}
-        </Sticker>
+        </Sticker>}
         <View>
           <View
             pointerEvents="none"

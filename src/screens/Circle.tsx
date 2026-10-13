@@ -121,7 +121,6 @@ export default function Circle() {
     <View style={[styles.stack, { maxWidth: 760, width: "100%", alignSelf: "center" }]}>
       <Heading
         title={t("爪友圈")}
-        eyebrow={t("本机小镇 · 虚构居民和你的小动物")}
         accent={colors.sky}
         action={<Button label={t("写今天的事")} icon="edit-3" onPress={() => router.push("/record")} />}
       />
@@ -187,7 +186,7 @@ export default function Circle() {
                 </View>
               </View>
               <Text style={styles.body}>{resident.bio[lang]}</Text>
-              <Text style={[styles.small, { color: colors.ink }]}>{t("爪爪镇居民是爪记里的虚拟角色，不是真实用户。")}</Text>
+
               <Button
                 label={hidden.includes(resident.id) ? t("请它回来") : t("送回小镇")}
                 tone="soft"
@@ -250,7 +249,6 @@ export default function Circle() {
           ) : (
             <Empty
               title={who === "mine" ? t("{name}还没发动态", { name: pet.name }) : t("这里还很安静")}
-              subtitle={who === "mine" ? t("写下今天的事，{name}会自己发一条。", { name: pet.name }) : undefined}
               action={<Button label={t("写今天的事")} onPress={() => router.push("/record")} />}
             />
           )}

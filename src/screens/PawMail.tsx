@@ -54,7 +54,7 @@ export default function PawMail() {
   if (!mail)
     return (
       <View style={styles.stack}>
-        <Heading title={t("爪信")} eyebrow="PAW MAIL" accent={colors.pink} action={back} />
+        <Heading title={t("爪信")} accent={colors.pink} action={back} />
         <Empty title={t("最新的记录写到它离开了。爪信先停下，这里不替它说话。")} />
       </View>
     );
@@ -197,7 +197,7 @@ export default function PawMail() {
 
   return (
     <View style={[styles.stack, { maxWidth: 760, width: "100%", alignSelf: "center" }]}>
-      <Heading title={t("爪信")} eyebrow={t("{name}写给你的信", { name: pet.name })} accent={colors.pink} action={back} />
+      <Heading title={t("爪信")} accent={colors.pink} action={back} />
       <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 8 }}>
         {MAIL_KINDS.map((k) => (
           <Chip key={k} label={t(KIND_LABELS[k])} active={k === kind} color={colors.orange} onPress={() => { setKind(k); setPage(0); }} />
@@ -242,7 +242,6 @@ export default function PawMail() {
           )}
         </View>
       )}
-      <Text style={styles.small}>{t("按已保存的记录写成，纯属娱乐，不影响经验。")}</Text>
     </View>
   );
 }

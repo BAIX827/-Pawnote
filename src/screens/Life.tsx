@@ -54,7 +54,6 @@ export default function Life() {
     <View style={styles.stack}>
       <Heading
         title={t("爪迹")}
-        eyebrow={work ? t("职场路线 · CAREER") : t("校园路线 · CAMPUS")}
         accent={soft}
       />
       <View style={{ flexDirection: wide ? "row" : "column", gap: 26 }}>

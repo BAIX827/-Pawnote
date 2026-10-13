@@ -37,9 +37,6 @@ export default function PersonalityQuiz({
       }}
     >
       <Text style={styles.h2}>{t("它的日常性格观察")}</Text>
-      <Text style={styles.small}>
-        {t("日常观察 · 人设参考。无法判断可选“暂不确定”。")}
-      </Text>
       {QUESTIONS.map((q, i) => (
         <View key={q.title} style={{ gap: 9 }}>
           <Text style={styles.body}>

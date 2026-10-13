@@ -25,7 +25,7 @@ export default function Pawsona() {
   if (remindersPaused(state.events))
     return (
       <View style={styles.stack}>
-        <Heading title={t("爪格测试")} eyebrow="PAWSONA" accent={colors.pink} action={back} />
+        <Heading title={t("爪格测试")} accent={colors.pink} action={back} />
         <Empty title={t("最新的记录写到它离开了。爪格测试先不打扰，这里不替它说话。")} />
       </View>
     );
@@ -42,7 +42,7 @@ export default function Pawsona() {
     }
     return (
       <View style={[styles.stack, { maxWidth: 760, width: "100%", alignSelf: "center" }]}>
-        <Heading title={t("爪格测试")} eyebrow={t("{name}是哪种小动物？", { name: pet.name })} accent={colors.pink} action={back} />
+        <Heading title={t("爪格测试")} accent={colors.pink} action={back} />
         <Meter value={Math.round((i / PAWSONA_QUESTIONS.length) * 100)} color={colors.orange} />
         <Card style={{ gap: 16 }}>
           <Text style={[styles.caps, { color: colors.muted }]}>
@@ -59,7 +59,6 @@ export default function Pawsona() {
           {i > 0 && <Button label={t("上一题")} tone="soft" icon="arrow-left" onPress={() => setAnswers(answers.slice(0, -1))} />}
           {saved && <Button label={t("取消重测")} tone="plain" onPress={() => { setAnswers([]); setTaking(false); }} />}
         </View>
-        <Text style={styles.small}>{t("按你平时看到的选。娱乐测试，不是行为评估。")}</Text>
       </View>
     );
   }
@@ -75,7 +74,7 @@ export default function Pawsona() {
   }
   return (
     <View style={[styles.stack, { maxWidth: 760, width: "100%", alignSelf: "center" }]}>
-      <Heading title={t("爪格测试")} eyebrow="PAWSONA" accent={colors.pink} action={back} />
+      <Heading title={t("爪格测试")} accent={colors.pink} action={back} />
       <View ref={card} collapsable={false} style={{ backgroundColor: colors.bg, gap: 18, padding: 4 }}>
         <View style={[{ backgroundColor: result.color, borderWidth: 2.5, borderColor: colors.ink, borderRadius: 14, padding: 20, gap: 6 }, shadow(5)]}>
           <View style={styles.between}>
@@ -114,7 +113,6 @@ export default function Pawsona() {
             </View>
           ))}
         </View>
-        <Text style={styles.small}>{t("爪记 Pawnote · 娱乐测试，不是行为评估")}</Text>
       </View>
       <View style={{ gap: 10 }}>
         <Button

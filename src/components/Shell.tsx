@@ -144,9 +144,6 @@ export default function Shell({ children }: { children: React.ReactNode }) {
               >
                 {t("爪爪镇")}
               </Text>
-              <Text style={{ color: "#A2B09D", fontSize: 12 }}>
-                {t("本机体验版 · v0.1")}
-              </Text>
             </View>
           </View>
         )}

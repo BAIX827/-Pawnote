@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { AppState, Platform, Text, View } from "react-native";
 import { AudioModule, RecordingPresets, setAudioModeAsync, useAudioRecorder, useAudioRecorderState } from "expo-audio";
-import { Button, Icon, colors, numeric, styles } from "./ui";
+import { Button, Icon, colors, numeric } from "./ui";
 import { MAX_SOUND_SECONDS, soundTime } from "../domain/sounds";
 import { discardRecording, readRecording } from "../platform/sounds";
 import type { SoundClip } from "../platform/sounds.types";
@@ -73,10 +73,8 @@ export default function SoundRecorder({ onClip, onError, onBusy }: {
       <View style={{ width: 90, height: 90, borderRadius: 45, borderWidth: 3, borderColor: colors.ink, backgroundColor: status.isRecording ? colors.orange : colors.pink, alignItems: "center", justifyContent: "center" }}>
         <Icon name="mic" size={36} />
       </View>
-      <Text style={{ fontFamily: numeric, fontSize: 34, color: colors.ink }}>{soundTime(status.durationMillis / 1000)}</Text>
-      <Text style={styles.muted}>{status.isRecording ? t("正在听它说话…") : t("靠近一点，把这一声留下来。")}</Text>
+      <Text style={{ fontFamily: numeric, fontSize: 34, color: colors.ink }}>{soundTime(status.durationMillis / 1000)} / {soundTime(MAX_SOUND_SECONDS)}</Text>
       <Button icon={status.isRecording ? "square" : "mic"} label={status.isRecording ? t("停止录音") : busy ? t("正在准备…") : t("开始录音")} disabled={busy && !status.isRecording} onPress={() => { if (status.isRecording) void stopRef.current(); else void start(); }} />
-      <Text style={styles.small}>{t("最长 60 秒；离开页面前请先保存。")}</Text>
     </View>
   );
 }

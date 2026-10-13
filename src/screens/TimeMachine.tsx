@@ -76,7 +76,6 @@ export default function TimeMachine() {
     <View style={[styles.stack, { maxWidth: 760, width: "100%", alignSelf: "center" }]}>
       <Heading
         title={t("时光机")}
-        eyebrow={t("成长 · 第一次 · 纪念日")}
         accent={colors.sky}
         action={<Button label={t("返回")} tone="plain" onPress={() => router.canGoBack() ? router.back() : router.replace("/profile")} />}
       />
@@ -107,14 +106,14 @@ export default function TimeMachine() {
         >
           <Icon name="edit-2" color={colors.muted} />
           <Text style={[styles.muted, { flex: 1 }]}>
-            {t("在档案里填上到家日期，就能看到它来到你身边的第几天和周年倒数。")}
+            {t("填写到家日期")}
           </Text>
         </Pressable>
       )}
 
       <Card style={{ backgroundColor: colors.green, gap: 10 }}>
         <View style={styles.row}><Icon name="mic" /><Text style={styles.h2}>{t("听它慢慢长大")}</Text></View>
-        <Text style={styles.body}>{t("{n} 段叫声，留住每个成长阶段的声音。", { n: state.sounds?.length ?? 0 })}</Text>
+        <Text style={styles.body}>{t("全部声音")} · {state.sounds?.length ?? 0}</Text>
         <Button label={t("打开声音相册")} tone="soft" onPress={() => router.push("/sounds")} />
       </Card>
       <View style={[styles.row, { flexWrap: "wrap" }]}>
@@ -136,12 +135,10 @@ export default function TimeMachine() {
               <Polaroid key={p.month} event={p.event} caption={monthShort(p.month)} size={96} tilt={i % 2 ? 2 : -2} />
             ))}
           </ScrollView>
-          <Text style={styles.small}>{t("每个月取第一张带照片的记录。每月拍一张，这里就会越排越长。")}</Text>
         </>
       ) : (
         <Empty
           title={t("还没有带照片的记录")}
-          subtitle={t("每个月给它拍一张，这里会排出一条成长线。")}
           action={<Button label={t("记录今天")} onPress={() => router.push("/record")} />}
         />
       )}

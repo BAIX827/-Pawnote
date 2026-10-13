@@ -144,7 +144,6 @@ export default function PawDates() {
     <View style={[styles.stack, { maxWidth: 760, width: "100%", alignSelf: "center" }]}>
       <Heading
         title={t("爪约")}
-        eyebrow={t("{name}想和你一起做的事", { name: pet.name })}
         accent={colors.orange}
         action={<Button label={t("返回")} tone="plain" onPress={() => (router.canGoBack() ? router.back() : router.replace("/"))} />}
       />
@@ -179,7 +178,6 @@ export default function PawDates() {
 
       <View style={{ gap: 12 }}>
         <Text style={[styles.h2, { fontSize: 24 }]}>{t("{name}常想做的", { name: pet.name })}</Text>
-        <Text style={styles.small}>{t("点一下就加进爪约，每天这个时间提醒。时间和日子加好后还能改。")}</Text>
         <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 12 }}>
           {PRESETS[pet.species].map((key, i) => {
             const a = ACTIVITIES[key];
@@ -242,7 +240,6 @@ export default function PawDates() {
           }}
           style={{ alignSelf: "flex-start" }}
         />
-        <Text style={styles.small}>{t("最多 {n} 条约定。漏了也没关系，它不会记仇。", { n: MAX_ROUTINES })}</Text>
       </Card>
     </View>
   );

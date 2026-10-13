@@ -60,7 +60,7 @@ export default function JournalFilters({ events, filter, onChange }: {
           </Pressable>}
         </View>)}
       </View>)}
-      <Text style={styles.small}>{t("数字下方显示当前筛选下的日记数量。再点同一天可取消选择。")}</Text>
+
       {filter.day && <View style={[styles.row, { flexWrap: "wrap" }]}>
         <Text style={styles.body}>{filter.day}</Text>
         <Button label={t("补记这一天")} icon="plus" tone="soft" onPress={() => router.push({ pathname: "/record", params: { date: filter.day } })} />

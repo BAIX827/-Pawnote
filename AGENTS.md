@@ -1,5 +1,9 @@
 This is an Expo/React Native mobile application. Prioritize mobile-first patterns, performance, and cross-platform compatibility.
 
+## Interface copy
+
+Use clear titles, buttons, labels, user content, data and status. Remove redundant small-print descriptions below buttons and cards, generic subtitles, and explanations of implementation or obvious interactions. Keep concise prompts only when an input constraint, permission, error or irreversible action affects the user's decision.
+
 ## Expo has changed — do not trust your training data
 
 Expo ships breaking changes every SDK release. APIs you remember are likely renamed, moved, or removed. Before writing any code that touches an Expo, EAS, or React Native API:

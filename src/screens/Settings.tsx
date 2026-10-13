@@ -25,7 +25,6 @@ export default function Settings() {
     <View style={[styles.stack, { maxWidth: 760, width: "100%", alignSelf: "center" }]}>
       <Heading
         title={t("设置")}
-        eyebrow="SETTINGS"
         accent={colors.green}
         action={<Button label={t("返回")} tone="plain" onPress={() => router.canGoBack() ? router.back() : router.replace("/")} />}
       />
@@ -40,18 +39,16 @@ export default function Settings() {
           <Chip label="English" active={lang === "en"} onPress={() => setLang("en")} />
         </View>
         </View>
-        <Text style={styles.small}>{t("默认跟随设备语言。已保存的故事不会随语言改变。")}</Text>
       </Card>
       <Card style={{ gap: 18 }}>
         <Text style={styles.h2}>{t("按你的习惯")}</Text>
         {([
-          { key: "homeAsBirthday", title: "生日未知时，用到家日庆生", description: "已填生日时优先用生日；只填到家日期时生成生日祝福。年龄仍按手填值或真实生日计算。", enabled: state.preferences?.homeAsBirthday !== false },
-          { key: "randomStyle", title: "新日记随机选择口吻", description: "每篇从内心独白、校园或打工日记、爪友圈动态、爪报中随机选一种。关闭后默认内心独白，可手动选。已保存日记与草稿保持原口吻。", enabled: state.preferences?.randomStyle !== false },
-          { key: "homeExtras", title: "首页展示小镇与成长", description: "开启后，在最近日记下方展示小镇、经验与爪报。爪迹和爪友圈仍可从底部进入。", enabled: state.preferences?.homeExtras === true },
+          { key: "homeAsBirthday", title: "生日未知时，用到家日庆生", enabled: state.preferences?.homeAsBirthday !== false },
+          { key: "randomStyle", title: "新日记随机选择口吻", enabled: state.preferences?.randomStyle !== false },
+          { key: "homeExtras", title: "首页展示小镇与成长", enabled: state.preferences?.homeExtras === true },
         ] as const).map((item) => (
           <View key={item.key} style={{ gap: 8 }}>
             <Text style={[styles.body, { fontWeight: "700" }]}>{t(item.title)}</Text>
-            <Text style={styles.small}>{t(item.description)}</Text>
             <View style={styles.row}>
               <Chip label={t("开启")} active={item.enabled} onPress={() => preference(item.key, true)} />
               <Chip label={t("关闭")} active={!item.enabled} onPress={() => preference(item.key, false)} />

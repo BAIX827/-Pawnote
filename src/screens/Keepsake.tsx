@@ -41,7 +41,7 @@ export default function Keepsake() {
       {photo && <Image source={{ uri: photo }} style={{ width: 44, height: 44, borderRadius: 6 }} />}
     </Pressable>;
   return <View style={[styles.stack, { maxWidth: 760, width: "100%", alignSelf: "center" }]}>
-    <Heading title={t("成长纪念册")} eyebrow={t("照片 · 日记 · 声音，装进一本册子")} accent={colors.lavender}
+    <Heading title={t("成长纪念册")} accent={colors.lavender}
       action={<Button label={t("返回")} tone="plain" onPress={() => router.canGoBack() ? router.back() : router.replace("/profile")} />} />
     <Card style={{ gap: 14 }}>
       <Field accessibilityLabel={t("纪念册标题")} value={title} onChangeText={setTitle} maxLength={60} />
@@ -55,8 +55,6 @@ export default function Keepsake() {
         <Button label={t("清除本期选择")} tone="plain" onPress={() => { setEventIds(new Set([...eventIds].filter((id) => !events.some((e) => e.id === id)))); setSoundIds(new Set([...soundIds].filter((id) => !sounds.some((s) => s.id === id)))); }} />
       </View>
       <Button label={busy ? t("正在导出…") : t("导出完整纪念册")} icon="download" disabled={busy || !selectedCount || !title.trim()} onPress={() => void share()} />
-      <Text style={styles.small}>{t("导出为可离线打开的 HTML 纪念册，用浏览器打开即可回听声音；打印菜单可保存为 PDF。")}</Text>
-      <Text style={styles.small}>{t("电子版保留完整声音；打印版保留声音的日期、标题和备注。")}</Text>
       <Button label={preview ? t("返回挑选内容") : t("预览选中的内容")} tone="soft" disabled={!selectedCount} onPress={() => { setPlaying(undefined); setPreview(!preview); }} />
     </Card>
     {preview ? <>

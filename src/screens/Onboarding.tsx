@@ -171,7 +171,6 @@ export default function Onboarding({ editing = false }: { editing?: boolean }) {
     <View style={{ gap: 30 }}>
       <Heading
         title={editing ? t("编辑居民档案") : t("欢迎搬进爪爪镇")}
-        eyebrow={t("居民登记处")}
       />
       <View
         style={{
@@ -288,7 +287,6 @@ export default function Onboarding({ editing = false }: { editing?: boolean }) {
                 <Text style={styles.small}>{t("个月（0–11）")}</Text>
               </View>
             </View>
-            <Text style={styles.small}>{t("知道大概年龄就手动填；也可以留空。已填真实生日时，留空会按生日计算年龄。")}</Text>
             {!!ageError && (
               <Text accessibilityRole="alert" style={{ color: "#AE4434" }}>
                 {ageError}
@@ -321,7 +319,6 @@ export default function Onboarding({ editing = false }: { editing?: boolean }) {
               placeholder={t("例如：慢热但很亲人，喜欢安静地观察")}
               multiline
             />
-            <Text style={styles.small}>{t("自定义最多 60 字 · 问卷 5 题")}</Text>
             <Button
               label={quizOpen ? t("收起性格问卷") : t("做一次性格问卷")}
               tone="soft"
@@ -339,9 +336,6 @@ export default function Onboarding({ editing = false }: { editing?: boolean }) {
                   notify(t("观察结果已填入性格，可以继续修改。"));
                 }}
               />
-            )}
-            {personalitySource === "questionnaire" && (
-              <Text style={styles.small}>{t("来自观察问卷 · 可修改")}</Text>
             )}
           </View>
           <View style={{ gap: 10 }}>
@@ -363,15 +357,9 @@ export default function Onboarding({ editing = false }: { editing?: boolean }) {
                     }}
                   />
                 </View>
-                <Text style={styles.small}>
-                  {effectiveRouteSource === "manual" ? t("已手动选择，修改年龄后保留你的选择") : recommended
-                    ? recommended === "campus" ? t("推荐校园") : t("推荐职场")
-                    : t("年龄未知，暂用职场身份，可随时修改")}
-                  {t(" · 游戏规则：满 12 个月推荐职场")}
-                </Text>
               </>
             ) : (
-              <Text style={styles.small}>{t("主人选择路线")}</Text>
+              null
             )}
             <View style={[styles.row, { flexWrap: "wrap" }]}>
               <Chip
@@ -419,15 +407,10 @@ export default function Onboarding({ editing = false }: { editing?: boolean }) {
           <View style={{ gap: 10 }}>
             <Label>{t("07 / 到家日期（可选）")}</Label>
             <DateField label={t("到家日期")} value={homeDate} onChange={setHomeDate} />
-            <Text style={styles.small}>{t("填了以后，时光机会算它来到你身边的第几天和周年。")}</Text>
           </View>
           <View style={{ gap: 10 }}>
             <Label>{t("08 / 生日（可选）")}</Label>
             <DateField label={t("宠物生日")} value={birthDate} onChange={setBirthDate} />
-            <Text style={styles.small}>{t("收养时生日未知，可以留空；到家日期也可留空。")}</Text>
-            <Text style={styles.small}>{state.preferences?.homeAsBirthday === false
-              ? t("已关闭用到家日庆生，可在设置中开启。")
-              : t("只填到家日期时，默认在到家日庆生，生成生日卡与信；可在设置关闭。年龄按手填值或真实生日计算。")}</Text>
           </View>
           <View style={styles.row}>
             <Button

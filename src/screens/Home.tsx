@@ -148,9 +148,6 @@ export default function Home() {
           <Text style={{ color: colors.ink, fontSize: 24, lineHeight: 30, fontFamily: display }}>
             {t("它今天干了啥？")}
           </Text>
-          <Text style={{ color: colors.ink, fontSize: 12, lineHeight: 18, fontWeight: "500" }}>
-            {t("你照实写，{name}用自己的口吻再说一遍", { name: pet.name })}
-          </Text>
         </View>
         <View style={{ width: 44, height: 44, borderRadius: 22, backgroundColor: colors.ink, alignItems: "center", justifyContent: "center" }}>
           <Icon name="arrow-right" color={colors.green} size={22} />
@@ -334,12 +331,10 @@ export default function Home() {
                 <Text style={[styles.h2, { fontSize: 19 }]} numberOfLines={3}>
                   {latest ? latest.stories.news.title : t("头条，等你来写")}
                 </Text>
-                <Text style={styles.small}>{t("点开做成新闻卡 · 虚构娱乐报道")}</Text>
               </View>
             </Pressable>
           </View>
         </View>
-
       )}
     </View>
   );

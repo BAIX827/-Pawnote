@@ -31,6 +31,8 @@ window.pawnoteSmoke = async () => {
   await waitFor(() => find(/制作爪报卡|Make a Paw Post card/), "entry detail ready");
   find(/制作爪报卡|Make a Paw Post card/).click();
   await waitFor(() => find(/保存 PNG 图片|Save PNG picture/)?.getAttribute("aria-disabled") !== "true" && find(/保存 PNG 图片|Save PNG picture/), "news image prepared");
+  // Wait for the native-stack transition before pressing the first export control.
+  await pause(500);
   for (const layout of [/日报|^Daily$/, /号外|^Extra$/, /通缉令|^Wanted$/, /封面|^Cover$/]) {
     await waitFor(() => find(layout), `layout visible: ${layout}`);
     find(layout).click();

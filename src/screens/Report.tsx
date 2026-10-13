@@ -55,7 +55,6 @@ export default function Report() {
     <View style={[styles.stack, { maxWidth: 760, width: "100%", alignSelf: "center" }]}>
       <Heading
         title={t("月度回顾")}
-        eyebrow={t("这一月的生活片刻")}
         accent={soft}
         action={<Button label={t("返回")} tone="plain" onPress={() => router.replace("/life")} />}
       />
@@ -132,7 +131,6 @@ export default function Report() {
             <Text style={{ fontSize: 14 }}> {work ? unit : t("分")}</Text>
           </Text>
         </View>
-        <Text style={styles.small}>{t("按本月已保存的记录计算，纯属娱乐，不影响经验。")}</Text>
       </View>
 
       <Card style={{ gap: 14, backgroundColor: soft }}>

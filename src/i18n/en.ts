@@ -4,6 +4,7 @@ import { soundsEn } from "./sounds-en";
 export const en: Record<string, string> = {
   ...soundsEn,
   ...memoriesEn,
+  "视频 ≤5 分钟 / 100 MB · 片段 0.5–60 秒": "Video ≤5 min / 100 MB · Clip 0.5–60 sec",
   "分享面板已打开，请选择分享方式。": "Share options are open. Choose where to share the picture.",
   "1 条记录": "1 entry",
   "{n} 条记录": "{n} entries",
