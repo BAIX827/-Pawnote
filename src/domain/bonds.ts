@@ -45,16 +45,25 @@ const TOWN: [string, string, BondLevel][] = [
   ["mochi", "pip", "normal"],
 ];
 
-const GOOD = /一起玩|玩了|玩耍|贴贴|蹭|舔毛|互相舔|抱在一起|挤在一起|一起睡|依偎|分享|让给|陪|追着玩|和好|play|cuddl|snuggl|groom|nap(ped)? together|shared|made up/i;
+const GOOD = /一起玩|玩了|玩耍|贴贴|蹭|舔毛|互相舔|抱在一起|挤在|靠在一起|一起睡|都睡着|一起趴|一起晒|依偎|分享|让给|陪|追着玩|和好|play|cuddl|snuggl|groom|nap(ped)? together|shared|made up/i;
 const BAD = /打架|打起来|打了一架|咬了|咬它|咬他|互咬|抢|吵架|哈气|凶|揍|欺负|挠了|追着打|生气|不理|fight|fought|bit each other|bitten|hiss|growl|stole|swatted/i;
 const MADE_UP = /和好|握手言和|made up|make up/i;
 
-/** A first guess at how a shared moment went, from the owner's words; the owner can change it. */
+/** Where the last match of `pattern` starts in `text`, or -1. */
+function lastAt(text: string, pattern: RegExp): number {
+  let at = -1;
+  for (const m of text.matchAll(new RegExp(pattern.source, "gi"))) at = m.index;
+  return at;
+}
+/**
+ * A first guess at how a shared moment went, from the owner's words; the owner can change it.
+ * When good and bad words both appear, the one nearer the end is how it turned out (docs/01 8.25).
+ */
 export function guessTone(description: string): Tone {
   if (MADE_UP.test(description)) return "good";
-  if (BAD.test(description)) return "bad";
-  if (GOOD.test(description)) return "good";
-  return "neutral";
+  const bad = lastAt(description, BAD), good = lastAt(description, GOOD);
+  if (bad < 0 && good < 0) return "neutral";
+  return good > bad ? "good" : "bad";
 }
 
 /** Who took part in a record: the pet who recorded it and the pets it was with. */

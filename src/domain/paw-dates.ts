@@ -260,12 +260,18 @@ export function reminderLine(
 export const dayVariant = (now: Date, salt = 0) =>
   Math.floor(Date.UTC(now.getFullYear(), now.getMonth(), now.getDate()) / 86400000) + salt;
 
+/** A routine made today only counts from the moment it was made: a new pet doesn't call about 15:00 at 20:45 (docs/01 8.25). */
+function madeAfter(r: Routine, now: Date) {
+  const made = new Date(r.createdAt);
+  return !Number.isNaN(made.getTime()) && made.toDateString() === now.toDateString() &&
+    minutesOf(r.time) < made.getHours() * 60 + made.getMinutes();
+}
 /** Routines whose time has come today and that the owner has not done or put off. */
 export function dueRoutines(routines: Routine[] = [], now = new Date()): Routine[] {
   const minute = now.getHours() * 60 + now.getMinutes();
   return routines
     .filter((r) => r.enabled && r.days.includes(now.getDay()) && minutesOf(r.time) <= minute && !doneOn(r, now) &&
-      !(r.snoozedUntil && Date.parse(r.snoozedUntil) > now.getTime()))
+      !madeAfter(r, now) && !(r.snoozedUntil && Date.parse(r.snoozedUntil) > now.getTime()))
     .sort((a, b) => a.time.localeCompare(b.time));
 }
 /** The next time a routine comes round, within the coming week. */

@@ -11,6 +11,8 @@ import { AppState, CATEGORIES, Category, LifeEvent } from "./types";
 type Text = Record<Lang, string>;
 export const MAIL_KINDS = ["week", "month", "year"] as const;
 export type MailKind = (typeof MAIL_KINDS)[number];
+/** A year letter opens once the year has this many entries. */
+export const MIN_YEAR_ENTRIES = 5;
 
 /** Midnight on the Monday of the week containing `now`, local time. */
 const mondayOf = (now: Date) => new Date(now.getFullYear(), now.getMonth(), now.getDate() - ((now.getDay() + 6) % 7));
@@ -156,10 +158,12 @@ export function writeMail(state: Pick<AppState, "pet" | "events">, kind: MailKin
       return at >= from.getTime() && at < to.getTime();
     });
   let mine = within(start, end);
+  // The year starts from its first entry, not 1 January, and waits for a few entries before it opens (docs/01 8.25).
+  if (kind === "year" && mine.length) start = new Date(Math.max(start.getTime(), new Date(eventDate(mine[mine.length - 1]).toDateString()).getTime()));
   // Nothing in the week or month that just ended (often because the pet wasn't here yet): rather than
   // an empty letter, show the one still being written for the current week or month (docs/01 8.24).
-  const inProgress = !mine.length && kind !== "year";
-  if (inProgress) {
+  const inProgress = kind === "year" ? mine.length < MIN_YEAR_ENTRIES : !mine.length;
+  if (inProgress && kind !== "year") {
     start = end;
     end = new Date(now.getTime() + 1);
     mine = within(start, end);

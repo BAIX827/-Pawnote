@@ -48,8 +48,12 @@ test("居民每周发 3–5 条，同一天结果固定", () => {
 
 test("宠物动态留在窝里，居民陆续来点爪评论，宠物回一句", () => {
   const e = entry("今天带它出门散步，在草地上跑了很久。", "walk", at(9));
-  const early = buildCircle(base([e]), at(9, 1), "zh").posts.find((p) => p.kind === "pet")!;
+  const early = buildCircle(base([e]), at(9, 0), "zh").posts.find((p) => p.kind === "pet")!;
   assert.equal(early.likes.length + early.comments.length, 0);
+  // The first resident comes by a minute later, so the owner sees someone noticed (docs/01 8.25).
+  const first = buildCircle(base([e]), at(9, 1), "zh").posts.find((p) => p.kind === "pet")!;
+  assert.equal(first.likes.length, 1);
+  assert.equal(first.comments.length, 0);
   const later = buildCircle(base([e]), at(12), "zh").posts.find((p) => p.kind === "pet")!;
   assert.ok(later.likes.length >= 1 && later.likes.length <= 4);
   assert.ok(later.comments.some((c) => c.author.kind === "resident"));

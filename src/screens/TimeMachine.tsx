@@ -61,7 +61,13 @@ export default function TimeMachine() {
   const pet = state.pet,
     marks = milestones(pet, state.events),
     photos = monthlyPhotos(state.events),
-    moments = firsts(state.events);
+    // One card per entry: an entry that is several firsts at once lists them together (docs/01 8.25).
+    moments = firsts(state.events).reduce<{ kind: string; label: string; event: LifeEvent }[]>((out, f) => {
+      const same = out.find((m) => m.event.id === f.event.id);
+      if (same) same.label += ` · ${t(FIRST_LABELS[f.kind])}`;
+      else out.push({ kind: f.kind, label: t(FIRST_LABELS[f.kind]), event: f.event });
+      return out;
+    }, []);
   const stat = (n: number, label: string, bg: string) => (
     <View style={[{ flex: 1, minWidth: 140, backgroundColor: bg, borderRadius: 14, padding: 16 }, shadow(3)]}>
       <Text style={styles.small}>{label}</Text>
@@ -169,7 +175,7 @@ export default function TimeMachine() {
               <Tape color={[colors.pink, colors.sky, colors.green][i % 3]} rotate={i % 2 ? 4 : -4} style={{ left: "auto", right: 26, marginLeft: 0 }} />
               <View style={{ flex: 1, gap: 2 }}>
                 <Text style={styles.small}>{formatDate(eventDate(m.event).toISOString())}</Text>
-                <Text style={[styles.h2, { fontSize: 19, lineHeight: 27 }]}>{t(FIRST_LABELS[m.kind])}</Text>
+                <Text style={[styles.h2, { fontSize: 19, lineHeight: 27 }]}>{m.label}</Text>
                 <Text style={styles.muted} numberOfLines={2}>
                   {m.event.description}
                 </Text>

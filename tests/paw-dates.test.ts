@@ -95,6 +95,14 @@ test("到点、陪了、晚点和下一个", () => {
   assert.ok(!dueRoutines(s.routines, at(8, 0, 15)).some((r) => r.id === walk.id));
 });
 
+test("建档当天，早于创建时刻的那次不喊", () => {
+  const s = addRoutine(base(), { activity: "snack", time: "15:00" }, at(20, 45));
+  assert.deepEqual(dueRoutines(s.routines, at(21, 0)), []);
+  assert.equal(dueRoutines(s.routines, at(15, 5, 15)).length, 1);
+  const later = addRoutine(base(), { activity: "wand", time: "20:30" }, at(9, 0));
+  assert.equal(dueRoutines(later.routines, at(20, 45)).length, 1);
+});
+
 test("提醒是宠物口吻，按脾气和语言变化，难过时不开玩笑，去世后暂停", () => {
   const pet: Pet = { ...demoState().pet!, personality: "傲娇", ownerTitle: "妈妈" };
   const walk = { activity: "walk" };
