@@ -34,6 +34,19 @@ export function demoState(): AppState {
       published: true,
     },
   ];
+  // A second pet, so 关系网 has a story: the two started out as enemies and just played together once.
+  const dog: Pet = {
+    id: "demo-dog",
+    name: english ? "Lucky" : "旺财",
+    species: "dog",
+    personality: "憨厚",
+    route: "work",
+    role: "零食鉴定员",
+  };
+  const played = english
+    ? "Boss Orange and Lucky played with the feather wand together today. It went surprisingly well."
+    : "今天橘总和旺财一起玩逗猫棒，玩得还挺开心。";
+  const dogSays = english ? "Lucky dug up a sock in the garden and brought it to me like a trophy." : "旺财在院子里刨出一只袜子，叼过来跟我邀功。";
   // One date already due, so the 爪窝 card shows up straight away, and one for later tonight.
   const now = new Date();
   const created = now.toISOString();
@@ -55,5 +68,30 @@ export function demoState(): AppState {
       stories: generateStories(pet, s.description, s.category),
       selectedStyle: "diary",
     })),
+    household: [{
+      pet: dog,
+      events: [{
+        id: "demo-played",
+        category: "other",
+        description: played,
+        published: false,
+        createdAt: new Date(Date.now() - 86400000 - 5 * 3600000).toISOString(),
+        petSnapshot: { ...dog },
+        stories: generateStories(dog, played, "other"),
+        selectedStyle: "diary",
+        together: { pets: [pet.id], tone: "good" },
+      }, {
+        id: "demo-dog-0",
+        category: "chaos",
+        description: dogSays,
+        published: true,
+        createdAt: new Date(Date.now() - 2 * 86400000 - 2 * 3600000).toISOString(),
+        petSnapshot: { ...dog },
+        stories: generateStories(dog, dogSays, "chaos"),
+        selectedStyle: "diary",
+      }],
+      sounds: [],
+    }],
+    bonds: [{ a: "demo-dog", b: "demo-pet", level: "foe" }],
   };
 }

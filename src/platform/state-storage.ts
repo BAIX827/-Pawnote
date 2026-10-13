@@ -1,6 +1,7 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { AppState, id } from "../domain/types";
 import { validSoundAudio } from "../domain/sounds";
+import { mapSounds, soundLists } from "../domain/household";
 
 // IndexedDB keeps clips outside the small localStorage quota. Metadata remains compatible
 // with the existing app; exported backups always contain the complete audio data.
@@ -29,8 +30,10 @@ export async function getStoredState(key: string): Promise<string | null> {
   if (!raw) return raw;
   let state;
   try { state = JSON.parse(raw); } catch { return raw; }
-  if (!state || !Array.isArray(state.sounds) || state.sounds.length > 100) return raw;
-  const refs = state.sounds.filter((sound: { audio?: string }) => typeof sound?.audio === "string" && sound.audio.startsWith(prefix));
+  if (!state || typeof state !== "object") return raw;
+  const lists = soundLists(state);
+  if (lists.some((l) => l.length > 100)) return raw;
+  const refs = lists.flat().filter((sound: { audio?: string }) => typeof sound?.audio === "string" && sound.audio.startsWith(prefix));
   if (!refs.length) return raw;
   let db: IDBDatabase | undefined;
   try {
@@ -50,12 +53,12 @@ export async function getStoredState(key: string): Promise<string | null> {
 export async function setStoredState(key: string, serialized: string): Promise<void> {
   const state: AppState = JSON.parse(serialized);
   // Preserve storage support on browsers without IndexedDB until the first sound is added.
-  if (!state.sounds?.length && !cache.size) { await AsyncStorage.setItem(key, serialized); return; }
+  if (!soundLists(state).some((l) => l.length) && !cache.size) { await AsyncStorage.setItem(key, serialized); return; }
   const db = await mediaDB();
   try {
     const transaction = db.transaction("sounds", "readwrite"), done = complete(transaction);
     const store = transaction.objectStore("sounds"), keep = new Set<string>();
-    const sounds = (state.sounds ?? []).map((sound) => {
+    const stored = mapSounds(state, (sound) => {
       const previous = cache.get(sound.id);
       const saved = previous?.audio === sound.audio ? previous : { audio: sound.audio, name: `sound-${id()}` };
       if (saved !== previous) store.put(saved.audio, saved.name);
@@ -63,7 +66,7 @@ export async function setStoredState(key: string, serialized: string): Promise<v
       return { ...sound, audio: `${prefix}${saved.name}` };
     });
     await done;
-    await AsyncStorage.setItem(key, JSON.stringify({ ...state, sounds }));
+    await AsyncStorage.setItem(key, JSON.stringify(stored));
     try {
       const cleanup = db.transaction("sounds", "readwrite"), finished = complete(cleanup);
       const files = cleanup.objectStore("sounds"), request = files.getAllKeys();

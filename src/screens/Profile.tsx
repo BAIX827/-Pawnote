@@ -22,6 +22,7 @@ import {
   styles,
 } from "../components/ui";
 import Onboarding from "./Onboarding";
+import HouseholdPets from "../components/HouseholdPets";
 import { pawsonaCard } from "../domain/pawsona";
 import { ageLabel, speciesLabel } from "../domain/pet-profile";
 export default function Profile() {
@@ -48,6 +49,7 @@ export default function Profile() {
           />
         }
       />
+      <HouseholdPets />
       <View
         style={[
           {
@@ -111,6 +113,7 @@ export default function Profile() {
           <Button label={t("声音相册 · {n} 段叫声", { n: state.sounds?.length ?? 0 })} icon="mic" tone="soft" onPress={() => router.push("/sounds")} />
           <Button label={t("成长纪念册")} icon="book" tone="soft" onPress={() => router.push("/keepsake")} />
           <Button label={t("生日与纪念日")} icon="gift" tone="soft" onPress={() => router.push("/anniversaries")} />
+          <Button label={t("关系网")} icon="share-2" tone="soft" onPress={() => router.push("/bonds")} />
         </View>
         <Button label={tools ? t("收起更多工具") : t("更多工具 · 爪约、爪信与时光机")} icon="grid" tone="plain" onPress={() => setTools(!tools)} style={{ alignSelf: "flex-start" }} />
         {tools && <View style={[styles.row, { flexWrap: "wrap" }]}>

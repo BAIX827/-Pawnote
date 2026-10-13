@@ -127,6 +127,7 @@ export default function Circle() {
       <View style={[styles.row, { flexWrap: "wrap" }]}>
         <Chip label={t("好朋狗")} active={tab === "friends"} onPress={() => setTab("friends")} />
         <Chip label={t("大草坪 · 即将开放")} active={tab === "lawn"} onPress={() => setTab("lawn")} />
+        <Button label={t("关系网")} icon="share-2" tone="soft" onPress={() => router.push("/bonds")} />
       </View>
 
       {tab === "lawn" ? (

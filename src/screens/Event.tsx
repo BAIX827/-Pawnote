@@ -1,9 +1,11 @@
 import { t } from "../i18n";
 import React, { useState } from "react";
-import { Image, Text, View } from "react-native";
+import { Image, Pressable, Text, View } from "react-native";
 import { router, useLocalSearchParams } from "expo-router";
 import { useStore } from "../data/store";
 import { STYLES, StoryStyle, formatDate } from "../domain/types";
+import { homePets } from "../domain/household";
+import { TONE_DELTA, TONE_LABELS } from "../domain/bonds";
 import { eventDate } from "../domain/dates";
 import { deleteEvent } from "../domain/life";
 import {
@@ -67,6 +69,20 @@ export default function Event() {
           <Button label={t("返回")} tone="plain" onPress={() => router.canGoBack() ? router.back() : router.replace("/profile")} />
         }
       />
+      {event.together && (() => {
+        const names = homePets(state).filter((p) => event.together!.pets.includes(p.id)).map((p) => p.name);
+        return names.length > 0 && (
+          <Pressable accessibilityRole="link" onPress={() => router.push("/bonds")}>
+            <Text style={[styles.small, { color: colors.ink, fontWeight: "700" }]}>
+              {t("和{names}一起 · {tone} {delta}", {
+                names: names.join(t("、")),
+                tone: t(TONE_LABELS[event.together!.tone]),
+                delta: TONE_DELTA[event.together!.tone] > 0 ? `+${TONE_DELTA[event.together!.tone]}` : String(TONE_DELTA[event.together!.tone]),
+              })}
+            </Text>
+          </Pressable>
+        );
+      })()}
       {event.photo && (
         <View
           style={[

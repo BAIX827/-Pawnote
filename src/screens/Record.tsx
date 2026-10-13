@@ -22,8 +22,11 @@ import {
   LifeEvent,
   STYLES,
   StoryStyle,
+  TONES,
   newDraft,
 } from "../domain/types";
+import { homePets } from "../domain/household";
+import { TONE_DELTA, TONE_LABELS, guessTone } from "../domain/bonds";
 import { choosePhoto } from "../platform/photo";
 import { AIError, Quota, aiAvailable, fetchQuota, generateWithAI } from "../platform/ai";
 import {
@@ -77,12 +80,13 @@ function Recorder({ original, initialDate }: { original?: LifeEvent; initialDate
   const [editDraft, setEditDraft] = useState<Draft | undefined>(() => original ? {
     id: original.id, description: original.description, category: original.category,
     photo: original.photo, stories: original.stories, selectedStyle: original.selectedStyle,
-    published: original.published, occurredOn: eventDay(original),
+    published: original.published, occurredOn: eventDay(original), together: original.together,
     signature: generationSignature(original.petSnapshot, original.description, original.category),
   } : undefined);
   const [busy, setBusy] = useState(false);
   const [more, setMore] = useState(!!original || !!initialDate);
   const [manualTag, setManualTag] = useState(!!original);
+  const [manualTone, setManualTone] = useState(!!original?.together);
   // Bubbles grow with their text, so nothing scrolls inside a speech bubble.
   const [heights, setHeights] = useState({ owner: 96, pet: 120 });
   const [quota, setQuota] = useState<Quota>();
@@ -126,6 +130,13 @@ function Recorder({ original, initialDate }: { original?: LifeEvent; initialDate
   const postingDate = isPastDay(draft.occurredOn) ? dayDate(draft.occurredOn) : new Date();
   const block = postBlock(postingState, draft.description, postingDate),
     posting = draft.published && !block;
+  const others = homePets(state).filter((p) => p.id !== pet.id);
+  const tone = draft.together ? (manualTone ? draft.together.tone : guessTone(draft.description)) : undefined;
+  function toggleCompanion(petId: string) {
+    const now = draft.together?.pets ?? [];
+    const pets = now.includes(petId) ? now.filter((p) => p !== petId) : [...now, petId];
+    patch({ together: pets.length ? { pets, tone: draft.together?.tone ?? "neutral" } : undefined });
+  }
   const labels: Record<StoryStyle, string> = {
     diary: t("内心独白"),
     life: pet.route === "work" ? t("打工日记") : t("校园日记"),
@@ -210,6 +221,7 @@ function Recorder({ original, initialDate }: { original?: LifeEvent; initialDate
       stories: draft.stories,
       selectedStyle: draft.selectedStyle,
       published: draft.published && !postBlock(postingState, draft.description, postingDate),
+      together: draft.together && tone ? { pets: draft.together.pets, tone } : undefined,
     };
     try {
       const next = saveEvent(state, event);
@@ -465,6 +477,27 @@ function Recorder({ original, initialDate }: { original?: LifeEvent; initialDate
           />
         </View>
       )}
+      {others.length > 0 && <View style={{ gap: 10 }}>
+        <Text style={styles.caps}>{t("和谁一起")}</Text>
+        <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 8 }}>
+          {others.map((p) => (
+            <Chip key={p.id} label={p.name} active={!!draft.together?.pets.includes(p.id)} onPress={() => toggleCompanion(p.id)} />
+          ))}
+        </View>
+        {draft.together && tone && <View style={{ gap: 8 }}>
+          <Text style={styles.small}>
+            {t("这次相处")}{manualTone ? "" : t(" · 已按原话猜了一个")}
+          </Text>
+          <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 8 }}>
+            {TONES.map((k) => (
+              <Chip key={k} label={t("{tone} {delta}", { tone: t(TONE_LABELS[k]), delta: TONE_DELTA[k] > 0 ? `+${TONE_DELTA[k]}` : String(TONE_DELTA[k]) })}
+                color={k === "bad" ? colors.pink : k === "good" ? colors.green : colors.lilac}
+                active={tone === k}
+                onPress={() => { setManualTone(true); patch({ together: { pets: draft.together!.pets, tone: k } }); }} />
+            ))}
+          </View>
+        </View>}
+      </View>}
       <Button label={more ? t("收起更多选项") : t("更多选项 · 日期、分类与动态")}
         icon="sliders" tone="plain" onPress={() => setMore(!more)} />
       {more && <View style={{ gap: 22 }}>

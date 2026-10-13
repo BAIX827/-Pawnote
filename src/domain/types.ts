@@ -60,6 +60,32 @@ export interface LifeEvent {
   stories: Stories;
   selectedStyle: StoryStyle;
   published: boolean;
+  /** Other household pets who were part of this, and how it went between them (docs/01 8.23). */
+  together?: Together;
+}
+export const TONES = ["good", "neutral", "bad"] as const;
+export type Tone = (typeof TONES)[number];
+export interface Together {
+  pets: string[];
+  tone: Tone;
+}
+export const BOND_LEVELS = ["foe", "stranger", "normal", "friend", "bestie"] as const;
+export type BondLevel = (typeof BOND_LEVELS)[number];
+/** A starting relationship the owner set. a and b are pet ids or "npc:<resident id>", a < b. */
+export interface Bond {
+  a: string;
+  b: string;
+  level: BondLevel;
+}
+/** Everything that belongs to one pet. Pets that aren't the current one wait in AppState.household. */
+export interface PetBundle {
+  pet: Pet;
+  events: LifeEvent[];
+  routines?: Routine[];
+  pawsona?: AppState["pawsona"];
+  mailRead?: string;
+  circle?: CircleSettings;
+  sounds?: SoundMemory[];
 }
 export interface Draft {
   id: string;
@@ -73,6 +99,7 @@ export interface Draft {
   signature?: string;
   /** Owner changes need a decision when any generated voice has been manually edited. */
   expressionNeedsReview?: boolean;
+  together?: Together;
 }
 /** A 爪约: something the pet wants to do with its owner at a set time (docs/01 8.16). */
 export interface Routine {
@@ -100,6 +127,8 @@ export interface Preferences {
   randomStyle?: boolean;
   /** Include town and XP panels on Home. Defaults to false. */
   homeExtras?: boolean;
+  /** 关系网 shows only the household's own pets. Defaults to false. */
+  bondsHomeOnly?: boolean;
 }
 export interface AppState {
   schemaVersion: 1;
@@ -120,6 +149,10 @@ export interface AppState {
   circle?: CircleSettings;
   /** Audio is embedded so JSON backups keep the actual sound across devices. */
   sounds?: SoundMemory[];
+  /** The owner's other pets, each with its own records (docs/01 8.23). */
+  household?: PetBundle[];
+  /** Starting relationships the owner set in 关系网. */
+  bonds?: Bond[];
 }
 export const SOUND_STAGES = ["baby", "young", "adult", "senior", "unknown"] as const;
 export type SoundStage = (typeof SOUND_STAGES)[number];

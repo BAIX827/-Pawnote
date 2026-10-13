@@ -1,4 +1,6 @@
-import { AppState, CATEGORIES, SPECIES, STYLES, SOUND_STAGES } from "../domain/types";
+import { AppState, BOND_LEVELS, CATEGORIES, SPECIES, STYLES, SOUND_STAGES } from "../domain/types";
+import { MAX_PETS } from "../domain/household";
+import { MAX_BONDS } from "../domain/bonds";
 import { isSoundDay, validSoundAudio, MAX_SOUNDS, MAX_SOUND_TOTAL, MAX_SOUND_SECONDS } from "../domain/sounds";
 import { isPastDay } from "../domain/dates";
 import { isHomeDate } from "../domain/timeline";
@@ -84,17 +86,15 @@ const ids = (v: unknown, max: number) =>
   v === undefined || (Array.isArray(v) && v.length <= max && v.every((x) => str(x, 200)));
 const circle = (v: unknown) => obj(v) && ids(v.hiddenNpcs, 7) && ids(v.removed, 500);
 const preferences = (v: unknown) => v === undefined || (obj(v) &&
-  ["homeAsBirthday", "randomStyle", "homeExtras"].every((key) => v[key] === undefined || typeof v[key] === "boolean"));
-export function isAppState(v: unknown): v is AppState {
-  if (
-    !obj(v) ||
-    v.schemaVersion !== 1 ||
-    typeof v.demo !== "boolean" ||
-    (v.pet !== null && !pet(v.pet)) ||
-    !Array.isArray(v.events) ||
-    v.events.length > 1000
-  )
-    return false;
+  ["homeAsBirthday", "randomStyle", "homeExtras", "bondsHomeOnly"].every((key) => v[key] === undefined || typeof v[key] === "boolean"));
+const TONE_LIST = ["good", "neutral", "bad"];
+const together = (v: unknown, self: unknown) => v === undefined || (obj(v) && one(v.tone, TONE_LIST) &&
+  Array.isArray(v.pets) && v.pets.length > 0 && v.pets.length < MAX_PETS && new Set(v.pets).size === v.pets.length &&
+  v.pets.every((p) => str(p, 100) && p !== self));
+/** One pet and everything that belongs to it: the current pet's fields, or an entry in household. */
+function bundle(v: Record<string, unknown>): boolean {
+  if (!pet(v.pet) || !Array.isArray(v.events) || v.events.length > 1000) return false;
+  const owner = (v.pet as { id: string }).id;
   if (
     !v.events.every(
       (e) =>
@@ -112,8 +112,8 @@ export function isAppState(v: unknown): v is AppState {
         stories(e.stories) &&
         one(e.selectedStyle, STYLES) &&
         typeof e.published === "boolean" &&
-        obj(v.pet) &&
-        e.petSnapshot.id === v.pet.id,
+        e.petSnapshot.id === owner &&
+        together(e.together, owner),
     )
   )
     return false;
@@ -125,21 +125,42 @@ export function isAppState(v: unknown): v is AppState {
   )
     return false;
   if (!pawsona(v.pawsona)) return false;
-  if (!preferences(v.preferences)) return false;
   if (v.mailRead !== undefined && !(typeof v.mailRead === "string" && /^\d{4}-\d{2}-\d{2}$/.test(v.mailRead))) return false;
-  if (v.mailReminder !== undefined && typeof v.mailReminder !== "boolean") return false;
   if (v.circle !== undefined && !circle(v.circle)) return false;
   if (v.sounds !== undefined) {
     if (!Array.isArray(v.sounds) || v.sounds.length > MAX_SOUNDS || !v.sounds.every((s) =>
-      obj(s) && str(s.id, 100) && (s.id as string).length > 0 && obj(v.pet) && s.petId === v.pet.id &&
+      obj(s) && str(s.id, 100) && (s.id as string).length > 0 && s.petId === owner &&
       str(s.title, 40) && (s.title as string).trim().length > 0 && str(s.note, 300) &&
       isSoundDay(s.recordedOn) && str(s.createdAt, 40) && Number.isFinite(Date.parse(s.createdAt as string)) &&
       optionalInt(s.ageMonths, 1200) && one(s.stage, SOUND_STAGES) && one(s.source, ["recording", "video"]) &&
       typeof s.duration === "number" && Number.isFinite(s.duration) && s.duration >= 0.1 && s.duration <= MAX_SOUND_SECONDS + 0.5 &&
       validSoundAudio(s.audio))) return false;
-    if (new Set(v.sounds.map((s) => s.id)).size !== v.sounds.length ||
-        v.sounds.reduce((n, s) => n + s.audio.length, 0) > MAX_SOUND_TOTAL) return false;
+    if (new Set(v.sounds.map((s) => s.id)).size !== v.sounds.length) return false;
   }
+  return true;
+}
+const soundBytes = (v: Record<string, unknown>) =>
+  Array.isArray(v.sounds) ? v.sounds.reduce((n: number, s: { audio: string }) => n + s.audio.length, 0) : 0;
+const bond = (v: unknown) => obj(v) && str(v.a, 100) && str(v.b, 100) && (v.a as string) < (v.b as string) &&
+  one(v.level, BOND_LEVELS) && !((v.a as string).startsWith("npc:") && (v.b as string).startsWith("npc:"));
+export function isAppState(v: unknown): v is AppState {
+  if (!obj(v) || v.schemaVersion !== 1 || typeof v.demo !== "boolean") return false;
+  if (v.pet === null) {
+    if (!Array.isArray(v.events) || v.events.length > 0) return false;
+    if (v.sounds !== undefined && !(Array.isArray(v.sounds) && v.sounds.length === 0)) return false;
+  } else if (!bundle(v)) return false;
+  if (!preferences(v.preferences)) return false;
+  if (v.mailReminder !== undefined && typeof v.mailReminder !== "boolean") return false;
+  if (v.household !== undefined) {
+    if (!Array.isArray(v.household) || v.household.length >= MAX_PETS || v.pet === null ||
+        !v.household.every((b) => obj(b) && bundle(b))) return false;
+    const ids = [(v.pet as { id: string }).id, ...v.household.map((b) => (b.pet as { id: string }).id)];
+    if (new Set(ids).size !== ids.length) return false;
+  }
+  const bundles = [v, ...((v.household as Record<string, unknown>[] | undefined) ?? [])];
+  if (bundles.some((b) => soundBytes(b) > MAX_SOUND_TOTAL)) return false;
+  if (v.bonds !== undefined && !(Array.isArray(v.bonds) && v.bonds.length <= MAX_BONDS && v.bonds.every(bond) &&
+      new Set(v.bonds.map((b) => `${b.a}|${b.b}`)).size === v.bonds.length)) return false;
   return (
     v.draft === null ||
     (obj(v.draft) &&
@@ -152,6 +173,7 @@ export function isAppState(v: unknown): v is AppState {
       typeof v.draft.published === "boolean" &&
       (v.draft.expressionNeedsReview === undefined || typeof v.draft.expressionNeedsReview === "boolean") &&
       (v.draft.stories === undefined || stories(v.draft.stories)) &&
-      (v.draft.signature === undefined || str(v.draft.signature, 1500)))
+      (v.draft.signature === undefined || str(v.draft.signature, 1500)) &&
+      together(v.draft.together, (v.pet as { id: string } | null)?.id))
   );
 }

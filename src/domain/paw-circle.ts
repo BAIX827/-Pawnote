@@ -364,7 +364,7 @@ const PET_REPLIES: Record<Temper, Text[]> = {
 };
 
 /** Tempers each temper enjoys visiting: goofy pets cheer on the drama queen, shy ones stay near the gentle. */
-const AFFINITY: Record<Temper, Temper[]> = {
+export const AFFINITY: Record<Temper, Temper[]> = {
   cool: ["clingy", "calm"],
   clingy: ["shy", "clingy", "goofy"],
   goofy: ["drama", "goofy", "curious"],

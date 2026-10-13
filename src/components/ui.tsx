@@ -577,6 +577,8 @@ export function Ticker({
   );
 }
 export const demoPhoto = require("../../assets/demo-cat.jpg");
+/** Only the demo's own cat wears the demo photo; pets added later keep their own look. */
+export const DEMO_PET = "demo-pet";
 export function Avatar({
   pet,
   size = 48,
@@ -593,7 +595,7 @@ export function Avatar({
     borderWidth: 2.5,
     borderColor: colors.ink,
   };
-  return pet.avatar || demo ? (
+  return pet.avatar || (demo && pet.id === DEMO_PET) ? (
     <Image source={pet.avatar ? { uri: pet.avatar } : demoPhoto} style={frame} />
   ) : (
     <View
@@ -765,7 +767,7 @@ export function Portrait({
       ]}
     >
       <Tape color={tape} rotate={-rotate * 2} width={size * 0.55} />
-      {pet.avatar || demo ? (
+      {pet.avatar || (demo && pet.id === DEMO_PET) ? (
         <Image
           source={pet.avatar ? { uri: pet.avatar } : demoPhoto}
           style={{ width: size, height: size, backgroundColor: colors.pale }}

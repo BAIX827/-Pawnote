@@ -21,6 +21,7 @@ import {
 import { SPECIES_INFO, ageFromBirthday, parseAge, recommendRoute } from "../domain/pet-profile";
 import { defaultOwnerName } from "../domain/story-engine";
 import { isHomeDate } from "../domain/timeline";
+import { MAX_PETS, addPet, homePets } from "../domain/household";
 import { choosePhoto } from "../platform/photo";
 import {
   Avatar,
@@ -35,7 +36,7 @@ import {
   Heading,
   styles,
 } from "../components/ui";
-export default function Onboarding({ editing = false }: { editing?: boolean }) {
+export default function Onboarding({ editing = false, adding = false }: { editing?: boolean; adding?: boolean }) {
   const { state, update, notify } = useStore();
   const { width } = useWindowDimensions();
   const wide = width >= 1050;
@@ -152,6 +153,16 @@ export default function Onboarding({ editing = false }: { editing?: boolean }) {
       return;
     }
     const pet = { ...preview, id: original?.id ?? id(), name: name.trim() };
+    if (adding && state.pet) {
+      if (homePets(state).length >= MAX_PETS) {
+        notify(t("最多养 {n} 只。", { n: MAX_PETS }));
+        return;
+      }
+      update((s) => addPet(s, pet));
+      notify(t("{name}搬进来了，现在是{name}的视角。", { name: pet.name }));
+      router.replace("/");
+      return;
+    }
     update((s) => ({
       ...s,
       pet,
@@ -170,7 +181,7 @@ export default function Onboarding({ editing = false }: { editing?: boolean }) {
   return (
     <View style={{ gap: 30 }}>
       <Heading
-        title={editing ? t("编辑居民档案") : t("欢迎搬进爪爪镇")}
+        title={editing ? t("编辑居民档案") : adding && state.pet ? t("添加宠物") : t("欢迎搬进爪爪镇")}
       />
       <View
         style={{
@@ -433,7 +444,7 @@ export default function Onboarding({ editing = false }: { editing?: boolean }) {
             )}
           </View>
           <Button
-            label={editing ? t("保存档案") : t("领取居民证")}
+            label={editing ? t("保存档案") : adding && state.pet ? t("添加到我家") : t("领取居民证")}
             icon="arrow-right"
             disabled={busy}
             onPress={create}
@@ -449,7 +460,7 @@ export default function Onboarding({ editing = false }: { editing?: boolean }) {
             />
           )}
           {!editing && !state.pet && <RestoreBackup />}
-          {editing && (
+          {(editing || (adding && !!state.pet)) && (
             <Button
               label={t("返回")}
               tone="plain"
