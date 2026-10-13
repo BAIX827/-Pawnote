@@ -54,8 +54,8 @@ export default function Report() {
   return (
     <View style={[styles.stack, { maxWidth: 760, width: "100%", alignSelf: "center" }]}>
       <Heading
-        title={t("月度考核")}
-        eyebrow={work ? t("工资条 · 绩效 · 考核") : t("成绩单 · 绩效 · 考核")}
+        title={t("月度回顾")}
+        eyebrow={t("这一月的生活片刻")}
         accent={soft}
         action={<Button label={t("返回")} tone="plain" onPress={() => router.replace("/life")} />}
       />
@@ -75,14 +75,14 @@ export default function Report() {
           <View style={{ flex: 1 }}>
             <Text style={[styles.caps, { color: accent }]}>{work ? "PAWNOTE GROUP" : "PAWNOTE ACADEMY"}</Text>
             <Text style={[styles.h1, { fontSize: 30, lineHeight: 40 }]}>
-              {work ? t("工资条") : t("成绩单")}
+              {work ? t("工资条") : t("生活笔记")}
             </Text>
             <Text style={styles.small}>
               {pet.name} · {t(pet.role)} · {monthName(month)}
             </Text>
           </View>
           <Wobble>
-            <Stamp top={t("绩效")} main={report.grade ?? "—"} color={colors.orange} size={76} rotate={0} />
+            <Stamp top={t("生活片刻")} main={String(report.entries)} color={colors.orange} size={76} rotate={0} />
           </Wobble>
         </View>
         <View style={{ borderTopWidth: 1.5, borderStyle: "dashed", borderColor: colors.ink, marginTop: 10, paddingTop: 8 }}>
@@ -104,8 +104,8 @@ export default function Report() {
                     {r.subject}
                     {r.count > 0 && <Text style={styles.small}>  × {r.count}</Text>}
                   </Text>
-                  <Text style={[styles.body, { fontWeight: "700", color: r.score === undefined ? colors.muted : colors.ink }]}>
-                    {r.score ?? t("缺考")}
+                  <Text style={[styles.body, { fontWeight: "700", color: r.count === 0 ? colors.muted : colors.ink }]}>
+                    {r.count ? r.count === 1 ? t("1 条记录") : t("{n} 条记录", { n: r.count }) : t("还没记录到")}
                   </Text>
                 </View>
               ))}
@@ -136,10 +136,10 @@ export default function Report() {
       </View>
 
       <Card style={{ gap: 14, backgroundColor: soft }}>
-        <Text style={[styles.h2, { fontSize: 24, lineHeight: 32 }]}>{t("考核报告")}</Text>
+        <Text style={[styles.h2, { fontSize: 24, lineHeight: 32 }]}>{t("这一月")}</Text>
         <View style={{ flexDirection: "row", gap: 10 }}>
           {[
-            { n: report.days, label: t("出勤天数") },
+            { n: report.days, label: t("记录天数") },
             { n: report.entries, label: t("记录数") },
             { n: report.top ? t(CATEGORY_LABELS[report.top]) : "—", label: t("最常做的事") },
           ].map((s) => (
@@ -163,7 +163,7 @@ export default function Report() {
           </View>
         )}
         <View style={{ gap: 6 }}>
-          <Text style={styles.caps}>{t("主管评语（{owner}）", { owner })}</Text>
+          <Text style={styles.caps}>{t("和{owner}一起回看", { owner })}</Text>
           <Bubble tail="right">
             <Text style={styles.body}>{words.manager}</Text>
           </Bubble>

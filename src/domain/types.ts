@@ -71,6 +71,8 @@ export interface Draft {
   selectedStyle: StoryStyle;
   published: boolean;
   signature?: string;
+  /** Owner changes need a decision when any generated voice has been manually edited. */
+  expressionNeedsReview?: boolean;
 }
 /** A 爪约: something the pet wants to do with its owner at a set time (docs/01 8.16). */
 export interface Routine {
@@ -91,12 +93,21 @@ export interface CircleSettings {
   hiddenNpcs?: string[];
   removed?: string[];
 }
+export interface Preferences {
+  /** Celebrate on the home date when the actual birthday is unknown. Defaults to true. */
+  homeAsBirthday?: boolean;
+  /** Pick one of the four voices once for each new entry. Defaults to true. */
+  randomStyle?: boolean;
+  /** Include town and XP panels on Home. Defaults to false. */
+  homeExtras?: boolean;
+}
 export interface AppState {
   schemaVersion: 1;
   pet: Pet | null;
   events: LifeEvent[];
   draft: Draft | null;
   demo: boolean;
+  preferences?: Preferences;
   /** Optional so backups made before 爪约 still load. */
   routines?: Routine[];
   /** The latest 爪格 result (docs/01 8.17). */
@@ -142,11 +153,11 @@ export const emptyState = (): AppState => ({
   draft: null,
   demo: false,
 });
-export const newDraft = (): Draft => ({
+export const newDraft = (preferences?: Preferences): Draft => ({
   id: id(),
   description: "",
   category: "other",
-  selectedStyle: "diary",
+  selectedStyle: preferences?.randomStyle === false ? "diary" : STYLES[Math.floor(Math.random() * STYLES.length)],
   published: true,
 });
 export const roleFor = (route: Route) =>

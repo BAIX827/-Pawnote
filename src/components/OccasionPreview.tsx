@@ -10,7 +10,7 @@ import { Button, Card, colors, styles } from "./ui";
 export default function OccasionPreview() {
   const { state } = useStore();
   if (!state.pet || remindersPaused(state.events)) return null;
-  const occasions = nextOccasions(state.pet).filter((o) => o.inDays <= 7);
+  const occasions = nextOccasions(state.pet, new Date(), state.preferences).filter((o) => o.inDays <= 7);
   if (!occasions.length) return null;
   return <Card style={{ backgroundColor: colors.pink, gap: 10 }}>
     <Text style={styles.h2}>{t("有个特别的日子")}</Text>

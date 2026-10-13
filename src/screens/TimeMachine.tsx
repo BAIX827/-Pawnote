@@ -78,7 +78,7 @@ export default function TimeMachine() {
         title={t("时光机")}
         eyebrow={t("成长 · 第一次 · 纪念日")}
         accent={colors.sky}
-        action={<Button label={t("返回")} tone="plain" onPress={() => router.replace("/profile")} />}
+        action={<Button label={t("返回")} tone="plain" onPress={() => router.canGoBack() ? router.back() : router.replace("/profile")} />}
       />
 
       {marks.anniversaryToday !== undefined && (

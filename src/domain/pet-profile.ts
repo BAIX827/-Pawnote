@@ -1,5 +1,6 @@
 import { t } from "../i18n/core";
 import { Pet, Route, Species } from "./types";
+import { dayDate, isPastDay } from "./dates";
 
 export const SPECIES_INFO: Record<Species, { label: string; emoji: string }> = {
   cat: { label: "猫猫", emoji: "🐈" }, dog: { label: "狗狗", emoji: "🐕" },
@@ -12,7 +13,7 @@ export const SPECIES_INFO: Record<Species, { label: string; emoji: string }> = {
 export const speciesLabel = (pet: Pet) =>
   pet.species === "other" ? pet.speciesName ?? t("其他宠物") : t(SPECIES_INFO[pet.species].label);
 export const speciesEmoji = (pet: Pet) => SPECIES_INFO[pet.species].emoji;
-export const ageLabel = (months?: number) => months === undefined ? t("年龄待补充")
+export const ageLabel = (months?: number) => months === undefined ? t("年龄未知")
   : months < 12 ? t("{m} 个月", { m: months })
   : months % 12 ? t("{y} 岁 {m} 个月", { y: Math.floor(months / 12), m: months % 12 })
   : t("{y} 岁", { y: Math.floor(months / 12) });
@@ -30,6 +31,16 @@ export function recommendRoute(species: Species, ageMonths?: number): Route | un
   if ((species !== "cat" && species !== "dog") || ageMonths === undefined ||
     !Number.isInteger(ageMonths) || ageMonths < 0 || ageMonths > 1200) return undefined;
   return ageMonths < 12 ? "campus" : "work";
+}
+
+/** Only a known birth date can supply age; an adopted celebration date cannot. */
+export function ageFromBirthday(birthDate?: string, now = new Date()): number | undefined {
+  if (!isPastDay(birthDate, now)) return undefined;
+  const birth = dayDate(birthDate);
+  // Month ends count as a complete month on the final day of the shorter month.
+  const anniversaryDay = Math.min(birth.getDate(), new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate());
+  return (now.getFullYear() - birth.getFullYear()) * 12 + now.getMonth() - birth.getMonth()
+    - (now.getDate() < anniversaryDay ? 1 : 0);
 }
 
 export const QUESTIONS = [

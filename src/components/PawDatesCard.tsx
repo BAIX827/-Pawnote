@@ -40,7 +40,7 @@ export default function PawDatesCard() {
     if (state.draft?.description.trim()) {
       notify(t("爪语里还有没保存的草稿，先把它写完吧。"));
     } else {
-      update((s) => ({ ...s, draft: { ...newDraft(), ...diaryEntry(pet!, r) } }));
+      update((s) => ({ ...s, draft: { ...newDraft(s.preferences), ...diaryEntry(pet!, r) } }));
     }
     router.push("/record");
   }

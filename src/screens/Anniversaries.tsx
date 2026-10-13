@@ -3,23 +3,23 @@ import { Image, Text, View } from "react-native";
 import { router } from "expo-router";
 import { useStore } from "../data/store";
 import { t } from "../i18n";
-import { nextOccasions, occasionForYear, occasionLetter, occasionSVG, OccasionKind } from "../domain/occasions";
+import { birthdayDate, nextOccasions, occasionForYear, occasionLetter, occasionSVG, OccasionKind } from "../domain/occasions";
 import { exportCard } from "../platform/export";
 import { Button, Card, Chip, Empty, Heading, colors, styles } from "../components/ui";
 import Onboarding from "./Onboarding";
 
 export default function Anniversaries() {
   const { state, notify } = useStore();
-  const [kind, setKind] = useState<OccasionKind>(state.pet?.birthDate ? "birthday" : "home");
-  const next = state.pet ? nextOccasions(state.pet).find((o) => o.kind === kind) : undefined;
+  const [kind, setKind] = useState<OccasionKind>(state.pet && birthdayDate(state.pet, state.preferences) ? "birthday" : "home");
+  const next = state.pet ? nextOccasions(state.pet, new Date(), state.preferences).find((o) => o.kind === kind) : undefined;
   const [year, setYear] = useState<number>();
   const [busy, setBusy] = useState(false), [loaded, setLoaded] = useState("");
   const card = useRef<View>(null);
   if (!state.pet) return <Onboarding />;
   const selectedYear = year ?? (Number(next?.day.slice(0, 4)) || new Date().getFullYear());
-  const occasion = occasionForYear(state.pet, kind, selectedYear);
+  const occasion = occasionForYear(state.pet, kind, selectedYear, state.preferences);
   const letter = occasion ? occasionLetter(state, occasion) : undefined;
-  const origin = kind === "birthday" ? state.pet.birthDate : state.pet.homeDate;
+  const origin = kind === "birthday" ? birthdayDate(state.pet, state.preferences) : state.pet.homeDate;
   const years = Array.from({ length: 5 }, (_, i) => new Date().getFullYear() - 3 + i).filter((y) => !origin || y >= Number(origin.slice(0, 4)));
   async function share() {
     if (!letter) return;
@@ -30,7 +30,7 @@ export default function Anniversaries() {
   }
   return <View style={[styles.stack, { maxWidth: 760, width: "100%", alignSelf: "center" }]}>
     <Heading title={t("生日与纪念日")} eyebrow={t("特别的一页 · 一张卡 · 一封信")} accent={colors.pink}
-      action={<Button label={t("返回爪册")} tone="plain" onPress={() => router.replace("/profile")} />} />
+      action={<Button label={t("返回")} tone="plain" onPress={() => router.canGoBack() ? router.back() : router.replace("/profile")} />} />
     <View style={[styles.row, { flexWrap: "wrap" }]}>
       <Chip label={t("生日")} active={kind === "birthday"} onPress={() => { setKind("birthday"); setYear(undefined); }} />
       <Chip label={t("到家纪念日")} active={kind === "home"} onPress={() => { setKind("home"); setYear(undefined); }} />
@@ -54,7 +54,10 @@ export default function Anniversaries() {
       </View>
       <Button label={busy ? t("正在导出…") : t("分享纪念卡与信")} icon="upload" disabled={busy || (!!letter.photo && loaded !== letter.photo)} onPress={() => void share()} />
       <Button label={t("记录这一天")} tone="soft" disabled={occasion.inDays > 0} onPress={() => router.push({ pathname: "/record", params: { date: occasion.day } })} />
-    </> : <Empty title={t(kind === "birthday" ? "先填上它的生日" : "先填上到家日期")}
+    </> : <Empty title={t(kind === "birthday" ? "暂无生日庆祝日期" : "暂无到家纪念日期")}
+      subtitle={t(kind === "birthday" && state.preferences?.homeAsBirthday === false && state.pet.homeDate
+        ? "已关闭用到家日庆生，可切换到家纪念日，或在设置重新开启。"
+        : "知道日期时再补充就好。生日未知时，可以选择用到家日庆生。")}
       action={<Button label={t("编辑档案")} onPress={() => router.push({ pathname: "/onboarding", params: { edit: "1" } })} />} />}
     <Card style={{ gap: 8 }}><Text style={styles.small}>{t("2 月 29 日的生日或到家日，在平年按 2 月 28 日纪念。")}</Text>
       <Button label={t("修改生日与到家日期")} icon="edit-2" tone="plain" onPress={() => router.push({ pathname: "/onboarding", params: { edit: "1" } })} /></Card>

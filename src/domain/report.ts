@@ -1,11 +1,9 @@
 import { eventDay, newestEvents } from "./dates";
-import { t } from "../i18n/core";
+import { getLang, t } from "../i18n/core";
 import { isSensitive, temperOf, Temper } from "./temper";
 import { CATEGORIES, Category, LifeEvent, Pet } from "./types";
 
-// The monthly review: a payslip (work route) or report card (campus route), a grade and a
-// short appraisal. Everything is derived from saved entries; nothing here is stored.
-export type Grade = "S" | "A" | "B" | "C" | null;
+// A monthly keepsake of saved moments. Frequency is never a performance rating.
 export interface MonthReport {
   month: string;
   entries: number;
@@ -13,7 +11,6 @@ export interface MonthReport {
   counts: Record<Category, number>;
   top?: Category;
   highlight?: LifeEvent;
-  grade: Grade;
 }
 
 const pad = (n: number) => String(n).padStart(2, "0");
@@ -41,7 +38,6 @@ export function monthReport(events: LifeEvent[], month: string): MonthReport {
     counts,
     top,
     highlight: mine[0],
-    grade: n >= 20 ? "S" : n >= 10 ? "A" : n >= 4 ? "B" : n >= 1 ? "C" : null,
   };
 }
 
@@ -51,7 +47,7 @@ const RATES: Record<Category, { label: string; each: number }> = {
   bath: { label: "洗澡受惊补偿", each: 5 },
   walk: { label: "外勤补贴", each: 4 },
   other: { label: "杂项", each: 1 },
-  chaos: { label: "物品损耗扣款", each: -3 },
+  chaos: { label: "创意补贴", each: 3 },
 };
 export const currency = (pet: Pet) =>
   t(pet.species === "cat" ? "小鱼干" : pet.species === "dog" ? "肉干" : "零食");
@@ -72,38 +68,34 @@ const SUBJECTS: Record<Category, string> = {
   walk: "户外观察",
   other: "生活笔记",
 };
-/** Report-card rows for the campus route; a subject with no entries is marked absent. */
-export function reportCard(report: MonthReport): { rows: { subject: string; count: number; score?: number }[]; credits: number } {
+/** Category counts for the campus route; an unrecorded subject stays empty. */
+export function reportCard(report: MonthReport): { rows: { subject: string; count: number }[]; credits: number } {
   return {
     rows: CATEGORIES.map((c) => ({
       subject: t(SUBJECTS[c]),
       count: report.counts[c],
-      score: report.counts[c] ? Math.min(100, 60 + report.counts[c] * 8) : undefined,
     })),
     credits: report.entries * 2,
   };
 }
 
-const MANAGER: Record<"S" | "A" | "B" | "C" | "none", string> = {
-  S: "全勤级表现，建议立刻发放零食。",
-  A: "表现稳定，继续保持。",
-  B: "有记录，有进步空间。",
-  C: "本月露面不多，下月多写几笔。",
-  none: "本月还没有记录。",
-};
 const SELF: Record<Temper, string> = {
-  cool: "我的表现不需要评价。",
-  clingy: "只要{owner}在，我每天都满分。",
-  goofy: "不知道考核是什么，但我很开心！",
-  drama: "本月我付出了太多，建议加薪并公开表扬。",
-  curious: "已完成多项实验，结论待复现。",
+  cool: "这些日常，我想按自己的节奏慢慢回看。",
+  clingy: "和{owner}一起的日子，想一段一段记住。",
+  goofy: "和{owner}一起，想把这些小事再看一遍！",
+  drama: "本月的小剧场，想请{owner}一起回看。",
+  curious: "还有些小问题，想和{owner}接着聊。",
   calm: "正常上班，正常下班，没有意见。",
   shy: "我有在努力，只是比较小声。",
 };
-/** The owner's verdict by grade and the pet's self-review in its own temper. */
+/** A count-based memory note and the pet's reflection in its own temper. */
 export function appraisal(pet: Pet, report: MonthReport, owner: string) {
   return {
-    manager: t(MANAGER[report.grade ?? "none"]),
+    manager: report.entries
+      ? getLang() === "en"
+        ? `${report.entries} ${report.entries === 1 ? "moment" : "moments"} kept across ${report.days} ${report.days === 1 ? "day" : "days"}. Add another whenever you feel like it.`
+        : t("这 {days} 天，留下了 {n} 段生活。想记的时候，就添一笔。", { days: report.days, n: report.entries })
+      : t("这一页还空着，想记的时候再写。"),
     self: t(SELF[temperOf(pet)], { owner }),
   };
 }

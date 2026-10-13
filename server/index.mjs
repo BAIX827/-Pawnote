@@ -1,6 +1,7 @@
 // Pawnote AI gateway on Node 22+ with zero dependencies: for local development and any plain
 // server. Usage counts live in a JSON file next to this script.
 import { createServer } from "node:http";
+import { Buffer } from "node:buffer";
 import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";

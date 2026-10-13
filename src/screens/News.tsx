@@ -1,6 +1,6 @@
 import { eventDate } from "../domain/dates";
-import { t } from "../i18n";
-import React, { useRef, useState } from "react";
+import { t, useLang } from "../i18n";
+import React, { useEffect, useRef, useState } from "react";
 import { Image, Platform, Text, View } from "react-native";
 import { router, useLocalSearchParams } from "expo-router";
 import { useStore } from "../data/store";
@@ -13,7 +13,7 @@ import {
   lead,
 } from "../domain/news-card";
 import { speciesEmoji } from "../domain/pet-profile";
-import { exportNews } from "../platform/export";
+import { canShareNews, exportNews, prepareNewsImage, shareNews } from "../platform/export";
 import { Button, Chip, Empty, Heading, colors, demoPhoto, display, shadow, styles } from "../components/ui";
 
 const LABELS: Record<NewsTemplate, string> = {
@@ -57,19 +57,33 @@ export default function News() {
   const event = state.events.find((e) => e.id === id);
   const card = useRef<View>(null);
   const [busy, setBusy] = useState(false);
+  const lang = useLang();
   const [template, setTemplate] = useState<NewsTemplate>("daily");
+  const [preparedImage, setPreparedImage] = useState<{ event: LifeEvent; template: NewsTemplate; lang: string; error?: string }>();
+  const currentImage = preparedImage?.event === event && preparedImage?.template === template && preparedImage?.lang === lang;
+  const imageReady = Platform.OS !== "web" || (currentImage && !preparedImage?.error);
+  const imageError = currentImage ? preparedImage?.error : undefined;
+  const [attempt, setAttempt] = useState(0);
+  useEffect(() => {
+    if (!event || Platform.OS !== "web") return;
+    let active = true;
+    void prepareNewsImage(event, template).then(() => { if (active) setPreparedImage({ event, template, lang }); })
+      .catch(() => { if (active) setPreparedImage({ event, template, lang, error: t("图片生成失败，请重试。") }); });
+    return () => { active = false; };
+  }, [event, template, attempt, lang]);
   const [loadedPhoto, setLoadedPhoto] = useState<string>();
   const shown = event?.photo ?? (template === "wanted" || template === "cover" ? event?.petSnapshot.avatar : undefined);
   const photoReady = !shown || loadedPhoto === shown;
-  async function share() {
+  async function share(save = false) {
     if (!event) return;
     setBusy(true);
     try {
-      await exportNews(event, card.current, template);
+      const result = await (save ? exportNews : shareNews)(event, card.current, template);
+      if (result === "cancelled") return;
       notify(
-        Platform.OS === "web"
-          ? t("新闻卡已导出，可用浏览器打开 SVG 文件。")
-          : t("分享面板已关闭，可在所选位置检查图片。"),
+        save && Platform.OS === "web"
+          ? t("PNG 图片已准备保存，请在下载位置查看。")
+          : result === "opened" ? t("分享面板已打开，请选择分享方式。") : t("分享面板已关闭，可在所选位置检查图片。"),
       );
     } catch (e) {
       notify(e instanceof Error ? e.message : t("导出失败，请重试。"));
@@ -101,7 +115,7 @@ export default function News() {
         title={t("爪报编辑部")}
         eyebrow={t("PAW POST · 号外")}
         accent={colors.sky}
-        action={<Button label={t("返回")} tone="plain" onPress={() => router.replace("/")} />}
+        action={<Button label={t("返回")} tone="plain" onPress={() => router.canGoBack() ? router.back() : router.replace("/")} />}
       />
       {plain ? (
         <Text style={styles.muted}>{t("这一条不适合做成报纸，只保留一张朴素的记录卡。")}</Text>
@@ -208,22 +222,28 @@ export default function News() {
         </View>
       )}
 
-      <Button
+      {!!imageError && <Text accessibilityRole="alert" style={styles.small}>{imageError}</Text>}
+      {!!imageError && <Button label={t("重新生成图片")} tone="soft" onPress={() => setAttempt((n) => n + 1)} />}
+      {Platform.OS === "web" && <Button
+        label={imageReady ? t("保存 PNG 图片") : t("正在准备新闻卡…")}
+        icon="download"
+        disabled={busy || !imageReady}
+        onPress={() => { void share(true); }}
+      />}
+      {canShareNews() && <Button
         label={
           busy
             ? t("正在准备新闻卡…")
-            : Platform.OS === "web"
-              ? t("保存新闻卡（SVG）")
-              : t("分享新闻图片")
+            : t("分享新闻图片")
         }
-        icon="download"
-        disabled={busy || (Platform.OS !== "web" && !photoReady)}
+        icon="share"
+        disabled={busy || (Platform.OS === "web" ? !imageReady : !photoReady)}
         onPress={() => {
           void share();
         }}
-      />
+      />}
       <Text style={[styles.small, { textAlign: "center" }]}>
-        {Platform.OS === "web" ? t("SVG 卡片可在浏览器打开。") : t("PNG · 系统分享")}
+        {canShareNews() ? t("PNG · 系统分享") : t("保存图片后，可直接发给朋友。")}
       </Text>
     </View>
   );

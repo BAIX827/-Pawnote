@@ -352,7 +352,8 @@ export default function Shell({ children }: { children: React.ReactNode }) {
                   transform: [{ rotate: "-6deg" }, { scale: pressed ? 0.92 : 1 }],
                 })}
               >
-                <Icon name="plus" size={26} color={colors.ink} />
+                <Icon name="plus" size={22} color={colors.ink} />
+                <Text style={{ fontSize: 10, fontWeight: "700", color: colors.ink }}>{t("记录")}</Text>
               </Pressable>
               {nav.slice(2).map(item)}
             </View>

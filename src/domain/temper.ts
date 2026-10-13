@@ -1,5 +1,6 @@
 import { Category, Pet } from "./types";
 import { en, zh } from "./voice-bank";
+import { eventContext } from "./event-context";
 
 // The on-device voice bank. See docs/13 (宠物语气指南 v2) for the brief.
 // Seven tempers: goofy is split out of warm, drama and curious out of hyper,
@@ -79,7 +80,7 @@ export function reaction(
   lang: "zh" | "en",
   variant = 0,
   description = "",
-): { line: string; closer: string } {
+): { line: string; closer: string; contextual?: boolean } {
   const fill = fillWith(owner, lang);
   if (isSensitive(description)) return { line: fill(QUIET[lang].line), closer: fill(QUIET[lang].closer) };
   const temper = temperOf(pet);
@@ -91,7 +92,8 @@ export function reaction(
   // Every third version gets an absurd beat; owners who asked for weird get one every time.
   const weirdOk = isWeird(pet) || (temper !== "shy" && temper !== "clingy");
   if (weirdOk && (isWeird(pet) || variant % 3 === 2)) closer = weird[lang][(variant + Object.keys(set).indexOf(category)) % weird[lang].length];
-  return { line: fill(line), closer: fill(closer) };
+  const context = eventContext(description, owner, lang);
+  return { line: context ? `${context}${lang === "zh" ? "" : " "}${fill(closer)}` : fill(line), closer: fill(closer), contextual: !!context };
 }
 
 /** A brief post addressed to friends, with a second version for "say it another way". */
@@ -99,6 +101,8 @@ export function socialLine(pet: Pet, category: Category, owner: string, lang: "z
   const fill = fillWith(owner, lang);
   if (isSensitive(description)) return fill(QUIET[lang].closer);
   const base = fill((lang === "en" ? en : zh)[temperOf(pet)].social[category][variant % 2]);
+  const context = eventContext(description, owner, lang);
+  if (context) return `${context}${lang === "zh" ? "" : " "}${base}`;
   // Use a recorded detail to anchor the thought, rather than adding a stock scene.
   if ((pet.species === "cat" || pet.species === "dog") && /闻|嗅|sniff|smell/i.test(description))
     return base + (lang === "zh" ? "" : " ") + (lang === "zh" ? "你们看照片，我想把气味里的消息读完。" : "You have the photos. I'd like time to read the scent news.");

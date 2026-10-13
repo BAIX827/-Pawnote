@@ -174,7 +174,7 @@ export default function Life() {
           </Text>
           <Button label={t("添一段经历")} icon="plus" onPress={() => router.push("/record")} />
           <Button
-            label={work ? t("看本月工资条和考核") : t("看本月成绩单和考核")}
+            label={t("看本月生活回顾")}
             icon="file-text"
             tone="soft"
             onPress={() => router.push("/report")}

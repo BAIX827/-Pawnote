@@ -6,6 +6,7 @@ import { t } from "../i18n";
 import { SoundMemory, SoundStage, SOUND_STAGES } from "../domain/types";
 import { addSound, isSoundDay, localDay, soundAge, soundRange, soundTime, stageForAge, SOUND_STAGE_LABELS } from "../domain/sounds";
 import { ageLabel } from "../domain/pet-profile";
+import { soundCopy } from "../domain/sound-copy";
 import { canExtractVideo, chooseSoundVideo, extractSound, releaseVideo } from "../platform/sounds";
 import type { PickedVideo, SoundClip } from "../platform/sounds.types";
 import { Button, Card, Chip, Empty, Field, Heading, Icon, Label, Sticker, Tag, Tape, colors, styles } from "../components/ui";
@@ -63,6 +64,7 @@ export default function Sounds() {
   }, []);
   if (!state.pet) return <Onboarding />;
   const pet = state.pet, busy = working || recordingBusy;
+  const copy = soundCopy(pet);
   const sounds = [...(state.sounds ?? [])].sort((a, b) => b.recordedOn.localeCompare(a.recordedOn) || b.createdAt.localeCompare(a.createdAt));
   const filtered = sounds.filter((s) => filter === "all" || s.stage === filter);
   const setAge = (value: string) => {
@@ -124,11 +126,11 @@ export default function Sounds() {
   return (
     <View style={[styles.stack, { maxWidth: 760, width: "100%", alignSelf: "center" }]}>
       <Heading title={t("声音相册")} eyebrow="VOICE MEMORIES" accent={colors.pink}
-        action={<Button label={t("返回爪册")} tone="plain" disabled={busy} onPress={() => router.replace("/profile")} />} />
+        action={<Button label={t("返回")} tone="plain" disabled={busy} onPress={() => router.canGoBack() ? router.back() : router.replace("/profile")} />} />
       <Card style={{ backgroundColor: colors.green, gap: 12 }}>
         <Sticker bg={colors.paper} rotate={-2}>{t("长大了，声音也值得被记住")}</Sticker>
         <Text style={[styles.h2, { fontSize: 28, lineHeight: 36 }]}>{t("把 {name} 的这一声，留给以后的你。", { name: pet.name })}</Text>
-        <Text style={styles.body}>{t("奶声奶气的叫声、兴奋的汪汪、睡梦里的哼唧。按日期和成长阶段收藏，慢慢听它长大。")}</Text>
+        <Text style={styles.body}>{copy.description}</Text>
         <Text style={styles.small}>{t("{n} 段声音 · 私密保存在本机 · 随备份一起带走", { n: sounds.length })}</Text>
       </Card>
       {!mode && (
@@ -172,7 +174,7 @@ export default function Sounds() {
           {clip && (
             <>
               <SoundPlayer audio={clip.audio} duration={clip.duration} />
-              <View><Label>{t("给这一声起个名字")}</Label><Field accessibilityLabel={t("给这一声起个名字")} value={title} onChangeText={setTitle} maxLength={40} placeholder={t("例如：第一次对门铃汪汪")} /></View>
+              <View><Label>{t("给这一声起个名字")}</Label><Field accessibilityLabel={t("给这一声起个名字")} value={title} onChangeText={setTitle} maxLength={40} placeholder={copy.example} /></View>
               <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 12 }}>
                 <View style={{ flex: 2, minWidth: 160 }}><Label>{t("声音日期")}</Label><Field accessibilityLabel={t("声音日期")} value={day} onChangeText={setDate} maxLength={10} placeholder="YYYY-MM-DD" /><Text style={styles.small}>{t("旧视频可以填拍摄当天的日期。")}</Text></View>
                 <View style={{ flex: 1, minWidth: 100 }}><Label>{t("当时月龄")}</Label><Field accessibilityLabel={t("当时月龄")} value={months} onChangeText={setAge} keyboardType="number-pad" maxLength={4} placeholder={t("可留空")} /></View>
@@ -198,7 +200,7 @@ export default function Sounds() {
         </View>
       </View>
       {filtered.length ? filtered.map((sound) => <Memory key={sound.id} sound={sound} selected={selected === sound.id && !mode} onSelect={() => setSelected(selected === sound.id ? null : sound.id)} onDelete={() => { update((s) => ({ ...s, sounds: (s.sounds ?? []).filter((item) => item.id !== sound.id) })); if (selected === sound.id) setSelected(null); notify(t("声音片段已删除。")); }} />) :
-        <Empty title={t("第一声，等你来收藏")} subtitle={t("录下今天的叫声，以后回头听听，会有很多小惊喜。")} />}
+        <Empty title={t("第一声，等你来收藏")} subtitle={copy.empty} />}
     </View>
   );
 }

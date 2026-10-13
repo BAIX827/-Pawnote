@@ -26,20 +26,27 @@ export const escapeXML = (s: string) =>
         "'": "&apos;",
       })[c]!,
   );
+/** Keep Latin words whole, with room sized for CJK glyphs; long single words still wrap. */
 export const wrap = (s: string, width: number): string[] =>
-  s.split("\n").flatMap((line) => {
-    const chars = Array.from(line);
-    return chars.length
-      ? Array.from({ length: Math.ceil(chars.length / width) }, (_, i) =>
-          chars.slice(i * width, (i + 1) * width).join(""),
-        )
-      : [""];
+  s.split("\n").flatMap((paragraph) => {
+    const lines: string[] = [];
+    let line = "", used = 0;
+    const weight = (char: string) => /[^\x00-\xff]|[WMwm]/.test(char) ? 1 : /\s/.test(char) ? 0.35 : 0.65;
+    for (const token of paragraph.match(/[A-Za-z0-9]+(?:['’-][A-Za-z0-9]+)*|[^A-Za-z0-9]/gu) ?? []) {
+      const size = Array.from(token).reduce((sum, char) => sum + weight(char), 0);
+      if (line && used + size > width) { lines.push(line); line = ""; used = 0; }
+      for (const char of token) {
+        if (line && used + weight(char) > width) { lines.push(line); line = ""; used = 0; }
+        line += char; used += weight(char);
+      }
+    }
+    return [...lines, line];
   });
 const INK = "#263830";
 const safePhoto = (event: LifeEvent) =>
   event.photo && /^data:image\/jpeg;base64,[A-Za-z0-9+/=]+$/.test(event.photo) ? event.photo : undefined;
 const footer = (event: LifeEvent, plain = false) =>
-  `爪记 Pawnote · ${event.stories.news.generator === "ai" ? "AI 生成" : "模板生成"}${plain ? "" : " · 虚构娱乐报道"}`;
+  `${t("爪记 Pawnote")} · ${t(event.stories.news.generator === "ai" ? "AI 生成" : "模板生成")}${plain ? "" : ` · ${t("虚构娱乐报道")}`}`;
 // The three extra layouts share one vertical flow: a header block, optional photo, then text.
 function altSVG(event: LifeEvent, template: Exclude<NewsTemplate, "daily"> | "plain"): string {
   const photo = safePhoto(event), name = escapeXML(event.petSnapshot.name), date = escapeXML(formatDate(eventDate(event).toISOString()));
@@ -116,5 +123,5 @@ export function newsSVG(event: LifeEvent, template: NewsTemplate = "daily"): str
       : "";
   const start = 220 + title.length * 45 + (picture ? 340 : 0);
   const height = start + lines.length * 32 + 120;
-  return `<svg xmlns="http://www.w3.org/2000/svg" width="720" height="${height}" viewBox="0 0 720 ${height}"><rect width="720" height="${height}" fill="#fff9ef"/><g font-family="Arial, sans-serif" fill="#263830"><text x="40" y="65" font-size="42" font-weight="bold">爪报</text><text x="40" y="103" font-size="17">${escapeXML(formatDate(eventDate(event).toISOString()))} · ${escapeXML(event.petSnapshot.name)} 的生活特刊</text><path d="M40 125H680" stroke="#263830" stroke-width="3"/>${title.map((t, i) => `<text x="40" y="${180 + i * 45}" font-size="31" font-weight="bold">${escapeXML(t)}</text>`).join("")}${picture}${lines.map((t, i) => `<text x="40" y="${start + i * 32}" font-size="21">${escapeXML(t)}</text>`).join("")}<path d="M40 ${height - 75}H680" stroke="#263830"/><text x="40" y="${height - 40}" font-size="16">爪记 Pawnote · ${event.stories.news.generator === "ai" ? "AI 生成" : "模板生成"} · 虚构娱乐报道</text></g></svg>`;
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="720" height="${height}" viewBox="0 0 720 ${height}"><rect width="720" height="${height}" fill="#fff9ef"/><g font-family="Arial, sans-serif" fill="#263830"><text x="40" y="65" font-size="42" font-weight="bold">${escapeXML(t("爪报"))}</text><text x="40" y="103" font-size="17">${escapeXML(formatDate(eventDate(event).toISOString()))} · ${escapeXML(t("来源：{name}的本人日常记录", { name: event.petSnapshot.name }))}</text><path d="M40 125H680" stroke="#263830" stroke-width="3"/>${title.map((t, i) => `<text x="40" y="${180 + i * 45}" font-size="31" font-weight="bold">${escapeXML(t)}</text>`).join("")}${picture}${lines.map((t, i) => `<text x="40" y="${start + i * 32}" font-size="21">${escapeXML(t)}</text>`).join("")}<path d="M40 ${height - 75}H680" stroke="#263830"/><text x="40" y="${height - 40}" font-size="16">${escapeXML(footer(event))}</text></g></svg>`;
 }

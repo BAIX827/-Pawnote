@@ -127,13 +127,14 @@ final class LocalSite {
     }
 }
 
-final class AppDelegate: NSObject, NSApplicationDelegate, WKNavigationDelegate, WKUIDelegate, WKDownloadDelegate {
+final class AppDelegate: NSObject, NSApplicationDelegate, WKNavigationDelegate, WKUIDelegate, WKDownloadDelegate, WKScriptMessageHandlerWithReply {
     private var window: NSWindow!
     private var webView: WKWebView!
     private var site: LocalSite!
     private let smoke = CommandLine.arguments.contains("--smoke-test")
     private var smokeStarted = false
     private var smokeDownloads: [ObjectIdentifier: URL] = [:]
+    private var imageSharePicker: NSSharingServicePicker?
 
     func applicationDidFinishLaunching(_ notification: Notification) {
         guard let resources = Bundle.main.resourceURL else { fail("应用资源缺失。"); return }
@@ -143,6 +144,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, WKNavigationDelegate, 
         }
         menu()
         let configuration = WKWebViewConfiguration()
+        configuration.userContentController.addScriptMessageHandler(self, contentWorld: .page, name: "pawnoteImageShare")
         configuration.websiteDataStore = smoke ? .nonPersistent() : .default()
         webView = WKWebView(frame: .zero, configuration: configuration)
         webView.navigationDelegate = self
@@ -176,6 +178,34 @@ final class AppDelegate: NSObject, NSApplicationDelegate, WKNavigationDelegate, 
     }
 
     private var homeURL: URL { URL(string: "http://127.0.0.1:\(site.port)/")! }
+
+    // Only the app's own main frame may ask to share a PNG. No files or remote URLs are accepted.
+    func userContentController(_ userContentController: WKUserContentController,
+                               didReceive message: WKScriptMessage,
+                               replyHandler: @escaping (Any?, String?) -> Void) {
+        let origin = message.frameInfo.securityOrigin
+        guard message.name == "pawnoteImageShare", message.frameInfo.isMainFrame,
+              origin.protocol == "http", origin.host == "127.0.0.1", origin.port == Int(site.port),
+              let body = message.body as? [String: Any], let png = body["png"] as? String,
+              png.utf8.count <= 44000000, let data = Data(base64Encoded: png),
+              data.starts(with: [137, 80, 78, 71, 13, 10, 26, 10]),
+              let bitmap = NSBitmapImageRep(data: data),
+              bitmap.pixelsWide > 0, bitmap.pixelsHigh > 0,
+              bitmap.pixelsWide * bitmap.pixelsHigh <= 16000000,
+              let image = NSImage(data: data) else {
+            replyHandler(nil, "分享图片读取失败，请重新生成。")
+            return
+        }
+        if smoke {
+            webView.evaluateJavaScript("window.pawnoteImageShareReady = true; null;")
+            replyHandler("ready", nil)
+            return
+        }
+        imageSharePicker = NSSharingServicePicker(items: [image])
+        imageSharePicker?.show(relativeTo: NSRect(x: webView.bounds.maxX - 40, y: 40, width: 1, height: 1),
+                               of: webView, preferredEdge: .minX)
+        replyHandler("opened", nil)
+    }
 
     func applicationShouldHandleReopen(_ sender: NSApplication, hasVisibleWindows flag: Bool) -> Bool {
         window.makeKeyAndOrderFront(nil)
@@ -244,7 +274,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, WKNavigationDelegate, 
                                        in: nil, in: .page, completionHandler: { result in
                 switch result {
                 case .success(let value): print("PASS: \(value)"); exit(0)
-                case .failure(let error): self.fail(error.localizedDescription)
+                case .failure(let error): self.fail("\(error.localizedDescription)\n\((error as NSError).userInfo)")
                 }
             })
         }
@@ -281,7 +311,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate, WKNavigationDelegate, 
     func download(_ download: WKDownload, decideDestinationUsing response: URLResponse,
                   suggestedFilename: String, completionHandler: @escaping (URL?) -> Void) {
         if smoke {
-            let url = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString + ".json")
+            let ext = (suggestedFilename as NSString).pathExtension == "png" ? "png" : "json"
+            let url = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString + "." + ext)
             smokeDownloads[ObjectIdentifier(download)] = url
             completionHandler(url)
             return
@@ -297,6 +328,15 @@ final class AppDelegate: NSObject, NSApplicationDelegate, WKNavigationDelegate, 
     func downloadDidFinish(_ download: WKDownload) {
         guard smoke, let url = smokeDownloads.removeValue(forKey: ObjectIdentifier(download)) else { return }
         defer { try? FileManager.default.removeItem(at: url) }
+        if url.pathExtension == "png" {
+            guard let data = try? Data(contentsOf: url),
+                  data.starts(with: [137, 80, 78, 71, 13, 10, 26, 10]),
+                  let image = NSBitmapImageRep(data: data), image.pixelsWide >= 720, image.pixelsHigh > 0 else {
+                fail("Downloaded news PNG is invalid"); return
+            }
+            webView.evaluateJavaScript("window.pawnotePNGDownloaded = true; null;")
+            return
+        }
         guard let data = try? Data(contentsOf: url),
               let backup = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
               let events = backup["events"] as? [[String: Any]], !events.isEmpty else {

@@ -32,8 +32,8 @@ const pet = (v: unknown) =>
   optionalInt(v.ageMonths, 1200) &&
   (v.ageRecordedAt === undefined || (str(v.ageRecordedAt, 40) && Number.isFinite(Date.parse(v.ageRecordedAt as string)))) &&
   (v.routeSource === undefined || one(v.routeSource, ["age", "manual"])) &&
-  (v.routeSource !== "age" || ((v.species === "cat" || v.species === "dog") && v.ageMonths !== undefined &&
-    v.route === ((v.ageMonths as number) < 12 ? "campus" : "work"))) &&
+  (v.routeSource !== "age" || ((v.species === "cat" || v.species === "dog") &&
+    v.route === (v.ageMonths !== undefined && (v.ageMonths as number) < 12 ? "campus" : "work"))) &&
   one(v.route, ["work", "campus"]) &&
   str(v.role, 30) &&
   (v.homeDate === undefined || isHomeDate(v.homeDate)) &&
@@ -83,6 +83,8 @@ const pawsona = (v: unknown) =>
 const ids = (v: unknown, max: number) =>
   v === undefined || (Array.isArray(v) && v.length <= max && v.every((x) => str(x, 200)));
 const circle = (v: unknown) => obj(v) && ids(v.hiddenNpcs, 7) && ids(v.removed, 500);
+const preferences = (v: unknown) => v === undefined || (obj(v) &&
+  ["homeAsBirthday", "randomStyle", "homeExtras"].every((key) => v[key] === undefined || typeof v[key] === "boolean"));
 export function isAppState(v: unknown): v is AppState {
   if (
     !obj(v) ||
@@ -123,6 +125,7 @@ export function isAppState(v: unknown): v is AppState {
   )
     return false;
   if (!pawsona(v.pawsona)) return false;
+  if (!preferences(v.preferences)) return false;
   if (v.mailRead !== undefined && !(typeof v.mailRead === "string" && /^\d{4}-\d{2}-\d{2}$/.test(v.mailRead))) return false;
   if (v.mailReminder !== undefined && typeof v.mailReminder !== "boolean") return false;
   if (v.circle !== undefined && !circle(v.circle)) return false;
@@ -147,6 +150,7 @@ export function isAppState(v: unknown): v is AppState {
       one(v.draft.selectedStyle, STYLES) &&
       photo(v.draft.photo) &&
       typeof v.draft.published === "boolean" &&
+      (v.draft.expressionNeedsReview === undefined || typeof v.draft.expressionNeedsReview === "boolean") &&
       (v.draft.stories === undefined || stories(v.draft.stories)) &&
       (v.draft.signature === undefined || str(v.draft.signature, 1500)))
   );

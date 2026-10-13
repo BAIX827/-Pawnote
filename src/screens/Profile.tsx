@@ -9,6 +9,7 @@ import { useStore } from "../data/store";
 import { formatDate } from "../domain/types";
 import {
   Button,
+  Chip,
   Empty,
   Heading,
   Portrait,
@@ -26,6 +27,7 @@ import { ageLabel, speciesLabel } from "../domain/pet-profile";
 export default function Profile() {
   const { state } = useStore();
   const [filter, setFilter] = useState<JournalFilter>({});
+  const [tools, setTools] = useState(false);
   const [limit, setLimit] = useState(30);
   const events = filterJournal(state.events, filter);
   if (!state.pet) return <Onboarding />;
@@ -103,10 +105,52 @@ export default function Profile() {
           </View>
         </View>
       </View>
-      <Button label={t("声音相册 · {n} 段叫声", { n: state.sounds?.length ?? 0 })} icon="mic" tone="soft" onPress={() => router.push("/sounds")} />
-      <View style={[styles.row, { flexWrap: "wrap" }]}>
-        <Button label={t("成长纪念册")} icon="book" tone="soft" onPress={() => router.push("/keepsake")} />
-        <Button label={t("生日与纪念日")} icon="gift" tone="soft" onPress={() => router.push("/anniversaries")} />
+      <View style={{ gap: 12 }}>
+        <View style={[styles.row, { flexWrap: "wrap" }]}>
+          <Chip label={t("日记")} active={!filter.photosOnly} onPress={() => { setFilter({ ...filter, photosOnly: false }); setLimit(30); }} />
+          <Chip label={t("照片")} active={filter.photosOnly === true} onPress={() => { setFilter({ ...filter, photosOnly: true }); setLimit(30); }} />
+          <Button label={t("声音相册 · {n} 段叫声", { n: state.sounds?.length ?? 0 })} icon="mic" tone="soft" onPress={() => router.push("/sounds")} />
+          <Button label={t("成长纪念册")} icon="book" tone="soft" onPress={() => router.push("/keepsake")} />
+          <Button label={t("生日与纪念日")} icon="gift" tone="soft" onPress={() => router.push("/anniversaries")} />
+        </View>
+        <Button label={tools ? t("收起更多工具") : t("更多工具 · 爪约、爪信与时光机")} icon="grid" tone="plain" onPress={() => setTools(!tools)} style={{ alignSelf: "flex-start" }} />
+        {tools && <View style={[styles.row, { flexWrap: "wrap" }]}>
+          <Button
+            label={t("爪约")}
+            icon="bell"
+            tone="soft"
+            onPress={() => router.push("/dates")}
+            style={{ alignSelf: "flex-start" }}
+          />
+          <Button
+            label={state.pawsona ? t("爪格：{name}", { name: pawsonaCard(pet, state.pawsona).name }) : t("爪格测试")}
+            icon="zap"
+            tone="soft"
+            onPress={() => router.push("/pawsona")}
+            style={{ alignSelf: "flex-start" }}
+          />
+          <Button
+            label={t("爪信")}
+            icon="mail"
+            tone="soft"
+            onPress={() => router.push("/mail")}
+            style={{ alignSelf: "flex-start" }}
+          />
+          <Button
+            label={t("时光机")}
+            icon="clock"
+            tone="soft"
+            onPress={() => router.push("/timemachine")}
+            style={{ alignSelf: "flex-start" }}
+          />
+          <Button
+            label={t("设置")}
+            icon="settings"
+            tone="soft"
+            onPress={() => router.push("/settings")}
+            style={{ alignSelf: "flex-start" }}
+          />
+        </View>}
       </View>
       <JournalFilters events={state.events} filter={filter} onChange={(value) => { setFilter(value); setLimit(30); }} />
       <View style={[styles.between, { marginTop: 6 }]}>
@@ -245,41 +289,6 @@ export default function Profile() {
         />
       )}
       {events.length > limit && <Button label={t("看更早的日记")} tone="soft" onPress={() => setLimit(limit + 30)} />}
-      <Button
-        label={t("爪约")}
-        icon="bell"
-        tone="soft"
-        onPress={() => router.push("/dates")}
-        style={{ alignSelf: "flex-start" }}
-      />
-      <Button
-        label={state.pawsona ? t("爪格：{name}", { name: pawsonaCard(pet, state.pawsona).name }) : t("爪格测试")}
-        icon="zap"
-        tone="soft"
-        onPress={() => router.push("/pawsona")}
-        style={{ alignSelf: "flex-start" }}
-      />
-      <Button
-        label={t("爪信")}
-        icon="mail"
-        tone="soft"
-        onPress={() => router.push("/mail")}
-        style={{ alignSelf: "flex-start" }}
-      />
-      <Button
-        label={t("时光机")}
-        icon="clock"
-        tone="soft"
-        onPress={() => router.push("/timemachine")}
-        style={{ alignSelf: "flex-start" }}
-      />
-      <Button
-        label={t("设置")}
-        icon="settings"
-        tone="soft"
-        onPress={() => router.push("/settings")}
-        style={{ alignSelf: "flex-start" }}
-      />
     </View>
   );
 }

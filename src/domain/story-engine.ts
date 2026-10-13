@@ -1,4 +1,4 @@
-import { Category, Pet, Stories, Story, StoryStyle } from "./types";
+import { Category, Draft, Pet, Stories, Story, StoryStyle, STYLES } from "./types";
 import { getLang, t } from "../i18n/core";
 import { isLoss, isSensitive, reaction, socialLine, temperOf } from "./temper";
 const incidents: Record<
@@ -194,7 +194,7 @@ export function generateStory(
   if (grave && style === "news") return done(`${pet.name}的今日记录`, `${owner}写下：“${fact}”\n\n${mine.line}`);
   if (grave && style !== "diary")
     return done(`${pet.name}的今日记录`, `${said.text}\n\n${style === "social" ? mine.closer : mine.line}`);
-  const life = pet.route === "work" ? v.work : v.campus;
+  const life = mine.contextual ? mine.line : pet.route === "work" ? v.work : v.campus;
   const text =
     style === "news"
       ? `${pet.ownerTitle?.trim() || "主人"}说：“${fact}”\n\n${pet.name}：“${mine.line}”`
@@ -250,8 +250,8 @@ const asides: Record<Category, { work: string; campus: string; title: string }> 
 function englishStory(pet: Pet, fact: string, category: Category, style: StoryStyle, variant: number): Story {
   const v = asides[category], owner = ownerName(pet), work = pet.route === "work";
   const Owner = owner.charAt(0).toUpperCase() + owner.slice(1);
-  const life = work ? v.work : v.campus;
   const mine = reaction(pet, category, owner, "en", variant, fact);
+  const life = mine.contextual ? mine.line : work ? v.work : v.campus;
   if (isSensitive(fact))
     return {
       title: `${pet.name}'s day`,
@@ -288,4 +288,15 @@ export function generateStories(
     social: generateStory(pet, description, category, "social"),
     news: generateStory(pet, description, category, "news"),
   };
+}
+
+/** Keep owner-edited voices until the owner explicitly chooses how to update them. */
+export function retellDraft(pet: Pet, draft: Draft, description: string, category: Category): Draft {
+  if (description === draft.description && category === draft.category) return draft;
+  const edited = STYLES.filter((s) => draft.stories?.[s].edited);
+  const stories = description.trim() || edited.length ? generateStories(pet, description, category) : undefined;
+  if (stories) for (const style of edited) stories[style] = draft.stories![style];
+  return { ...draft, description, category, stories,
+    signature: stories ? generationSignature(pet, description, category) : undefined,
+    expressionNeedsReview: edited.length > 0 };
 }

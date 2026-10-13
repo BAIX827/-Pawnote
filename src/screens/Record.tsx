@@ -6,7 +6,7 @@ import { useStore } from "../data/store";
 import {
   detectCategory,
   generateStories,
-  generateStory,
+  retellDraft,
   generationSignature,
   ownerName,
   selfName,
@@ -74,7 +74,7 @@ export default function Record() {
 }
 function Recorder({ original, initialDate }: { original?: LifeEvent; initialDate?: string }) {
   const { state, update, notify } = useStore();
-  const [seed] = useState(() => ({ ...newDraft(), occurredOn: initialDate ?? localDay() }));
+  const [seed] = useState(() => ({ ...newDraft(state.preferences), occurredOn: initialDate ?? localDay() }));
   const [editDraft, setEditDraft] = useState<Draft | undefined>(() => original ? {
     id: original.id, description: original.description, category: original.category,
     photo: original.photo, stories: original.stories, selectedStyle: original.selectedStyle,
@@ -82,7 +82,7 @@ function Recorder({ original, initialDate }: { original?: LifeEvent; initialDate
     signature: generationSignature(original.petSnapshot, original.description, original.category),
   } : undefined);
   const [busy, setBusy] = useState(false);
-  const [variant, setVariant] = useState(0);
+  const [more, setMore] = useState(!!original || !!initialDate);
   const [manualTag, setManualTag] = useState(!!original);
   // Bubbles grow with their text, so nothing scrolls inside a speech bubble.
   const [heights, setHeights] = useState({ owner: 96, pet: 120 });
@@ -139,34 +139,7 @@ function Recorder({ original, initialDate }: { original?: LifeEvent; initialDate
   }
   // Every keystroke on the owner's side re-tells the story on the pet's side.
   function retell(description: string, category: Category) {
-    patch({
-      description,
-      category,
-      ...(description.trim()
-        ? {
-            stories: generateStories(pet!, description, category),
-            signature: generationSignature(pet!, description, category),
-          }
-        : { stories: undefined, signature: undefined }),
-    });
-  }
-  function regenerate() {
-    if (!draft.stories) return;
-    const next = variant + 1;
-    setVariant(next);
-    patch({
-      stories: {
-        ...draft.stories,
-        [draft.selectedStyle]: generateStory(
-          pet!,
-          draft.description,
-          draft.category,
-          draft.selectedStyle,
-          next,
-        ),
-      },
-    });
-    notify(t("{name}换了个说法。", { name: pet!.name }));
+    patch(retellDraft(pet!, draft, description, category));
   }
   async function askAI() {
     const asked = { description: draft.description, signature };
@@ -179,7 +152,7 @@ function Recorder({ original, initialDate }: { original?: LifeEvent; initialDate
         notify(t("原话已经改了，AI 的这一版没有采用。"));
         return;
       }
-      patch({ stories: result.stories, signature: asked.signature });
+      patch({ stories: result.stories, signature: asked.signature, expressionNeedsReview: false });
       notify(t("{name}用 AI 重新说了一遍。", { name: pet!.name }));
     } catch (e) {
       if (e instanceof AIError && e.quota) setQuota(e.quota);
@@ -213,7 +186,7 @@ function Recorder({ original, initialDate }: { original?: LifeEvent; initialDate
   }
   function save() {
     if (submitted.current) return;
-    if (!generated || !draft.stories) {
+    if (!generated || !draft.stories || !draft.description.trim() || draft.expressionNeedsReview) {
       notify(t("先写下今天的事，{name}才能开口。", { name: pet!.name }));
       return;
     }
@@ -244,7 +217,8 @@ function Recorder({ original, initialDate }: { original?: LifeEvent; initialDate
       submitted.current = true;
       update(next);
       notify(original ? t("日记已更新，经验保持不变。") : t("日常已保存 · +20 XP"));
-      router.replace({ pathname: "/event", params: { id: event.id } });
+      if (original && router.canGoBack()) router.back();
+      else router.replace({ pathname: "/event", params: { id: event.id } });
     } catch (e) {
       notify(e instanceof Error ? e.message : t("保存失败。"));
     }
@@ -256,19 +230,90 @@ function Recorder({ original, initialDate }: { original?: LifeEvent; initialDate
         eyebrow={t("你说人话 → {name}说{kind}话", { name: pet.name, kind: self.length > 1 ? self.slice(1) : t("自己的") })}
         accent={colors.pink}
         action={
-          <Button label={t("返回")} icon="x" tone="plain" onPress={() => original ? router.replace({ pathname: "/event", params: { id: original.id } }) : router.replace("/")} />
+          <Button label={t("返回")} icon="x" tone="plain" onPress={() => router.canGoBack() ? router.back() : router.replace("/")} />
         }
       />
 
-      <View style={{ gap: 8 }}>
-        <Label>{t("实际发生日期")}</Label>
-        <DateField label={t("实际发生日期")} value={draft.occurredOn ?? localDay()} onChange={(occurredOn) => patch({ occurredOn })} />
+      <View
+        style={[
+          {
+            backgroundColor: "#FFF",
+            borderRadius: 10,
+            padding: 12,
+            gap: 12,
+            marginTop: 6,
+            transform: [{ rotate: "-0.8deg" }],
+          },
+          shadow(4),
+        ]}
+      >
+        <Tape color={colors.sky} />
+        {draft.photo ? (
+          <Image
+            source={{ uri: draft.photo }}
+            style={{ width: "100%", height: 240, backgroundColor: colors.pale }}
+            resizeMode="cover"
+          />
+        ) : (
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel={t("选择照片")}
+            disabled={busy}
+            onPress={() => {
+              void pick();
+            }}
+            style={{
+              height: 120,
+              borderWidth: 2,
+              borderStyle: "dashed",
+              borderColor: colors.muted,
+              alignItems: "center",
+              justifyContent: "center",
+              gap: 6,
+            }}
+          >
+            <Icon name="image" size={26} color={colors.muted} />
+            <Text style={styles.small}>
+              {busy ? t("照片处理中…") : t("贴一张现场照片（可选）")}
+            </Text>
+          </Pressable>
+        )}
         <View style={[styles.row, { flexWrap: "wrap" }]}>
-          <Button label={t("今天")} tone="plain" onPress={() => patch({ occurredOn: localDay() })} />
-          <Text style={[styles.small, { flex: 1 }]}>{t("旧照片也可以补上，日记会按这一天排列。")}</Text>
+          {draft.photo && (
+            <Button
+              label={busy ? t("照片处理中…") : t("更换照片")}
+              icon="image"
+              tone="soft"
+              disabled={busy}
+              onPress={() => {
+                void pick();
+              }}
+            />
+          )}
+          {Platform.OS !== "web" && (
+            <Button
+              label={t("拍一张")}
+              icon="camera"
+              tone="soft"
+              disabled={busy}
+              onPress={() => {
+                void pick("camera");
+              }}
+            />
+          )}
+          {draft.photo && (
+            <Button
+              label={t("移除照片")}
+              tone="plain"
+              disabled={busy}
+              onPress={() => patch({ photo: undefined })}
+            />
+          )}
+          <Text style={styles.small}>{t("1 张 · ≤25 MB · 压缩后保存")}</Text>
         </View>
-        {original && <Text style={styles.small}>{t("沿用这条日记当时的人设；修改原话会重新生成表达。")}</Text>}
       </View>
+
+      <Text style={styles.small}>{t("记录日期：{date}", { date: draft.occurredOn ?? localDay() })}</Text>
       <View style={{ gap: 8 }}>
         <View style={[styles.row, { justifyContent: "flex-end", gap: 8 }]}>
           <Text style={styles.caps}>{t("你（{owner}）说", { owner })}</Text>
@@ -368,7 +413,7 @@ function Recorder({ original, initialDate }: { original?: LifeEvent; initialDate
               <Text style={[styles.small, { color: colors.ink, opacity: 0.7 }]}>
                 {isLoss(draft.description)
                   ? t("写到离别的这一条，按你的原话保存，不让它开口。")
-                  : t("点文字可以直接改 · 改上面的原话会重新翻译")}
+                  : t("点文字可以直接改 · 润色后的表达会保留供你确认")}
               </Text>
             </View>
           ) : (
@@ -379,23 +424,25 @@ function Recorder({ original, initialDate }: { original?: LifeEvent; initialDate
         </Bubble>
       </View>
 
-      {generated && (
-        <View style={{ gap: 10 }}>
-          <Text style={styles.caps}>{t("换个口吻")}</Text>
-          <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 8 }}>
-            {STYLES.map((s) => (
-              <Chip
-                key={s}
-                label={labels[s]}
-                color={tones[s]}
-                active={draft.selectedStyle === s}
-                onPress={() => patch({ selectedStyle: s })}
-              />
-            ))}
-            <Button label={t("换个说法")} icon="refresh-cw" tone="plain" onPress={regenerate} />
-          </View>
+      {generated && <View style={{ gap: 8 }}>
+        <Sticker bg={tones[draft.selectedStyle]} rotate={0}>{labels[draft.selectedStyle]}</Sticker>
+        {state.preferences?.randomStyle !== false && !original
+          ? <Text style={styles.small}>{t("本篇口吻已随机选好，写字时保持不变；可在设置关闭随机。")}</Text>
+          : <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 8 }}>
+              {STYLES.map((s) => <Chip key={s} label={labels[s]} color={tones[s]}
+                active={draft.selectedStyle === s} onPress={() => patch({ selectedStyle: s })} />)}
+            </View>}
+      </View>}
+      {draft.expressionNeedsReview && <View style={{ gap: 10 }}>
+        <Text accessibilityRole="alert" style={styles.body}>{t("原话或分类已改动，已保留你润色过的表达。请选择如何处理后保存。")}</Text>
+        <View style={[styles.row, { flexWrap: "wrap" }]}>
+          <Button label={t("保留我的润色")} tone="soft" onPress={() => patch({ expressionNeedsReview: false })} />
+          <Button label={t("按新原话更新表达")} tone="plain" onPress={() => patch({
+            stories: generateStories(pet, draft.description, draft.category),
+            signature, expressionNeedsReview: false,
+          })} />
         </View>
-      )}
+      </View>}
 
       {generated && aiAvailable && (
         <View
@@ -433,144 +480,78 @@ function Recorder({ original, initialDate }: { original?: LifeEvent; initialDate
         </View>
       )}
 
-      <View style={{ gap: 10 }}>
-        <Text style={styles.caps}>
-          {t("这算哪类事")}{manualTag ? "" : t(" · 已按原话自动判断")}
-        </Text>
-        <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 8 }}>
-          {CATEGORIES.map((c) => (
-            <Chip
-              key={c}
-              label={t(CATEGORY_LABELS[c])}
-              active={draft.category === c}
-              onPress={() => {
-                setManualTag(true);
-                retell(draft.description, c);
-              }}
-            />
-          ))}
+      <Button label={more ? t("收起更多选项") : t("更多选项 · 日期、分类与动态")}
+        icon="sliders" tone="plain" onPress={() => setMore(!more)} />
+      {more && <View style={{ gap: 22 }}>
+        <View style={{ gap: 8 }}>
+          <Label>{t("实际发生日期")}</Label>
+          <DateField label={t("实际发生日期")} value={draft.occurredOn ?? localDay()} onChange={(occurredOn) => patch({ occurredOn })} />
+          <View style={[styles.row, { flexWrap: "wrap" }]}>
+            <Button label={t("今天")} tone="plain" onPress={() => patch({ occurredOn: localDay() })} />
+            <Text style={[styles.small, { flex: 1 }]}>{t("旧照片也可以补上，日记会按这一天排列。")}</Text>
+          </View>
+          {original && <Text style={styles.small}>{t("沿用这条日记当时的人设，保留已润色的表达供你确认。")}</Text>}
         </View>
-      </View>
+        <View style={{ gap: 10 }}>
+          <Text style={styles.caps}>
+            {t("这算哪类事")}{manualTag ? "" : t(" · 已按原话自动判断")}
+          </Text>
+          <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 8 }}>
+            {CATEGORIES.map((c) => (
+              <Chip
+                key={c}
+                label={t(CATEGORY_LABELS[c])}
+                active={draft.category === c}
+                onPress={() => {
+                  setManualTag(true);
+                  retell(draft.description, c);
+                }}
+              />
+            ))}
+          </View>
+        </View>
 
-      <View
-        style={[
-          {
-            backgroundColor: "#FFF",
-            borderRadius: 10,
-            padding: 12,
-            gap: 12,
-            marginTop: 6,
-            transform: [{ rotate: "-0.8deg" }],
-          },
-          shadow(4),
-        ]}
-      >
-        <Tape color={colors.sky} />
-        {draft.photo ? (
-          <Image
-            source={{ uri: draft.photo }}
-            style={{ width: "100%", height: 240, backgroundColor: colors.pale }}
-            resizeMode="cover"
-          />
-        ) : (
-          <Pressable
-            accessibilityRole="button"
-            accessibilityLabel={t("选择照片")}
-            disabled={busy}
-            onPress={() => {
-              void pick();
-            }}
+        <Pressable
+          accessibilityRole="checkbox"
+          accessibilityLabel={t("让{name}发到爪友圈", { name: pet.name })}
+          accessibilityState={{ checked: posting, disabled: !!block }}
+          aria-checked={posting}
+          disabled={!!block}
+          onPress={() => patch({ published: !draft.published })}
+          style={[styles.row, { minHeight: 48, opacity: block ? 0.6 : 1 }]}
+        >
+          <View
             style={{
-              height: 120,
-              borderWidth: 2,
-              borderStyle: "dashed",
-              borderColor: colors.muted,
+              width: 26,
+              height: 26,
+              borderRadius: 7,
+              borderWidth: 2.5,
+              borderColor: colors.ink,
+              backgroundColor: posting ? colors.orange : colors.paper,
               alignItems: "center",
               justifyContent: "center",
-              gap: 6,
             }}
           >
-            <Icon name="image" size={26} color={colors.muted} />
-            <Text style={styles.small}>
-              {busy ? t("照片处理中…") : t("贴一张现场照片（可选）")}
+            {posting && <Icon name="check" color={colors.ink} size={16} />}
+          </View>
+          <View style={{ flex: 1 }}>
+            <Text style={[styles.body, { fontWeight: "700" }]}>
+              {t("让{name}发到爪友圈", { name: pet.name })}
             </Text>
-          </Pressable>
-        )}
-        <View style={[styles.row, { flexWrap: "wrap" }]}>
-          {draft.photo && (
-            <Button
-              label={busy ? t("照片处理中…") : t("更换照片")}
-              icon="image"
-              tone="soft"
-              disabled={busy}
-              onPress={() => {
-                void pick();
-              }}
-            />
-          )}
-          {Platform.OS !== "web" && (
-            <Button
-              label={t("拍一张")}
-              icon="camera"
-              tone="soft"
-              disabled={busy}
-              onPress={() => {
-                void pick("camera");
-              }}
-            />
-          )}
-          {draft.photo && (
-            <Button
-              label={t("移除照片")}
-              tone="plain"
-              disabled={busy}
-              onPress={() => patch({ photo: undefined })}
-            />
-          )}
-          <Text style={styles.small}>{t("1 张 · ≤25 MB · 压缩后保存")}</Text>
-        </View>
-      </View>
-
-      <Pressable
-        accessibilityRole="checkbox"
-        accessibilityLabel={t("让{name}发到爪友圈", { name: pet.name })}
-        accessibilityState={{ checked: posting, disabled: !!block }}
-        aria-checked={posting}
-        disabled={!!block}
-        onPress={() => patch({ published: !draft.published })}
-        style={[styles.row, { minHeight: 48, opacity: block ? 0.6 : 1 }]}
-      >
-        <View
-          style={{
-            width: 26,
-            height: 26,
-            borderRadius: 7,
-            borderWidth: 2.5,
-            borderColor: colors.ink,
-            backgroundColor: posting ? colors.orange : colors.paper,
-            alignItems: "center",
-            justifyContent: "center",
-          }}
-        >
-          {posting && <Icon name="check" color={colors.ink} size={16} />}
-        </View>
-        <View style={{ flex: 1 }}>
-          <Text style={[styles.body, { fontWeight: "700" }]}>
-            {t("让{name}发到爪友圈", { name: pet.name })}
-          </Text>
-          <Text style={styles.small}>
-            {block === "sensitive"
-              ? t("写到不舒服、走失或离开的事，这次不发动态。")
-              : block === "limit"
-                ? t("今天已经发了 2 条，{name}说明天再发。", { name: pet.name })
-                : t("它用爪友圈口吻自己写 · 留在窝里，只在这台设备上")}
-          </Text>
-        </View>
-      </Pressable>
+            <Text style={styles.small}>
+              {block === "sensitive"
+                ? t("写到不舒服、走失或离开的事，这次不发动态。")
+                : block === "limit"
+                  ? t("今天已经发了 2 条，{name}说明天再发。", { name: pet.name })
+                  : t("它用爪友圈口吻自己写 · 留在窝里，只在这台设备上")}
+            </Text>
+          </View>
+        </Pressable>
+      </View>}
       <Button
         label={original ? t("保存修改") : t("保存日记 · +20 XP")}
         icon="check"
-        disabled={busy || asking || !generated}
+        disabled={busy || asking || !generated || !draft.description.trim() || !!draft.expressionNeedsReview}
         onPress={save}
         style={{ minHeight: 54 }}
       />

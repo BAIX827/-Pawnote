@@ -65,7 +65,7 @@ export default function Event() {
         eyebrow={`${formatDate(eventDate(event).toISOString())} · ${t(event.petSnapshot.role)}`}
         accent={tones[style]}
         action={
-          <Button label={t("返回爪册")} tone="plain" onPress={() => router.replace("/profile")} />
+          <Button label={t("返回")} tone="plain" onPress={() => router.canGoBack() ? router.back() : router.replace("/profile")} />
         }
       />
       {event.photo && (

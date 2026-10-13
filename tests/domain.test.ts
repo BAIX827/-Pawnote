@@ -11,14 +11,12 @@ import {
   toPetVoice,
 } from "../src/domain/story-engine";
 import { NEWS_TEMPLATES, escapeXML, isPlainNews, newsSVG } from "../src/domain/news-card";
-import { Pet, newDraft } from "../src/domain/types";
+import { type Category, Pet, SPECIES, newDraft } from "../src/domain/types";
 import { MAX_BACKUP_BYTES, parseBackup } from "../src/domain/backup";
 import { ageLabel, parseAge, questionnaireTraits, recommendRoute, speciesEmoji, speciesLabel } from "../src/domain/pet-profile";
-import { SPECIES } from "../src/domain/types";
 import { applyLang, t } from "../src/i18n/core";
 import { appraisal, monthReport, payslip, reportCard, reportMonths } from "../src/domain/report";
 import { firsts, isHomeDate, milestones, monthlyPhotos } from "../src/domain/timeline";
-import type { Category } from "../src/domain/types";
 import { isLoss, isSensitive, temperOf } from "../src/domain/temper";
 applyLang("zh");
 test("新物种和自定义性格可生成、备份，旧猫狗备份保持兼容", () => {
@@ -266,9 +264,9 @@ test("爪友圈按性格和真实细节写心思，两版表达可切换且不�
     } finally { applyLang("zh"); }
   }
   const curious = { ...pet, personality: "好奇" };
-  assert.match(generateStories(curious, "它在窗边看了一会儿雨", "other").social.text, /窗边那个位置/);
-  assert.doesNotMatch(generateStories(curious, "它看了一会儿雨", "other").social.text, /窗边那个位置/);
-  assert.match(generateStories(curious, "出去闻了闻草地", "walk").social.text, /气味里的消息/);
+  assert.match(generateStories(curious, "它在窗边看了一会儿雨", "other").social.text, /窗边/);
+  assert.doesNotMatch(generateStories(curious, "它看了一会儿雨", "other").social.text, /窗边/);
+  assert.match(generateStories(curious, "出去闻了闻草地", "walk").social.text, /草地上的气味/);
   applyLang("en");
   try {
     assert.equal(t("爪爪镇"), "Pawtown");
@@ -276,26 +274,26 @@ test("爪友圈按性格和真实细节写心思，两版表达可切换且不�
     assert.equal(t("欢迎搬进爪爪镇"), "Welcome to Pawtown");
   } finally { applyLang("zh"); }
 });
-test("月度考核按当月记录算工资条、成绩单和等级，难过的记录不进扣款", () => {
+test("月度回顾统计生活片刻与类别，奖励不扣款，难过的记录保留", () => {
   const s = demoState(), base = s.events[0];
   const at = (day: number, category: Category, description = "它玩了一会儿。") =>
     ({ ...base, id: `${category}-${day}-${description.length}`, category, description, createdAt: new Date(2026, 4, day, 12).toISOString() });
   const events = [at(1, "sleep"), at(1, "chaos"), at(2, "chaos"), at(3, "bath"), at(3, "chaos", "它拆家后受伤住院了。"), at(9, "walk"),
     { ...at(1, "snack"), id: "june", createdAt: new Date(2026, 5, 1, 12).toISOString() }];
   const r = monthReport(events, "2026-05");
-  assert.deepEqual([r.entries, r.days, r.grade, r.top, r.counts.chaos], [6, 4, "B", "chaos", 2]);
+  assert.deepEqual([r.entries, r.days, r.top, r.counts.chaos], [6, 4, "chaos", 2]);
   const pay = payslip(r);
-  assert.equal(pay.total, 60 + 3 - 6 + 5 + 4);
-  assert.ok(pay.lines.some((l) => l.amount === -6));
+  assert.equal(pay.total, 60 + 3 + 6 + 5 + 4);
+  assert.ok(pay.lines.every((l) => l.amount >= 0));
   const card = reportCard(r);
   assert.equal(card.credits, 12);
-  assert.equal(card.rows.find((x) => x.subject === "手工课")!.score, 76);
-  assert.equal(card.rows.find((x) => x.subject === "食堂调研")!.score, undefined);
-  assert.equal(monthReport(events, "2026-04").grade, null);
-  assert.equal(payslip(monthReport([at(1, "chaos")], "2026-05")).total, 7);
+  assert.equal(card.rows.find((x) => x.subject === "手工课")!.count, 2);
+  assert.equal(card.rows.find((x) => x.subject === "食堂调研")!.count, 0);
+  assert.equal(monthReport(events, "2026-04").entries, 0);
+  assert.equal(payslip(monthReport([at(1, "chaos")], "2026-05")).total, 13);
   assert.deepEqual(reportMonths(events, new Date(2026, 6, 4)), ["2026-07", "2026-06", "2026-05"]);
-  assert.match(appraisal({ ...s.pet!, personality: "亲人", ownerTitle: "妈妈" }, r, "妈妈").self, /妈妈在/);
-  assert.equal(monthReport(Array.from({ length: 20 }, (_, i) => at(i + 1, "sleep")), "2026-05").grade, "S");
+  assert.match(appraisal({ ...s.pet!, personality: "亲人", ownerTitle: "妈妈" }, r, "妈妈").self, /妈妈一起/);
+  assert.equal(monthReport(Array.from({ length: 20 }, (_, i) => at(i + 1, "sleep")), "2026-05").entries, 20);
 });
 test("时光机算出每月首张照片、各类第一次和到家天数与周年", () => {
   const s = demoState(), base = s.events[0], photo = "data:image/jpeg;base64,YQ==";

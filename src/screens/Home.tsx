@@ -49,12 +49,12 @@ export default function Home() {
     narrow = width < 500,
     now = new Date(),
     m = moment(now.getHours());
-  // The pet's latest line as it was saved, so it never changes with the interface language.
+  // Show the voice the owner saved, including their edits; skip a template section heading.
   const saying = latest
-    ? latest.stories.diary.text.split("\n").find((line) => line.trim()) ?? m.line
+    ? latest.stories[latest.selectedStyle].text.split("\n").find((line) => line.trim() && !line.startsWith("【")) ?? m.line
     : m.line;
   return (
-    <View style={styles.stack}>
+    <View style={[styles.stack, narrow && { gap: 14 }]}>
       <View
         style={[
           {
@@ -67,8 +67,8 @@ export default function Home() {
           shadow(4),
         ]}
       >
-        <View style={{ padding: narrow ? 14 : 24, paddingBottom: 14, minHeight: narrow ? 190 : 250, justifyContent: "space-between", gap: 10 }}>
-          <View style={[styles.row, { gap: 8, flexWrap: "wrap", marginRight: narrow ? 120 : 190 }]}>
+        <View style={{ padding: narrow ? 14 : 24, paddingBottom: 14, minHeight: narrow ? 116 : 200, justifyContent: "space-between", gap: 10 }}>
+          <View style={[styles.row, { gap: 8, flexWrap: "wrap", marginRight: narrow ? 105 : 190 }]}>
             <Sticker bg={colors.paper} rotate={0}>
               {now.toLocaleDateString(locale(), { month: "long", day: "numeric", weekday: "short" })}
               {" · "}
@@ -81,14 +81,14 @@ export default function Home() {
             style={{
               fontFamily: display,
               color: colors.ink,
-              fontSize: narrow ? 70 : 104,
-              lineHeight: narrow ? 74 : 108,
-              marginRight: narrow ? 118 : 190,
+              fontSize: narrow ? 36 : 80,
+              lineHeight: narrow ? 42 : 86,
+              marginRight: narrow ? 105 : 190,
             }}
           >
             {pet.name}
           </Text>
-          <View style={{ alignItems: "flex-start", gap: 6, marginRight: narrow ? 118 : 190 }}>
+          <View style={{ alignItems: "flex-start", gap: 6, marginRight: narrow ? 105 : 190 }}>
             <View style={{ backgroundColor: colors.ink, borderRadius: 6, paddingHorizontal: 8, paddingVertical: 5 }}>
               <Text style={{ color: colors.bg, fontSize: 12, fontWeight: "700" }}>
                 {titleFor(p.level, pet.route)} · Lv.{p.level}
@@ -105,9 +105,9 @@ export default function Home() {
           style={{
             position: "absolute",
             right: -3,
-            bottom: 26,
-            width: narrow ? 118 : 180,
-            height: narrow ? 160 : 220,
+            bottom: narrow ? 0 : 26,
+            width: narrow ? 100 : 180,
+            height: narrow ? 110 : 200,
             borderWidth: 2.5,
             borderColor: colors.ink,
             borderTopLeftRadius: 12,
@@ -123,25 +123,8 @@ export default function Home() {
             <Text style={{ fontSize: narrow ? 64 : 96 }}>{speciesEmoji(pet)}</Text>
           )}
         </View>
-        <Ticker text={`${t("今日主角")} ★ ${pet.name} ★ ${t("今日主角")} ★ ${pet.name} ★ ${t("今日主角")} ★ ${pet.name} ★`} />
+        {!narrow && <Ticker text={`${t("今日主角")} ★ ${pet.name} ★ ${t("今日主角")} ★ ${pet.name} ★ ${t("今日主角")} ★ ${pet.name} ★`} />}
       </View>
-      <View style={[{ backgroundColor: colors.paper, borderRadius: 14, borderWidth: 2.5, borderColor: colors.ink, padding: 14, gap: 8, marginTop: 4 }, shadow(4)]}>
-        <View
-          pointerEvents="none"
-          style={{ position: "absolute", left: 28, top: -11, width: 18, height: 18, backgroundColor: colors.paper, borderLeftWidth: 2.5, borderTopWidth: 2.5, borderColor: colors.ink, transform: [{ rotate: "45deg" }] }}
-        />
-        <View style={{ alignSelf: "flex-start", backgroundColor: colors.pink, borderWidth: 2, borderColor: colors.ink, borderRadius: 5, paddingHorizontal: 6, paddingVertical: 2 }}>
-          <Text style={{ fontFamily: display, fontSize: 13, color: colors.ink }}>{t("{name}说", { name: pet.name })}</Text>
-        </View>
-        <Text numberOfLines={3} style={[styles.body, { fontSize: 15, fontWeight: "700" }]}>
-          {saying}
-        </Text>
-      </View>
-
-      <PawDatesCard />
-      <HomeLetters />
-      <PastMemories />
-      <OccasionPreview />
       <Pressable
         accessibilityRole="button"
         accessibilityLabel={t("记录今天，翻成宠物的话")}
@@ -174,100 +157,21 @@ export default function Home() {
         </View>
       </Pressable>
 
-      <View style={{ flexDirection: wide ? "row" : "column", gap: 24 }}>
-        <View style={{ flex: wide ? 1.3 : undefined }}>
-          <Neighborhood work={pet.route === "work"} />
+      <View style={[{ backgroundColor: colors.paper, borderRadius: 14, borderWidth: 2.5, borderColor: colors.ink, padding: 14, gap: 8, marginTop: 4 }, shadow(4)]}>
+        <View
+          pointerEvents="none"
+          style={{ position: "absolute", left: 28, top: -11, width: 18, height: 18, backgroundColor: colors.paper, borderLeftWidth: 2.5, borderTopWidth: 2.5, borderColor: colors.ink, transform: [{ rotate: "45deg" }] }}
+        />
+        <View style={{ alignSelf: "flex-start", backgroundColor: colors.pink, borderWidth: 2, borderColor: colors.ink, borderRadius: 5, paddingHorizontal: 6, paddingVertical: 2 }}>
+          <Text style={{ fontFamily: display, fontSize: 13, color: colors.ink }}>{t("{name}说", { name: pet.name })}</Text>
         </View>
-        <View style={{ flex: wide ? 1 : undefined, gap: 24 }}>
-          <View style={{ flexDirection: "row", gap: 12 }}>
-            {[
-              { n: p.xp, unit: "XP", label: t("成长经验"), bg: colors.green },
-              { n: state.events.length, unit: t("篇"), label: t("生活片刻"), bg: colors.sky },
-              { n: p.toNext, unit: "XP", label: t("离升级还差"), bg: colors.lilac },
-            ].map((s, i) => (
-              <View
-                key={s.label}
-                style={[
-                  {
-                    flex: 1,
-                    backgroundColor: s.bg,
-                    borderWidth: 2.5,
-                    borderColor: colors.ink,
-                    borderRadius: 14,
-                    paddingVertical: 12,
-                    paddingHorizontal: 10,
-                    transform: [{ rotate: `${[-2, 1.5, -1][i]}deg` }],
-                  },
-                  shadow(3),
-                ]}
-              >
-                <Text style={{ fontFamily: display, fontWeight: "400", fontSize: 30, lineHeight: 36, color: colors.ink }}>
-                  {s.n}
-                  <Text style={{ fontSize: 12 }}> {s.unit}</Text>
-                </Text>
-                <Text style={[styles.small, { color: colors.ink }]}>{s.label}</Text>
-              </View>
-            ))}
-          </View>
-          <View style={{ gap: 6 }}>
-            <View style={styles.between}>
-              <Text style={styles.caps}>Lv.{p.level} → Lv.{p.level + 1}</Text>
-              <Text style={styles.small}>{t("每条新记录 +20 XP")}</Text>
-            </View>
-            <Meter value={p.current} color={colors.orange} />
-          </View>
-          <Pressable
-            accessibilityRole="button"
-            accessibilityLabel={latest ? t("制作最新记录的爪报") : t("记录小事制作爪报")}
-            onPress={() =>
-              latest
-                ? router.push({ pathname: "/news", params: { id: latest.id } })
-                : router.push("/record")
-            }
-          >
-            <View
-              style={[
-                {
-                  backgroundColor: colors.paper,
-                  borderWidth: 2.5,
-                  borderColor: colors.ink,
-                  borderRadius: 14,
-                  padding: 20,
-                  gap: 10,
-                  transform: [{ rotate: "1deg" }],
-                },
-                shadow(5, colors.lavender),
-              ]}
-            >
-              <View style={styles.between}>
-                <Text style={styles.caps}>{t("PAW POST · 独家")}</Text>
-                <Icon name="arrow-up-right" color={colors.ink} />
-              </View>
-              <Text
-                style={{
-                  fontSize: 40,
-                  lineHeight: 50,
-                  fontWeight: "400",
-                  fontFamily: display,
-                  color: colors.ink,
-                  letterSpacing: 4,
-                  borderBottomWidth: 3,
-                  borderTopWidth: 1,
-                  borderColor: colors.ink,
-                  paddingVertical: 4,
-                }}
-              >
-                {t("爪报")}
-              </Text>
-              <Text style={[styles.h2, { fontSize: 19 }]} numberOfLines={3}>
-                {latest ? latest.stories.news.title : t("头条，等你来写")}
-              </Text>
-              <Text style={styles.small}>{t("点开做成新闻卡 · 虚构娱乐报道")}</Text>
-            </View>
-          </Pressable>
-        </View>
+        <Text numberOfLines={3} style={[styles.body, { fontSize: 15, fontWeight: "700" }]}>
+          {saying}
+        </Text>
       </View>
 
+      <PawDatesCard />
+      <OccasionPreview />
       <View style={[styles.between, { marginTop: 4 }]}>
         <View>
           <View
@@ -338,6 +242,104 @@ export default function Home() {
           title={t("今天的故事还空着")}
           action={<Button label={t("写第一条日记")} onPress={() => router.push("/record")} />}
         />
+      )}
+      <HomeLetters />
+      <PastMemories />
+      {state.preferences?.homeExtras === true && (
+        <View style={{ flexDirection: wide ? "row" : "column", gap: 24 }}>
+          <View style={{ flex: wide ? 1.3 : undefined }}>
+            <Neighborhood work={pet.route === "work"} />
+          </View>
+          <View style={{ flex: wide ? 1 : undefined, gap: 24 }}>
+            <View style={{ flexDirection: "row", gap: 12 }}>
+              {[
+                { n: p.xp, unit: "XP", label: t("成长经验"), bg: colors.green },
+                { n: state.events.length, unit: t("篇"), label: t("生活片刻"), bg: colors.sky },
+                { n: p.toNext, unit: "XP", label: t("离升级还差"), bg: colors.lilac },
+              ].map((s, i) => (
+                <View
+                  key={s.label}
+                  style={[
+                    {
+                      flex: 1,
+                      backgroundColor: s.bg,
+                      borderWidth: 2.5,
+                      borderColor: colors.ink,
+                      borderRadius: 14,
+                      paddingVertical: 12,
+                      paddingHorizontal: 10,
+                      transform: [{ rotate: `${[-2, 1.5, -1][i]}deg` }],
+                    },
+                    shadow(3),
+                  ]}
+                >
+                  <Text style={{ fontFamily: display, fontWeight: "400", fontSize: 30, lineHeight: 36, color: colors.ink }}>
+                    {s.n}
+                    <Text style={{ fontSize: 12 }}> {s.unit}</Text>
+                  </Text>
+                  <Text style={[styles.small, { color: colors.ink }]}>{s.label}</Text>
+                </View>
+              ))}
+            </View>
+            <View style={{ gap: 6 }}>
+              <View style={styles.between}>
+                <Text style={styles.caps}>Lv.{p.level} → Lv.{p.level + 1}</Text>
+                <Text style={styles.small}>{t("每条新记录 +20 XP")}</Text>
+              </View>
+              <Meter value={p.current} color={colors.orange} />
+            </View>
+            <Pressable
+              accessibilityRole="button"
+              accessibilityLabel={latest ? t("制作最新记录的爪报") : t("记录小事制作爪报")}
+              onPress={() =>
+                latest
+                  ? router.push({ pathname: "/news", params: { id: latest.id } })
+                  : router.push("/record")
+              }
+            >
+              <View
+                style={[
+                  {
+                    backgroundColor: colors.paper,
+                    borderWidth: 2.5,
+                    borderColor: colors.ink,
+                    borderRadius: 14,
+                    padding: 20,
+                    gap: 10,
+                    transform: [{ rotate: "1deg" }],
+                  },
+                  shadow(5, colors.lavender),
+                ]}
+              >
+                <View style={styles.between}>
+                  <Text style={styles.caps}>{t("PAW POST · 独家")}</Text>
+                  <Icon name="arrow-up-right" color={colors.ink} />
+                </View>
+                <Text
+                  style={{
+                    fontSize: 40,
+                    lineHeight: 50,
+                    fontWeight: "400",
+                    fontFamily: display,
+                    color: colors.ink,
+                    letterSpacing: 4,
+                    borderBottomWidth: 3,
+                    borderTopWidth: 1,
+                    borderColor: colors.ink,
+                    paddingVertical: 4,
+                  }}
+                >
+                  {t("爪报")}
+                </Text>
+                <Text style={[styles.h2, { fontSize: 19 }]} numberOfLines={3}>
+                  {latest ? latest.stories.news.title : t("头条，等你来写")}
+                </Text>
+                <Text style={styles.small}>{t("点开做成新闻卡 · 虚构娱乐报道")}</Text>
+              </View>
+            </Pressable>
+          </View>
+        </View>
+
       )}
     </View>
   );

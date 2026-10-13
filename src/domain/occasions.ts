@@ -1,5 +1,5 @@
 import { getLang, Lang, t } from "../i18n/core";
-import { AppState, Pet } from "./types";
+import { AppState, Pet, Preferences } from "./types";
 import { dayDistance, eventDay, isPastDay, localDay, newestEvents } from "./dates";
 import { escapeXML, wrap } from "./news-card";
 import { ownerName } from "./story-engine";
@@ -7,19 +7,23 @@ import { isSensitive, temperOf } from "./temper";
 import { remindersPaused } from "./paw-dates";
 
 export type OccasionKind = "birthday" | "home";
-export interface Occasion { kind: OccasionKind; day: string; years: number; inDays: number }
-export function occasionForYear(pet: Pet, kind: OccasionKind, year: number): Occasion | undefined {
-  const origin = kind === "birthday" ? pet.birthDate : pet.homeDate;
+export interface Occasion { kind: OccasionKind; day: string; years: number; inDays: number; birthdaySource?: "birth" | "home" }
+export function birthdayDate(pet: Pet, preferences?: Preferences) {
+  return pet.birthDate ?? (preferences?.homeAsBirthday === false ? undefined : pet.homeDate);
+}
+export function occasionForYear(pet: Pet, kind: OccasionKind, year: number, preferences?: Preferences): Occasion | undefined {
+  const origin = kind === "birthday" ? birthdayDate(pet, preferences) : pet.homeDate;
   if (!isPastDay(origin) || !Number.isInteger(year) || year < Number(origin.slice(0, 4)) || year > 9999) return undefined;
   const [y, m, d] = origin.split("-").map(Number);
   // February 29 is observed on February 28 in non-leap years.
   const day = localDay(new Date(year, m - 1, Math.min(d, new Date(year, m, 0).getDate())));
-  return { kind, day, years: year - y, inDays: dayDistance(localDay(), day) };
+  return { kind, day, years: year - y, inDays: dayDistance(localDay(), day),
+    ...(kind === "birthday" ? { birthdaySource: pet.birthDate ? "birth" as const : "home" as const } : {}) };
 }
-export function nextOccasions(pet: Pet, now = new Date()) {
+export function nextOccasions(pet: Pet, now = new Date(), preferences?: Preferences) {
   return (["birthday", "home"] as const).flatMap((kind) => {
-    let occasion = occasionForYear(pet, kind, now.getFullYear());
-    if (occasion && occasion.day < localDay(now)) occasion = occasionForYear(pet, kind, now.getFullYear() + 1);
+    let occasion = occasionForYear(pet, kind, now.getFullYear(), preferences);
+    if (occasion && occasion.day < localDay(now)) occasion = occasionForYear(pet, kind, now.getFullYear() + 1, preferences);
     return occasion ? [{ ...occasion, inDays: dayDistance(localDay(now), occasion.day) }] : [];
   }).sort((a, b) => a.day.localeCompare(b.day));
 }
@@ -31,15 +35,19 @@ export function occasionLetter(state: AppState, occasion: Occasion, lang: Lang =
   const pet = state.pet!;
   const entries = newestEvents(state.events).filter((e) => eventDay(e) <= occasion.day && eventDay(e) <= localDay(now));
   const anniversaryYear = Number(occasion.day.slice(0, 4));
-  const from = occasionForYear(pet, occasion.kind, anniversaryYear - 1)?.day;
+  const from = occasionForYear(pet, occasion.kind, anniversaryYear - 1, state.preferences)?.day;
   const recent = entries.filter((e) => !from || eventDay(e) >= from);
   const memory = recent.find((e) => !isSensitive(e.description));
   const memorial = remindersPaused(state.events), quiet = memorial || recent.some((e) => isSensitive(e.description));
   const zh = lang === "zh", owner = ownerName(pet);
   const title = zh ? occasion.kind === "birthday" ? `${pet.name}的生日` : `${pet.name}的到家纪念日`
     : occasion.kind === "birthday" ? `${pet.name}'s birthday` : `${pet.name}'s home anniversary`;
-  const subtitle = zh ? `${occasion.day} · ${occasion.kind === "birthday" ? `${occasion.years} 岁` : `到家 ${occasion.years} 年`}`
-    : `${occasion.day} · ${occasion.years} ${occasion.kind === "birthday" ? 'years old' : 'years at home'}`;
+  const celebration = occasion.kind === "birthday" && occasion.birthdaySource === "home";
+  const subtitle = celebration
+    ? zh ? `${occasion.day} · 用到家日庆生 · 相伴 ${occasion.years} 年`
+      : `${occasion.day} · Celebrating on home day · ${occasion.years} years together`
+    : zh ? `${occasion.day} · ${occasion.kind === "birthday" ? `${occasion.years} 岁` : `到家 ${occasion.years} 年`}`
+      : `${occasion.day} · ${occasion.years} ${occasion.kind === "birthday" ? 'years old' : 'years at home'}`;
   const opening = zh ? occasion.kind === "birthday" ? `又翻到我的生日这一页了。${owner}，这一天留给我们。`
     : `到家${occasion.years}年了。这一页，想和${owner}一起翻。`
     : occasion.kind === "birthday" ? `We've reached my birthday page. ${owner}, let's keep this day for us.`

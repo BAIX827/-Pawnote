@@ -42,7 +42,7 @@ export default function Keepsake() {
     </Pressable>;
   return <View style={[styles.stack, { maxWidth: 760, width: "100%", alignSelf: "center" }]}>
     <Heading title={t("成长纪念册")} eyebrow={t("照片 · 日记 · 声音，装进一本册子")} accent={colors.lavender}
-      action={<Button label={t("返回爪册")} tone="plain" onPress={() => router.replace("/profile")} />} />
+      action={<Button label={t("返回")} tone="plain" onPress={() => router.canGoBack() ? router.back() : router.replace("/profile")} />} />
     <Card style={{ gap: 14 }}>
       <Field accessibilityLabel={t("纪念册标题")} value={title} onChangeText={setTitle} maxLength={60} />
       <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 8, paddingBottom: 4 }}>

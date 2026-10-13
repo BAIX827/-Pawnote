@@ -121,13 +121,13 @@ export default function Circle() {
     <View style={[styles.stack, { maxWidth: 760, width: "100%", alignSelf: "center" }]}>
       <Heading
         title={t("爪友圈")}
-        eyebrow={t("只有小动物在说话")}
+        eyebrow={t("本机小镇 · 虚构居民和你的小动物")}
         accent={colors.sky}
         action={<Button label={t("写今天的事")} icon="edit-3" onPress={() => router.push("/record")} />}
       />
       <View style={[styles.row, { flexWrap: "wrap" }]}>
         <Chip label={t("好朋狗")} active={tab === "friends"} onPress={() => setTab("friends")} />
-        <Chip label={t("大草坪")} active={tab === "lawn"} onPress={() => setTab("lawn")} />
+        <Chip label={t("大草坪 · 即将开放")} active={tab === "lawn"} onPress={() => setTab("lawn")} />
       </View>
 
       {tab === "lawn" ? (

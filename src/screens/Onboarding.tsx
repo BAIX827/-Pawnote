@@ -18,7 +18,7 @@ import {
   id,
   roleFor,
 } from "../domain/types";
-import { SPECIES_INFO, parseAge, recommendRoute } from "../domain/pet-profile";
+import { SPECIES_INFO, ageFromBirthday, parseAge, recommendRoute } from "../domain/pet-profile";
 import { defaultOwnerName } from "../domain/story-engine";
 import { isHomeDate } from "../domain/timeline";
 import { choosePhoto } from "../platform/photo";
@@ -78,7 +78,7 @@ export default function Onboarding({ editing = false }: { editing?: boolean }) {
   let ageMonths: number | undefined,
     ageError = "";
   try {
-    ageMonths = parseAge(years, months);
+    ageMonths = parseAge(years, months) ?? ageFromBirthday(birthDate.trim());
   } catch (e) {
     ageError = e instanceof Error ? e.message : t("请检查年龄。");
   }
@@ -87,7 +87,7 @@ export default function Onboarding({ editing = false }: { editing?: boolean }) {
     species === "cat" || species === "dog" ? routeSource : "manual";
   const route =
     effectiveRouteSource === "age"
-      ? (recommended ?? original?.route ?? "work")
+      ? (recommended ?? "work")
       : manualRoute;
   const preview: Pet = {
     id: original?.id ?? "preview",
@@ -149,10 +149,6 @@ export default function Onboarding({ editing = false }: { editing?: boolean }) {
     }
     if (homeDate.trim() && !isHomeDate(homeDate.trim())) {
       notify(t("到家日期请按 2024-03-15 这样填写，且不晚于今天。"));
-      return;
-    }
-    if (effectiveRouteSource === "age" && !recommended) {
-      notify(t("填写年龄后可推荐路线，也可以手动选择上学或职场。"));
       return;
     }
     const pet = { ...preview, id: original?.id ?? id(), name: name.trim() };
@@ -267,7 +263,7 @@ export default function Onboarding({ editing = false }: { editing?: boolean }) {
             )}
           </View>
           <View style={{ gap: 10 }}>
-            <Label>{t("03 / 年龄")}</Label>
+            <Label>{t("03 / 年龄（可选）")}</Label>
             <View style={styles.row}>
               <View style={{ flex: 1, gap: 6 }}>
                 <Field
@@ -276,7 +272,7 @@ export default function Onboarding({ editing = false }: { editing?: boolean }) {
                   onChangeText={setYears}
                   keyboardType="number-pad"
                   maxLength={3}
-                  placeholder="0"
+                  placeholder={t("可留空")}
                 />
                 <Text style={styles.small}>{t("岁")}</Text>
               </View>
@@ -287,12 +283,12 @@ export default function Onboarding({ editing = false }: { editing?: boolean }) {
                   onChangeText={setMonths}
                   keyboardType="number-pad"
                   maxLength={2}
-                  placeholder="0"
+                  placeholder={t("可留空")}
                 />
                 <Text style={styles.small}>{t("个月（0–11）")}</Text>
               </View>
             </View>
-            <Text style={styles.small}>{t("年龄可留空，随后手动选择路线。")}</Text>
+            <Text style={styles.small}>{t("知道大概年龄就手动填；也可以留空。已填真实生日时，留空会按生日计算年龄。")}</Text>
             {!!ageError && (
               <Text accessibilityRole="alert" style={{ color: "#AE4434" }}>
                 {ageError}
@@ -354,7 +350,7 @@ export default function Onboarding({ editing = false }: { editing?: boolean }) {
               <>
                 <View style={[styles.row, { flexWrap: "wrap" }]}>
                   <Chip
-                    label={t("按年龄推荐")}
+                    label={t("按年龄自动匹配")}
                     active={effectiveRouteSource === "age"}
                     onPress={() => setRouteSource("age")}
                   />
@@ -368,9 +364,9 @@ export default function Onboarding({ editing = false }: { editing?: boolean }) {
                   />
                 </View>
                 <Text style={styles.small}>
-                  {recommended
+                  {effectiveRouteSource === "manual" ? t("已手动选择，修改年龄后保留你的选择") : recommended
                     ? recommended === "campus" ? t("推荐校园") : t("推荐职场")
-                    : t("填写年龄或手动选择")}
+                    : t("年龄未知，暂用职场身份，可随时修改")}
                   {t(" · 游戏规则：满 12 个月推荐职场")}
                 </Text>
               </>
@@ -381,8 +377,7 @@ export default function Onboarding({ editing = false }: { editing?: boolean }) {
               <Chip
                 label={t("🎒 去上学")}
                 active={
-                  route === "campus" &&
-                  (effectiveRouteSource === "manual" || !!recommended)
+                  route === "campus"
                 }
                 onPress={() => {
                   setManualRoute("campus");
@@ -392,8 +387,7 @@ export default function Onboarding({ editing = false }: { editing?: boolean }) {
               <Chip
                 label={t("💼 进入职场")}
                 active={
-                  route === "work" &&
-                  (effectiveRouteSource === "manual" || !!recommended)
+                  route === "work"
                 }
                 onPress={() => {
                   setManualRoute("work");
@@ -430,7 +424,10 @@ export default function Onboarding({ editing = false }: { editing?: boolean }) {
           <View style={{ gap: 10 }}>
             <Label>{t("08 / 生日（可选）")}</Label>
             <DateField label={t("宠物生日")} value={birthDate} onChange={setBirthDate} />
-            <Text style={styles.small}>{t("知道生日就填上，生日卡与信会按这一天生成。也可以留空。")}</Text>
+            <Text style={styles.small}>{t("收养时生日未知，可以留空；到家日期也可留空。")}</Text>
+            <Text style={styles.small}>{state.preferences?.homeAsBirthday === false
+              ? t("已关闭用到家日庆生，可在设置中开启。")
+              : t("只填到家日期时，默认在到家日庆生，生成生日卡与信；可在设置关闭。年龄按手填值或真实生日计算。")}</Text>
           </View>
           <View style={styles.row}>
             <Button
