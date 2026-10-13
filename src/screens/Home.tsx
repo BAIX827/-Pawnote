@@ -6,6 +6,7 @@ import { useStore } from "../data/store";
 import { progress, titleFor } from "../domain/life";
 import { formatDate } from "../domain/types";
 import { speciesEmoji } from "../domain/pet-profile";
+import { petLine } from "../domain/story-engine";
 import {
   Button,
   Empty,
@@ -49,10 +50,8 @@ export default function Home() {
     narrow = width < 500,
     now = new Date(),
     m = moment(now.getHours());
-  // Show the voice the owner saved, including their edits; skip a template section heading.
-  const saying = latest
-    ? latest.stories[latest.selectedStyle].text.split("\n").find((line) => line.trim() && !line.startsWith("【")) ?? m.line
-    : m.line;
+  // What the pet itself said last time, never the owner's words quoted back (docs/01 8.24).
+  const saying = (latest && petLine(latest)) || m.line;
   return (
     <View style={[styles.stack, narrow && { gap: 14 }]}>
       <View
@@ -216,7 +215,7 @@ export default function Home() {
               </Text>
               <View style={{ flex: 1, gap: 4 }}>
                 <Text style={styles.small}>
-                  {formatDate(eventDate(e).toISOString())} · {e.published ? t("留在窝里") : t("私密")}
+                  {formatDate(eventDate(e).toISOString())} · {e.published ? t("已发爪友圈") : t("只在日记里")}
                 </Text>
                 <Text style={[styles.h2, { fontSize: 18, lineHeight: 26 }]} numberOfLines={2}>
                   {e.stories[e.selectedStyle].title}

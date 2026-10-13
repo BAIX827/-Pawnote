@@ -11,6 +11,7 @@ import {
   bounty,
   isPlainNews,
   lead,
+  defaultNewsTemplate,
 } from "../domain/news-card";
 import { speciesEmoji } from "../domain/pet-profile";
 import { canShareNews, exportNews, prepareNewsImage, shareNews } from "../platform/export";
@@ -55,7 +56,7 @@ export default function News() {
   const card = useRef<View>(null);
   const [busy, setBusy] = useState(false);
   const lang = useLang();
-  const [template, setTemplate] = useState<NewsTemplate>("daily");
+  const [template, setTemplate] = useState<NewsTemplate>(() => defaultNewsTemplate(event));
   const [preparedImage, setPreparedImage] = useState<{ event: LifeEvent; template: NewsTemplate; lang: string; error?: string }>();
   const currentImage = preparedImage?.event === event && preparedImage?.template === template && preparedImage?.lang === lang;
   const imageReady = Platform.OS !== "web" || (currentImage && !preparedImage?.error);

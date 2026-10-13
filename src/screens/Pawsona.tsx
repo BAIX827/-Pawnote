@@ -25,7 +25,8 @@ export default function Pawsona() {
   if (remindersPaused(state.events))
     return (
       <View style={styles.stack}>
-        <Heading title={t("爪格测试")} accent={colors.pink} action={back} />
+        <Heading title={t("爪格测试")}
+        hint={t("测测它是哪种性格")} accent={colors.pink} action={back} />
         <Empty title={t("最新的记录写到它离开了。爪格测试先不打扰，这里不替它说话。")} />
       </View>
     );
@@ -42,7 +43,8 @@ export default function Pawsona() {
     }
     return (
       <View style={[styles.stack, { maxWidth: 760, width: "100%", alignSelf: "center" }]}>
-        <Heading title={t("爪格测试")} accent={colors.pink} action={back} />
+        <Heading title={t("爪格测试")}
+        hint={t("测测它是哪种性格")} accent={colors.pink} action={back} />
         <Meter value={Math.round((i / PAWSONA_QUESTIONS.length) * 100)} color={colors.orange} />
         <Card style={{ gap: 16 }}>
           <Text style={[styles.caps, { color: colors.muted }]}>
@@ -74,7 +76,8 @@ export default function Pawsona() {
   }
   return (
     <View style={[styles.stack, { maxWidth: 760, width: "100%", alignSelf: "center" }]}>
-      <Heading title={t("爪格测试")} accent={colors.pink} action={back} />
+      <Heading title={t("爪格测试")}
+        hint={t("测测它是哪种性格")} accent={colors.pink} action={back} />
       <View ref={card} collapsable={false} style={{ backgroundColor: colors.bg, gap: 18, padding: 4 }}>
         <View style={[{ backgroundColor: result.color, borderWidth: 2.5, borderColor: colors.ink, borderRadius: 14, padding: 20, gap: 6 }, shadow(5)]}>
           <View style={styles.between}>
@@ -96,7 +99,6 @@ export default function Pawsona() {
             <View key={b.temper} style={{ gap: 6 }}>
               <View style={styles.between}>
                 <Text style={[styles.body, { fontWeight: "700" }]}>{b.label}</Text>
-                <Text style={{ fontFamily: numeric, fontSize: 15, color: colors.ink }}>{b.percent}%</Text>
               </View>
               <Meter value={b.percent} color={result.color === colors.bg ? colors.orange : result.color} />
             </View>

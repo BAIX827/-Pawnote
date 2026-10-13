@@ -16,6 +16,7 @@ import { useStore } from "../data/store";
 import { exportBackup } from "../platform/export";
 import { Avatar, Button, Icon, PawMark, Wobble, colors, display, styles } from "./ui";
 import RestoreBackup from "./RestoreBackup";
+import { MAX_PETS, homePets, switchPet } from "../domain/household";
 const nav = [
   { route: "/", label: "爪窝", icon: "home" as const },
   { route: "/life", label: "爪迹", icon: "briefcase" as const },
@@ -26,9 +27,15 @@ export default function Shell({ children }: { children: React.ReactNode }) {
   const { width } = useWindowDimensions();
   const wide = width >= 900;
   const path = usePathname();
-  const { state, ready, toast, error, blocked, raw, reset, notify, restoring } =
+  const { state, ready, toast, error, blocked, raw, reset, notify, restoring, update } =
     useStore();
   const [confirmReset, setConfirmReset] = React.useState(false);
+  // Tapping the pet in the top bar opens a quick switcher when there is more than one (docs/01 8.24).
+  // Remembering where it was opened closes it on its own when the owner moves to another page.
+  const [switcherAt, setSwitcherAt] = React.useState<string | null>(null);
+  const switcher = switcherAt === path;
+  const setSwitcher = (open: boolean) => setSwitcherAt(open ? path : null);
+  const pets = homePets(state);
   const lang = useLang();
   React.useEffect(() => {
     void loadLang();
@@ -196,8 +203,9 @@ export default function Shell({ children }: { children: React.ReactNode }) {
             {state.pet ? (
               <Pressable
                 accessibilityRole="button"
-                accessibilityLabel={t("打开爪册")}
-                onPress={() => router.navigate("/profile")}
+                accessibilityLabel={pets.length > 1 ? t("切换宠物") : t("打开爪册")}
+                accessibilityState={pets.length > 1 ? { expanded: switcher } : undefined}
+                onPress={() => (pets.length > 1 ? setSwitcher(!switcher) : router.navigate("/profile"))}
                 style={[styles.row, { gap: 9 }]}
               >
                 <Text
@@ -207,12 +215,60 @@ export default function Shell({ children }: { children: React.ReactNode }) {
                   {state.pet.name}
                 </Text>
                 <Avatar pet={state.pet} demo={state.demo} size={34} />
+                {pets.length > 1 && <Icon name={switcher ? "chevron-up" : "chevron-down"} size={16} color={colors.ink} />}
               </Pressable>
             ) : (
               <Text style={styles.small}>{t("居民登记处")}</Text>
             )}
             </View>
           </View>
+          {switcher && state.pet && (
+            <View
+              style={{
+                paddingVertical: 12,
+                paddingHorizontal: wide ? 40 : 18,
+                backgroundColor: colors.paper,
+                borderBottomWidth: 2,
+                borderColor: colors.ink,
+                gap: 10,
+              }}
+            >
+              <Text style={styles.caps}>{t("我家的毛孩子")} · {pets.length}</Text>
+              <View style={[styles.row, { flexWrap: "wrap", gap: 14 }]}>
+                {pets.map((pet) => {
+                  const active = pet.id === state.pet!.id;
+                  return (
+                    <Pressable
+                      key={pet.id}
+                      accessibilityRole="button"
+                      accessibilityLabel={active ? t("{name}（当前）", { name: pet.name }) : t("切换到{name}", { name: pet.name })}
+                      accessibilityState={{ selected: active }}
+                      onPress={() => {
+                        setSwitcher(false);
+                        if (active) return;
+                        update((s) => switchPet(s, pet.id));
+                        notify(t("现在是{name}的视角。", { name: pet.name }));
+                      }}
+                      style={({ pressed }) => ({ alignItems: "center", gap: 4, width: 62, opacity: pressed ? 0.6 : 1 })}
+                    >
+                      <View style={{ padding: 2, borderRadius: 30, borderWidth: 3, borderColor: active ? colors.orange : "transparent" }}>
+                        <Avatar pet={pet} demo={state.demo} size={44} />
+                      </View>
+                      <Text numberOfLines={1} style={[styles.small, { color: colors.ink, fontWeight: active ? "800" : "500" }]}>
+                        {pet.name}
+                      </Text>
+                    </Pressable>
+                  );
+                })}
+              </View>
+              <View style={[styles.row, { flexWrap: "wrap" }]}>
+                {pets.length < MAX_PETS && (
+                  <Button label={t("添加宠物")} icon="plus" tone="plain" onPress={() => router.push({ pathname: "/onboarding", params: { add: "1" } })} />
+                )}
+                <Button label={t("去爪册")} tone="plain" onPress={() => router.navigate("/profile")} />
+              </View>
+            </View>
+          )}
           {state.demo && (
             <View
               style={{

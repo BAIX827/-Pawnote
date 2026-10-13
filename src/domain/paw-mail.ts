@@ -141,6 +141,8 @@ export interface Mail {
   stars?: 4 | 5;
   /** No entries in the period. */
   empty: boolean;
+  /** The period that just ended had nothing, so this covers the current week or month so far. */
+  inProgress: boolean;
   /** An entry about illness, injury or going missing: no complaints, jokes or stars. */
   quiet: boolean;
   quietLine?: string;
@@ -150,12 +152,21 @@ export interface Mail {
 export function writeMail(state: Pick<AppState, "pet" | "events">, kind: MailKind, now = new Date(), lang: Lang = getLang()): Mail | undefined {
   const pet = state.pet;
   if (!pet || remindersPaused(state.events)) return undefined;
-  const { start, end } = mailPeriod(kind, now);
-  const mine = newestEvents(state.events)
-    .filter((e) => {
+  let { start, end } = mailPeriod(kind, now);
+  const within = (from: Date, to: Date) =>
+    newestEvents(state.events).filter((e) => {
       const at = eventDate(e).getTime();
-      return at >= start.getTime() && at < end.getTime();
+      return at >= from.getTime() && at < to.getTime();
     });
+  let mine = within(start, end);
+  // Nothing in the week or month that just ended (often because the pet wasn't here yet): rather than
+  // an empty letter, show the one still being written for the current week or month (docs/01 8.24).
+  const inProgress = !mine.length && kind !== "year";
+  if (inProgress) {
+    start = end;
+    end = new Date(now.getTime() + 1);
+    mine = within(start, end);
+  }
   const temper = temperOf(pet), owner = ownerName(pet);
   // Clingy pets write in lowercase in English (docs/13 §4).
   const voice = (s: string) => (lang === "en" && temper === "clingy" ? s.toLowerCase() : s);
@@ -186,19 +197,23 @@ export function writeMail(state: Pick<AppState, "pet" | "events">, kind: MailKin
     first: kind === "year" ? mine[mine.length - 1] : undefined,
     longest: kind === "year" && mine.length ? [...mine].sort((a, b) => b.description.length - a.description.length)[0] : undefined,
     // The temper's opener goes on the first complaint only, so two in a row don't repeat it.
-    complaints: empty || quiet ? [] : present.slice(0, 2).map((c, i) => voice(i ? COMPLAINT[c][lang] : join(p.complaint[lang], COMPLAINT[c][lang]))),
-    praise: empty || quiet ? undefined : voice(join(p.praise[lang], PRAISE[praiseKey]![lang])),
+    complaints: empty || quiet || inProgress ? [] : present.slice(0, 2).map((c, i) => voice(i ? COMPLAINT[c][lang] : join(p.complaint[lang], COMPLAINT[c][lang]))),
+    praise: empty || quiet || inProgress ? undefined : voice(join(p.praise[lang], PRAISE[praiseKey]![lang])),
     closing: quiet ? QUIET.closing[lang] : voice(p.closing[lang]),
-    stars: empty || quiet ? undefined : counts.walk || counts.snack ? 5 : 4,
+    stars: empty || quiet || inProgress ? undefined : counts.walk || counts.snack ? 5 : 4,
     empty,
+    inProgress,
     quiet,
     quietLine: quiet ? QUIET.line[lang] : empty ? voice(EMPTY[lang]) : undefined,
   };
 }
 
-/** Shows the 爪窝 card: this week's letter is unread and there is something to write about. */
-export const hasNewMail = (state: AppState, now = new Date()) =>
-  !!state.pet && state.events.length > 0 && !remindersPaused(state.events) && state.mailRead !== weekMailKey(now);
+/** Shows the 爪窝 card: last week's letter is unread and last week had something to write about. */
+export const hasNewMail = (state: AppState, now = new Date()) => {
+  if (!state.pet || !state.events.length || remindersPaused(state.events) || state.mailRead === weekMailKey(now)) return false;
+  const mail = writeMail(state, "week", now);
+  return !!mail && !mail.inProgress;
+};
 
 const NOTE_TITLE: Text = { zh: "{name}给你写了一封信", en: "{name} sent you a letter" };
 /** The Monday 09:00 notification, unless the owner turned it off or the pet has died. */

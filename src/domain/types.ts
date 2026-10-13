@@ -193,7 +193,21 @@ export const newDraft = (preferences?: Preferences): Draft => ({
   selectedStyle: preferences?.randomStyle === false ? "diary" : STYLES[Math.floor(Math.random() * STYLES.length)],
   published: true,
 });
-export const roleFor = (route: Route) =>
-  route === "work" ? "零食鉴定员" : "睡眠研究班";
+// The pet's job at work, by species (docs/01 8.24); school pets all start in the sleep-research class.
+const JOBS: Record<Species, string> = {
+  cat: "零食鉴定员",
+  dog: "巡逻保安",
+  rabbit: "草料品控员",
+  hamster: "仓库管理员",
+  guineaPig: "蔬菜试吃员",
+  bird: "晨间播报员",
+  lizard: "日光浴测评员",
+  turtle: "慢递专员",
+  snake: "安静巡查员",
+  fish: "水族观察员",
+  other: "零食鉴定员",
+};
+export const roleFor = (route: Route, species: Species = "cat") =>
+  route === "work" ? JOBS[species] : "睡眠研究班";
 export const formatDate = (date: string) =>
   new Date(date).toLocaleDateString(locale(), { year: "numeric", month: "long", day: "numeric" });

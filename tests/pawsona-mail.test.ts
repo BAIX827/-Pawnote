@@ -153,3 +153,17 @@ test("爪格与爪信的界面文字都有英文", () => {
   for (const key of ["爪格测试", "爪信", "周信", "月信", "年鉴", "告状", "表扬", "使用说明", "最佳拍档", "给{owner}打分"])
     assert.ok(Object.hasOwn(en, key), key);
 });
+
+test("爪信：上周没有记录时显示本周进行中的信，爪窝不提示新信", () => {
+  const p = pet();
+  // Registered this week: one entry on Tuesday 13 October, nothing last week.
+  const s = state([entry(p, "睡觉", "sleep", new Date(2026, 9, 13, 9))]);
+  const week = writeMail(s, "week", NOW, "zh")!;
+  assert.equal(week.inProgress, true);
+  assert.equal(week.entries, 1);
+  assert.equal(week.start.getDate(), 12);
+  assert.equal(week.stars, undefined);
+  assert.equal(writeMail(s, "month", NOW, "zh")!.inProgress, true);
+  assert.equal(writeMail(s, "year", NOW, "zh")!.inProgress, false);
+  assert.equal(hasNewMail(s, NOW), false);
+});

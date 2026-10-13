@@ -75,7 +75,7 @@ export interface BondLink {
   start: BondLevel;
   /** True when the owner picked the starting level. */
   chosen: boolean;
-  /** The owner can set the start of pairs with one of their own pets in it. */
+  /** The owner can set the start of a pair of their own pets (docs/01 8.24). */
   editable: boolean;
   /** Records that moved this pair, newest first. */
   history: { event: LifeEvent; delta: number }[];
@@ -148,7 +148,7 @@ export function bondNetwork(state: AppState, now: Date, homeOnly = false): BondN
     const score = clamp(ANCHOR[start] + moved.reduce((n, m) => n + m.delta, 0) + circle);
     const [x, y] = a.id < b.id ? [a.id, b.id] : [b.id, a.id];
     links.push({ a: x, b: y, score, level: levelOf(score), start, chosen: chosen.has(key),
-      editable: a.kind === "pet" || b.kind === "pet", history: moved, circle });
+      editable: a.kind === "pet" && b.kind === "pet", history: moved, circle });
   };
   for (let i = 0; i < nodes.length; i++)
     for (let j = i + 1; j < nodes.length; j++) {

@@ -111,12 +111,17 @@ export function scorePawsona(answers: number[]): { temper: Temper; scores: Recor
 export function takePawsona(answers: number[], now = new Date()): PawsonaResult {
   return { version: 1, ...scorePawsona(answers), takenAt: now.toISOString() };
 }
-/** The top three tempers with their share of the eight answers, for the bars on the card. */
-export const topTempers = (scores: Record<Temper, number>) =>
-  TEMPERS.filter((t) => scores[t] > 0)
+/**
+ * The top three tempers for the bars on the card, as strength relative to the strongest (which fills
+ * its bar). Shares of eight answers looked weak, so no percentage is shown (docs/01 8.24).
+ */
+export const topTempers = (scores: Record<Temper, number>) => {
+  const top = Math.max(1, ...TEMPERS.map((t) => scores[t]));
+  return TEMPERS.filter((t) => scores[t] > 0)
     .sort((a, b) => scores[b] - scores[a])
     .slice(0, 3)
-    .map((t) => ({ temper: t, percent: Math.round((scores[t] / PAWSONA_QUESTIONS.length) * 100) }));
+    .map((t) => ({ temper: t, percent: Math.round((scores[t] / top) * 100) }));
+};
 
 interface Persona {
   name: Text;

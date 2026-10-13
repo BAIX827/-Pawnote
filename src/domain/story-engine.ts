@@ -1,4 +1,4 @@
-import { Category, Draft, Pet, Stories, Story, StoryStyle, STYLES } from "./types";
+import { Category, Draft, LifeEvent, Pet, Stories, Story, StoryStyle, STYLES } from "./types";
 import { getLang, t } from "../i18n/core";
 import { isLoss, isSensitive, reaction, socialLine, temperOf } from "./temper";
 const incidents: Record<
@@ -58,7 +58,6 @@ const SPINS: [string, string][] = [
   ["拆家", "改造家居"],
   ["捣乱", "热心帮忙"],
   ["闯祸", "搞创作"],
-  ["一脸无辜", "问心无愧"],
   ["不听话", "坚持己见"],
   ["乱叫", "发表演讲"],
   ["挑食", "严选食材"],
@@ -80,9 +79,10 @@ export const selfName = (pet: Pet) => {
   const temper = temperOf(pet);
   return temper === "cool" || temper === "drama" ? (SELF[pet.species] ?? "我") : "我";
 };
+// English cats used to say "the staff", which read as a workplace; every pet says "my human" (docs/01 8.24).
 export const defaultOwnerName = (species: Pet["species"]) =>
   getLang() === "en"
-    ? species === "cat" ? "the staff" : "my human"
+    ? "my human"
     : species === "cat" ? "铲屎官" : "我的人";
 export const ownerName = (pet: Pet) =>
   pet.ownerTitle?.trim() || defaultOwnerName(pet.species);
@@ -299,4 +299,20 @@ export function retellDraft(pet: Pet, draft: Draft, description: string, categor
   return { ...draft, description, category, stories,
     signature: stories ? generationSignature(pet, description, category) : undefined,
     expressionNeedsReview: edited.length > 0 };
+}
+
+const HEADINGS = /^(【.*】|Work diary|School diary)$/;
+/**
+ * What the pet itself said in a saved entry, for the 爪窝 speech bubble: its closing reaction, never the
+ * owner's quoted words or a section heading, with a news-style "Name: “…”" unwrapped (docs/01 8.24).
+ */
+export function petLine(e: LifeEvent): string | undefined {
+  const text = e.stories[e.selectedStyle]?.text ?? "";
+  const fact = e.description.trim();
+  const name = e.petSnapshot.name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  const lines = text.split("\n").map((l) => l.trim()).filter(Boolean);
+  const own = lines.filter((l) => !HEADINGS.test(l) && !(fact && l.includes(fact)));
+  // The pet's own reaction comes last in every voice; the retelling, if any, comes before it.
+  const line = own[own.length - 1] ?? lines.find((l) => !HEADINGS.test(l));
+  return line?.replace(new RegExp(`^${name}[：:]\\s*[“"]`), "").replace(/[”"]$/, "");
 }

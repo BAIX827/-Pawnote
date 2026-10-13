@@ -11,6 +11,9 @@ export default function JournalFilters({ events, filter, onChange }: {
   events: LifeEvent[]; filter: JournalFilter; onChange: (filter: JournalFilter) => void;
 }) {
   const [calendar, setCalendar] = React.useState(false);
+  // A short diary doesn't need the whole filter panel; it opens on request (docs/01 8.24).
+  const [expanded, setExpanded] = React.useState(false);
+  const full = expanded || events.length >= 10 || !!(filter.category || filter.photosOnly || filter.month || filter.day);
   const today = localDay(), month = filter.month ?? today.slice(0, 7);
   const months = [...new Set([today.slice(0, 7), ...events.map((e) => eventDay(e).slice(0, 7))])].sort().reverse();
   const candidates = filterJournal(events, { query: filter.query, category: filter.category, photosOnly: filter.photosOnly });
@@ -20,6 +23,8 @@ export default function JournalFilters({ events, filter, onChange }: {
   return <Card style={{ gap: 14 }}>
     <Field accessibilityLabel={t("搜索日记")} placeholder={t("搜洗澡、海边，或日记里的一句话")}
       value={filter.query ?? ""} onChangeText={(query) => patch({ query })} />
+    {!full && <Button label={t("更多筛选")} icon="sliders" tone="plain" style={{ alignSelf: "flex-start" }} onPress={() => setExpanded(true)} />}
+    {full && <>
     <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 8, paddingBottom: 4 }}>
       <Chip label={t("全部分类")} active={!filter.category} onPress={() => patch({ category: undefined })} />
       {CATEGORIES.map((category) => <Chip key={category} label={t(CATEGORY_LABELS[category])} active={filter.category === category} onPress={() => patch({ category })} />)}
@@ -66,5 +71,6 @@ export default function JournalFilters({ events, filter, onChange }: {
         <Button label={t("补记这一天")} icon="plus" tone="soft" onPress={() => router.push({ pathname: "/record", params: { date: filter.day } })} />
       </View>}
     </View>}
+    </>}
   </Card>;
 }

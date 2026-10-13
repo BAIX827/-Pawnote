@@ -76,6 +76,7 @@ export default function TimeMachine() {
     <View style={[styles.stack, { maxWidth: 760, width: "100%", alignSelf: "center" }]}>
       <Heading
         title={t("时光机")}
+        hint={t("回看它的变化")}
         accent={colors.sky}
         action={<Button label={t("返回")} tone="plain" onPress={() => router.canGoBack() ? router.back() : router.replace("/profile")} />}
       />

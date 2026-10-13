@@ -6,7 +6,7 @@ import { eventDate } from "../domain/dates";
 import { Image, Pressable, Text, View } from "react-native";
 import { router } from "expo-router";
 import { useStore } from "../data/store";
-import { formatDate } from "../domain/types";
+import { LifeEvent, Pet, formatDate } from "../domain/types";
 import {
   Button,
   Chip,
@@ -28,15 +28,21 @@ import { ageLabel, speciesLabel } from "../domain/pet-profile";
 export default function Profile() {
   const { state } = useStore();
   const [filter, setFilter] = useState<JournalFilter>({});
-  const [tools, setTools] = useState(false);
   const [limit, setLimit] = useState(30);
   const events = filterJournal(state.events, filter);
   if (!state.pet) return <Onboarding />;
   const pet = state.pet;
+  // What another pet at home recorded with this one shows here too, read-only (docs/01 8.24).
+  const filtering = Object.values(filter).some((v) => v !== undefined && v !== false && v !== "");
+  const shared = filtering ? [] : (state.household ?? []).flatMap((b) =>
+    b.events.filter((e) => e.together?.pets.includes(pet.id)).map((e) => ({ e, with: b.pet })));
+  const rows: ({ e: LifeEvent; with?: Pet })[] = [...events.map((e) => ({ e })), ...shared]
+    .sort((a, b) => eventDate(b.e).getTime() - eventDate(a.e).getTime());
   return (
     <View style={styles.stack}>
       <Heading
         title={t("爪册")}
+        hint={t("档案和日记本")}
         accent={colors.lilac}
         action={
           <Button
@@ -96,13 +102,13 @@ export default function Profile() {
             <Text style={styles.h2}>
               {state.events.filter((e) => e.published).length}
             </Text>
-            <Text style={styles.small}>{t("条本机动态")}</Text>
+            <Text style={styles.small}>{t("条爪友圈动态")}</Text>
           </View>
           <View style={{ flex: 1 }}>
             <Text style={[styles.h2, { fontSize: 17 }]}>
               {pet.route === "work" ? t("职场") : t("校园")}
             </Text>
-            <Text style={styles.small}>{t(pet.role)}</Text>
+            <Text style={styles.small}>{t("岗位 · {role}", { role: t(pet.role) })}</Text>
           </View>
         </View>
       </View>
@@ -114,45 +120,16 @@ export default function Profile() {
           <Button label={t("成长纪念册")} icon="book" tone="soft" onPress={() => router.push("/keepsake")} />
           <Button label={t("生日与纪念日")} icon="gift" tone="soft" onPress={() => router.push("/anniversaries")} />
           <Button label={t("关系网")} icon="share-2" tone="soft" onPress={() => router.push("/bonds")} />
-        </View>
-        <Button label={tools ? t("收起更多工具") : t("更多工具 · 爪约、爪信与时光机")} icon="grid" tone="plain" onPress={() => setTools(!tools)} style={{ alignSelf: "flex-start" }} />
-        {tools && <View style={[styles.row, { flexWrap: "wrap" }]}>
-          <Button
-            label={t("爪约")}
-            icon="bell"
-            tone="soft"
-            onPress={() => router.push("/dates")}
-            style={{ alignSelf: "flex-start" }}
-          />
+          <Button label={t("爪约")} icon="bell" tone="soft" onPress={() => router.push("/dates")} />
           <Button
             label={state.pawsona ? t("爪格：{name}", { name: pawsonaCard(pet, state.pawsona).name }) : t("爪格测试")}
             icon="zap"
             tone="soft"
             onPress={() => router.push("/pawsona")}
-            style={{ alignSelf: "flex-start" }}
           />
-          <Button
-            label={t("爪信")}
-            icon="mail"
-            tone="soft"
-            onPress={() => router.push("/mail")}
-            style={{ alignSelf: "flex-start" }}
-          />
-          <Button
-            label={t("时光机")}
-            icon="clock"
-            tone="soft"
-            onPress={() => router.push("/timemachine")}
-            style={{ alignSelf: "flex-start" }}
-          />
-          <Button
-            label={t("设置")}
-            icon="settings"
-            tone="soft"
-            onPress={() => router.push("/settings")}
-            style={{ alignSelf: "flex-start" }}
-          />
-        </View>}
+          <Button label={t("爪信")} icon="mail" tone="soft" onPress={() => router.push("/mail")} />
+          <Button label={t("时光机")} icon="clock" tone="soft" onPress={() => router.push("/timemachine")} />
+        </View>
       </View>
       <JournalFilters events={state.events} filter={filter} onChange={(value) => { setFilter(value); setLimit(30); }} />
       <View style={[styles.between, { marginTop: 6 }]}>
@@ -165,9 +142,17 @@ export default function Profile() {
         </View>
         <Text style={styles.small}>{t("{n} 条真实记录", { n: events.length })}</Text>
       </View>
-      {events.length ? (
-        events.slice(0, limit).map((e, i) => {
+      {rows.length ? (
+        rows.slice(0, limit).map(({ e, with: other }, i) => {
           const date = eventDate(e);
+          if (other)
+            return (
+              <View key={`with:${e.id}`} style={[styles.card, { marginLeft: 66, padding: 14, gap: 6, backgroundColor: colors.pale }]}>
+                <Text style={styles.caps}>{t("和{name}一起", { name: other.name })} · {formatDate(date.toISOString())}</Text>
+                <Text style={styles.body} numberOfLines={3}>{e.description}</Text>
+                <Text style={styles.small}>{t("记在{name}的日记里", { name: other.name })}</Text>
+              </View>
+            );
           return (
             <View key={e.id} style={{ flexDirection: "row", gap: 12 }}>
               <View style={{ alignItems: "center", width: 54 }}>
@@ -226,7 +211,7 @@ export default function Profile() {
                 <View style={[styles.between, { flexWrap: "wrap" }]}>
                   <Text style={styles.small}>{formatDate(eventDate(e).toISOString())}</Text>
                   <Tag bg={e.published ? colors.green : colors.paper}>
-                    {e.published ? t("留在窝里") : t("私密")}
+                    {e.published ? t("已发爪友圈") : t("只在日记里")}
                   </Tag>
                 </View>
                 <Pressable
@@ -289,7 +274,7 @@ export default function Profile() {
           }
         />
       )}
-      {events.length > limit && <Button label={t("看更早的日记")} tone="soft" onPress={() => setLimit(limit + 30)} />}
+      {rows.length > limit && <Button label={t("看更早的日记")} tone="soft" onPress={() => setLimit(limit + 30)} />}
     </View>
   );
 }

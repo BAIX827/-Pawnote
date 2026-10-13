@@ -144,6 +144,7 @@ export default function PawDates() {
     <View style={[styles.stack, { maxWidth: 760, width: "100%", alignSelf: "center" }]}>
       <Heading
         title={t("爪约")}
+        hint={t("它想和你一起做的事")}
         accent={colors.orange}
         action={<Button label={t("返回")} tone="plain" onPress={() => (router.canGoBack() ? router.back() : router.replace("/"))} />}
       />

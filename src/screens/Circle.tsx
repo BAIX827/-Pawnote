@@ -11,7 +11,9 @@ import {
   RESIDENTS,
   Resident,
   buildCircle,
+  homeNames,
   petIsGone,
+  residentName,
 } from "../domain/paw-circle";
 import {
   Avatar,
@@ -69,7 +71,6 @@ function when(at: Date, now: Date) {
 export default function Circle() {
   const { state, update, notify } = useStore();
   const lang = useLang();
-  const [tab, setTab] = useState<"friends" | "lawn">("friends");
   const [who, setWho] = useState<string>("all");
   const [limit, setLimit] = useState(PAGE);
   const [confirm, setConfirm] = useState<string>();
@@ -83,6 +84,8 @@ export default function Circle() {
   const pet = state.pet;
   if (!pet) return <Onboarding />;
   const hidden = state.circle?.hiddenNpcs ?? [];
+  const taken = homeNames(state);
+  const nameOf = (r: Resident) => residentName(r, lang, taken);
   const resident = RESIDENTS.find((r) => r.id === who);
   const posts = circle.posts.filter((p) =>
     who === "all" ? true : who === "mine" ? p.kind === "pet" : p.author.id === who,
@@ -98,7 +101,7 @@ export default function Circle() {
       ...c,
       hiddenNpcs: back ? (c.hiddenNpcs ?? []).filter((id) => id !== r.id) : [...(c.hiddenNpcs ?? []), r.id],
     }));
-    notify(back ? t("{name}回来了。", { name: r.name[lang] }) : t("{name}回小镇了，想它了可以再请回来。", { name: r.name[lang] }));
+    notify(back ? t("{name}回来了。", { name: nameOf(r) }) : t("不看{name}的动态了，想看时可以恢复。", { name: nameOf(r) }));
   };
   const removeComment = (c: CircleComment) => {
     setCircle((s) => ({ ...s, removed: [...(s.removed ?? []), c.id].slice(-500) }));
@@ -114,42 +117,21 @@ export default function Circle() {
       ...s,
       events: s.events.map((e) => (e.id === p.event!.id ? { ...e, published: false } : e)),
     }));
-    notify(t("这条不发了，记录还在爪册里。"));
+    notify(t("已从爪友圈撤回，日记还在爪册里。"));
   };
 
   return (
     <View style={[styles.stack, { maxWidth: 760, width: "100%", alignSelf: "center" }]}>
       <Heading
         title={t("爪友圈")}
+        hint={t("小镇朋友圈")}
         accent={colors.sky}
         action={<Button label={t("写今天的事")} icon="edit-3" onPress={() => router.push("/record")} />}
       />
       <View style={[styles.row, { flexWrap: "wrap" }]}>
-        <Chip label={t("好朋狗")} active={tab === "friends"} onPress={() => setTab("friends")} />
-        <Chip label={t("大草坪 · 即将开放")} active={tab === "lawn"} onPress={() => setTab("lawn")} />
         <Button label={t("关系网")} icon="share-2" tone="soft" onPress={() => router.push("/bonds")} />
       </View>
-
-      {tab === "lawn" ? (
-        <Card style={{ gap: 12, backgroundColor: colors.green }}>
-          <Sticker bg={colors.paper} rotate={-2}>
-            {t("即将开放")}
-          </Sticker>
-          <Text style={styles.h2}>{t("大草坪：别人家的小动物在这里遇见{name}", { name: pet.name })}</Text>
-          {[
-            t("你可以把{name}的某一条动态带来晒晒，别人家的小动物会来点爪、评论。", { name: pet.name }),
-            t("这里只有小动物：没有主人头像和昵称，没有私信，也不显示位置。"),
-            t("好朋狗只在小动物之间交，{name}会自己认识新朋友。", { name: pet.name }),
-            t("现在动态都留在窝里，只在这台设备上。"),
-          ].map((line) => (
-            <View key={line} style={[styles.row, { alignItems: "flex-start" }]}>
-              <PawMark size={18} />
-              <Text style={[styles.body, { flex: 1 }]}>{line}</Text>
-            </View>
-          ))}
-        </Card>
-      ) : (
-        <>
+      <>
           <View style={{ gap: 10 }}>
             <Text style={styles.caps}>{t("{name}的好朋狗 · 爪爪镇居民", { name: pet.name })}</Text>
             <View style={[styles.row, { flexWrap: "wrap", gap: 12 }]}>
@@ -157,7 +139,7 @@ export default function Circle() {
                 <Pressable
                   key={r.id}
                   accessibilityRole="button"
-                  accessibilityLabel={r.name[lang]}
+                  accessibilityLabel={nameOf(r)}
                   accessibilityState={{ selected: who === r.id }}
                   onPress={() => {
                     setWho(who === r.id ? "all" : r.id);
@@ -167,7 +149,7 @@ export default function Circle() {
                 >
                   <ResidentFace r={r} faded={hidden.includes(r.id)} />
                   <Text style={[styles.small, { color: colors.ink, fontWeight: who === r.id ? "800" : "500" }]} numberOfLines={1}>
-                    {r.name[lang]}
+                    {nameOf(r)}
                   </Text>
                 </Pressable>
               ))}
@@ -179,17 +161,26 @@ export default function Circle() {
               <View style={styles.row}>
                 <ResidentFace r={resident} size={56} />
                 <View style={{ flex: 1 }}>
-                  <Text style={styles.h2}>{resident.name[lang]}</Text>
+                  <Text style={styles.h2}>{nameOf(resident)}</Text>
                   <Text style={[styles.small, { color: colors.ink }]}>{resident.role[lang]}</Text>
                   <Sticker bg={colors.paper} rotate={-2} style={{ marginTop: 6 }}>
                     {t("爪爪镇居民")}
                   </Sticker>
                 </View>
+                <Pressable
+                  accessibilityRole="button"
+                  accessibilityLabel={t("收起")}
+                  onPress={() => setWho("all")}
+                  hitSlop={10}
+                  style={{ alignSelf: "flex-start" }}
+                >
+                  <Icon name="x" size={22} color={colors.ink} />
+                </Pressable>
               </View>
               <Text style={styles.body}>{resident.bio[lang]}</Text>
 
               <Button
-                label={hidden.includes(resident.id) ? t("请它回来") : t("送回小镇")}
+                label={hidden.includes(resident.id) ? t("恢复显示") : t("不看它的动态")}
                 tone="soft"
                 onPress={() => toggleResident(resident)}
               />
@@ -253,8 +244,7 @@ export default function Circle() {
               action={<Button label={t("写今天的事")} onPress={() => router.push("/record")} />}
             />
           )}
-        </>
-      )}
+      </>
     </View>
   );
 }
@@ -349,20 +339,14 @@ function Post({
         </View>
       )}
       {e && (
-        <View style={{ gap: 10 }}>
-          <View style={[styles.row, { flexWrap: "wrap" }]}>
-            <Sticker bg={colors.green} rotate={-2}>
-              {t("留在窝里")}
-            </Sticker>
-            <Sticker bg={colors.paper} rotate={2}>
-              {e.stories.social.generator === "ai" ? t("AI 生成") : t("本机生成")}
-            </Sticker>
-          </View>
+        <View style={{ gap: 6 }}>
+          <Text style={styles.small}>
+            {e.stories.social.generator === "ai" ? t("AI 生成") : t("本机生成")}
+          </Text>
           <View style={[styles.row, { flexWrap: "wrap", gap: 4 }]}>
-            <Button label={t("带去大草坪 · 即将开放")} tone="soft" disabled onPress={() => {}} />
-            <Button label={confirming ? t("确定不发了？") : t("不发了")} tone="plain" onPress={onUnpost} />
+            <Button label={confirming ? t("确定撤回？") : t("撤回")} tone="plain" onPress={onUnpost} />
             <Button
-              label={t("翻开这一天")}
+              label={t("看原日记")}
               tone="plain"
               onPress={() => router.push({ pathname: "/event", params: { id: e.id } })}
             />

@@ -6,6 +6,9 @@ import { isSensitive } from "./temper";
 
 export const NEWS_TEMPLATES = ["daily", "extra", "wanted", "cover"] as const;
 export type NewsTemplate = (typeof NEWS_TEMPLATES)[number];
+/** The layout 爪报编辑部 opens on: a wanted poster for mischief, the extra edition otherwise (docs/01 8.24). */
+export const defaultNewsTemplate = (event?: Pick<LifeEvent, "category">): NewsTemplate =>
+  event?.category === "chaos" ? "wanted" : "extra";
 /** A hard day gets a plain record card instead of a parody layout. */
 export const isPlainNews = (event: LifeEvent) => isSensitive(event.description);
 /** The mock bounty on a wanted poster: a steady number per entry, in the pet's own currency. */

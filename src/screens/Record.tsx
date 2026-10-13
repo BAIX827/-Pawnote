@@ -25,7 +25,7 @@ import {
   TONES,
   newDraft,
 } from "../domain/types";
-import { homePets } from "../domain/household";
+import { homePets, mentionedPets } from "../domain/household";
 import { TONE_DELTA, TONE_LABELS, guessTone } from "../domain/bonds";
 import { choosePhoto } from "../platform/photo";
 import { AIError, Quota, aiAvailable, fetchQuota, generateWithAI } from "../platform/ai";
@@ -87,6 +87,7 @@ function Recorder({ original, initialDate }: { original?: LifeEvent; initialDate
   const [more, setMore] = useState(!!original || !!initialDate);
   const [manualTag, setManualTag] = useState(!!original);
   const [manualTone, setManualTone] = useState(!!original?.together);
+  const [manualCompanions, setManualCompanions] = useState(!!original);
   // Bubbles grow with their text, so nothing scrolls inside a speech bubble.
   const [heights, setHeights] = useState({ owner: 96, pet: 120 });
   const [quota, setQuota] = useState<Quota>();
@@ -133,6 +134,7 @@ function Recorder({ original, initialDate }: { original?: LifeEvent; initialDate
   const others = homePets(state).filter((p) => p.id !== pet.id);
   const tone = draft.together ? (manualTone ? draft.together.tone : guessTone(draft.description)) : undefined;
   function toggleCompanion(petId: string) {
+    setManualCompanions(true);
     const now = draft.together?.pets ?? [];
     const pets = now.includes(petId) ? now.filter((p) => p !== petId) : [...now, petId];
     patch({ together: pets.length ? { pets, tone: draft.together?.tone ?? "neutral" } : undefined });
@@ -149,7 +151,12 @@ function Recorder({ original, initialDate }: { original?: LifeEvent; initialDate
   }
   // Every keystroke on the owner's side re-tells the story on the pet's side.
   function retell(description: string, category: Category) {
-    patch(retellDraft(pet!, draft, description, category));
+    const next = retellDraft(pet!, draft, description, category);
+    // Pets named in the owner's words are ticked under 和谁一起 until the owner picks by hand (docs/01 8.24).
+    if (!manualCompanions && others.length) {
+      const named = mentionedPets(description, others);
+      patch({ ...next, together: named.length ? { pets: named, tone: draft.together?.tone ?? "neutral" } : undefined });
+    } else patch(next);
   }
   async function askAI() {
     const asked = { description: draft.description, signature };
@@ -227,7 +234,9 @@ function Recorder({ original, initialDate }: { original?: LifeEvent; initialDate
       const next = saveEvent(state, event);
       submitted.current = true;
       update(next);
-      notify(original ? t("日记已更新，经验保持不变。") : t("日常已保存 · +20 XP"));
+      notify(original ? t("日记已更新，经验保持不变。")
+        : draft.category === "other" ? t("日常已保存 · +20 XP")
+        : t("{tag}已保存 · +20 XP", { tag: t(CATEGORY_LABELS[draft.category]) }));
       if (original && router.canGoBack()) router.back();
       else router.replace({ pathname: "/event", params: { id: event.id } });
     } catch (e) {
@@ -238,6 +247,7 @@ function Recorder({ original, initialDate }: { original?: LifeEvent; initialDate
     <View style={{ gap: 22, maxWidth: 760, width: "100%", alignSelf: "center" }}>
       <Heading
         title={original ? t("编辑日记") : t("爪语")}
+        hint={original ? undefined : t("写下它今天干了啥")}
         accent={colors.pink}
         action={
           <Button label={t("返回")} icon="x" tone="plain" onPress={() => router.canGoBack() ? router.back() : router.replace("/")} />
@@ -503,10 +513,10 @@ function Recorder({ original, initialDate }: { original?: LifeEvent; initialDate
       {more && <View style={{ gap: 22 }}>
         <View style={{ gap: 8 }}>
           <Label>{t("实际发生日期")}</Label>
-          <DateField label={t("实际发生日期")} value={draft.occurredOn ?? localDay()} onChange={(occurredOn) => patch({ occurredOn })} />
-          <View style={[styles.row, { flexWrap: "wrap" }]}>
-            <Button label={t("今天")} tone="plain" onPress={() => patch({ occurredOn: localDay() })} />
-          </View>
+          <DateField compact label={t("实际发生日期")} value={draft.occurredOn ?? localDay()} onChange={(occurredOn) => patch({ occurredOn })} />
+          {(draft.occurredOn ?? localDay()) !== localDay() && (
+            <Button label={t("改回今天")} tone="plain" style={{ alignSelf: "flex-start" }} onPress={() => patch({ occurredOn: localDay() })} />
+          )}
         </View>
         <View style={{ gap: 10 }}>
           <Text style={styles.caps}>

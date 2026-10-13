@@ -143,7 +143,7 @@ test("等级在100 XP边界升级，去重统计", () => {
 test("主人视角改写为宠物第一人称，并从原话猜出标签", () => {
   const cat = demoState().pet!;
   assert.equal(toPetVoice(cat, "今天把我的水杯推下去了，还一脸无辜").text,
-    "今天我把铲屎官的水杯推下去了，还问心无愧。");
+    "今天我把铲屎官的水杯推下去了，还一脸无辜。");
   const snack = toPetVoice(cat, "趁我转身的时候，它偷吃了一块小鱼干。");
   assert.equal(snack.text, "趁铲屎官转身的时候，我悄悄品鉴了一块小鱼干。");
   assert.equal(snack.spin, "偷吃");
@@ -206,7 +206,7 @@ test("英文界面下词条、称号与本机故事使用英文，未收录的�
       assert.ok(story.text.includes("He stole a fish."));
       assert.ok(!/[\u4e00-\u9fff]/.test(story.title + story.text));
     }
-    assert.match(stories.diary.text, /^The staff wrote/);
+    assert.match(stories.diary.text, /^My human wrote/);
     assert.match(stories.diary.text, /opinions about food/);
     assert.match(generateStories({ ...pet, species: "dog", personality: "亲人" }, "We went out.", "walk").diary.text, /^My human wrote[\s\S]*favourite part/);
     assert.equal(isAppState(demoState()), true);
