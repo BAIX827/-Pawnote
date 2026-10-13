@@ -174,7 +174,7 @@ export const en: Record<string, string> = {
   故事标题: "Story title",
   故事内容: "Story text",
   "点文字可以直接改 · 改上面的原话会重新翻译": "Tap the text to edit · changing your note above retells it",
-  "……（{name}正盯着你，等你先开口）": "… ({name} is staring at you, waiting for you to start)",
+  "（{name}正盯着你）": "({name} is staring at you)",
   换个口吻: "CHANGE VOICE",
   换个说法: "Say it differently",
   "想让它说得更像它自己？": "Want it to sound more like them?",

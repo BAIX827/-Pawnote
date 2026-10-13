@@ -409,7 +409,7 @@ function Recorder({ original, initialDate }: { original?: LifeEvent; initialDate
             </View>
           ) : (
             <Text style={[styles.body, { color: colors.muted, minHeight: 60 }]}>
-              {t("……（{name}正盯着你，等你先开口）", { name: pet.name })}
+              {t("（{name}正盯着你）", { name: pet.name })}
             </Text>
           )}
         </Bubble>
