@@ -1,5 +1,6 @@
+import StoryStylePicker, { storyColors } from "../components/StoryStylePicker";
 import { t } from "../i18n";
-import React, { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Image, Platform, Pressable, Text, View } from "react-native";
 import { router, useLocalSearchParams } from "expo-router";
 import { useStore } from "../data/store";
@@ -20,7 +21,6 @@ import {
   Category,
   Draft,
   LifeEvent,
-  STYLES,
   StoryStyle,
   TONES,
   newDraft,
@@ -60,12 +60,6 @@ const bare = {
   // react-native-web draws a focus ring that the bubble already stands in for.
   ...(Platform.OS === "web" ? ({ outlineStyle: "none" } as object) : {}),
 } as const;
-const tones: Record<StoryStyle, string> = {
-  diary: colors.yellow,
-  life: colors.green,
-  social: colors.pink,
-  news: colors.sky,
-};
 
 export default function Record() {
   const { id, date } = useLocalSearchParams<{ id?: string; date?: string }>();
@@ -402,7 +396,7 @@ function Recorder({ original, initialDate }: { original?: LifeEvent; initialDate
             </Sticker>
           )}
         </View>
-        <Bubble tail="left" bg={generated ? tones[draft.selectedStyle] : colors.line}>
+        <Bubble tail="left" bg={generated ? storyColors[draft.selectedStyle] : colors.line}>
           {story ? (
             <View style={{ gap: 8 }}>
               <Field
@@ -438,11 +432,9 @@ function Recorder({ original, initialDate }: { original?: LifeEvent; initialDate
       </View>
 
       {generated && <View style={{ gap: 8 }}>
-        <Sticker bg={tones[draft.selectedStyle]} rotate={0}>{labels[draft.selectedStyle]}</Sticker>
-        {(state.preferences?.randomStyle === false || !!original) && <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 8 }}>
-              {STYLES.map((s) => <Chip key={s} label={labels[s]} color={tones[s]}
-                active={draft.selectedStyle === s} onPress={() => patch({ selectedStyle: s })} />)}
-            </View>}
+        <Sticker bg={storyColors[draft.selectedStyle]} rotate={0}>{labels[draft.selectedStyle]}</Sticker>
+        {(state.preferences?.randomStyle === false || !!original) &&
+          <StoryStylePicker route={pet.route} selected={draft.selectedStyle} onSelect={(selectedStyle) => patch({ selectedStyle })} />}
       </View>}
       {draft.expressionNeedsReview && <View style={{ gap: 10 }}>
         <Text accessibilityRole="alert" style={styles.body}>{t("原话或分类已改动，已保留你润色过的表达。请选择如何处理后保存。")}</Text>

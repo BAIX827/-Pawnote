@@ -1,5 +1,4 @@
 import { locale, t } from "../i18n";
-import React from "react";
 import { Image, Pressable, ScrollView, Text, View } from "react-native";
 import { router } from "expo-router";
 import { useStore } from "../data/store";

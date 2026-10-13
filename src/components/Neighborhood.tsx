@@ -1,5 +1,4 @@
 import { t } from "../i18n";
-import React from "react";
 import { Pressable, Text, View } from "react-native";
 import { router } from "expo-router";
 import { colors, Icon, shadow, Sticker, Wobble } from "./ui";

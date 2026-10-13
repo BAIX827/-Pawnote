@@ -4,8 +4,12 @@ import { StatusBar } from "expo-status-bar";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import { StoreProvider } from "../data/store";
 import { useFonts } from "expo-font";
+import { loadLang } from "../i18n";
 import ReminderSync from "../components/ReminderSync";
 export default function RootLayout() {
+  React.useEffect(() => {
+    void loadLang();
+  }, []);
   // Headline faces ship inside the app (no font CDN, so they work in mainland China and abroad).
   // They load in the background; system fonts show until they arrive.
   useFonts({

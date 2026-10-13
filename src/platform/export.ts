@@ -93,7 +93,7 @@ export async function exportCard(svg: string, filename: string, _view?: View | n
   download(svg, `${filename}.svg`, "image/svg+xml;charset=utf-8");
 }
 export async function exportBackup(content: string) {
-    download(content, `pawnote-backup-${Date.now()}.json`, "application/json");
+  download(content, `pawnote-backup-${Date.now()}.json`, "application/json");
 }
 
 /** Photos and audio travel inside the offline album. */

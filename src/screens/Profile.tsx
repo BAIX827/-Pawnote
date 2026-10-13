@@ -1,5 +1,5 @@
 import { locale, t, tList } from "../i18n";
-import React, { useState } from "react";
+import { useState } from "react";
 import JournalFilters from "../components/JournalFilters";
 import { filterJournal, JournalFilter } from "../domain/memories";
 import { eventDate } from "../domain/dates";

@@ -13,20 +13,14 @@ async function requireSharing() {
 export async function prepareNewsImage(_event: LifeEvent, _template?: NewsTemplate) {}
 export function canShareNews() { return true; }
 export async function exportNews(event: LifeEvent, view?: View | null, _template?: NewsTemplate) {
-  if (!view) throw new Error(t("新闻卡正在准备，请稍后重试。"));
-  await requireSharing();
-  const uri = await captureRef(view, { format: "png", result: "tmpfile" });
-  try {
-    await Sharing.shareAsync(uri, {
-      mimeType: "image/png", UTI: "public.png", dialogTitle: `${event.petSnapshot.name}的爪报`,
-    });
-  } finally {
-    releaseCapture(uri);
-  }
+  await shareView(view, `${event.petSnapshot.name} · ${t("爪报")}`);
 }
 export const shareNews = exportNews;
 /** A share card (爪格, 爪信) as a PNG of the on-screen view; the SVG is for the web build. */
 export async function exportCard(_svg: string, _filename: string, view?: View | null, title?: string) {
+  await shareView(view, title);
+}
+async function shareView(view?: View | null, title?: string) {
   if (!view) throw new Error(t("卡片正在准备，请稍后重试。"));
   await requireSharing();
   const uri = await captureRef(view, { format: "png", result: "tmpfile" });

@@ -1,5 +1,5 @@
 import { setLang, t, useLang } from "../i18n";
-import React, { useState } from "react";
+import { useState } from "react";
 import { Platform, Text, View } from "react-native";
 import { router } from "expo-router";
 import { useStore } from "../data/store";

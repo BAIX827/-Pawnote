@@ -6,33 +6,42 @@ import { isPastDay } from "../domain/dates";
 import { isHomeDate } from "../domain/timeline";
 import { MAX_LABEL, MAX_ROUTINES, isActivity, isTime } from "../domain/paw-dates";
 import { PAWSONA_QUESTIONS, TEMPERS } from "../domain/pawsona";
+import { QUESTIONS } from "../domain/pet-profile";
 const obj = (v: unknown): v is Record<string, unknown> =>
   !!v && typeof v === "object" && !Array.isArray(v);
-const str = (v: unknown, max: number) =>
+const str = (v: unknown, max: number): v is string =>
   typeof v === "string" && v.length <= max;
+const timestamp = (v: unknown) => str(v, 40) && Number.isFinite(Date.parse(v));
+const optionalDate = (v: unknown) => v === undefined || timestamp(v);
 const one = (v: unknown, list: readonly string[]) =>
   typeof v === "string" && list.includes(v);
 const photo = (v: unknown) =>
   v === undefined ||
   (str(v, 1000000) &&
-    /^data:image\/jpeg;base64,[A-Za-z0-9+/=]+$/.test(v as string));
-const optionalInt = (v: unknown, max: number) => v === undefined || (Number.isInteger(v) && (v as number) >= 0 && (v as number) <= max);
-const questionnaire = (v: unknown) => v === undefined || (obj(v) && v.version === 1 && Array.isArray(v.answers) &&
-  v.answers.length === 5 && v.answers.every(a => Number.isInteger(a) && a >= 0 && a <= 3) && v.answers.filter(a => a < 3).length >= 3);
+    /^data:image\/jpeg;base64,[A-Za-z0-9+/=]+$/.test(v));
+const boundedInt = (v: unknown, max: number): v is number =>
+  typeof v === "number" && Number.isInteger(v) && v >= 0 && v <= max;
+const optionalInt = (v: unknown, max: number) => v === undefined || boundedInt(v, max);
+const questionnaire = (v: unknown) =>
+  v === undefined ||
+  (obj(v) && v.version === 1 && Array.isArray(v.answers) &&
+    v.answers.length === QUESTIONS.length &&
+    v.answers.every((a) => boundedInt(a, 3)) &&
+    v.answers.filter((a) => a < 3).length >= 3);
 const pet = (v: unknown) =>
   obj(v) &&
   str(v.id, 100) &&
   str(v.name, 20) &&
-  (v.name as string).trim().length > 0 &&
+  v.name.trim().length > 0 &&
   one(v.species, SPECIES) &&
   (v.speciesName === undefined || str(v.speciesName, 20)) &&
-  (v.species !== "other" || (str(v.speciesName, 20) && (v.speciesName as string).trim().length > 0)) &&
-  str(v.personality, 60) && (v.personality as string).trim().length > 0 &&
+  (v.species !== "other" || (str(v.speciesName, 20) && v.speciesName.trim().length > 0)) &&
+  str(v.personality, 60) && v.personality.trim().length > 0 &&
   (v.personalitySource === undefined || one(v.personalitySource, ["tag", "custom", "questionnaire"])) &&
   questionnaire(v.questionnaire) &&
   (v.personalitySource !== "questionnaire" || v.questionnaire !== undefined) &&
   optionalInt(v.ageMonths, 1200) &&
-  (v.ageRecordedAt === undefined || (str(v.ageRecordedAt, 40) && Number.isFinite(Date.parse(v.ageRecordedAt as string)))) &&
+  optionalDate(v.ageRecordedAt) &&
   (v.routeSource === undefined || one(v.routeSource, ["age", "manual"])) &&
   (v.routeSource !== "age" || ((v.species === "cat" || v.species === "dog") &&
     v.route === (v.ageMonths !== undefined && (v.ageMonths as number) < 12 ? "campus" : "work"))) &&
@@ -52,13 +61,12 @@ const stories = (v: unknown) =>
       (v[k].generator === "template" || v[k].generator === "ai") &&
       typeof v[k].edited === "boolean",
   );
-const isoDate = (v: unknown) => v === undefined || (str(v, 40) && Number.isFinite(Date.parse(v as string)));
 const routine = (v: unknown) =>
   obj(v) &&
   str(v.id, 100) &&
   typeof v.activity === "string" &&
   (v.activity === "custom"
-    ? str(v.label, MAX_LABEL) && (v.label as string).trim().length > 0
+    ? str(v.label, MAX_LABEL) && v.label.trim().length > 0
     : isActivity(v.activity) && v.label === undefined) &&
   isTime(v.time) &&
   Array.isArray(v.days) &&
@@ -67,21 +75,18 @@ const routine = (v: unknown) =>
   new Set(v.days).size === v.days.length &&
   v.days.every((d) => Number.isInteger(d) && d >= 0 && d <= 6) &&
   typeof v.enabled === "boolean" &&
-  str(v.createdAt, 40) &&
-  Number.isFinite(Date.parse(v.createdAt as string)) &&
-  isoDate(v.lastDone) &&
-  isoDate(v.snoozedUntil);
-const pawsona = (v: unknown) =>
-  v === undefined ||
-  (obj(v) &&
-    v.version === 1 &&
-    one(v.temper, TEMPERS) &&
-    obj(v.scores) &&
-    Object.keys(v.scores).every((k) => TEMPERS.includes(k as never)) &&
-    TEMPERS.every((k) => optionalInt((v.scores as Record<string, unknown>)[k], PAWSONA_QUESTIONS.length) && (v.scores as Record<string, unknown>)[k] !== undefined) &&
-    TEMPERS.reduce((sum, k) => sum + ((v.scores as Record<string, number>)[k] ?? 0), 0) === PAWSONA_QUESTIONS.length &&
-    str(v.takenAt, 40) &&
-    Number.isFinite(Date.parse(v.takenAt as string)));
+  timestamp(v.createdAt) &&
+  optionalDate(v.lastDone) &&
+  optionalDate(v.snoozedUntil);
+function pawsona(v: unknown) {
+  if (v === undefined) return true;
+  if (!obj(v) || v.version !== 1 || !one(v.temper, TEMPERS) || !obj(v.scores)) return false;
+  const scores = v.scores;
+  return Object.keys(scores).every((key) => one(key, TEMPERS)) &&
+    TEMPERS.every((key) => boundedInt(scores[key], PAWSONA_QUESTIONS.length)) &&
+    TEMPERS.reduce((sum, key) => sum + (scores[key] as number), 0) === PAWSONA_QUESTIONS.length &&
+    timestamp(v.takenAt);
+}
 const ids = (v: unknown, max: number) =>
   v === undefined || (Array.isArray(v) && v.length <= max && v.every((x) => str(x, 200)));
 const circle = (v: unknown) => obj(v) && ids(v.hiddenNpcs, 7) && ids(v.removed, 500);
@@ -106,7 +111,7 @@ function bundle(v: Record<string, unknown>): boolean {
         str(e.createdAt, 40) &&
         Number.isFinite(Date.parse(e.createdAt as string)) &&
         (e.occurredOn === undefined || isPastDay(e.occurredOn)) &&
-        isoDate(e.savedAt) && isoDate(e.editedAt) &&
+        optionalDate(e.savedAt) && optionalDate(e.editedAt) &&
         obj(e.petSnapshot) &&
         pet(e.petSnapshot) &&
         stories(e.stories) &&

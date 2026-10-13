@@ -1,4 +1,4 @@
-import { loadLang, t, useLang } from "../i18n";
+import { t, useLang } from "../i18n";
 import React from "react";
 import {
   ActivityIndicator,
@@ -37,9 +37,6 @@ export default function Shell({ children }: { children: React.ReactNode }) {
   const setSwitcher = (open: boolean) => setSwitcherAt(open ? path : null);
   const pets = homePets(state);
   const lang = useLang();
-  React.useEffect(() => {
-    void loadLang();
-  }, []);
   const item = (n: (typeof nav)[number]) => {
     const active = path === n.route;
     return (
@@ -155,8 +152,6 @@ export default function Shell({ children }: { children: React.ReactNode }) {
           </View>
         )}
         <View style={{ flex: 1 }}>
-          <View pointerEvents="none" style={{ position: "absolute", top: 0, left: 0, right: 0, bottom: 0, overflow: "hidden" }}>
-          </View>
           <View
             style={{
               paddingHorizontal: wide ? 40 : 18,

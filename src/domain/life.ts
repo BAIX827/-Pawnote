@@ -1,6 +1,6 @@
 import { t } from "../i18n/core";
 import { isPastDay, newestEvents } from "./dates";
-import { AppState, LifeEvent } from "./types";
+import { AppState, LifeEvent, Pet, emptyState } from "./types";
 export function progress(events: LifeEvent[]) {
   const xp = new Set(events.map((e) => e.id)).size * 20;
   return {
@@ -9,6 +9,15 @@ export function progress(events: LifeEvent[]) {
     current: xp % 100,
     toNext: 100 - (xp % 100),
   };
+}
+/** Compare actual timestamps so imported records also work with different UTC offsets. */
+export const newestFirst = (events: LifeEvent[]) =>
+  [...events].sort((a, b) => Date.parse(b.createdAt) - Date.parse(a.createdAt));
+
+export function savePet(state: AppState, pet: Pet): AppState {
+  return state.pet?.id === pet.id
+    ? { ...state, pet, draft: null }
+    : { ...emptyState(), ...(state.preferences && { preferences: state.preferences }), pet };
 }
 export function saveEvent(state: AppState, event: LifeEvent): AppState {
   if (!state.pet || event.petSnapshot.id !== state.pet.id)

@@ -1,5 +1,5 @@
-import { eventDate, eventDay, newestEvents } from "./dates";
-import { getLang } from "../i18n/core";
+import { addDays, dayKey, eventDate, eventDay, newestEvents } from "./dates";
+import { Lang, getLang } from "../i18n/core";
 import { PlannedReminder, plannedReminders, remindersPaused } from "./paw-dates";
 import { ownerName } from "./story-engine";
 import { Temper, isSensitive, temperOf } from "./temper";
@@ -8,13 +8,10 @@ import { AppState, CATEGORIES, Category, LifeEvent } from "./types";
 // 爪信 / Paw Mail (docs/01 8.18): a letter from the pet about a stretch of time, made only from
 // saved entries. A recap (counts, favourite thing, a highlight), up to two complaints about
 // things that happened, one piece of praise and a sign-off. Copy follows docs/13 §12.
-type Lang = "zh" | "en";
 type Text = Record<Lang, string>;
 export const MAIL_KINDS = ["week", "month", "year"] as const;
 export type MailKind = (typeof MAIL_KINDS)[number];
 
-const pad = (n: number) => String(n).padStart(2, "0");
-const dateKey = (d: Date) => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
 /** Midnight on the Monday of the week containing `now`, local time. */
 const mondayOf = (now: Date) => new Date(now.getFullYear(), now.getMonth(), now.getDate() - ((now.getDay() + 6) % 7));
 
@@ -22,14 +19,14 @@ const mondayOf = (now: Date) => new Date(now.getFullYear(), now.getMonth(), now.
 export function mailPeriod(kind: MailKind, now = new Date()): { start: Date; end: Date } {
   if (kind === "week") {
     const end = mondayOf(now);
-    return { start: new Date(end.getFullYear(), end.getMonth(), end.getDate() - 7), end };
+    return { start: addDays(end, -7), end };
   }
   if (kind === "month")
     return { start: new Date(now.getFullYear(), now.getMonth() - 1, 1), end: new Date(now.getFullYear(), now.getMonth(), 1) };
   return { start: new Date(now.getFullYear(), 0, 1), end: now };
 }
 /** Identifies this week's letter (the Monday it covers, YYYY-MM-DD), for the read marker. */
-export const weekMailKey = (now = new Date()) => dateKey(mailPeriod("week", now).start);
+export const weekMailKey = (now = new Date()) => dayKey(mailPeriod("week", now).start);
 
 const PREFIX: Record<Temper, { complaint: Text; praise: Text; closing: Text; teaser: Text }> = {
   cool: {

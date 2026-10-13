@@ -1,12 +1,13 @@
 import DateField from "../components/DateField";
 import { t, tList } from "../i18n";
-import React, { useRef, useState } from "react";
+import { useRef, useState } from "react";
 import RestoreBackup from "../components/RestoreBackup";
 import PersonalityQuiz from "../components/PersonalityQuiz";
 import { Text, TextInput, View, useWindowDimensions } from "react-native";
 import { router } from "expo-router";
 import { useStore } from "../data/store";
 import { demoState } from "../data/demo";
+import { savePet } from "../domain/life";
 import {
   PERSONALITIES,
   SPECIES,
@@ -169,17 +170,8 @@ export default function Onboarding({ editing = false, adding = false }: { editin
       router.replace("/");
       return;
     }
-    update((s) => {
-      const next = {
-        ...s,
-        pet,
-        events: editing ? s.events : [],
-        sounds: editing ? s.sounds : [],
-        draft: null,
-        demo: editing ? s.demo : false,
-      };
-      return editing ? next : withStarterRoutines({ ...next, routines: [] });
-    });
+    // A new pet starts clean: the old pet's records, 爪约, 爪格 and circle settings don't carry over.
+    update((s) => editing ? savePet(s, pet) : withStarterRoutines(savePet(s, pet)));
     notify(
       editing
         ? t("人设已更新，历史故事保留原来的身份。")
