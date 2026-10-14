@@ -17,6 +17,7 @@ import { exportBackup } from "../platform/export";
 import { Avatar, Button, Icon, PawMark, Wobble, colors, display, styles } from "./ui";
 import RestoreBackup from "./RestoreBackup";
 import { MAX_PETS, homePets, switchPet } from "../domain/household";
+import { othersCalling } from "../domain/paw-dates";
 const nav = [
   { route: "/", label: "爪窝", icon: "home" as const },
   { route: "/life", label: "爪迹", icon: "briefcase" as const },
@@ -36,6 +37,10 @@ export default function Shell({ children }: { children: React.ReactNode }) {
   const switcher = switcherAt === path;
   const setSwitcher = (open: boolean) => setSwitcherAt(open ? path : null);
   const pets = homePets(state);
+  // Other pets whose 爪约 has come round get a red dot, so a call isn't missed behind the switcher (docs/01 8.26).
+  const calling = new Set(othersCalling(state).map((c) => c.pet.id));
+  const dot = { position: "absolute" as const, top: -2, right: -2, width: 12, height: 12, borderRadius: 6,
+    backgroundColor: colors.red, borderWidth: 2, borderColor: colors.paper };
   const lang = useLang();
   const item = (n: (typeof nav)[number]) => {
     const active = path === n.route;
@@ -209,7 +214,10 @@ export default function Shell({ children }: { children: React.ReactNode }) {
                 >
                   {state.pet.name}
                 </Text>
-                <Avatar pet={state.pet} demo={state.demo} size={34} />
+                <View>
+                  <Avatar pet={state.pet} demo={state.demo} size={34} />
+                  {calling.size > 0 && <View style={dot} />}
+                </View>
                 {pets.length > 1 && <Icon name={switcher ? "chevron-up" : "chevron-down"} size={16} color={colors.ink} />}
               </Pressable>
             ) : (
@@ -248,6 +256,7 @@ export default function Shell({ children }: { children: React.ReactNode }) {
                     >
                       <View style={{ padding: 2, borderRadius: 30, borderWidth: 3, borderColor: active ? colors.orange : "transparent" }}>
                         <Avatar pet={pet} demo={state.demo} size={44} />
+                        {calling.has(pet.id) && <View style={dot} />}
                       </View>
                       <Text numberOfLines={1} style={[styles.small, { color: colors.ink, fontWeight: active ? "800" : "500" }]}>
                         {pet.name}

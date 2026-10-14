@@ -151,7 +151,7 @@ export const en: Record<string, string> = {
   "照片读取失败。": "The photo could not be read.",
   "先写下今天的事，{name}才能开口。": "Write about today first, then {name} can speak.",
   "故事内容需要至少一个字。": "The story needs at least one character.",
-  "日常已保存 · +20 XP": "Saved · +20 XP",
+  日常: "Everyday",
   "保存失败。": "Could not save.",
   爪语: "Paw Talk",
   "你说人话 → {name}说{kind}话": "You write → {name} retells",

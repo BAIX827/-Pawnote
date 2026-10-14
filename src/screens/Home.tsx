@@ -24,7 +24,7 @@ import {
 import Neighborhood from "../components/Neighborhood";
 import PawDatesCard from "../components/PawDatesCard";
 import PastMemories from "../components/PastMemories";
-import { eventDate, newestEvents } from "../domain/dates";
+import { eventDate, eventDay, localDay, newestEvents } from "../domain/dates";
 import OccasionPreview from "../components/OccasionPreview";
 import HomeLetters from "../components/HomeLetters";
 import Onboarding from "./Onboarding";
@@ -50,10 +50,13 @@ export default function Home() {
     narrow = width < 500,
     now = new Date(),
     m = moment(now.getHours());
-  // What the pet itself said last time, never the owner's words quoted back (docs/01 8.24).
-  const saying = (latest && petLine(latest)) || greeting(pet, now.getHours(), getLang());
+  // What the pet itself said today, never the owner's words quoted back (docs/01 8.24); on a day
+  // with nothing recorded yet, the greeting for the hour (docs/01 8.26).
+  const saying = (latest && eventDay(latest) === localDay(now) && petLine(latest)) || greeting(pet, now.getHours(), getLang());
   return (
-    <View style={[styles.stack, narrow && { gap: 14 }]}>
+    // Without the town panels the home is one column; on a desktop it stays a readable width (docs/01 8.26).
+    <View style={[styles.stack, narrow && { gap: 14 },
+      state.preferences?.homeExtras !== true && { maxWidth: 860, width: "100%", alignSelf: "center" }]}>
       <View
         style={[
           {
@@ -166,8 +169,16 @@ export default function Home() {
         </Text>
       </View>
 
+      {/* A new home sees how to start on the first screen, ahead of the 爪约 (docs/01 8.26). */}
+      {!state.events.length && (
+        <Empty
+          title={t("今天的故事还空着")}
+          action={<Button label={t("写第一条日记")} onPress={() => router.push("/record")} />}
+        />
+      )}
       <PawDatesCard />
       <OccasionPreview />
+      {state.events.length > 0 && <>
       <View style={[styles.between, { marginTop: 4 }]}>
         <View>
           <View
@@ -178,7 +189,6 @@ export default function Home() {
         </View>
         <Button label={t("翻开爪册")} tone="plain" onPress={() => router.push("/profile")} />
       </View>
-      {state.events.length ? (
         <View style={{ gap: 20 }}>
           {newestEvents(state.events).slice(0, 3).map((e, i) => (
             <Pressable
@@ -233,12 +243,7 @@ export default function Home() {
             </Pressable>
           ))}
         </View>
-      ) : (
-        <Empty
-          title={t("今天的故事还空着")}
-          action={<Button label={t("写第一条日记")} onPress={() => router.push("/record")} />}
-        />
-      )}
+      </>}
       <HomeLetters />
       <PastMemories />
       {state.preferences?.homeExtras === true && (

@@ -45,7 +45,7 @@ const TOWN: [string, string, BondLevel][] = [
   ["mochi", "pip", "normal"],
 ];
 
-const GOOD = /一起玩|玩了|玩耍|贴贴|蹭|舔毛|互相舔|抱在一起|挤在|靠在一起|一起睡|都睡着|一起趴|一起晒|依偎|分享|让给|陪|追着玩|和好|play|cuddl|snuggl|groom|nap(ped)? together|shared|made up/i;
+const GOOD = /一起玩|玩了|玩耍|贴贴|蹭|舔毛|互相舔|抱在一起|挤在|靠在一起|趴在一起|贴在一起|互相闻|闻了闻|一起睡|都睡着|一起趴|一起晒|依偎|分享|让给|陪|追着玩|和好|play|cuddl|snuggl|groom|nap(ped)? together|shared|made up/i;
 const BAD = /打架|打起来|打了一架|咬了|咬它|咬他|互咬|抢|吵架|哈气|凶|揍|欺负|挠了|追着打|生气|不理|fight|fought|bit each other|bitten|hiss|growl|stole|swatted/i;
 const MADE_UP = /和好|握手言和|made up|make up/i;
 
@@ -151,9 +151,10 @@ export function bondNetwork(state: AppState, now: Date, homeOnly = false): BondN
   const links: BondLink[] = [];
   const link = (a: BondNode, b: BondNode, fallback: BondLevel) => {
     const key = pairKey(a.id, b.id);
-    const start = chosen.get(key) ?? fallback;
-    const moved = (history.get(key) ?? []).sort((x, y) => y.event.createdAt.localeCompare(x.event.createdAt));
     const circle = Math.min(CIRCLE_CAP, warmth.get(key) ?? 0);
+    // A pair that has already met in the 爪友圈 isn't "不熟" any more (docs/01 8.26).
+    const start = chosen.get(key) ?? (fallback === "stranger" && circle > 0 ? "normal" : fallback);
+    const moved = (history.get(key) ?? []).sort((x, y) => y.event.createdAt.localeCompare(x.event.createdAt));
     const score = clamp(ANCHOR[start] + moved.reduce((n, m) => n + m.delta, 0) + circle);
     const [x, y] = a.id < b.id ? [a.id, b.id] : [b.id, a.id];
     links.push({ a: x, b: y, score, level: levelOf(score), start, chosen: chosen.has(key),

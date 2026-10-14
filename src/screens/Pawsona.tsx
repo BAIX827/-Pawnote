@@ -1,10 +1,10 @@
-import { getLang, t, useLang } from "../i18n";
+import { getLang, t, tList, useLang } from "../i18n";
 import { useRef, useState } from "react";
 import { Text, View } from "react-native";
 import { router } from "expo-router";
 import { useStore } from "../data/store";
 import { remindersPaused } from "../domain/paw-dates";
-import { PAWSONA_QUESTIONS, adoptPawsona, pawsonaCard, takePawsona } from "../domain/pawsona";
+import { PAWSONA_QUESTIONS, PERSONAS, adoptPawsona, pawsonaCard, takePawsona } from "../domain/pawsona";
 import { pawsonaSVG } from "../domain/share-cards";
 import { temperOf } from "../domain/temper";
 import { exportCard } from "../platform/export";
@@ -67,6 +67,8 @@ export default function Pawsona() {
 
   const result = pawsonaCard(pet, saved, lang);
   const adopted = temperOf(pet) === saved.temper;
+  // "活泼" and "憨厚" share a temper; say so rather than claim the card already is its word (docs/01 8.26).
+  const sameWord = pet.personality.includes(PERSONAS[saved.temper].tag);
   async function share() {
     try {
       await exportCard(pawsonaSVG(pet, saved!), `pawsona-${pet.name}`, card.current, t("{name}的爪格", { name: pet.name }));
@@ -118,7 +120,8 @@ export default function Pawsona() {
       </View>
       <View style={{ gap: 10 }}>
         <Button
-          label={adopted ? t("已经是它的性格") : t("设为它的性格")}
+          label={!adopted ? t("设为它的性格") : sameWord ? t("已经是它的性格")
+            : t("和你选的「{tag}」是一类", { tag: tList(pet.personality) })}
           icon="check"
           disabled={adopted}
           onPress={() => {

@@ -96,16 +96,20 @@ export function reaction(
   const sep = lang === "zh" ? "" : " ";
   if (context) return { line: `${context}${sep}${fill(closer)}`, closer: fill(closer), contextual: true };
   const action = actionLine(description, lang);
-  return { line: action ? `${action}${sep}${fill(line)}` : fill(line), closer: fill(closer), contextual: !!action };
+  // An everyday moment the pet already answered ends on a short sign-off, not a stock line (docs/01 8.26).
+  const after = category === "other" ? closer : line;
+  return { line: action ? `${action}${sep}${fill(after)}` : fill(line), closer: fill(closer), contextual: !!action };
 }
 
 /** A brief post addressed to friends, with a second version for "say it another way". */
 export function socialLine(pet: Pet, category: Category, owner: string, lang: "zh" | "en", description = "", variant = 0): string {
   const fill = fillWith(owner, lang);
   if (isSensitive(description)) return fill(QUIET[lang].closer);
-  const base = fill((lang === "en" ? en : zh)[temperOf(pet)].social[category][variant % 2]);
+  const set = (lang === "en" ? en : zh)[temperOf(pet)];
+  const base = fill(set.social[category][variant % 2]);
   const context = eventContext(description, owner, lang) ?? actionLine(description, lang);
-  if (context) return `${context}${lang === "zh" ? "" : " "}${base}`;
+  // Same as reaction(): once the pet has answered an everyday moment, a short sign-off is enough (docs/01 8.26).
+  if (context) return `${context}${lang === "zh" ? "" : " "}${category === "other" ? fill(set.closers[variant % set.closers.length]) : base}`;
   // Use a recorded detail to anchor the thought, rather than adding a stock scene.
   if ((pet.species === "cat" || pet.species === "dog") && /闻|嗅|sniff|smell/i.test(description))
     return base + (lang === "zh" ? "" : " ") + (lang === "zh" ? "你们看照片，我想把气味里的消息读完。" : "You have the photos. I'd like time to read the scent news.");

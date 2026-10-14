@@ -16,7 +16,7 @@ export const zh: VoiceBank = {
     bath: ["洗完了。{owner}大概很满意，我的意见先留着。最好拿点好吃的来谈。", "干净是干净了。至于我喜不喜欢这件事，{owner}可以慢慢猜。"],
     chaos: ["{owner}大概有意见，我也有我的理由。先让我把话说完。", "今天这件事，双方看法可能有点差别。我的那一版也值得听听。"],
     walk: ["出去玩这件事，我勉强同意下次继续。跟谁去，我倒是有要求。", "外面的事值得看看。{owner}下次还想去的话，可以来问我。"],
-    other: ["这是我的一天，当然有我的看法。{owner}写得太简单了，细节我自己留着。", "有些小事我挺在意的。至于在意多少，暂时保密。"],
+    other: ["这种小事，本来不值得我出面。既然记下来了，就算我同意了。", "{owner}只看到了一半。另一半我知道，但不打算说。"],
     closers: ["{owner}下次还可以叫上我。", "这句只给熟人看。", "今天的意见就这些。"],
     social: {
       sleep: ["今天的空闲都留给了睡觉。找我聊天，等我自然醒。", "睡觉有自己的时间表。大家忙完了再来，我也忙完了再理。"],
@@ -24,7 +24,7 @@ export const zh: VoiceBank = {
       bath: ["洗完了。夸我好看可以，劝我爱上洗澡要另谈。", "今天的清洁流程到此为止。熟人可以带零食来安慰一下。"],
       chaos: ["今天的事，{owner}有一套说法。我准备保留自己的版本。", "先别急着评价。听完我的理由，再决定站哪边。"],
       walk: ["下次还可以叫上我，邀请要有诚意。", "{owner}要是还想去，我也能安排时间。"],
-      other: ["今天这件小事，我有自己的看法。熟人可以来问。", "发出来给大家看看。我的解释，视心情补充。"],
+      other: ["今日小事一件，本人状态正常。", "发出来就是允许围观，不允许多问。"],
     },
   },
   clingy: {
@@ -33,7 +33,7 @@ export const zh: VoiceBank = {
     bath: ["洗澡让我有点委屈。最想听{owner}再叫一次我的名字，温柔一点的那种。", "我想把洗澡这点委屈交给{owner}。抱一下就可以，久一点也可以。"],
     chaos: ["我在意的是{owner}会不会还愿意理我。这件事说完了，我们还能好好待着吧。", "{owner}的心情对我很重要。我想把自己的意思讲清楚，再靠近一点。"],
     walk: ["外面有好多值得看的东西。我最喜欢的，还是跟{owner}一起出去这件事。", "去哪儿对我都挺重要的，跟{owner}一起就更重要。下次还想一起。"],
-    other: ["{owner}可能觉得这事很小。我心里会留很久，因为它是我们今天的一部分。", "我想把今天讲给{owner}听。说着说着，也想让{owner}离我近一点。"],
+    other: ["只要{owner}在旁边，这种小事我也觉得很好。", "今天这件事里有{owner}，所以我想记住它。"],
     closers: ["下次也带上我吧。", "这些小事，我想跟{owner}一起。", "想听{owner}再叫我一声。"],
     social: {
       sleep: ["睡觉也想离{owner}近一点。醒来能听见熟悉的声音就好了。", "今天的困意很认真。希望醒来还可以跟{owner}待在一起。"],
@@ -41,7 +41,7 @@ export const zh: VoiceBank = {
       bath: ["洗澡的委屈，想换{owner}一个抱抱。价格已经很低了。", "今天洗澡了。现在最想要{owner}叫我一声，再抱一会儿。"],
       chaos: ["这件事可以慢慢说。先告诉我，{owner}还愿意理我吧。", "我的解释可能有点乱。想让{owner}听完，再摸摸我。"],
       walk: ["最想分享的部分是：跟{owner}一起。", "下次还想出去玩，同行的人我已经选好了。就是{owner}。"],
-      other: ["这件小事想发给大家看，也想单独讲给{owner}听。", "今天有一点想分享。有{owner}的那一部分，我想多说几句。"],
+      other: ["今天也是和{owner}待在一起的一天。", "这件小事，{owner}陪着我一起过的。"],
     },
   },
   goofy: {
@@ -50,7 +50,7 @@ export const zh: VoiceBank = {
     bath: ["洗澡这件事有点复杂。我想尽快搞定，再让{owner}好好看看我。", "我想问{owner}，洗完是不是就能换个节目了。最好是我喜欢的那个。"],
     chaos: ["{owner}可能想听一个完整解释。我脑子里的版本有点乱，但态度很认真。", "现在想想，事情跟我期待的可能有点偏差。我想重新商量一下规则。"],
     walk: ["出去玩一次，心里就有了下一次。回家的事听{owner}的，明天能不能再去这件事，想让我先说。", "外面的热闹想一点点认识完。{owner}要是肯多等我一会儿，我也想把自己觉得好玩的讲给{owner}听。"],
-    other: ["这件事在{owner}那里可能只算一小段。我心里有好多话，想一口气说完。", "我想让大家也知道今天这件事。讲得有点兴奋，因为真的想分享。"],
+    other: ["我也不知道为什么，反正今天这件事很开心！", "这件事我做得很认真！虽然不知道认真在哪里！"],
     closers: ["下次还想一起玩！", "有没有谁也这样想？", "我还有一点想说。"],
     social: {
       sleep: ["困意先睡掉，玩的心留着。明天谁有好玩的消息，记得告诉我。", "今天想认真睡觉。醒来的我，请继续保持对玩耍的热情。"],
@@ -58,7 +58,7 @@ export const zh: VoiceBank = {
       bath: ["洗澡这个节目结束了。我想申请一个自己喜欢的下半场。", "今天洗澡了。大家有什么安慰方案？我比较倾向零食。"],
       chaos: ["解释有点乱，我正在想。你们先听听{owner}那一版，给我留点时间。", "今天有一点小状况。我愿意认真聊聊，下次怎么才算玩得好。"],
       walk: ["心里还没玩够，明天的名额想提前占上！", "出门这件事，我想列入长期计划。大家还有什么好玩的消息？"],
-      other: ["今天这件事想跟大家聊聊。我有好多想法，可能要分几次说。", "发一下今天的小事。谁愿意听，我就想多讲两句。"],
+      other: ["今天又是开心的一天！细节不重要！", "我今天干了一件事！大家觉得厉害吗！"],
     },
   },
   drama: {
@@ -67,7 +67,7 @@ export const zh: VoiceBank = {
     bath: ["洗澡这件事，我需要一段时间平复心情。安慰可以先安排上。", "我的委屈值得单独聊一聊。零食能参与，{owner}最好也参与。"],
     chaos: ["我的版本里有一些重点，{owner}可能还没注意到。我想从头讲一遍。", "这件事的讨论需要给我留个位置。我的意见也很有分量。"],
     walk: ["出去玩值得隆重安排。我希望下次的行程，先来征求一下我的意见。", "一次出门很难满足我全部的期待。下次想申请一个更大的篇幅。"],
-    other: ["这件事在我这里很值得说。请给我一点时间，我要讲到大家都明白。", "{owner}记了经过。我还想补充一下，当时我心里的分量。"],
+    other: ["今天这一幕，我愿意称之为本周最佳。", "这件事要是拍成戏，我一定是主角。"],
     closers: ["我的意见请认真考虑。", "熟人可以先来安慰。", "这段值得给我留个位置。"],
     social: {
       sleep: ["今日安排：休息。我希望这个决定，得到全体熟人的尊重。", "睡觉这件事，我准备认真对待。大家的事情请温柔地排队。"],
@@ -75,7 +75,7 @@ export const zh: VoiceBank = {
       bath: ["今天洗澡了。这个消息值得大家带着零食来关心一下。", "我的洗澡心情需要一点篇幅。安慰的事，熟人请积极参加。"],
       chaos: ["{owner}的版本已经有了。我也想拥有一个完整的发言时段。", "今天这件事，我的感受很多。大家先给我留个位置。"],
       walk: ["下次的行程，请先交给我过目。出去玩值得认真安排。", "我希望下一次拥有更长的篇幅，熟人可以帮我提议。"],
-      other: ["今天这件小事，在我心里有很大一个位置。容我多说两句。", "关于今天，我想申请一个单独的话题。我的感受值得听听。"],
+      other: ["今日剧情已更新，主角是我。", "本周名场面候选一件，请大家投票。"],
     },
   },
   curious: {
@@ -84,7 +84,7 @@ export const zh: VoiceBank = {
     bath: ["我想弄明白，{owner}为什么那么喜欢洗澡后的样子。我的标准似乎不太一样。", "洗澡有好多值得问的地方。等这件事过去，我想挑一个慢慢想。"],
     chaos: ["这件事让我想问好多问题。{owner}关注结果，我比较在意它为什么会这样。", "事情的经过已经有了。我还想弄明白，哪一步开始跟想象有了差别。"],
     walk: ["外面还有好多没弄明白的事。下次想慢一点，留些时间给好奇心。", "每次出去都想多了解一点。{owner}如果能听懂我的问题，应该会聊很久。"],
-    other: ["{owner}说完这件事，我脑子里还有一个问号。可能要再琢磨一会儿。", "今天这件小事挺值得想。大家要是有自己的看法，我也想听。"],
+    other: ["这件事我观察过了，结论还在路上。", "为什么会这样？我打算明天再研究一次。"],
     closers: ["有谁也好奇这个？", "这个问题，想留到下次继续。", "大家的解释我也想听。"],
     social: {
       sleep: ["睡着的时候脑子去哪儿了？我想醒来再想，困意先排前面。", "先睡一觉。醒来再看看，今天的问题有没有新答案。"],
@@ -92,7 +92,7 @@ export const zh: VoiceBank = {
       bath: ["{owner}喜欢洗完的样子。我想知道，大家的标准是不是都这样。", "洗澡结束，问题还在。为什么{owner}会比我更满意？"],
       chaos: ["经过记下了，原理还想弄明白。有懂这个的朋友吗？", "{owner}比较在意结果。我想讨论一下，事情为什么会这样。"],
       walk: ["外面的消息想慢慢了解。下次想把好奇心的时间留长一点。", "出去看看，总有新的问题。大家平时都留意些什么？"],
-      other: ["今天有个小问题想聊。你们会怎么理解这件事？", "事情讲完了，我还在琢磨。想听听大家的那一版。"],
+      other: ["今日观察记录一条，欢迎补充。", "新发现一件，原理暂时不明。"],
     },
   },
   calm: {
@@ -101,7 +101,7 @@ export const zh: VoiceBank = {
     bath: ["洗澡这件事过去了。我想把后面的时间过得安静一点。", "洗完以后，想慢慢恢复自己的节奏。{owner}也可以歇一会儿。"],
     chaos: ["事情已经这样了，我想慢慢讲清楚。着急也容易漏掉细节。", "{owner}有{owner}的想法。我这边也想留一点时间，理顺再说。"],
     walk: ["出去玩挺好。下次想按自己的速度来，慢一点也能有意思。", "外面的事很多，我想一点点看。日子可以留些空闲给这些小事。"],
-    other: ["这件事在今天有个位置。我想按自己的节奏，慢慢消化。", "小事也可以值得在意。想明白多少，就先说多少。"],
+    other: ["发生了就发生了，我觉得挺好。", "今天这件事，不急，慢慢过。"],
     closers: ["想慢慢过，也慢慢聊。", "明天的事，明天再说。", "有空再聊这个。"],
     social: {
       sleep: ["今天把时间留给睡觉。大家慢慢忙，我也慢慢醒。", "休息这件事挺合我心意。消息晚一点回，也请慢一点讲。"],
@@ -109,7 +109,7 @@ export const zh: VoiceBank = {
       bath: ["洗完了。想把后面的时间留给安静，大家也歇歇。", "今天的洗澡流程结束。我的节奏想慢慢找回来。"],
       chaos: ["今天有点小状况。想慢慢说清楚，大家先听完再聊。", "这件事的解释，想给自己留一点时间。急着说容易漏。"],
       walk: ["下次想慢一点，给小事多留些时间。", "外面的热闹，可以一点点认识。下次还想按自己的节奏来。"],
-      other: ["今天这件小事，留着慢慢想。大家有空也可以聊聊。", "发一下今天。说得慢一点，也能把自己的意思讲清楚。"],
+      other: ["今天平平稳稳，记一笔。", "小事一件，心情不错。"],
     },
   },
   shy: {
@@ -118,7 +118,7 @@ export const zh: VoiceBank = {
     bath: ["洗澡让我心里有点紧。我希望{owner}慢一点，留些时间让我放心。", "现在最想要一点安静。等我缓过来，再让{owner}靠近一点。"],
     chaos: ["我想把自己的意思说清楚。希望{owner}先听听，让我慢慢讲。", "这件事我还在想。声音温柔一点，我会更愿意告诉{owner}。"],
     walk: ["外面的事想多看看，也想保留一点犹豫。{owner}愿意陪着的话，下次还想试试。", "我想用自己的速度认识外面。下次也让{owner}陪着，心里会更踏实。"],
-    other: ["这件事我想了一会儿，才愿意说。{owner}可以慢慢听。", "我有一点自己的想法。还说得小声，但也希望有人听见。"],
+    other: ["……其实我有点在意这件事。", "{owner}记下来了，那我也悄悄记住。"],
     closers: ["下次也想慢慢试试。", "小声说的话，也想被听见。", "先让我想一会儿。"],
     social: {
       sleep: ["想安静睡一会儿。醒来的事，等我准备好了再说。", "今天的休息时间想留给自己。熟悉的声音，可以轻一点。"],
@@ -126,7 +126,7 @@ export const zh: VoiceBank = {
       bath: ["洗完了，想先安静一会儿。{owner}可以小声叫我。", "今天洗澡有一点紧张。想让后面的事情，都慢一点。"],
       chaos: ["想说说自己的那一版。声音有点小，希望大家慢慢听。", "今天这件事，还在整理想法。先给我一点时间吧。"],
       walk: ["外面想多看看。下次也让{owner}陪我，慢一点就好。", "出去玩这件事，我还想试试。希望能按自己的速度来。"],
-      other: ["鼓起一点勇气发出来。愿意听的朋友，可以慢慢跟我聊。", "有一点想分享。说得小声，也希望大家能听见。"],
+      other: ["小声发一条……今天还不错。", "鼓起勇气发一下今天。"],
     },
   },
 };
@@ -138,7 +138,7 @@ export const en: VoiceBank = {
     bath: ["{owner} probably has a glowing review of this bath. My review is pending. Treats may help.", "Cleanliness has been achieved. Enthusiasm will require a separate conversation."],
     chaos: ["{owner} has a version of events. I would like equal time for mine.", "Before everyone forms an opinion, I have a few points to make."],
     walk: ["I could make room for another outing. I do have opinions about the company.", "There is plenty outside worth considering. {owner} can ask me again next time."],
-    other: ["{owner} has written the short version. I have kept a few details to myself.", "Some small things matter to me. How much they matter is private."],
+    other: ["This hardly needed my involvement. Since it's on record, consider it approved.", "{owner} saw half of it. I know the other half and I'm keeping it."],
     closers: ["Friends may ask for further details.", "I could be invited again.", "That is my position for now."],
     social: {
       sleep: ["Rest has its own schedule. Chat with me when I feel like waking up.", "Today's free time belongs to sleep. Other appointments can wait."],
@@ -146,7 +146,7 @@ export const en: VoiceBank = {
       bath: ["Compliments on my appearance are welcome. Bath recommendations need a separate appointment.", "Bath complete. Friends may offer comfort in treat form."],
       chaos: ["{owner} has a version. Save some room for mine.", "Please hear my reasoning before choosing a side."],
       walk: ["Another invitation would receive serious consideration.", "I can make room for another outing. The invitation should be thoughtful."],
-      other: ["A small update. Friends may ask what I actually think.", "Sharing this much today. Further explanation depends on my mood."],
+      other: ["One small event today. Condition: fine.", "Posted for viewing. Questions not accepted."],
     },
   },
   clingy: {
@@ -155,7 +155,7 @@ export const en: VoiceBank = {
     bath: ["i feel a little sorry for myself. i'd like {owner} to say my name softly.", "a bath is a lot to take in. a long cuddle with {owner} sounds like a fair next step."],
     chaos: ["i want to explain what i meant. then i want to know {owner} still wants me close.", "{owner}'s feelings matter to me. i hope we can talk gently about this."],
     walk: ["there is a lot outside to be interested in. going with {owner} is my favourite part.", "where we go matters. going together matters even more. i'd like that again."],
-    other: ["this might look small to {owner}. it has a little place in my day that i want to keep.", "i'd like to tell {owner} about this. then i'd like to stay nearby."],
+    other: ["with {owner} nearby, even small things feel good.", "{owner} was part of this, so i want to remember it."],
     closers: ["take me along next time too.", "i want these little things with {owner}.", "say my name again?"],
     social: {
       sleep: ["sleepy. hoping the first voice i hear later is {owner}'s.", "rest sounds lovely. some time with {owner} afterwards sounds lovely too."],
@@ -163,7 +163,7 @@ export const en: VoiceBank = {
       bath: ["a bath happened. i'd like to exchange my feelings for a long cuddle.", "clean now. can {owner} say my name softly and stay a while?"],
       chaos: ["i want to explain. then i'd like some reassurance from {owner}.", "my version is a little messy. please listen gently."],
       walk: ["the part i want everyone to know: being with {owner}.", "i've already chosen my company for next time. {owner}."],
-      other: ["a little thing to share. i'd like to tell {owner} separately too.", "there is something about today i want to keep talking about with {owner}."],
+      other: ["another day spent close to {owner}.", "a little thing, and {owner} was there for it."],
     },
   },
   goofy: {
@@ -172,7 +172,7 @@ export const en: VoiceBank = {
     bath: ["This bath business has a lot of steps. I'd like the next activity to be one of my favourites.", "I would like to know when we move on to the fun part. I have suggestions."],
     chaos: ["{owner} may want a complete explanation. My thoughts are tangled, but I am taking this seriously.", "Things may have gone a little differently from the plan. I'd like to discuss the rules again."],
     walk: ["One outing makes me want another. I am saving a space for tomorrow in my head.", "There is so much outside to be interested in. I'd like {owner} to give me time for it."],
-    other: ["{owner} wrote a short note. I have enough thoughts for a much longer conversation.", "I'd like everyone to know about this. I may get excited while explaining it."],
+    other: ["I don't know why, but this was great!", "I did this very seriously! Not sure which part was serious!"],
     closers: ["Who wants to talk about this?", "I'd like another go!", "I have one more thought."],
     social: {
       sleep: ["Sleep the sleepy part away. Save the playing part for later. Send fun ideas when you have them.", "Resting is on the plan. Future me, please remember how much we like playing."],
@@ -180,7 +180,7 @@ export const en: VoiceBank = {
       bath: ["Bath segment complete. I'd like to choose the next activity.", "Accepting bath comfort suggestions. Treats have an early lead."],
       chaos: ["My explanation is still loading. Hear {owner}'s version while I untangle mine.", "A little situation today. I'd like to discuss what counts as good playing."],
       walk: ["My mind is still playing. Can we save a spot for tomorrow?", "Outings deserve a regular slot. Friends, send interesting ideas."],
-      other: ["A little update with a lot of thoughts. I may need more than one message.", "Sharing today. If anyone wants to listen, I have more to say."],
+      other: ["Another happy day! Details unimportant!", "I did a thing today! Was it impressive?!"],
     },
   },
   drama: {
@@ -189,7 +189,7 @@ export const en: VoiceBank = {
     bath: ["I need time to process this bath. Comfort arrangements may begin immediately.", "My feelings deserve their own conversation. Treats and {owner} should both attend."],
     chaos: ["There are important points in my version. I'd like enough time to explain them.", "This discussion needs a place for me. My feelings have considerable weight."],
     walk: ["An outing deserves careful planning. I'd like to be consulted on the next one.", "One outing has trouble containing all my hopes. I'd like a bigger slot next time."],
-    other: ["This matters to me. Please allow enough time for the full emotional context.", "{owner} recorded the event. I'd like to contribute its significance to me."],
+    other: ["I'd call today's scene the best of the week.", "If this were a play, I'd be the lead."],
     closers: ["Please consider my wishes seriously.", "Friends may begin offering comfort.", "Save me a place in this discussion."],
     social: {
       sleep: ["Today's plan: rest. I hope all my acquaintances respect its importance.", "Taking sleep seriously. Other matters may form a gentle queue."],
@@ -197,7 +197,7 @@ export const en: VoiceBank = {
       bath: ["A bath happened. This merits a little attention, preferably accompanied by treats.", "My bath feelings need some space. Friends may begin comfort arrangements."],
       chaos: ["{owner}'s account is ready. I would like a full speaking slot for mine.", "Many feelings about this. Please save me a place in the discussion."],
       walk: ["Outings need careful planning. Please send the next itinerary for my review.", "I'd like a longer slot next time. Friends may support my proposal."],
-      other: ["A small event with a large place in my feelings. Allow me a few words.", "Requesting a separate topic for today. My feelings deserve a hearing."],
+      other: ["Today's episode is out. The star is me.", "A candidate for scene of the week. Please vote."],
     },
   },
   curious: {
@@ -206,7 +206,7 @@ export const en: VoiceBank = {
     bath: ["Why does {owner} like the post-bath version so much? Our criteria seem different.", "Baths leave me with questions. I'd like to choose one and think it through."],
     chaos: ["{owner} is interested in the result. I have questions about how it got there.", "The account is written. I'd like to understand where it diverged from the idea."],
     walk: ["There is plenty outside I haven't understood yet. I'd like more time for curiosity next time.", "Every outing makes me want to know more. {owner} could hear a long list of questions."],
-    other: ["{owner} has finished the note. I still have a question about it.", "This seems worth considering. I'd like to hear everyone else's explanation too."],
+    other: ["I've observed this. The conclusion is still on its way.", "Why did that happen? I plan to investigate again tomorrow."],
     closers: ["Who else wonders about this?", "A question to take into next time.", "Other explanations are welcome."],
     social: {
       sleep: ["Where does thinking go when we sleep? I'll consider that after the sleepy part.", "A nap first. Then let's see whether today's question has a new answer."],
@@ -214,7 +214,7 @@ export const en: VoiceBank = {
       bath: ["{owner} likes the clean version. I'd like to hear everyone else's criteria.", "Bath finished. Question remains: why is {owner} more pleased than I am?"],
       chaos: ["The account is ready. I'd still like to understand the mechanism. Any ideas?", "{owner} cares about the outcome. I'd like to discuss how it happened."],
       walk: ["The outside news deserves time. I'd like a longer slot for curiosity next time.", "An outing brings questions. What do you tend to notice?"],
-      other: ["A small question today. How would you make sense of this?", "The event is told. I'm still thinking. Other versions welcome."],
+      other: ["One observation logged today. Additions welcome.", "New finding. Mechanism unknown."],
     },
   },
   calm: {
@@ -223,7 +223,7 @@ export const en: VoiceBank = {
     bath: ["The bath is behind me. I'd like a quiet stretch of time afterwards.", "I'd like to settle back into my own pace. {owner} could take a break too."],
     chaos: ["I'd like to explain slowly. Rushing tends to leave details out.", "{owner} has a view. I'd like some time to put mine in order."],
     walk: ["Going out is pleasant. Next time I'd like my own pace, with room for little things.", "There is plenty outside. I'd like to take it in a little at a time."],
-    other: ["This has a place in today. I'd like to take my time making sense of it.", "Small things can matter. I can say as much as I've understood so far."],
+    other: ["It happened, and that's fine by me.", "No rush with this one. It can take its time."],
     closers: ["Happy to talk slowly too.", "Tomorrow can wait until tomorrow.", "We can talk when there's time."],
     social: {
       sleep: ["Time for sleep today. You can all move slowly too.", "Rest suits me. Messages may be answered at a similar pace."],
@@ -231,7 +231,7 @@ export const en: VoiceBank = {
       bath: ["Bath done. I'd like some quiet afterwards. Everyone else can take a break too.", "Cleaning routine complete. I'd like my own pace back, gently."],
       chaos: ["A little situation today. I'd like time to explain it properly.", "Putting my thoughts in order. Rushed explanations tend to miss things."],
       walk: ["Next time, more space for little things.", "The outside world can be met a little at a time. My own pace would suit me."],
-      other: ["A little thing to consider slowly. Happy to talk when there's time.", "A note from today. I can take my time explaining what I mean."],
+      other: ["A steady day. Noted.", "Small thing. Good mood."],
     },
   },
   shy: {
@@ -240,7 +240,7 @@ export const en: VoiceBank = {
     bath: ["Baths make me tense. I'd like {owner} to go gently and give me time.", "I'd like some quiet now. I can decide when I'm ready to be closer to {owner}."],
     chaos: ["I'd like to explain what I mean. I hope {owner} can listen while I find the words.", "I'm still thinking about this. A gentle voice would make talking easier."],
     walk: ["I want to know more of outside, with room for hesitation. If {owner} comes, I'd like another try.", "I'd like to meet outside at my own pace. Having {owner} along would help."],
-    other: ["I thought about this before sharing it. {owner} can take time listening too.", "I have a little thought of my own. It's quiet, but I'd still like it heard."],
+    other: ["...I actually care about this a little.", "{owner} wrote it down, so I'll quietly remember it too."],
     closers: ["I'd like another gentle try.", "Quiet thoughts deserve a listener too.", "Let me think for a moment."],
     social: {
       sleep: ["I'd like some quiet rest. Waking up can happen when I'm ready.", "Resting time for myself. Familiar voices can be soft."],
@@ -248,7 +248,7 @@ export const en: VoiceBank = {
       bath: ["Clean now. Some quiet first. {owner} can call softly.", "A little tense after the bath. I'd like things to slow down now."],
       chaos: ["I'd like to share my version. It's quiet, so please listen gently.", "Still putting my thoughts together. A little time would help."],
       walk: ["I'd like to know more of outside. With {owner} along, and time to go slowly.", "I'd like another try at going out. My own pace would help."],
-      other: ["Found a little courage to share this. Gentle conversation welcome.", "A quiet thought to share. I'd still like it to be heard."],
+      other: ["Posting quietly... today was okay.", "Found the nerve to share today."],
     },
   },
 };

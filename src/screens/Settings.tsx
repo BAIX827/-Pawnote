@@ -43,7 +43,7 @@ export default function Settings() {
       <Card style={{ gap: 18 }}>
         <Text style={styles.h2}>{t("按你的习惯")}</Text>
         {([
-          { key: "homeAsBirthday", title: "生日未知时，用到家日庆生", enabled: state.preferences?.homeAsBirthday !== false },
+          { key: "homeAsBirthday", title: "生日未知时，用到家日庆生", enabled: state.preferences?.homeAsBirthday === true },
           { key: "randomStyle", title: "新日记随机选择口吻", enabled: state.preferences?.randomStyle !== false },
           { key: "homeExtras", title: "首页展示小镇与成长", enabled: state.preferences?.homeExtras === true },
         ] as const).map((item) => (

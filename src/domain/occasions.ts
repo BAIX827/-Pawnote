@@ -8,8 +8,9 @@ import { remindersPaused } from "./paw-dates";
 
 export type OccasionKind = "birthday" | "home";
 export interface Occasion { kind: OccasionKind; day: string; years: number; inDays: number; birthdaySource?: "birth" | "home" }
+// Celebrating on the home day is opt-in: an unknown birthday stays unknown (docs/01 8.26).
 export function birthdayDate(pet: Pet, preferences?: Preferences) {
-  return pet.birthDate ?? (preferences?.homeAsBirthday === false ? undefined : pet.homeDate);
+  return pet.birthDate ?? (preferences?.homeAsBirthday === true ? pet.homeDate : undefined);
 }
 export function occasionForYear(pet: Pet, kind: OccasionKind, year: number, preferences?: Preferences): Occasion | undefined {
   const origin = kind === "birthday" ? birthdayDate(pet, preferences) : pet.homeDate;
@@ -48,7 +49,7 @@ export function occasionLetter(state: AppState, occasion: Occasion, lang: Lang =
       : `${occasion.day} · Celebrating on home day · ${occasion.years} years together`
     : zh ? `${occasion.day} · ${occasion.kind === "birthday" ? `${occasion.years} 岁` : `到家 ${occasion.years} 年`}`
       : `${occasion.day} · ${occasion.years} ${occasion.kind === "birthday" ? 'years old' : 'years at home'}`;
-  const opening = zh ? occasion.kind === "birthday" ? `又翻到我的生日这一页了。${owner}，这一天留给我们。`
+  const opening = zh ? occasion.kind === "birthday" ? `翻到我的生日这一页了。${owner}，这一天留给我们。`
     : `到家${occasion.years}年了。这一页，想和${owner}一起翻。`
     : occasion.kind === "birthday" ? `We've reached my birthday page. ${owner}, let's keep this day for us.`
     : `It's been ${occasion.years} years since I came home. I'd like to turn this page with you.`;

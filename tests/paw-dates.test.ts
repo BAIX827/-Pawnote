@@ -73,9 +73,10 @@ test("添加、修改、删除约定，并校验输入", () => {
 });
 
 test("到点、陪了、晚点和下一个", () => {
-  let s = addRoutine(base(), { activity: "walk", time: "07:30" });
-  s = addRoutine(s, { activity: "snack", time: "18:00" });
-  s = addRoutine(s, { activity: "wand", time: "20:30", days: [3] });
+  // Made the day before, so the rule for a routine's first day doesn't depend on when the test runs.
+  let s = addRoutine(base(), { activity: "walk", time: "07:30" }, at(9, 0, 13));
+  s = addRoutine(s, { activity: "snack", time: "18:00" }, at(9, 0, 13));
+  s = addRoutine(s, { activity: "wand", time: "20:30", days: [3] }, at(9, 0, 13));
   const [walk, snack] = s.routines!;
   assert.deepEqual(dueRoutines(s.routines, at(7, 0)).map((r) => r.id), []);
   assert.deepEqual(dueRoutines(s.routines, at(18, 10)).map((r) => r.id), [walk.id, snack.id]);

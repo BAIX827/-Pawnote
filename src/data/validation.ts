@@ -42,6 +42,7 @@ const pet = (v: unknown) =>
   (v.personalitySource !== "questionnaire" || v.questionnaire !== undefined) &&
   optionalInt(v.ageMonths, 1200) &&
   optionalDate(v.ageRecordedAt) &&
+  optionalDate(v.joinedAt) &&
   (v.routeSource === undefined || one(v.routeSource, ["age", "manual"])) &&
   (v.routeSource !== "age" || ((v.species === "cat" || v.species === "dog") &&
     v.route === (v.ageMonths !== undefined && (v.ageMonths as number) < 12 ? "campus" : "work"))) &&

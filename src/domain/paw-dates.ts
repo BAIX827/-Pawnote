@@ -274,6 +274,13 @@ export function dueRoutines(routines: Routine[] = [], now = new Date()): Routine
       !madeAfter(r, now) && !(r.snoozedUntil && Date.parse(r.snoozedUntil) > now.getTime()))
     .sort((a, b) => a.time.localeCompare(b.time));
 }
+/** The other pets at home whose 爪约 has come round, each with its earliest one (docs/01 8.26). */
+export function othersCalling(state: AppState, now = new Date()): { pet: Pet; routine: Routine }[] {
+  return (state.household ?? []).flatMap((b) => {
+    const routine = remindersPaused(b.events) ? undefined : dueRoutines(b.routines, now)[0];
+    return routine ? [{ pet: b.pet, routine }] : [];
+  });
+}
 /** The next time a routine comes round, within the coming week. */
 export function nextRoutine(routines: Routine[] = [], now = new Date()): { routine: Routine; at: Date } | undefined {
   let best: { routine: Routine; at: Date } | undefined;

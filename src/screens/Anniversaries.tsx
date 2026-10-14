@@ -53,8 +53,8 @@ export default function Anniversaries() {
       </View>
       <Button label={busy ? t("正在导出…") : t("分享纪念卡与信")} icon="upload" disabled={busy || (!!letter.photo && loaded !== letter.photo)} onPress={() => void share()} />
       <Button label={t("记录这一天")} tone="soft" disabled={occasion.inDays > 0} onPress={() => router.push({ pathname: "/record", params: { date: occasion.day } })} />
-    </> : <Empty title={t(kind === "birthday" ? "暂无生日庆祝日期" : "暂无到家纪念日期")}
-      action={<Button label={t("编辑档案")} onPress={() => router.push({ pathname: "/onboarding", params: { edit: "1" } })} />} />}
+    </> : <Empty title={kind === "birthday" ? t("还不知道{name}的生日", { name: state.pet.name }) : t("暂无到家纪念日期")}
+      action={<Button label={t(kind === "birthday" ? "填一下生日" : "编辑档案")} onPress={() => router.push({ pathname: "/onboarding", params: { edit: "1" } })} />} />}
     <Card style={{ gap: 8 }}>
       <Button label={t("修改生日与到家日期")} icon="edit-2" tone="plain" onPress={() => router.push({ pathname: "/onboarding", params: { edit: "1" } })} /></Card>
   </View>;

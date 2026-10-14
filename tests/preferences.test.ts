@@ -14,7 +14,8 @@ applyLang("zh");
 test("未知生日采用到家日庆生，祝福与导出卡不把到家年数当成年龄", () => {
   const state = demoState();
   state.pet = { ...state.pet!, species: "dog", birthDate: undefined, homeDate: "2022-02-28", ageMonths: undefined };
-  const birthday = occasionForYear(state.pet, "birthday", 2026)!;
+  state.preferences = { homeAsBirthday: true };
+  const birthday = occasionForYear(state.pet, "birthday", 2026, state.preferences)!;
   assert.equal(birthday.day, "2026-02-28");
   assert.equal(birthday.birthdaySource, "home");
   const letter = occasionLetter(state, birthday, "zh", new Date(2026, 1, 28));
@@ -48,8 +49,9 @@ test("生日优先于到家日；偏好关闭后保留到家纪念，两个日�
 
 test("到家庆生日遵循闰年规则；填写真实生日后立即换用生日", () => {
   const pet = { ...demoState().pet!, birthDate: undefined, homeDate: "2024-02-29" };
-  assert.equal(occasionForYear(pet, "birthday", 2025)?.day, "2025-02-28");
-  assert.equal(occasionForYear(pet, "birthday", 2028)?.day, "2028-02-29");
+  const on = { homeAsBirthday: true };
+  assert.equal(occasionForYear(pet, "birthday", 2025, on)?.day, "2025-02-28");
+  assert.equal(occasionForYear(pet, "birthday", 2028, on)?.day, "2028-02-29");
   assert.equal(occasionForYear({ ...pet, birthDate: "2021-06-15" }, "birthday", 2025)?.day, "2025-06-15");
 });
 
@@ -63,11 +65,12 @@ test("真实生日可计算月龄，未知日期保留未知，月末与12个月
   assert.equal(ageFromBirthday("2025-01-31", new Date(2025, 1, 28)), 1);
 });
 
-test("随机口吻覆盖四种，编辑和恢复草稿保留口吻，关闭随机用内心独白", (t) => {
+test("随机口吻在三种里选、不随到爪报，编辑和恢复草稿保留口吻，关闭随机用内心独白", (t) => {
   const random = t.mock.method(Math, "random");
   const pet = demoState().pet!;
-  STYLES.forEach((style, i) => {
-    random.mock.mockImplementation(() => (i + 0.1) / STYLES.length);
+  const pool = STYLES.filter((s) => s !== "news");
+  pool.forEach((style, i) => {
+    random.mock.mockImplementation(() => (i + 0.1) / pool.length);
     const draft = retellDraft(pet, newDraft(), "今天去散步", "walk");
     assert.equal(draft.selectedStyle, style);
     assert.equal(retellDraft(pet, draft, "今天去海边散步", "walk").selectedStyle, style);
@@ -75,6 +78,16 @@ test("随机口吻覆盖四种，编辑和恢复草稿保留口吻，关闭随�
     assert.equal(restored.draft?.selectedStyle, style);
   });
   assert.equal(newDraft({ randomStyle: false }).selectedStyle, "diary");
+  // A pet's first three entries are always the inner voice (docs/01 8.26).
+  random.mock.mockImplementation(() => 0.9);
+  assert.deepEqual([0, 1, 2].map((n) => newDraft(undefined, n).selectedStyle), ["diary", "diary", "diary"]);
+  assert.equal(newDraft(undefined, 3).selectedStyle, "social");
+});
+
+test("生日未知时默认不用到家日庆生，打开偏好后才用", () => {
+  const pet = { ...demoState().pet!, birthDate: undefined, homeDate: "2026-03-01" };
+  assert.equal(birthdayDate(pet), undefined);
+  assert.equal(birthdayDate(pet, { homeAsBirthday: true }), "2026-03-01");
 });
 
 test("修改原话或分类保留主人润色并要求确认，普通表达按新事实更新", () => {
