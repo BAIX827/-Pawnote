@@ -34,10 +34,10 @@ export default function Life() {
     accent = work ? colors.jade : colors.lavender,
     soft = work ? colors.green : colors.lilac,
     wide = width >= 1100;
-  // Every level from 1 to 5, named by its title, with the moment it stands for underneath (docs/01 8.24, 8.25).
+  // Every level from 1 to 5, named by its title, with the moment it stands for underneath (docs/01 8.24–8.26).
   const moments = work
-    ? ["第一次营业", "转正面谈", "", "拿到工牌", ""]
-    : ["第一次入学", "第一次小测", "", "当上课代表", ""];
+    ? ["第一次营业", "转正面谈", "独立值班", "拿到工牌", "摸鱼也能出业绩"]
+    : ["第一次入学", "第一次小测", "加入社团", "当上课代表", "被写进校史"];
   const steps = moments.map((m, i) => ({ at: i + 1, name: titleFor(i + 1, pet.route), moment: m && t(m) }));
   const notch = {
     position: "absolute" as const,
@@ -102,7 +102,7 @@ export default function Life() {
               >
                 {pet.name}
               </Text>
-              <Text style={[styles.small, { color: colors.ink }]}>{t("岗位 · {role}", { role: t(pet.role) })}</Text>
+              <Text style={[styles.small, { color: colors.ink }]}>{t(work ? "岗位 · {role}" : "班级 · {role}", { role: t(pet.role) })}</Text>
               <Text style={[styles.small, { color: colors.ink }]}>
                 {speciesLabel(pet)} · {ageLabel(pet.ageMonths)}
               </Text>

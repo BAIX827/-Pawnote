@@ -121,6 +121,8 @@ export default function Onboarding({ editing = false, adding = false }: { editin
     ...(isHomeDate(birthDate.trim()) ? { birthDate: birthDate.trim() } : {}),
     ...(isHomeDate(homeDate.trim()) ? { homeDate: homeDate.trim() } : {}),
     avatar,
+    // Kept on edit; a new pet records when it moved in, so the 爪友圈 starts from then (docs/01 8.26).
+    ...(original ? (original.joinedAt ? { joinedAt: original.joinedAt } : {}) : { joinedAt: new Date().toISOString() }),
   };
   // The pass shows the main identity, the level title, not the job (docs/01 8.25).
   const level = editing ? progress(state.events).level : 1;

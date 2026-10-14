@@ -21,7 +21,6 @@ import {
   Category,
   Draft,
   LifeEvent,
-  StoryStyle,
   TONES,
   newDraft,
 } from "../domain/types";
@@ -70,7 +69,7 @@ export default function Record() {
 }
 function Recorder({ original, initialDate }: { original?: LifeEvent; initialDate?: string }) {
   const { state, update, notify } = useStore();
-  const [seed] = useState(() => ({ ...newDraft(state.preferences), occurredOn: initialDate ?? localDay() }));
+  const [seed] = useState(() => ({ ...newDraft(state.preferences, state.events.length), occurredOn: initialDate ?? localDay() }));
   const [editDraft, setEditDraft] = useState<Draft | undefined>(() => original ? {
     id: original.id, description: original.description, category: original.category,
     photo: original.photo, stories: original.stories, selectedStyle: original.selectedStyle,
@@ -133,12 +132,6 @@ function Recorder({ original, initialDate }: { original?: LifeEvent; initialDate
     const pets = now.includes(petId) ? now.filter((p) => p !== petId) : [...now, petId];
     patch({ together: pets.length ? { pets, tone: draft.together?.tone ?? "neutral" } : undefined });
   }
-  const labels: Record<StoryStyle, string> = {
-    diary: t("内心独白"),
-    life: pet.route === "work" ? t("打工日记") : t("校园日记"),
-    social: t("爪友圈动态"),
-    news: t("爪报"),
-  };
   function patch(changes: Partial<Draft>) {
     if (original) setEditDraft((d) => ({ ...(d ?? seed), ...changes }));
     else update((s) => ({ ...s, draft: { ...(s.draft ?? seed), ...changes } }));
@@ -229,7 +222,6 @@ function Recorder({ original, initialDate }: { original?: LifeEvent; initialDate
       submitted.current = true;
       update(next);
       notify(original ? t("日记已更新，经验保持不变。")
-        : draft.category === "other" ? t("日常已保存 · +20 XP")
         : t("{tag}已保存 · +20 XP", { tag: t(CATEGORY_LABELS[draft.category]) }));
       if (original && router.canGoBack()) router.back();
       else router.replace({ pathname: "/event", params: { id: event.id } });
@@ -432,9 +424,8 @@ function Recorder({ original, initialDate }: { original?: LifeEvent; initialDate
       </View>
 
       {generated && <View style={{ gap: 8 }}>
-        <Sticker bg={storyColors[draft.selectedStyle]} rotate={0}>{labels[draft.selectedStyle]}</Sticker>
-        {(state.preferences?.randomStyle === false || !!original) &&
-          <StoryStylePicker route={pet.route} selected={draft.selectedStyle} onSelect={(selectedStyle) => patch({ selectedStyle })} />}
+        {/* The voice can always be switched here, not only when random voices are off (docs/01 8.26). */}
+        <StoryStylePicker route={pet.route} selected={draft.selectedStyle} onSelect={(selectedStyle) => patch({ selectedStyle })} />
       </View>}
       {draft.expressionNeedsReview && <View style={{ gap: 10 }}>
         <Text accessibilityRole="alert" style={styles.body}>{t("原话或分类已改动，已保留你润色过的表达。请选择如何处理后保存。")}</Text>

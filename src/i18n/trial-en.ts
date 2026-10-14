@@ -66,4 +66,14 @@ export const trialEn: Record<string, string> = {
   课代表: "Class rep",
   年鉴还在攒: "The yearbook is still filling up",
   "今年已经记了 {n} 件事，记满 {min} 件就能翻开年鉴。": "{n} entries this year so far. The yearbook opens at {min}.",
+  // Third trial run (docs/01 8.26).
+  "和你选的「{tag}」是一类": "Same family as “{tag}”",
+  "{name}也在等你：{time} {label}": "{name} is waiting too: {label} at {time}",
+  "还不知道{name}的生日": "{name}'s birthday isn't set yet",
+  填一下生日: "Add the birthday",
+  "班级 · {role}": "Class · {role}",
+  独立值班: "First solo shift",
+  摸鱼也能出业绩: "Slacking, with results",
+  加入社团: "Joined a club",
+  被写进校史: "Made the school history",
 };

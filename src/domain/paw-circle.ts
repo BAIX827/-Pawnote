@@ -361,6 +361,22 @@ const PET_COMMENTS: Record<Temper, Record<Category, Text>> = {
   },
 };
 
+// Things owners often mention; the first resident to comment says a word about it, so the comment
+// touches what happened (docs/01 8.26).
+const THINGS: [RegExp, { zh: string; en: string }][] = [
+  [/拖鞋|slipper/i, { zh: "拖鞋这种东西，确实很难不叼。", en: "Slippers are hard to resist." }],
+  [/纸箱|箱子|\bbox(es)?\b/i, { zh: "纸箱！我也想要一个。", en: "A box! I want one too." }],
+  [/杯|\b(cup|mug|glass)\b/i, { zh: "杯子放在桌边，本来就很危险。", en: "A cup near the edge was always in danger." }],
+  [/沙发|\b(sofa|couch)\b/i, { zh: "沙发是大家的，也是你的。", en: "The sofa belongs to everyone, including you." }],
+  [/袜子|\bsocks?\b/i, { zh: "袜子是很好的收藏品。", en: "Socks make a fine collection." }],
+  [/球|\bball\b/i, { zh: "球！下次也扔给我。", en: "A ball! Throw one my way next time." }],
+  [/窗|\bwindow\b/i, { zh: "窗边那个位置，我懂。", en: "I know that window spot." }],
+  [/被子|被窝|毯子|\bblanket\b/i, { zh: "被窝真的很难离开。", en: "Blankets are very hard to leave." }],
+  [/遥控器|\bremote\b/i, { zh: "遥控器总是藏在最奇怪的地方。", en: "Remotes always end up somewhere strange." }],
+  [/充电线|耳机线|数据线|\b(cable|cord|charger)\b/i, { zh: "线这种东西，看起来就很好咬。", en: "Cables do look very chewable." }],
+];
+const thingLine = (description: string, lang: Lang) => THINGS.find(([pattern]) => pattern.test(description))?.[1][lang] ?? "";
+
 /** The owner's pet answering the first comment under its own post. {friend} is the resident. */
 const PET_REPLIES: Record<Temper, Text[]> = {
   cool: [{ zh: "嗯。知道了。", en: "Hm. Noted." }, { zh: "你还挺会说话。", en: "Not bad, {friend}." }],
@@ -531,13 +547,14 @@ function visitorsFor(e: LifeEvent, pet: Pet, lang: Lang, hidden: string[], now: 
     .filter((l) => l.at <= now);
   const keen = likers.filter(({ r }) => r.likes.includes(e.category) || r.species === pet.species);
   const commenters = (keen.length ? keen : likers).slice(0, 1 + ((h >>> 4) % 2));
+  const thing = thingLine(e.description, lang);
   commenters.forEach(({ r }, k) => {
     const when = new Date(at + (8 + 35 * k + ((h >>> 8) % 20)) * MINUTE);
     if (when > now) return;
     comments.push({
       id: `c:${e.id}:${r.id}`,
       author: actorOf(r, lang, taken),
-      text: fill(r.comments[e.category][lang], { name: pet.name }),
+      text: [k ? "" : thing, fill(r.comments[e.category][lang], { name: pet.name })].filter(Boolean).join(lang === "en" ? " " : ""),
       at: when,
       removable: false,
     });
@@ -596,6 +613,9 @@ export function buildCircle(state: AppState, now: Date, lang: Lang): Circle {
   // The pet's rounds: twice a day it looks through residents' posts from that day and the day before.
   if (!petIsGone(state)) {
     const temper = temperOf(pet);
+    // A pet that just moved in starts its rounds from then, on that day's posts (docs/01 8.26).
+    const joined = pet.joinedAt ? new Date(pet.joinedAt) : undefined;
+    const firstDay = joined && !Number.isNaN(joined.getTime()) ? startOfDay(joined) : undefined;
     // A post seen on yesterday's evening round is not visited again this morning.
     const seen = new Set<string>();
     for (const offset of [1, 0]) {
@@ -605,11 +625,13 @@ export function buildCircle(state: AppState, now: Date, lang: Lang): Circle {
       for (const hour of BROWSE_HOURS) {
         const round = new Date(startOfDay(day).getTime() + hour * 60 * MINUTE);
         if (round > now) break;
+        if (joined && round < joined) continue;
         const did = new Set(
           state.events.filter((e) => dayKey(eventDate(e)) === key && eventDate(e) <= round).map((e) => e.category),
         );
         const candidates = town
-          .filter((p) => !seen.has(p.id) && p.at <= round && p.at.getTime() > round.getTime() - 36 * 60 * MINUTE)
+          .filter((p) => !seen.has(p.id) && p.at <= round && p.at.getTime() > round.getTime() - 36 * 60 * MINUTE &&
+            !(firstDay && p.at < firstDay))
           .map((p) => ({
             p,
             score: (did.has(p.category) ? 3 : 0) + (p.resident!.species === pet.species ? 2 : 0) + (AFFINITY[temper].includes(p.resident!.temper) ? 1 : 0),

@@ -108,7 +108,7 @@ export default function Profile() {
             <Text style={[styles.h2, { fontSize: 17 }]}>
               {pet.route === "work" ? t("职场") : t("校园")}
             </Text>
-            <Text style={styles.small}>{t("岗位 · {role}", { role: t(pet.role) })}</Text>
+            <Text style={styles.small}>{t(pet.route === "work" ? "岗位 · {role}" : "班级 · {role}", { role: t(pet.role) })}</Text>
           </View>
         </View>
       </View>

@@ -35,8 +35,8 @@ const incidents: Record<
     title: "出门啦",
   },
   other: {
-    work: "",
-    campus: "",
+    work: "这件事记进今天的工作日志了。没人要求，是我自己想记的。",
+    campus: "这件事记进了今天的课堂笔记。老师没布置，是我自己加的。",
     title: "今天的小事",
   },
 };
@@ -144,7 +144,7 @@ export function toPetVoice(
 
 // English words sit beside the Chinese ones so English entries are sorted too (docs/01 8.25).
 const HINTS: [Category, RegExp][] = [
-  ["chaos", /拆|推下|推倒|打翻|打碎|咬坏|抓坏|撕|弄乱|捣乱|闯祸|摔|\b(knock(ed|s|ing)?|push(ed|es|ing)? .*\boff|tipp?(ed|ing)? over|broke|broken|smash(ed)?|shredd?(ed|ing)?|tore|torn|chew(ed|ing)? (up|through)|scratch(ed|ing)? (the )?(sofa|couch|door)|destroy(ed)?|wreck(ed)?|mess(ed)? up|spill(ed)?)\b/i],
+  ["chaos", /拆|叼走|叼到|藏起来|偷拿|偷走|推下|推倒|打翻|打碎|咬坏|抓坏|撕|弄乱|捣乱|闯祸|摔|\b(knock(ed|s|ing)?|push(ed|es|ing)? .*\boff|tipp?(ed|ing)? over|broke|broken|smash(ed)?|shredd?(ed|ing)?|tore|torn|chew(ed|ing)? (up|through)|scratch(ed|ing)? (the )?(sofa|couch|door)|destroy(ed)?|wreck(ed)?|mess(ed)? up|spill(ed)?|ran off with|hid (?:my|the|his|her|a))\b/i],
   ["bath", /洗澡|洗了|泡泡|吹风|吹毛|美容|剪指甲|梳毛|\b(bath|bathed|shower(ed)?|groom(ed|ing)?|brush(ed|ing)?|nail trim|trimmed)\b/i],
   ["walk", /散步|遛|出门|出去|外出|公园|楼下|外面|巡逻|草地|晒太阳|\b(walk(ed|s|ing)?|park|outside|outdoors|hike|hiked|stroll)\b/i],
   ["sleep", /睡|困|打盹|午觉|做梦|呼噜|赖床|哈欠|\b(sleep(ing|s)?|slept|nap(ped|ping|s)?|snooz(e|ed|ing)|doz(e|ed|ing)|asleep|yawn(ed)?)\b/i],
@@ -247,8 +247,8 @@ const asides: Record<Category, { work: string; campus: string; title: string }> 
     title: "Out and About",
   },
   other: {
-    work: "",
-    campus: "",
+    work: "Logged in today's work notes. Nobody asked; I wanted it on record.",
+    campus: "Added to today's class notes. Not assigned. My own idea.",
     title: "A Little Moment Today",
   },
 };

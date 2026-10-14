@@ -11,11 +11,13 @@ import {
   dueRoutines,
   markDone,
   nextRoutine,
+  othersCalling,
   reminderLine,
   remindersPaused,
   snooze,
 } from "../domain/paw-dates";
 import { Routine, newDraft } from "../domain/types";
+import { switchPet } from "../domain/household";
 import { remindLater } from "../platform/reminders";
 import { Button, Icon, colors, display, numeric, shadow, styles } from "./ui";
 
@@ -32,6 +34,7 @@ export default function PawDatesCard() {
   if (!pet || remindersPaused(state.events)) return null;
   const routines = state.routines ?? [];
   const due = dueRoutines(routines, now);
+  const others = othersCalling(state, now);
   const next = nextRoutine(routines, now);
   const say = (r: Routine) =>
     reminderLine(pet, r, dayVariant(now, routines.indexOf(r)), { events: state.events, now });
@@ -40,7 +43,7 @@ export default function PawDatesCard() {
     if (state.draft?.description.trim()) {
       notify(t("爪语里还有没保存的草稿，先把它写完吧。"));
     } else {
-      update((s) => ({ ...s, draft: { ...newDraft(s.preferences), ...diaryEntry(pet!, r) } }));
+      update((s) => ({ ...s, draft: { ...newDraft(s.preferences, s.events.length), ...diaryEntry(pet!, r) } }));
     }
     router.push("/record");
   }
@@ -100,6 +103,24 @@ export default function PawDatesCard() {
         </View>
       ))}
       {due.length > 1 && <Text style={styles.small}>{t("还有 {n} 件在等你，去爪约看看。", { n: due.length - 1 })}</Text>}
+      {others.map(({ pet: other, routine }) => (
+        <Pressable
+          key={other.id}
+          accessibilityRole="button"
+          accessibilityLabel={t("切换到{name}", { name: other.name })}
+          onPress={() => {
+            update((s) => switchPet(s, other.id));
+            notify(t("现在是{name}的视角。", { name: other.name }));
+          }}
+          style={({ pressed }) => [styles.row, { gap: 8, opacity: pressed ? 0.6 : 1 }]}
+        >
+          <View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: colors.red }} />
+          <Text style={[styles.small, { color: colors.ink, fontWeight: "700", flexShrink: 1 }]}>
+            {t("{name}也在等你：{time} {label}", { name: other.name, time: routine.time, label: activityLabel(routine) })}
+          </Text>
+          <Icon name="arrow-right" color={colors.ink} size={14} />
+        </Pressable>
+      ))}
       {done && (
         <View style={[{ backgroundColor: colors.green, borderWidth: 2.5, borderColor: colors.ink, borderRadius: 14, padding: 16, gap: 10 }, shadow(4)]}>
           <Text style={[styles.h2, { fontSize: 19, lineHeight: 26 }]}>

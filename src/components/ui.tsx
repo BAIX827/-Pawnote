@@ -37,6 +37,7 @@ export const colors = {
   yellow: "#C6F432",
   pink: "#FF9EC7",
   sky: "#B9A6FF",
+  red: "#E0483A",
 };
 // Bundled display faces (assets/fonts, SIL OFL): ZCOOL QingKe HuangYou for headlines, Archivo
 // Black for numerals and Latin. The headline face is subset to common Chinese plus every

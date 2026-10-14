@@ -38,6 +38,8 @@ export interface Pet {
   /** Actual birth date; optional for pets whose birthday is unknown. */
   birthDate?: string;
   avatar?: string;
+  /** When the pet moved into Pawnote (ISO); pets set up before docs/01 8.26 have none. */
+  joinedAt?: string;
 }
 export interface Story {
   text: string;
@@ -175,7 +177,7 @@ export const CATEGORY_LABELS: Record<Category, string> = {
   bath: "洗澡",
   chaos: "拆家",
   walk: "散步",
-  other: "其他",
+  other: "日常",
 };
 export const id = () =>
   `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 10)}`;
@@ -186,11 +188,17 @@ export const emptyState = (): AppState => ({
   draft: null,
   demo: false,
 });
-export const newDraft = (preferences?: Preferences): Draft => ({
+// A pet's first few entries speak in the inner voice; after that the random pick leaves out the news
+// parody, which opens by quoting the owner (docs/01 8.26).
+export const FIRST_DIARY_ENTRIES = 3;
+const RANDOM_STYLES: StoryStyle[] = ["diary", "life", "social"];
+export const newDraft = (preferences?: Preferences, entries = FIRST_DIARY_ENTRIES): Draft => ({
   id: id(),
   description: "",
   category: "other",
-  selectedStyle: preferences?.randomStyle === false ? "diary" : STYLES[Math.floor(Math.random() * STYLES.length)],
+  selectedStyle: preferences?.randomStyle === false || entries < FIRST_DIARY_ENTRIES
+    ? "diary"
+    : RANDOM_STYLES[Math.floor(Math.random() * RANDOM_STYLES.length)],
   published: true,
 });
 // The pet's job at work, by species (docs/01 8.24); school pets all start in the sleep-research class.
