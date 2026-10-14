@@ -363,13 +363,13 @@ const PET_COMMENTS: Record<Temper, Record<Category, Text>> = {
 
 /** The owner's pet answering the first comment under its own post. {friend} is the resident. */
 const PET_REPLIES: Record<Temper, Text[]> = {
-  cool: [{ zh: "嗯。知道了。", en: "Hm. Noted." }, { zh: "{friend}还挺会说话。", en: "Not bad, {friend}." }],
+  cool: [{ zh: "嗯。知道了。", en: "Hm. Noted." }, { zh: "你还挺会说话。", en: "Not bad, {friend}." }],
   clingy: [{ zh: "谢谢{friend}！好喜欢你。", en: "thank you {friend}! i like you so much." }, { zh: "被你看到了，好开心。", en: "you saw it! that makes me happy." }],
   goofy: [{ zh: "{friend}！！谢谢！！", en: "{friend}!! THANK YOU!!" }, { zh: "哈哈哈你也来啦！", en: "HAHA you're here too!!" }],
-  drama: [{ zh: "终于有人懂我了。", en: "At last. Someone understands." }, { zh: "{friend}，这句我要裱起来。", en: "{friend}, I'm framing this comment." }],
-  curious: [{ zh: "好问题，明天告诉你结果。", en: "Good question. Results tomorrow." }, { zh: "{friend}的观察已收录。", en: "Your observation is noted, {friend}." }],
+  drama: [{ zh: "终于有人懂我了。", en: "At last. Someone understands." }, { zh: "{friend}，你这句我要裱起来。", en: "{friend}, I'm framing this comment." }],
+  curious: [{ zh: "好问题，明天告诉你结果。", en: "Good question. Results tomorrow." }, { zh: "你的观察已收录。", en: "Your observation is noted, {friend}." }],
   calm: [{ zh: "收到，谢谢。", en: "Received. Thanks." }, { zh: "已阅。", en: "Read." }],
-  shy: [{ zh: "谢、谢谢……", en: "th-thanks..." }, { zh: "被{friend}看到了，有点开心。", en: "{friend} saw it... that makes me a little happy." }],
+  shy: [{ zh: "谢、谢谢……", en: "th-thanks..." }, { zh: "被你看到了，有点开心。", en: "you saw it... that makes me a little happy." }],
 };
 
 /** Tempers each temper enjoys visiting: goofy pets cheer on the drama queen, shy ones stay near the gentle. */
@@ -526,7 +526,8 @@ function visitorsFor(e: LifeEvent, pet: Pet, lang: Lang, hidden: string[], now: 
   const h = hash(e.id);
   const likers = ranked.slice(0, 1 + (h % 4));
   const likes = likers
-    .map(({ r }, k) => ({ who: actorOf(r, lang, taken), at: new Date(at + (3 + 11 * k + (h % 7)) * MINUTE) }))
+    // The first resident stops by a minute after posting, so the owner sees someone came (docs/01 8.25).
+    .map(({ r }, k) => ({ who: actorOf(r, lang, taken), at: new Date(at + (k ? 3 + 11 * k + (h % 7) : 1) * MINUTE) }))
     .filter((l) => l.at <= now);
   const keen = likers.filter(({ r }) => r.likes.includes(e.category) || r.species === pet.species);
   const commenters = (keen.length ? keen : likers).slice(0, 1 + ((h >>> 4) % 2));

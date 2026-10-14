@@ -6,7 +6,7 @@ import { router, useLocalSearchParams } from "expo-router";
 import { useStore } from "../data/store";
 import { StoryStyle, formatDate } from "../domain/types";
 import { homePets } from "../domain/household";
-import { TONE_DELTA, TONE_LABELS } from "../domain/bonds";
+import { TONE_LABELS } from "../domain/bonds";
 import { eventDate } from "../domain/dates";
 import { deleteEvent } from "../domain/life";
 import {
@@ -51,7 +51,7 @@ export default function Event() {
     >
       <Heading
         title={t("这一天")}
-        eyebrow={`${formatDate(eventDate(event).toISOString())} · ${t(event.petSnapshot.role)}`}
+        eyebrow={`${formatDate(eventDate(event).toISOString())} · ${event.petSnapshot.name}`}
         accent={storyColors[style]}
         action={
           <Button label={t("返回")} tone="plain" onPress={() => router.canGoBack() ? router.back() : router.replace("/profile")} />
@@ -62,10 +62,9 @@ export default function Event() {
         return names.length > 0 && (
           <Pressable accessibilityRole="link" onPress={() => router.push("/bonds")}>
             <Text style={[styles.small, { color: colors.ink, fontWeight: "700" }]}>
-              {t("和{names}一起 · {tone} {delta}", {
+              {t("和{names}一起 · {tone}", {
                 names: names.join(t("、")),
                 tone: t(TONE_LABELS[event.together!.tone]),
-                delta: TONE_DELTA[event.together!.tone] > 0 ? `+${TONE_DELTA[event.together!.tone]}` : String(TONE_DELTA[event.together!.tone]),
               })}
             </Text>
           </Pressable>

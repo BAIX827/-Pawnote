@@ -3,7 +3,7 @@ import { useEffect, useRef, useState } from "react";
 import { Image, Pressable, Text, View } from "react-native";
 import { router } from "expo-router";
 import { useStore } from "../data/store";
-import { MAIL_KINDS, MailKind, allReminders, weekMailKey, writeMail, type Mail } from "../domain/paw-mail";
+import { MAIL_KINDS, MIN_YEAR_ENTRIES, MailKind, allReminders, weekMailKey, writeMail, type Mail } from "../domain/paw-mail";
 import { mailSVG, periodLabel } from "../domain/share-cards";
 import { CATEGORY_LABELS, LifeEvent } from "../domain/types";
 import { exportCard } from "../platform/export";
@@ -74,9 +74,11 @@ export default function PawMail() {
         </View>
         <View style={[{ minHeight: 280, backgroundColor: colors.paper, borderWidth: 2.5, borderColor: colors.ink, borderRadius: 14, padding: 22, gap: 14, justifyContent: "center" }, shadow(5)]}>
           <Avatar pet={pet} size={72} demo={state.demo} />
-          <Text style={big}>{kind === "week" ? t("这周的信还在写") : t("这个月的信还在写")}</Text>
+          <Text style={big}>{kind === "week" ? t("这周的信还在写") : kind === "month" ? t("这个月的信还在写") : t("年鉴还在攒")}</Text>
           <Text style={styles.body}>
-            {mail.entries
+            {kind === "year"
+              ? t("今年已经记了 {n} 件事，记满 {min} 件就能翻开年鉴。", { n: mail.entries, min: MIN_YEAR_ENTRIES })
+              : mail.entries
               ? t(kind === "week" ? "这周已经记了 {n} 件事，下周一写完给你。" : "这个月已经记了 {n} 件事，下个月初写完给你。", { n: mail.entries })
               : t(kind === "week" ? "这周还没有记录，记下一件，信里就有内容了。" : "这个月还没有记录，记下一件，信里就有内容了。")}
           </Text>

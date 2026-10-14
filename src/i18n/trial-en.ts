@@ -54,5 +54,16 @@ export const trialEn: Record<string, string> = {
   "转正面谈": "Probation review",
   "第一次小测": "First pop quiz",
   "拿到工牌": "Got the staff badge",
-  "当上课代表": "Class rep",
+  "当上课代表": "Became class rep",
+  // Second trial run (docs/01 8.25).
+  "{n} 个约定": "{n} active",
+  "{name}的好朋喵 · 爪爪镇居民": "{name}'s pals · Pawtown residents",
+  "{name}的好朋友 · 爪爪镇居民": "{name}'s pals · Pawtown residents",
+  "{owner}说：{text}": "You wrote: {text}",
+  转正新人: "Newly hired",
+  金牌员工: "Star employee",
+  小测达人: "Quiz whiz",
+  课代表: "Class rep",
+  年鉴还在攒: "The yearbook is still filling up",
+  "今年已经记了 {n} 件事，记满 {min} 件就能翻开年鉴。": "{n} entries this year so far. The yearbook opens at {min}.",
 };

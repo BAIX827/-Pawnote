@@ -164,6 +164,10 @@ test("爪信：上周没有记录时显示本周进行中的信，爪窝不提�
   assert.equal(week.start.getDate(), 12);
   assert.equal(week.stars, undefined);
   assert.equal(writeMail(s, "month", NOW, "zh")!.inProgress, true);
-  assert.equal(writeMail(s, "year", NOW, "zh")!.inProgress, false);
+  // The year waits for five entries, and starts from the first one (docs/01 8.25).
+  const year = writeMail(s, "year", NOW, "zh")!;
+  assert.equal(year.inProgress, true);
+  assert.equal(year.start.getMonth(), 9);
+  assert.equal(year.start.getDate(), 13);
   assert.equal(hasNewMail(s, NOW), false);
 });

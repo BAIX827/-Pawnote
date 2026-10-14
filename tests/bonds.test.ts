@@ -37,6 +37,8 @@ test("按原话猜相处的好坏，和好算开心", () => {
   assert.equal(guessTone("猫狗又打架了"), "bad");
   assert.equal(guessTone("打了一架之后又和好了"), "good");
   assert.equal(guessTone("一起在客厅待着"), "neutral");
+  assert.equal(guessTone("糯米和豆包抢同一个纸箱，最后两个都挤在里面睡着了。"), "good");
+  assert.equal(guessTone("一起玩着玩着就打起来了"), "bad");
   assert.equal(guessTone("They played tag in the garden"), "good");
   assert.equal(guessTone("The cat hissed at the dog"), "bad");
   assert.equal(guessTone("I gave her a bit of chicken"), "neutral");

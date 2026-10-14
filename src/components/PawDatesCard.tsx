@@ -58,7 +58,7 @@ export default function PawDatesCard() {
 
   return (
     <View style={{ gap: 14 }}>
-      {due.slice(0, 2).map((r, i) => (
+      {due.slice(0, 1).map((r, i) => (
         <View
           key={r.id}
           style={[
@@ -99,7 +99,7 @@ export default function PawDatesCard() {
           </View>
         </View>
       ))}
-      {due.length > 2 && <Text style={styles.small}>{t("还有 {n} 件在等你，去爪约看看。", { n: due.length - 2 })}</Text>}
+      {due.length > 1 && <Text style={styles.small}>{t("还有 {n} 件在等你，去爪约看看。", { n: due.length - 1 })}</Text>}
       {done && (
         <View style={[{ backgroundColor: colors.green, borderWidth: 2.5, borderColor: colors.ink, borderRadius: 14, padding: 16, gap: 10 }, shadow(4)]}>
           <Text style={[styles.h2, { fontSize: 19, lineHeight: 26 }]}>
@@ -126,10 +126,11 @@ export default function PawDatesCard() {
         </View>
         <View style={{ flex: 1 }}>
           <Text style={{ fontFamily: display, fontSize: 22, lineHeight: 28, color: colors.ink }}>{t("爪约")}</Text>
-          <Text numberOfLines={1} style={[styles.small, { color: colors.ink }]}>{nextLine ?? t("它想和你一起做的事")}</Text>
+          <Text numberOfLines={1} style={[styles.small, { color: colors.ink }]}>{t("它想和你一起做的事")}</Text>
+          {nextLine && <Text numberOfLines={1} style={[styles.small, { color: colors.ink, fontWeight: "700" }]}>{nextLine}</Text>}
         </View>
         {routines.length > 0 && (
-          <Text style={{ fontFamily: numeric, fontSize: 22, color: colors.ink }}>{routines.filter((r) => r.enabled).length}</Text>
+          <Text style={{ fontFamily: numeric, fontSize: 15, color: colors.ink }}>{t("{n} 个约定", { n: routines.filter((r) => r.enabled).length })}</Text>
         )}
         <Icon name="arrow-right" color={colors.ink} size={20} />
       </Pressable>

@@ -26,7 +26,7 @@ import {
   newDraft,
 } from "../domain/types";
 import { homePets, mentionedPets } from "../domain/household";
-import { TONE_DELTA, TONE_LABELS, guessTone } from "../domain/bonds";
+import { TONE_LABELS, guessTone } from "../domain/bonds";
 import { choosePhoto } from "../platform/photo";
 import { AIError, Quota, aiAvailable, fetchQuota, generateWithAI } from "../platform/ai";
 import {
@@ -492,7 +492,7 @@ function Recorder({ original, initialDate }: { original?: LifeEvent; initialDate
           </Text>
           <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 8 }}>
             {TONES.map((k) => (
-              <Chip key={k} label={t("{tone} {delta}", { tone: t(TONE_LABELS[k]), delta: TONE_DELTA[k] > 0 ? `+${TONE_DELTA[k]}` : String(TONE_DELTA[k]) })}
+              <Chip key={k} label={t(TONE_LABELS[k])}
                 color={k === "bad" ? colors.pink : k === "good" ? colors.green : colors.lilac}
                 active={tone === k}
                 onPress={() => { setManualTone(true); patch({ together: { pets: draft.together!.pets, tone: k } }); }} />

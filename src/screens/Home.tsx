@@ -1,11 +1,12 @@
-import { locale, t, tList } from "../i18n";
+import { getLang, locale, t, tList } from "../i18n";
 import { Image, Pressable, Text, View, useWindowDimensions } from "react-native";
 import { router } from "expo-router";
 import { useStore } from "../data/store";
 import { progress, titleFor } from "../domain/life";
 import { formatDate } from "../domain/types";
 import { speciesEmoji } from "../domain/pet-profile";
-import { petLine } from "../domain/story-engine";
+import { ownerName, petLine } from "../domain/story-engine";
+import { greeting } from "../domain/greetings";
 import {
   Button,
   Empty,
@@ -30,11 +31,11 @@ import Onboarding from "./Onboarding";
 
 // The poster changes with the hour, the way a pet's day does.
 function moment(hour: number) {
-  if (hour < 6) return { label: t("深夜档"), line: t("嘘，夜间巡逻中。"), icon: "moon" as const };
-  if (hour < 11) return { label: t("早安档"), line: t("早，今天的早饭呢？"), icon: "sun" as const };
-  if (hour < 14) return { label: t("午间档"), line: t("中午了，适合找块太阳躺下。"), icon: "sun" as const };
-  if (hour < 18) return { label: t("下午档"), line: t("下午的风不错，我批准了。"), icon: "coffee" as const };
-  return { label: t("晚间档"), line: t("你回来啦？我可没有在等你。"), icon: "moon" as const };
+  if (hour < 6) return { label: t("深夜档"), icon: "moon" as const };
+  if (hour < 11) return { label: t("早安档"), icon: "sun" as const };
+  if (hour < 14) return { label: t("午间档"), icon: "sun" as const };
+  if (hour < 18) return { label: t("下午档"), icon: "coffee" as const };
+  return { label: t("晚间档"), icon: "moon" as const };
 }
 const notes = [colors.paper, colors.lavender, colors.green, colors.pink];
 
@@ -50,7 +51,7 @@ export default function Home() {
     now = new Date(),
     m = moment(now.getHours());
   // What the pet itself said last time, never the owner's words quoted back (docs/01 8.24).
-  const saying = (latest && petLine(latest)) || m.line;
+  const saying = (latest && petLine(latest)) || greeting(pet, now.getHours(), getLang());
   return (
     <View style={[styles.stack, narrow && { gap: 14 }]}>
       <View
@@ -220,7 +221,7 @@ export default function Home() {
                   {e.stories[e.selectedStyle].title}
                 </Text>
                 <Text style={styles.muted} numberOfLines={2}>
-                  {t("主人说：{text}", { text: e.description })}
+                  {t("{owner}说：{text}", { owner: ownerName(e.petSnapshot), text: e.description })}
                 </Text>
               </View>
               {e.photo && (

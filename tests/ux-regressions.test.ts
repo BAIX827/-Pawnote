@@ -22,7 +22,8 @@ test("停下散步并被抱回家的细节进入四种回应，中英文与性�
           const story = generateStory({ ...pet, personality }, fact, "walk", style, variant);
           assert.match(story.text, lang === "zh" ? /走到一半，我趴下来.*妈妈抱我回家/ : /Halfway.*lay down.*妈妈 carried me home/);
           assert.doesNotMatch(story.text, /走在前面的一直是我|led the whole way/i);
-          if (lang === "en" || style === "news") assert.ok(story.text.includes(fact));
+          // English quotes the owner only where the context is needed: the post and the news (docs/01 8.25).
+          if (style === "news" || (lang === "en" && style === "social")) assert.ok(story.text.includes(fact));
         }
     } finally { applyLang("zh"); }
   }

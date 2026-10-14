@@ -38,7 +38,6 @@ export const bondsEn: Record<string, string> = {
   和谁一起: "Who was there",
   这次相处: "How it went",
   " · 已按原话猜了一个": " · guessed from your words",
-  "{tone} {delta}": "{tone} {delta}",
-  "和{names}一起 · {tone} {delta}": "With {names} · {tone} {delta}",
+  "和{names}一起 · {tone}": "With {names} · {tone}",
   "、": ", ",
 };

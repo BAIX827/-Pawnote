@@ -49,17 +49,10 @@ export const deleteEvent = (state: AppState, eventId: string): AppState => ({
   ...state,
   events: state.events.filter((e) => e.id !== eventId),
 });
+// One title per level, the same names the 爪迹 route uses (docs/01 8.25).
+const TITLES = {
+  work: ["职场萌新", "转正新人", "正式营业员", "金牌员工", "资深摸鱼专家"],
+  campus: ["校园新生", "小测达人", "校园活跃分子", "课代表", "校园传说"],
+} as const;
 export const titleFor = (level: number, route: "campus" | "work") =>
-  t(
-    route === "work"
-      ? level >= 5
-        ? "资深摸鱼专家"
-        : level >= 3
-          ? "正式营业员"
-          : "职场萌新"
-      : level >= 5
-        ? "校园传说"
-        : level >= 3
-          ? "校园活跃分子"
-          : "校园新生",
-  );
+  t(TITLES[route][Math.min(Math.max(level, 1), 5) - 1]);

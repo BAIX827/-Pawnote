@@ -133,7 +133,7 @@ export default function Circle() {
       </View>
       <>
           <View style={{ gap: 10 }}>
-            <Text style={styles.caps}>{t("{name}的好朋狗 · 爪爪镇居民", { name: pet.name })}</Text>
+            <Text style={styles.caps}>{t(pet.species === "cat" ? "{name}的好朋喵 · 爪爪镇居民" : pet.species === "dog" ? "{name}的好朋狗 · 爪爪镇居民" : "{name}的好朋友 · 爪爪镇居民", { name: pet.name })}</Text>
             <View style={[styles.row, { flexWrap: "wrap", gap: 12 }]}>
               {RESIDENTS.map((r) => (
                 <Pressable

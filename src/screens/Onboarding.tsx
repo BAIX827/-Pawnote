@@ -7,7 +7,7 @@ import { Text, TextInput, View, useWindowDimensions } from "react-native";
 import { router } from "expo-router";
 import { useStore } from "../data/store";
 import { demoState } from "../data/demo";
-import { savePet } from "../domain/life";
+import { progress, savePet, titleFor } from "../domain/life";
 import {
   PERSONALITIES,
   SPECIES,
@@ -122,6 +122,8 @@ export default function Onboarding({ editing = false, adding = false }: { editin
     ...(isHomeDate(homeDate.trim()) ? { homeDate: homeDate.trim() } : {}),
     avatar,
   };
+  // The pass shows the main identity, the level title, not the job (docs/01 8.25).
+  const level = editing ? progress(state.events).level : 1;
   async function pick() {
     setBusy(true);
     try {
@@ -238,7 +240,7 @@ export default function Onboarding({ editing = false, adding = false }: { editin
                 </Text>
                 <Text style={styles.small}>{tList(preview.personality)}</Text>
                 <Tag bg={colors.paper}>
-                  {t(preview.role)}
+                  {titleFor(level, preview.route)} · Lv.{level}
                 </Tag>
               </View>
             </View>

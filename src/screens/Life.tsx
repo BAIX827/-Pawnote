@@ -34,14 +34,11 @@ export default function Life() {
     accent = work ? colors.jade : colors.lavender,
     soft = work ? colors.green : colors.lilac,
     wide = width >= 1100;
-  // Every level from 1 to 5, so the "next stop" is always on the route (docs/01 8.24).
-  const steps = [
-    { at: 1, name: work ? t("第一次营业") : t("第一次入学") },
-    { at: 2, name: work ? t("转正面谈") : t("第一次小测") },
-    { at: 3, name: work ? t("正式营业员") : t("校园活跃分子") },
-    { at: 4, name: work ? t("拿到工牌") : t("当上课代表") },
-    { at: 5, name: work ? t("资深摸鱼专家") : t("校园传说") },
-  ];
+  // Every level from 1 to 5, named by its title, with the moment it stands for underneath (docs/01 8.24, 8.25).
+  const moments = work
+    ? ["第一次营业", "转正面谈", "", "拿到工牌", ""]
+    : ["第一次入学", "第一次小测", "", "当上课代表", ""];
+  const steps = moments.map((m, i) => ({ at: i + 1, name: titleFor(i + 1, pet.route), moment: m && t(m) }));
   const notch = {
     position: "absolute" as const,
     width: 26,
@@ -250,7 +247,7 @@ export default function Life() {
                 <View style={[styles.row, { gap: 6 }]}>
                   <Icon name={done ? "check" : "lock"} size={14} color={done ? accent : colors.muted} />
                   <Text style={styles.small}>
-                    Lv.{m.at} · {done ? t("已解锁") : t("{n} XP 解锁", { n: (m.at - 1) * 100 })}
+                    Lv.{m.at}{m.moment ? ` · ${m.moment}` : ""} · {done ? t("已解锁") : t("{n} XP 解锁", { n: (m.at - 1) * 100 })}
                   </Text>
                 </View>
               </View>

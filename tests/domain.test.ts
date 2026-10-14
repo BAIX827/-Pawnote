@@ -228,6 +228,10 @@ test("主人视角改写为宠物第一人称，并从原话猜出标签", () =>
   assert.equal(detectCategory("带它去公园"), "walk");
   assert.equal(detectCategory("今天带她出去玩了"), "walk");
   assert.equal(detectCategory("看了一会儿雨"), "other");
+  assert.equal(detectCategory("Luna knocked my coffee mug off the desk"), "chaos");
+  assert.equal(detectCategory("She napped in the sun all afternoon"), "sleep");
+  assert.equal(detectCategory("We went for a walk in the park"), "walk");
+  assert.equal(detectCategory("Watched the rain for a while"), "other");
   assert.ok(generateStories(cat, "我".repeat(500), "other").news.text.length <= 2000);
 });
 test("小报只讲一次原话，回应补充态度，省去报道和归档套话", () => {
@@ -264,13 +268,14 @@ test("英文界面下词条、称号与本机故事使用英文，未收录的�
     assert.equal(t("主人自己写的话"), "主人自己写的话");
     const pet = demoState().pet!;
     const stories = generateStories(pet, "He stole a fish.", "snack");
-    for (const story of Object.values(stories)) {
-      assert.ok(story.text.includes("He stole a fish."));
+    for (const story of Object.values(stories))
       assert.ok(!/[\u4e00-\u9fff]/.test(story.title + story.text));
-    }
-    assert.match(stories.diary.text, /^My human wrote/);
+    // The post and the news quote the owner for context; the inner voice and diary give the pet's side only (docs/01 8.25).
+    assert.ok(stories.social.text.includes("He stole a fish."));
+    assert.ok(stories.news.text.includes("He stole a fish."));
+    assert.ok(!stories.diary.text.includes("He stole a fish.") && !stories.life.text.includes("He stole a fish."));
     assert.match(stories.diary.text, /opinions about food/);
-    assert.match(generateStories({ ...pet, species: "dog", personality: "亲人" }, "We went out.", "walk").diary.text, /^My human wrote[\s\S]*favourite part/);
+    assert.match(generateStories({ ...pet, species: "dog", personality: "亲人" }, "We went out.", "walk").diary.text, /favourite part/);
     assert.equal(isAppState(demoState()), true);
   } finally {
     applyLang("zh");

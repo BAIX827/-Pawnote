@@ -216,7 +216,8 @@ export function pawsonaCard(pet: Pet, result: Pick<PawsonaResult, "temper" | "sc
   const p = PERSONAS[result.temper];
   return {
     name: p.name[lang],
-    code: p.code,
+    // A Chinese card shows no English code word, just the personality it stands for (docs/01 8.25).
+    code: lang === "en" ? p.code : `爪格 · ${p.tag}`,
     color: p.color,
     intro: fill(p.intro[lang], pet, lang),
     manual: p.manual[lang],

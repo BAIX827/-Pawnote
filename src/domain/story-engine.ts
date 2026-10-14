@@ -142,12 +142,13 @@ export function toPetVoice(
   return { text: s, spin };
 }
 
+// English words sit beside the Chinese ones so English entries are sorted too (docs/01 8.25).
 const HINTS: [Category, RegExp][] = [
-  ["chaos", /拆|推下|推倒|打翻|打碎|咬坏|抓坏|撕|弄乱|捣乱|闯祸|摔/],
-  ["bath", /洗澡|洗了|泡泡|吹风|吹毛|美容|剪指甲|梳毛/],
-  ["walk", /散步|遛|出门|出去|外出|公园|楼下|外面|巡逻|草地|晒太阳/],
-  ["sleep", /睡|困|打盹|午觉|做梦|呼噜|赖床|哈欠/],
-  ["snack", /吃|零食|罐头|小鱼干|冻干|喝|饭|粮|肉|啃/],
+  ["chaos", /拆|推下|推倒|打翻|打碎|咬坏|抓坏|撕|弄乱|捣乱|闯祸|摔|\b(knock(ed|s|ing)?|push(ed|es|ing)? .*\boff|tipp?(ed|ing)? over|broke|broken|smash(ed)?|shredd?(ed|ing)?|tore|torn|chew(ed|ing)? (up|through)|scratch(ed|ing)? (the )?(sofa|couch|door)|destroy(ed)?|wreck(ed)?|mess(ed)? up|spill(ed)?)\b/i],
+  ["bath", /洗澡|洗了|泡泡|吹风|吹毛|美容|剪指甲|梳毛|\b(bath|bathed|shower(ed)?|groom(ed|ing)?|brush(ed|ing)?|nail trim|trimmed)\b/i],
+  ["walk", /散步|遛|出门|出去|外出|公园|楼下|外面|巡逻|草地|晒太阳|\b(walk(ed|s|ing)?|park|outside|outdoors|hike|hiked|stroll)\b/i],
+  ["sleep", /睡|困|打盹|午觉|做梦|呼噜|赖床|哈欠|\b(sleep(ing|s)?|slept|nap(ped|ping|s)?|snooz(e|ed|ing)|doz(e|ed|ing)|asleep|yawn(ed)?)\b/i],
+  ["snack", /吃|零食|罐头|小鱼干|冻干|喝|饭|粮|肉|啃|\b(ate|eat(s|ing)?|snack(s|ed)?|treat(s)?|food|dinner|breakfast|lunch|kibble|chicken|tuna|stole (a|the|some))\b/i],
 ];
 /** Guesses the tag from what the owner wrote, so they do not have to pick one. */
 export const detectCategory = (description: string): Category =>
@@ -194,10 +195,13 @@ export function generateStory(
   if (grave && style === "news") return done(`${pet.name}的今日记录`, `${owner}写下：“${fact}”\n\n${mine.line}`);
   if (grave && style !== "diary")
     return done(`${pet.name}的今日记录`, `${said.text}\n\n${style === "social" ? mine.closer : mine.line}`);
-  const life = mine.contextual ? mine.line : pet.route === "work" ? v.work : v.campus;
+  // The work / school diary keeps the pet's reply to this event and adds its job's take, so it
+  // never reads the same as the inner voice (docs/01 8.25).
+  const job = pet.route === "work" ? v.work : v.campus;
+  const life = mine.contextual ? `${mine.line}${job ? `\n${job}` : ""}` : job;
   const text =
     style === "news"
-      ? `${pet.ownerTitle?.trim() || "主人"}说：“${fact}”\n\n${pet.name}：“${mine.line}”`
+      ? `${owner}说：“${fact}”\n\n${pet.name}：“${mine.line}”`
       : style === "life"
         ? `【${pet.route === "work" ? "今日工作日记" : "今日校园日记"}】\n${said.text}\n\n${life || mine.line}`
         : style === "social"
@@ -213,8 +217,9 @@ export function generateStory(
           : `${pet.name}的小心思`;
   return done(title, text);
 }
-// English has no safe rule for swapping grammatical person, so the offline version quotes
-// the owner and lets the pet comment; the AI gateway provides a true first-person retelling.
+// English has no safe rule for swapping grammatical person, so the offline version doesn't retell:
+// the inner voice and diary give only the pet's side (the owner's note sits right above them), and
+// the post and the news quote the owner for context. The AI gateway provides a true retelling.
 const asides: Record<Category, { work: string; campus: string; title: string }> = {
   sleep: {
     work: "I'd like a nap on today's schedule. Work can be discussed when I've rested.",
@@ -251,7 +256,8 @@ function englishStory(pet: Pet, fact: string, category: Category, style: StorySt
   const v = asides[category], owner = ownerName(pet), work = pet.route === "work";
   const Owner = owner.charAt(0).toUpperCase() + owner.slice(1);
   const mine = reaction(pet, category, owner, "en", variant, fact);
-  const life = mine.contextual ? mine.line : work ? v.work : v.campus;
+  const job = work ? v.work : v.campus;
+  const life = mine.contextual ? `${mine.line}${job ? `\n${job}` : ""}` : job;
   if (isSensitive(fact))
     return {
       title: `${pet.name}'s day`,
@@ -263,10 +269,10 @@ function englishStory(pet: Pet, fact: string, category: Category, style: StorySt
     style === "news"
       ? `${Owner} said: "${fact}"\n\n${pet.name}: "${mine.line}"`
       : style === "life"
-        ? `${work ? "Work diary" : "School diary"}\n${Owner} wrote: "${fact}"\n\n${life || mine.line}`
+        ? `${work ? "Work diary" : "School diary"}\n${life || mine.line}`
         : style === "social"
           ? `${Owner} says: "${fact}"\n${socialLine(pet, category, owner, "en", fact, variant)}`
-          : `${Owner} wrote: "${fact}"\n\n${mine.line}${variant ? `\n${mine.closer}` : ""}`;
+          : `${mine.line}${variant ? `\n${mine.closer}` : ""}`;
   const title =
     style === "news"
       ? `${pet.name}: ${v.title}`
@@ -302,6 +308,10 @@ export function retellDraft(pet: Pet, draft: Draft, description: string, categor
 }
 
 const HEADINGS = /^(【.*】|Work diary|School diary)$/;
+// The job's take the work / school diary adds after the pet's reply; the bubble wants the reply itself.
+const JOB_LINES = new Set(
+  [...Object.values(incidents), ...Object.values(asides)].flatMap((v) => [v.work, v.campus]).filter(Boolean),
+);
 /**
  * What the pet itself said in a saved entry, for the 爪窝 speech bubble: its closing reaction, never the
  * owner's quoted words or a section heading, with a news-style "Name: “…”" unwrapped (docs/01 8.24).
@@ -311,7 +321,7 @@ export function petLine(e: LifeEvent): string | undefined {
   const fact = e.description.trim();
   const name = e.petSnapshot.name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
   const lines = text.split("\n").map((l) => l.trim()).filter(Boolean);
-  const own = lines.filter((l) => !HEADINGS.test(l) && !(fact && l.includes(fact)));
+  const own = lines.filter((l) => !HEADINGS.test(l) && !JOB_LINES.has(l) && !(fact && l.includes(fact)));
   // The pet's own reaction comes last in every voice; the retelling, if any, comes before it.
   const line = own[own.length - 1] ?? lines.find((l) => !HEADINGS.test(l));
   return line?.replace(new RegExp(`^${name}[：:]\\s*[“"]`), "").replace(/[”"]$/, "");
