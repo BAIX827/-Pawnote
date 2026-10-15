@@ -1,5 +1,6 @@
 import { Category, Pet } from "./types";
 import { en, zh } from "./voice-bank";
+import { moreEn, moreZh } from "./voice-bank-more";
 import { actionLine, eventContext } from "./event-context";
 
 // The on-device voice bank. See docs/13 (宠物语气指南 v2) for the brief.
@@ -86,7 +87,8 @@ export function reaction(
   const temper = temperOf(pet);
   const set = (lang === "en" ? en : zh)[temper];
   const special = speciesLines[pet.species];
-  const line = set[category][variant % 2];
+  const lines = [...set[category], ...(lang === "en" ? moreEn : moreZh)[temper].line[category]];
+  const line = lines[variant % lines.length];
   let closer = set.closers[variant % set.closers.length];
   if (special && variant % 2 === 1) closer = special[lang][variant % special[lang].length];
   // Every third version gets an absurd beat; owners who asked for weird get one every time.
@@ -105,8 +107,9 @@ export function reaction(
 export function socialLine(pet: Pet, category: Category, owner: string, lang: "zh" | "en", description = "", variant = 0): string {
   const fill = fillWith(owner, lang);
   if (isSensitive(description)) return fill(QUIET[lang].closer);
-  const set = (lang === "en" ? en : zh)[temperOf(pet)];
-  const base = fill(set.social[category][variant % 2]);
+  const temper = temperOf(pet), set = (lang === "en" ? en : zh)[temper];
+  const posts = [...set.social[category], ...(lang === "en" ? moreEn : moreZh)[temper].social[category]];
+  const base = fill(posts[variant % posts.length]);
   const context = eventContext(description, owner, lang) ?? actionLine(description, lang);
   // Same as reaction(): once the pet has answered an everyday moment, a short sign-off is enough (docs/01 8.26).
   if (context) return `${context}${lang === "zh" ? "" : " "}${category === "other" ? fill(set.closers[variant % set.closers.length]) : base}`;

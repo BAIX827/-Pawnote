@@ -155,6 +155,8 @@ export interface AppState {
   household?: PetBundle[];
   /** Starting relationships the owner set in 关系网. */
   bonds?: Bond[];
+  /** When a backup was last exported, and until when the home reminder rests (docs/01 8.27). */
+  backup?: { lastAt?: string; snoozedUntil?: string };
 }
 export const SOUND_STAGES = ["baby", "young", "adult", "senior", "unknown"] as const;
 export type SoundStage = (typeof SOUND_STAGES)[number];

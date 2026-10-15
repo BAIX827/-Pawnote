@@ -16,11 +16,21 @@ export default {
         const used = Number((await env.USAGE.get(k)) ?? 0);
         await env.USAGE.put(k, String(used + 1), { expirationTtl: TWO_WEEKS });
       },
+      // The daily per-address cap (docs/01 8.27); same soft-limit caveat as above.
+      ipGet: async (day, ip) => Number((await env.USAGE.get(`ip:${day}:${ip}`)) ?? 0),
+      ipAdd: async (day, ip) => {
+        const k = `ip:${day}:${ip}`;
+        await env.USAGE.put(k, String(Number((await env.USAGE.get(k)) ?? 0) + 1), { expirationTtl: 2 * 24 * 60 * 60 });
+      },
     };
-    const result = await createGateway(env, store).handle(request.method, new URL(request.url), () => request.text());
+    const origin = request.headers.get("origin") ?? undefined;
+    const result = await createGateway(env, store).handle(request.method, new URL(request.url), () => request.text(), {
+      origin,
+      ip: request.headers.get("cf-connecting-ip") ?? undefined,
+    });
     return new Response(result.status === 204 ? null : JSON.stringify(result.body), {
       status: result.status,
-      headers: headers(env),
+      headers: headers(env, origin),
     });
   },
 };

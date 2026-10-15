@@ -16,19 +16,23 @@ type Store = {
   ready: boolean;
   error: string;
   toast: string;
-  notify: (message: string) => void;
+  /** A one-tap follow-up shown with the toast, such as undoing a delete (docs/01 8.27). */
+  toastAction: ToastAction | null;
+  notify: (message: string, action?: ToastAction) => void;
   reset: () => void;
   raw: string | null;
   blocked: boolean;
   restore: (backup: AppState) => Promise<void>;
   restoring: boolean;
 };
+export type ToastAction = { label: string; run: () => void };
 const Context = createContext<Store | null>(null);
 export function StoreProvider({ children }: { children: React.ReactNode }) {
   const [state, update] = useState<AppState>(emptyState);
   const [ready, setReady] = useState(false);
   const [error, setError] = useState("");
   const [toast, setToast] = useState("");
+  const [toastAction, setToastAction] = useState<ToastAction | null>(null);
   const [raw, setRaw] = useState<string | null>(null);
   const [blocked, setBlocked] = useState(false);
   const [restoring, setRestoring] = useState(false);
@@ -78,16 +82,20 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
         setRaw(serialized);
       } catch {
         setError(
-          "本机保存失败，可能是存储空间不足。请先导出备份，当前页面仍保留你的记录。",
+          t("本机保存失败，可能是存储空间不足。请先导出备份，当前页面仍保留你的记录。"),
         );
       }
     });
   }, [state, ready, blocked]);
   useEffect(() => {
     if (!toast) return;
-    const t = setTimeout(() => setToast(""), 3600);
+    const t = setTimeout(() => { setToast(""); setToastAction(null); }, toastAction ? 6000 : 3600);
     return () => clearTimeout(t);
-  }, [toast]);
+  }, [toast, toastAction]);
+  const notify = (message: string, action?: ToastAction) => {
+    setToast(message);
+    setToastAction(action ?? null);
+  };
   const reset = () => {
     initial.current = false;
     setBlocked(false);
@@ -124,7 +132,8 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
         ready,
         error,
         toast,
-        notify: setToast,
+        toastAction,
+        notify,
         reset,
         raw,
         blocked,

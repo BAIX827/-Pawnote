@@ -32,6 +32,13 @@ const store = {
     writeFileSync(usageFile, JSON.stringify(usage));
   },
 };
+// Per-address counts only need today's numbers, so they stay in memory.
+let ipDay = "", ipCounts = new Map();
+store.ipGet = async (day, ip) => (day === ipDay ? ipCounts.get(ip) ?? 0 : 0);
+store.ipAdd = async (day, ip) => {
+  if (day !== ipDay) { ipDay = day; ipCounts = new Map(); }
+  ipCounts.set(ip, (ipCounts.get(ip) ?? 0) + 1);
+};
 const gateway = createGateway(env, store);
 
 createServer(async (req, res) => {
@@ -44,7 +51,7 @@ createServer(async (req, res) => {
       chunks.push(chunk);
     }
     return Buffer.concat(chunks).toString("utf8");
-  });
-  res.writeHead(result.status, headers(env));
+  }, { origin: req.headers.origin, ip: req.socket.remoteAddress });
+  res.writeHead(result.status, headers(env, req.headers.origin));
   res.end(JSON.stringify(result.body));
 }).listen(PORT, () => console.log(`Pawnote AI gateway on :${PORT}${gateway.mock ? " (mock replies)" : ""}`));

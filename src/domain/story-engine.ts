@@ -206,7 +206,7 @@ export function generateStory(
         ? `【${pet.route === "work" ? "今日工作日记" : "今日校园日记"}】\n${said.text}\n\n${life || mine.line}`
         : style === "social"
           ? `${said.text}\n${socialLine(pet, category, owner, "zh", fact, variant)}`
-          : `${said.text}\n\n${mine.line}${variant ? `\n${mine.closer}` : ""}`;
+          : `${said.text}\n\n${mine.line}${variant % 2 === 1 ? `\n${mine.closer}` : ""}`;
   const title =
     style === "news"
       ? `${pet.name}：${v.title}`
@@ -272,7 +272,7 @@ function englishStory(pet: Pet, fact: string, category: Category, style: StorySt
         ? `${work ? "Work diary" : "School diary"}\n${life || mine.line}`
         : style === "social"
           ? `${Owner} says: "${fact}"\n${socialLine(pet, category, owner, "en", fact, variant)}`
-          : `${mine.line}${variant ? `\n${mine.closer}` : ""}`;
+          : `${mine.line}${variant % 2 === 1 ? `\n${mine.closer}` : ""}`;
   const title =
     style === "news"
       ? `${pet.name}: ${v.title}`
@@ -287,20 +287,30 @@ export function generateStories(
   pet: Pet,
   description: string,
   category: Category,
+  variant = 0,
 ): Stories {
   return {
-    diary: generateStory(pet, description, category, "diary"),
-    life: generateStory(pet, description, category, "life"),
-    social: generateStory(pet, description, category, "social"),
-    news: generateStory(pet, description, category, "news"),
+    diary: generateStory(pet, description, category, "diary", variant),
+    life: generateStory(pet, description, category, "life", variant),
+    social: generateStory(pet, description, category, "social", variant),
+    news: generateStory(pet, description, category, "news", variant),
   };
 }
 
+/**
+ * Which of the temper's lines a new entry gets: how many entries of the same kind this pet already
+ * has before it, so writing about sleep every day walks through the lines in turn (docs/01 8.27).
+ */
+export function voiceVariant(events: LifeEvent[], category: Category, entry?: Pick<LifeEvent, "id" | "createdAt">): number {
+  const before = entry ? Date.parse(entry.createdAt) : Infinity;
+  return events.filter((e) => e.category === category && e.id !== entry?.id && Date.parse(e.createdAt) < before).length;
+}
+
 /** Keep owner-edited voices until the owner explicitly chooses how to update them. */
-export function retellDraft(pet: Pet, draft: Draft, description: string, category: Category): Draft {
+export function retellDraft(pet: Pet, draft: Draft, description: string, category: Category, variant = 0): Draft {
   if (description === draft.description && category === draft.category) return draft;
   const edited = STYLES.filter((s) => draft.stories?.[s].edited);
-  const stories = description.trim() || edited.length ? generateStories(pet, description, category) : undefined;
+  const stories = description.trim() || edited.length ? generateStories(pet, description, category, variant) : undefined;
   if (stories) for (const style of edited) stories[style] = draft.stories![style];
   return { ...draft, description, category, stories,
     signature: stories ? generationSignature(pet, description, category) : undefined,

@@ -14,12 +14,26 @@ export function week(now = new Date()) {
   return { key: monday.toISOString().slice(0, 10), resetsAt: new Date(monday.getTime() + 7 * 86400000).toISOString() };
 }
 
+// Browsers send an Origin; only the web version, the Mac app and local development may call the gateway
+// (docs/01 8.27). Phone apps send none and are not affected. "*" in an entry matches any port or host part.
+const DEFAULT_ORIGINS = "https://baix827.github.io,http://127.0.0.1:*,http://localhost:*";
+const origins = (env) => (env.ALLOW_ORIGIN ?? DEFAULT_ORIGINS).split(",").map((s) => s.trim()).filter(Boolean);
+export function originAllowed(env, origin) {
+  if (!origin) return true;
+  return origins(env).some((pattern) => pattern === "*" ||
+    new RegExp(`^${pattern.replace(/[.+?^${}()|[\]\\]/g, "\\$&").replace(/\*/g, "[^/]*")}$`).test(origin));
+}
+const today = (now = new Date()) => now.toISOString().slice(0, 10);
+
 /**
  * @param env plain object of settings (see .env.example)
- * @param store { get(weekKey, deviceId): Promise<number>, add(weekKey, deviceId): Promise<void> }
+ * @param store { get(weekKey, deviceId): Promise<number>, add(weekKey, deviceId): Promise<void>,
+ *   and optionally ipGet(day, ip) / ipAdd(day, ip) for the daily per-address cap }
  */
 export function createGateway(env, store) {
   const FREE_PER_WEEK = Number(env.FREE_AI_PER_WEEK ?? 2);
+  // A new device id is free to make, so successful generations are also capped per address per day.
+  const IP_DAILY_LIMIT = Number(env.IP_DAILY_LIMIT ?? 20);
   const MOCK = env.AI_MOCK === "1";
   const MEMBERS = new Set((env.MEMBER_DEVICE_IDS ?? "").split(",").map((s) => s.trim()).filter(Boolean));
   const providers = {
@@ -203,9 +217,13 @@ export function createGateway(env, store) {
   }
 
   const busy = new Set();
-  /** Answers one request. `readText` returns the raw body; nothing here knows about the host. */
-  async function handle(method, url, readText) {
+  /**
+   * Answers one request. `readText` returns the raw body; `meta` carries the request's Origin header and
+   * client address when the host knows them. Nothing here knows about the host.
+   */
+  async function handle(method, url, readText, meta = {}) {
     try {
+      if (!originAllowed(env, meta.origin)) return { status: 403, body: { error: "forbidden_origin" } };
       if (method === "OPTIONS") return { status: 204, body: {} };
       if (method === "GET" && url.pathname === "/v1/quota") {
         const deviceId = url.searchParams.get("deviceId") ?? "";
@@ -225,12 +243,16 @@ export function createGateway(env, store) {
         if (field) return { status: 400, body: { error: "bad_request", field } };
         const before = await quota(body.deviceId);
         if (!before.member && before.remaining <= 0) return { status: 429, body: { error: "quota_exhausted", quota: before } };
+        const ip = meta.ip && store.ipGet ? meta.ip : undefined;
+        if (ip && !before.member && (await store.ipGet(today(), ip)) >= IP_DAILY_LIMIT)
+          return { status: 429, body: { error: "ip_limited", quota: before } };
         // One request at a time per device, so a double tap cannot spend the allowance twice.
         if (busy.has(body.deviceId)) return { status: 409, body: { error: "busy" } };
         busy.add(body.deviceId);
         try {
           const stories = await generate(body);
           await store.add(week().key, body.deviceId);
+          if (ip) await store.ipAdd(today(), ip);
           return { status: 200, body: { stories, quota: await quota(body.deviceId) } };
         } finally {
           busy.delete(body.deviceId);
@@ -245,9 +267,11 @@ export function createGateway(env, store) {
   return { handle, mock: MOCK };
 }
 
-export const headers = (env) => ({
+export const headers = (env, origin) => ({
   "content-type": "application/json; charset=utf-8",
-  "access-control-allow-origin": env.ALLOW_ORIGIN ?? "*",
+  // Echo an allowed origin rather than "*", so a page elsewhere cannot read the replies.
+  "access-control-allow-origin": origins(env).includes("*") ? "*" : origin && originAllowed(env, origin) ? origin : "null",
+  vary: "origin",
   "access-control-allow-headers": "content-type",
   "access-control-allow-methods": "GET,POST,OPTIONS",
 });

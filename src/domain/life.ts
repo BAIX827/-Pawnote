@@ -49,6 +49,11 @@ export const deleteEvent = (state: AppState, eventId: string): AppState => ({
   ...state,
   events: state.events.filter((e) => e.id !== eventId),
 });
+/** Puts a just-deleted entry back, if its pet is still the current one (docs/01 8.27). */
+export const restoreEvent = (state: AppState, event: LifeEvent): AppState =>
+  state.pet?.id !== event.petSnapshot.id || state.events.some((e) => e.id === event.id)
+    ? state
+    : { ...state, events: newestEvents([event, ...state.events]) };
 // One title per level, the same names the 爪迹 route uses (docs/01 8.25).
 const TITLES = {
   work: ["职场萌新", "转正新人", "正式营业员", "金牌员工", "资深摸鱼专家"],

@@ -8,7 +8,7 @@ import { StoryStyle, formatDate } from "../domain/types";
 import { homePets } from "../domain/household";
 import { TONE_LABELS } from "../domain/bonds";
 import { eventDate } from "../domain/dates";
-import { deleteEvent } from "../domain/life";
+import { deleteEvent, restoreEvent } from "../domain/life";
 import {
   Avatar,
   Bubble,
@@ -168,8 +168,9 @@ export default function Event() {
                 label={t("确认删除这条记录")}
                 tone="danger"
                 onPress={() => {
-                  update((s) => deleteEvent(s, event.id));
-                  notify(t("记录已删除，成长已重新计算。"));
+                  const removed = event;
+                  update((s) => deleteEvent(s, removed.id));
+                  notify(t("记录已删除"), { label: t("撤销"), run: () => update((s) => restoreEvent(s, removed)) });
                   router.replace("/profile");
                 }}
               />

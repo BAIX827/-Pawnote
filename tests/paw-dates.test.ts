@@ -119,7 +119,8 @@ test("提醒是宠物口吻，按脾气和语言变化，难过时不开玩笑�
   assert.ok(sick.includes("歇着") && !sick.includes("顺便"));
   // A sad entry from long ago no longer quiets the reminders.
   assert.ok(reminderLine(pet, walk, 0, { lang: "zh", events: [entry(pet, "它生病了", at(9, 0, 1))], now }).endsWith("我只是顺便提一下。"));
-  const s = { ...addRoutine(base(), { activity: "walk", time: "07:30" }), pet };
+  // The example entries are dated today, so they're left out to keep the farewell the newest entry.
+  const s = { ...addRoutine({ ...base(), events: [] }, { activity: "walk", time: "07:30" }), pet };
   assert.equal(remindersPaused(s.events), false);
   const gone = { ...s, events: [entry(pet, "它今天去了彩虹桥", at(9)), ...s.events] };
   assert.equal(remindersPaused(gone.events), true);

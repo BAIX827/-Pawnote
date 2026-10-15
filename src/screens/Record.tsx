@@ -8,6 +8,7 @@ import {
   detectCategory,
   generateStories,
   retellDraft,
+  voiceVariant,
   generationSignature,
   ownerName,
   selfName,
@@ -109,7 +110,7 @@ function Recorder({ original, initialDate }: { original?: LifeEvent; initialDate
   useEffect(() => {
     if (original || submitted.current || !pet || generated || !draft.description.trim()) return;
     update((s) => s.draft ? { ...s, draft: { ...s.draft,
-      stories: generateStories(pet, s.draft.description, s.draft.category),
+      stories: generateStories(pet, s.draft.description, s.draft.category, voiceVariant(s.events, s.draft.category)),
       signature: generationSignature(pet, s.draft.description, s.draft.category),
     } } : s);
   }, [original, pet, generated, draft.description, update]);
@@ -138,7 +139,7 @@ function Recorder({ original, initialDate }: { original?: LifeEvent; initialDate
   }
   // Every keystroke on the owner's side re-tells the story on the pet's side.
   function retell(description: string, category: Category) {
-    const next = retellDraft(pet!, draft, description, category);
+    const next = retellDraft(pet!, draft, description, category, voiceVariant(state.events, category, original));
     // Pets named in the owner's words are ticked under 和谁一起 until the owner picks by hand (docs/01 8.24).
     if (!manualCompanions && others.length) {
       const named = mentionedPets(description, others);
@@ -432,7 +433,7 @@ function Recorder({ original, initialDate }: { original?: LifeEvent; initialDate
         <View style={[styles.row, { flexWrap: "wrap" }]}>
           <Button label={t("保留我的润色")} tone="soft" onPress={() => patch({ expressionNeedsReview: false })} />
           <Button label={t("按新原话更新表达")} tone="plain" onPress={() => patch({
-            stories: generateStories(pet, draft.description, draft.category),
+            stories: generateStories(pet, draft.description, draft.category, voiceVariant(state.events, draft.category, original)),
             signature, expressionNeedsReview: false,
           })} />
         </View>

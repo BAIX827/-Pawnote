@@ -28,7 +28,7 @@ export default function Shell({ children }: { children: React.ReactNode }) {
   const { width } = useWindowDimensions();
   const wide = width >= 900;
   const path = usePathname();
-  const { state, ready, toast, error, blocked, raw, reset, notify, restoring, update } =
+  const { state, ready, toast, toastAction, error, blocked, raw, reset, notify, restoring, update } =
     useStore();
   const [confirmReset, setConfirmReset] = React.useState(false);
   // Tapping the pet in the top bar opens a quick switcher when there is more than one (docs/01 8.24).
@@ -434,7 +434,18 @@ export default function Shell({ children }: { children: React.ReactNode }) {
             maxWidth: "90%",
           }}
         >
-          <Text style={{ color: colors.ink, fontSize: 14, fontWeight: "700" }}>{toast}</Text>
+          <View style={{ flexDirection: "row", alignItems: "center", gap: 14 }}>
+            <Text style={{ color: colors.ink, fontSize: 14, fontWeight: "700", flexShrink: 1 }}>{toast}</Text>
+            {toastAction && (
+              <Pressable
+                accessibilityRole="button"
+                onPress={() => { toastAction.run(); notify(""); }}
+                hitSlop={10}
+              >
+                <Text style={{ color: colors.ink, fontSize: 14, fontWeight: "900", textDecorationLine: "underline" }}>{toastAction.label}</Text>
+              </Pressable>
+            )}
+          </View>
         </View>
       )}
     </SafeAreaView>

@@ -157,6 +157,7 @@ export function isAppState(v: unknown): v is AppState {
   } else if (!bundle(v)) return false;
   if (!preferences(v.preferences)) return false;
   if (v.mailReminder !== undefined && typeof v.mailReminder !== "boolean") return false;
+  if (v.backup !== undefined && !(obj(v.backup) && optionalDate(v.backup.lastAt) && optionalDate(v.backup.snoozedUntil))) return false;
   if (v.household !== undefined) {
     if (!Array.isArray(v.household) || v.household.length >= MAX_PETS || v.pet === null ||
         !v.household.every((b) => obj(b) && bundle(b))) return false;

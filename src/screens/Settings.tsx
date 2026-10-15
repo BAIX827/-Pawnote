@@ -1,9 +1,8 @@
 import { setLang, t, useLang } from "../i18n";
 import { useState } from "react";
-import { Platform, Text, View } from "react-native";
+import { Text, View } from "react-native";
 import { router } from "expo-router";
 import { useStore } from "../data/store";
-import { exportBackup } from "../platform/export";
 import {
   Button,
   Card,
@@ -14,9 +13,11 @@ import {
   styles,
 } from "../components/ui";
 import RestoreBackup from "../components/RestoreBackup";
-import { Preferences } from "../domain/types";
+import { useBackupExport } from "../components/BackupNudge";
+import { Preferences, formatDate } from "../domain/types";
 export default function Settings() {
   const { state, update, reset, notify } = useStore();
+  const backup = useBackupExport();
   const preference = (key: keyof Preferences, value: boolean) =>
     update((s) => ({ ...s, preferences: { ...s.preferences, [key]: value } }));
   const [confirm, setConfirm] = useState(false);
@@ -69,22 +70,17 @@ export default function Settings() {
           <Text style={styles.small}>
             {t("备份含照片与全部记录。恢复上限 20 MB，确认后替换本机数据。")}
           </Text>
+          <Text style={styles.small}>
+            {state.backup?.lastAt
+              ? t("上次备份：{date}", { date: formatDate(state.backup.lastAt) })
+              : t("还没备份过")}
+          </Text>
           <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 10 }}>
             <Button
               label={t("导出全部数据")}
               icon="download"
               tone="soft"
-              onPress={() => {
-                exportBackup(JSON.stringify(state, null, 2))
-                  .then(() =>
-                    notify(
-                      Platform.OS === "web"
-                        ? t("备份已导出，请保管好这个文件。")
-                        : t("分享面板已关闭，请在保存位置检查备份。"),
-                    ),
-                  )
-                  .catch(() => notify(t("导出失败，请重试。")));
-              }}
+              onPress={backup}
             />
             <Button
               label={t("清空本机数据")}

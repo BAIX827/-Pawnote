@@ -27,6 +27,7 @@ import PastMemories from "../components/PastMemories";
 import { eventDate, eventDay, localDay, newestEvents } from "../domain/dates";
 import OccasionPreview from "../components/OccasionPreview";
 import HomeLetters from "../components/HomeLetters";
+import BackupNudge from "../components/BackupNudge";
 import Onboarding from "./Onboarding";
 
 // The poster changes with the hour, the way a pet's day does.
@@ -245,6 +246,7 @@ export default function Home() {
         </View>
       </>}
       <HomeLetters />
+      <BackupNudge />
       <PastMemories />
       {state.preferences?.homeExtras === true && (
         <View style={{ flexDirection: wide ? "row" : "column", gap: 24 }}>

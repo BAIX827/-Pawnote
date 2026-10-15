@@ -108,6 +108,8 @@ export async function generateWithAI(
     throw new AIError(t("连不上 AI 服务，已保留本机版本。"));
   }
   const quota = isQuota(body.quota) ? body.quota : undefined;
+  if (response.status === 429 && body.error === "ip_limited")
+    throw new AIError(t("今天 AI 用得有点多，明天再试。本机版本不限次数。"), quota);
   if (response.status === 429)
     throw new AIError(t("本周的免费 AI 次数用完了，本机版本不限次数。"), quota);
   if (response.status === 409) throw new AIError(t("上一次 AI 生成还没结束，稍等一下。"));
