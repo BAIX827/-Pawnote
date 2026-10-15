@@ -43,3 +43,7 @@ Docs: https://docs.expo.dev/eas/index.md
 - If `ios/` and `android/` directories do not exist, they are generated (Continuous Native Generation). Never create or edit them by hand — configure native behavior in `app.json` and config plugins.
 - Expo Go only includes its bundled native modules. After adding a library with native code, the app needs a development build: `npx expo run:ios|android` locally, or `eas build --profile development`.
 - Prefer recommended Expo modules over third-party libraries, and check your available skills before adding dependencies. Docs: https://docs.expo.dev/versions/latest/index.md
+
+## Git workflow (owner's rule, 2026-10-15)
+
+Do not open pull requests. Commit the change (PRD first, per docs/07), run typecheck, tests and lint, then push straight to `main`. Delete any working branch once its commits are on `main`.
