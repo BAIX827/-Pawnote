@@ -13,8 +13,8 @@ type Text = Record<Lang, string>;
 export interface Resident {
   id: string;
   name: Text;
-  /** Where it works, put before its name when one of the owner's pets has the same name. */
-  place: Text;
+  /** Its job, put before its name when one of the owner's pets has the same name. */
+  title: Text;
   species: Species;
   emoji: string;
   temper: Temper;
@@ -36,7 +36,7 @@ const all: Category[] = ["sleep", "snack", "bath", "chaos", "walk", "other"];
 export const RESIDENTS: Resident[] = [
   {
     id: "coal",
-    place: { zh: "便利店", en: "Shop" },
+    title: { zh: "店长", en: "Manager" },
     name: { zh: "煤球", en: "Coal" },
     species: "cat",
     emoji: "🐈‍⬛",
@@ -73,7 +73,7 @@ export const RESIDENTS: Resident[] = [
   },
   {
     id: "biscuit",
-    place: { zh: "幼儿园", en: "School" },
+    title: { zh: "老师", en: "Teacher" },
     name: { zh: "阿福", en: "Biscuit" },
     species: "dog",
     emoji: "🦮",
@@ -110,7 +110,7 @@ export const RESIDENTS: Resident[] = [
   },
   {
     id: "bao",
-    place: { zh: "快递站", en: "Depot" },
+    title: { zh: "实习生", en: "Intern" },
     name: { zh: "豆包", en: "Bao" },
     species: "dog",
     emoji: "🐕",
@@ -147,7 +147,7 @@ export const RESIDENTS: Resident[] = [
   },
   {
     id: "duchess",
-    place: { zh: "剧团", en: "Theatre" },
+    title: { zh: "台柱", en: "Star" },
     name: { zh: "公主", en: "Duchess" },
     species: "cat",
     emoji: "🐈",
@@ -184,7 +184,7 @@ export const RESIDENTS: Resident[] = [
   },
   {
     id: "pip",
-    place: { zh: "气象站", en: "Station" },
+    title: { zh: "研究员", en: "Researcher" },
     name: { zh: "啾啾", en: "Pip" },
     species: "bird",
     emoji: "🦜",
@@ -221,7 +221,7 @@ export const RESIDENTS: Resident[] = [
   },
   {
     id: "basil",
-    place: { zh: "档案馆", en: "Archive" },
+    title: { zh: "管理员", en: "Archivist" },
     name: { zh: "老绿", en: "Basil" },
     species: "lizard",
     emoji: "🦎",
@@ -258,7 +258,7 @@ export const RESIDENTS: Resident[] = [
   },
   {
     id: "mochi",
-    place: { zh: "图书馆", en: "Library" },
+    title: { zh: "借阅员", en: "Librarian" },
     name: { zh: "年糕", en: "Mochi" },
     species: "rabbit",
     emoji: "🐇",
@@ -462,10 +462,10 @@ const sameName = (a: string, b: string) => a.trim().toLowerCase() === b.trim().t
 /** Names of every pet in the home, current one included, so residents never share a name with them. */
 export const homeNames = (state: Pick<AppState, "pet" | "household">) =>
   [state.pet, ...(state.household ?? []).map((b) => b.pet)].flatMap((p) => (p ? [p.name] : []));
-/** A resident's name, with its workplace in front when one of the owner's pets is called the same. */
+/** A resident's name, with its job in front when one of the owner's pets is called the same. */
 export const residentName = (r: Resident, lang: Lang, taken: string[] = []) =>
   taken.some((n) => sameName(n, r.name[lang]))
-    ? `${r.place[lang]}${lang === "zh" ? "" : " "}${r.name[lang]}`
+    ? `${r.title[lang]}${lang === "zh" ? "" : " "}${r.name[lang]}`
     : r.name[lang];
 /** Resident text that mentions a resident whose name is taken uses the longer name too. */
 const renameIn = (text: string, lang: Lang, taken: string[]) =>

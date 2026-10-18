@@ -20,15 +20,15 @@ const entry = (pet: Pet, description: string, category: Category, style: LifeEve
 });
 const home = (events: LifeEvent[] = []): AppState => ({ schemaVersion: 1, pet: cat, events, draft: null, demo: false });
 
-test("居民和自家宠物重名时带上地点，正文里提到它也一起改", () => {
+test("居民和自家宠物重名时带上职业，正文里提到它也一起改", () => {
   const bao = RESIDENTS.find((r) => r.id === "bao")!;
   assert.equal(residentName(bao, "zh"), "豆包");
-  assert.equal(residentName(bao, "zh", [" 豆包 "]), "快递站豆包");
-  assert.equal(residentName(bao, "en", ["bao"]), "Depot Bao");
+  assert.equal(residentName(bao, "zh", [" 豆包 "]), "实习生豆包");
+  assert.equal(residentName(bao, "en", ["bao"]), "Intern Bao");
   const circle = buildCircle(home(), new Date(2026, 9, 14, 22), "zh");
   const town = circle.posts.filter((p) => p.kind === "resident");
   assert.ok(town.every((p) => p.author.name !== "豆包"));
-  assert.ok(!town.some((p) => p.author.id !== "bao" && /(^|[^站])豆包/.test(p.text)));
+  assert.ok(!town.some((p) => p.author.id !== "bao" && /(^|[^生])豆包/.test(p.text)));
   // Each resident post shows once in the two-week feed.
   const keys = town.map((p) => `${p.author.id}:${p.text}`);
   assert.equal(new Set(keys).size, keys.length);
