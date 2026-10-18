@@ -13,7 +13,7 @@ type Text = Record<Lang, string>;
 export interface Resident {
   id: string;
   name: Text;
-  /** Its job, put before its name when one of the owner's pets has the same name. */
+  /** Its job, always put before its name (docs/01 8.28). */
   title: Text;
   species: Species;
   emoji: string;
@@ -458,23 +458,14 @@ export interface Circle {
   today: BrowseLog;
 }
 
-const sameName = (a: string, b: string) => a.trim().toLowerCase() === b.trim().toLowerCase();
-/** Names of every pet in the home, current one included, so residents never share a name with them. */
-export const homeNames = (state: Pick<AppState, "pet" | "household">) =>
-  [state.pet, ...(state.household ?? []).map((b) => b.pet)].flatMap((p) => (p ? [p.name] : []));
-/** A resident's name, with its job in front when one of the owner's pets is called the same. */
-export const residentName = (r: Resident, lang: Lang, taken: string[] = []) =>
-  taken.some((n) => sameName(n, r.name[lang]))
-    ? `${r.title[lang]}${lang === "zh" ? "" : " "}${r.name[lang]}`
-    : r.name[lang];
-/** Resident text that mentions a resident whose name is taken uses the longer name too. */
-const renameIn = (text: string, lang: Lang, taken: string[]) =>
-  RESIDENTS.reduce((s, r) => {
-    const name = residentName(r, lang, taken);
-    return name === r.name[lang] ? s : s.split(r.name[lang]).join(name);
-  }, text);
+/** A resident's name with its job in front, such as 实习生豆包, so it never reads like one of the owner's pets (docs/01 8.28). */
+export const residentName = (r: Resident, lang: Lang) =>
+  `${r.title[lang]}${lang === "zh" ? "" : " "}${r.name[lang]}`;
+/** Resident text that mentions another resident uses the same full name. */
+const renameIn = (text: string, lang: Lang) =>
+  RESIDENTS.reduce((s, r) => s.split(r.name[lang]).join(residentName(r, lang)), text);
 export const residentById = (id: string) => RESIDENTS.find((r) => r.id === id);
-const actorOf = (r: Resident, lang: Lang, taken: string[] = []): Actor => ({ kind: "resident", id: r.id, name: residentName(r, lang, taken) });
+const actorOf = (r: Resident, lang: Lang): Actor => ({ kind: "resident", id: r.id, name: residentName(r, lang) });
 
 /** True when the pet's latest record says it has died: it no longer posts or goes out. */
 export const petIsGone = (state: AppState) => {
@@ -497,7 +488,7 @@ export function postBlock(state: AppState, description: string, now = new Date()
 }
 
 /** Residents' own posts from the given day, if any of them posted. */
-export function residentPostsOn(day: Date, lang: Lang, hidden: string[] = [], taken: string[] = []): CirclePost[] {
+export function residentPostsOn(day: Date, lang: Lang, hidden: string[] = []): CirclePost[] {
   const key = dayKey(day), n = dayNumber(day);
   return RESIDENTS.flatMap((r, i) => {
     if (hidden.includes(r.id)) return [];
@@ -509,10 +500,10 @@ export function residentPostsOn(day: Date, lang: Lang, hidden: string[] = [], ta
     return [{
       id: `npc:${r.id}:${key}`,
       kind: "resident" as const,
-      author: actorOf(r, lang, taken),
+      author: actorOf(r, lang),
       resident: r,
       category: post.category,
-      text: renameIn(post.text[lang], lang, taken),
+      text: renameIn(post.text[lang], lang),
       at,
       likes: [],
       comments: [],
@@ -521,7 +512,7 @@ export function residentPostsOn(day: Date, lang: Lang, hidden: string[] = [], ta
 }
 
 /** Residents who come by the pet's post, with their likes and comments, and the pet's one reply. */
-function visitorsFor(e: LifeEvent, pet: Pet, lang: Lang, hidden: string[], now: Date, taken: string[]): Pick<CirclePost, "likes" | "comments"> {
+function visitorsFor(e: LifeEvent, pet: Pet, lang: Lang, hidden: string[], now: Date): Pick<CirclePost, "likes" | "comments"> {
   const at = eventDate(e).getTime();
   const residents = RESIDENTS.filter((r) => !hidden.includes(r.id));
   const comments: CircleComment[] = [];
@@ -529,7 +520,7 @@ function visitorsFor(e: LifeEvent, pet: Pet, lang: Lang, hidden: string[], now: 
     residents.filter((r) => QUIET[r.id]).forEach((r, k) => {
       const when = new Date(at + (12 + 30 * k) * MINUTE);
       if (when <= now)
-        comments.push({ id: `c:${e.id}:${r.id}`, author: actorOf(r, lang, taken), text: QUIET[r.id][lang], at: when, removable: false });
+        comments.push({ id: `c:${e.id}:${r.id}`, author: actorOf(r, lang), text: QUIET[r.id][lang], at: when, removable: false });
     });
     return { likes: [], comments };
   }
@@ -543,7 +534,7 @@ function visitorsFor(e: LifeEvent, pet: Pet, lang: Lang, hidden: string[], now: 
   const likers = ranked.slice(0, 1 + (h % 4));
   const likes = likers
     // The first resident stops by a minute after posting, so the owner sees someone came (docs/01 8.25).
-    .map(({ r }, k) => ({ who: actorOf(r, lang, taken), at: new Date(at + (k ? 3 + 11 * k + (h % 7) : 1) * MINUTE) }))
+    .map(({ r }, k) => ({ who: actorOf(r, lang), at: new Date(at + (k ? 3 + 11 * k + (h % 7) : 1) * MINUTE) }))
     .filter((l) => l.at <= now);
   const keen = likers.filter(({ r }) => r.likes.includes(e.category) || r.species === pet.species);
   const commenters = (keen.length ? keen : likers).slice(0, 1 + ((h >>> 4) % 2));
@@ -553,7 +544,7 @@ function visitorsFor(e: LifeEvent, pet: Pet, lang: Lang, hidden: string[], now: 
     if (when > now) return;
     comments.push({
       id: `c:${e.id}:${r.id}`,
-      author: actorOf(r, lang, taken),
+      author: actorOf(r, lang),
       text: [k ? "" : thing, fill(r.comments[e.category][lang], { name: pet.name })].filter(Boolean).join(lang === "en" ? " " : ""),
       at: when,
       removable: false,
@@ -586,7 +577,6 @@ export function buildCircle(state: AppState, now: Date, lang: Lang): Circle {
   if (!pet) return { posts: [], today };
   const hidden = state.circle?.hiddenNpcs ?? [];
   const removed = new Set(state.circle?.removed ?? []);
-  const taken = homeNames(state);
   const own: CirclePost[] = state.events
     .filter((e) => e.published)
     .map((e) => ({
@@ -598,13 +588,13 @@ export function buildCircle(state: AppState, now: Date, lang: Lang): Circle {
       text: e.stories.social.text,
       photo: e.photo,
       at: eventDate(e),
-      ...visitorsFor(e, pet, lang, hidden, now, taken),
+      ...visitorsFor(e, pet, lang, hidden, now),
     }));
   const town: CirclePost[] = [];
   // A resident's post can come round again within two weeks; only the newest copy is shown.
   const shown = new Set<string>();
   for (let d = 0; d < FEED_DAYS; d++)
-    for (const p of residentPostsOn(addDays(now, -d), lang, hidden, taken))
+    for (const p of residentPostsOn(addDays(now, -d), lang, hidden))
       if (p.at <= now && !shown.has(`${p.author.id}:${p.text}`)) {
         shown.add(`${p.author.id}:${p.text}`);
         town.push(p);
@@ -655,7 +645,7 @@ export function buildCircle(state: AppState, now: Date, lang: Lang): Circle {
           p.comments.push({
             id,
             author: { kind: "pet", id: pet.id, name: pet.name },
-            text: fill(PET_COMMENTS[temper][p.category][lang], { friend: residentName(r, lang, taken) }),
+            text: fill(PET_COMMENTS[temper][p.category][lang], { friend: residentName(r, lang) }),
             at: when,
             removable: true,
           });
@@ -664,7 +654,7 @@ export function buildCircle(state: AppState, now: Date, lang: Lang): Circle {
           if (back <= now)
             p.comments.push({
               id: `r:${p.id}:${r.id}`,
-              author: actorOf(r, lang, taken),
+              author: actorOf(r, lang),
               text: fill(r.replies[h % r.replies.length][lang], { name: pet.name }),
               at: back,
               replyTo: id,

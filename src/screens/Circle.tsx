@@ -11,7 +11,6 @@ import {
   RESIDENTS,
   Resident,
   buildCircle,
-  homeNames,
   petIsGone,
   residentName,
 } from "../domain/paw-circle";
@@ -84,8 +83,7 @@ export default function Circle() {
   const pet = state.pet;
   if (!pet) return <Onboarding />;
   const hidden = state.circle?.hiddenNpcs ?? [];
-  const taken = homeNames(state);
-  const nameOf = (r: Resident) => residentName(r, lang, taken);
+  const nameOf = (r: Resident) => residentName(r, lang);
   const resident = RESIDENTS.find((r) => r.id === who);
   const posts = circle.posts.filter((p) =>
     who === "all" ? true : who === "mine" ? p.kind === "pet" : p.author.id === who,

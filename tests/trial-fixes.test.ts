@@ -20,11 +20,10 @@ const entry = (pet: Pet, description: string, category: Category, style: LifeEve
 });
 const home = (events: LifeEvent[] = []): AppState => ({ schemaVersion: 1, pet: cat, events, draft: null, demo: false });
 
-test("居民和自家宠物重名时带上职业，正文里提到它也一起改", () => {
+test("居民名字一律带职业，正文里提到它也一起改", () => {
   const bao = RESIDENTS.find((r) => r.id === "bao")!;
-  assert.equal(residentName(bao, "zh"), "豆包");
-  assert.equal(residentName(bao, "zh", [" 豆包 "]), "实习生豆包");
-  assert.equal(residentName(bao, "en", ["bao"]), "Intern Bao");
+  assert.equal(residentName(bao, "zh"), "实习生豆包");
+  assert.equal(residentName(bao, "en"), "Intern Bao");
   const circle = buildCircle(home(), new Date(2026, 9, 14, 22), "zh");
   const town = circle.posts.filter((p) => p.kind === "resident");
   assert.ok(town.every((p) => p.author.name !== "豆包"));

@@ -8,7 +8,7 @@ import { MAX_PETS, homePets } from "../domain/household";
 import { BOND_LEVELS, BondLevel, formatDate } from "../domain/types";
 import { eventDate } from "../domain/dates";
 import { Avatar, Button, Chip, Empty, Heading, colors, shadow, styles } from "../components/ui";
-import { homeNames, residentName } from "../domain/paw-circle";
+import { residentName } from "../domain/paw-circle";
 import Onboarding from "./Onboarding";
 
 // 关系网 (docs/01 8.23): the household's pets in the middle, 爪爪镇 residents around them, and a line
@@ -39,8 +39,7 @@ export default function Bonds() {
   const network = useMemo(() => bondNetwork(state, new Date(), homeOnly), [state, homeOnly]);
   if (!state.pet) return <Onboarding />;
   const byId = new Map(network.nodes.map((n) => [n.id, n]));
-  const taken = homeNames(state);
-  const name = (n: BondNode) => n.pet?.name ?? residentName(n.resident!, lang, taken);
+  const name = (n: BondNode) => n.pet?.name ?? residentName(n.resident!, lang);
   const size = Math.min(width - 32, 560);
   const pos = layout(network.nodes, size);
   const touches = (l: BondLink) => !focus || l.a === focus || l.b === focus;
