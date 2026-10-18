@@ -9,6 +9,11 @@ import { Icon, colors, display, shadow } from "./ui";
 
 // Only one letter opens by itself per launch; the rest wait on 爪窝's card (docs/01 8.29).
 let opened = false;
+function claimAutoOpen() {
+  if (opened) return false;
+  opened = true;
+  return true;
+}
 
 /**
  * 爪窝's corner for 爪信 and 爪格 (until the test has been taken). The first time 爪窝 shows after launch,
@@ -20,8 +25,7 @@ export default function HomeLetters() {
   const fresh = newMail(state);
   const next = fresh[0];
   useEffect(() => {
-    if (!next || state.demo || opened) return;
-    opened = true;
+    if (!next || state.demo || !claimAutoOpen()) return;
     router.push({ pathname: "/mail", params: { kind: next } });
   }, [next, state.demo]);
   if (!pet) return null;
