@@ -3,7 +3,7 @@ import { Lang, getLang } from "../i18n/core";
 import { PlannedReminder, plannedReminders, remindersPaused } from "./paw-dates";
 import { ownerName } from "./story-engine";
 import { Temper, isSensitive, temperOf } from "./temper";
-import { AppState, CATEGORIES, Category, LifeEvent } from "./types";
+import { AppState, CATEGORIES, Category, LifeEvent, Pet } from "./types";
 
 // 爪信 / Paw Mail (docs/01 8.18): a letter from the pet about a stretch of time, made only from
 // saved entries. A recap (counts, favourite thing, a highlight), up to two complaints about
@@ -17,18 +17,35 @@ export const MIN_YEAR_ENTRIES = 5;
 /** Midnight on the Monday of the week containing `now`, local time. */
 const mondayOf = (now: Date) => new Date(now.getFullYear(), now.getMonth(), now.getDate() - ((now.getDay() + 6) % 7));
 
-/** The stretch a letter covers: last Monday–Sunday, last month, or this year so far. End is exclusive. */
-export function mailPeriod(kind: MailKind, now = new Date()): { start: Date; end: Date } {
+/** The day of the month the monthly letter arrives: the pet's home date, else the day it joined, else the 1st (docs/01 8.29). */
+export function mailDay(pet?: Pick<Pet, "homeDate" | "joinedAt"> | null): number {
+  const home = pet?.homeDate?.match(/^\d{4}-\d{2}-(\d{2})$/);
+  if (home) return Number(home[1]);
+  const joined = pet?.joinedAt ? new Date(pet.joinedAt) : undefined;
+  return joined && !Number.isNaN(joined.getTime()) ? joined.getDate() : 1;
+}
+/** Midnight on `day` of the month `offset` months from `now`'s, or that month's last day when it is shorter. */
+const monthDay = (now: Date, offset: number, day: number) => {
+  const last = new Date(now.getFullYear(), now.getMonth() + offset + 1, 0).getDate();
+  return new Date(now.getFullYear(), now.getMonth() + offset, Math.min(day, last));
+};
+
+/** The stretch a letter covers: last Monday–Sunday, the month up to the last arrival day, or this year so far. End is exclusive. */
+export function mailPeriod(kind: MailKind, now = new Date(), day = 1): { start: Date; end: Date } {
   if (kind === "week") {
     const end = mondayOf(now);
     return { start: addDays(end, -7), end };
   }
-  if (kind === "month")
-    return { start: new Date(now.getFullYear(), now.getMonth() - 1, 1), end: new Date(now.getFullYear(), now.getMonth(), 1) };
+  if (kind === "month") {
+    const offset = now.getTime() >= monthDay(now, 0, day).getTime() ? 0 : -1;
+    return { start: monthDay(now, offset - 1, day), end: monthDay(now, offset, day) };
+  }
   return { start: new Date(now.getFullYear(), 0, 1), end: now };
 }
 /** Identifies this week's letter (the Monday it covers, YYYY-MM-DD), for the read marker. */
 export const weekMailKey = (now = new Date()) => dayKey(mailPeriod("week", now).start);
+/** Identifies the latest monthly letter (the day it arrived, YYYY-MM-DD), for the read marker. */
+export const monthMailKey = (now = new Date(), day = 1) => dayKey(mailPeriod("month", now, day).end);
 
 const PREFIX: Record<Temper, { complaint: Text; praise: Text; closing: Text; teaser: Text }> = {
   cool: {
@@ -151,7 +168,7 @@ export interface Mail {
 export function writeMail(state: Pick<AppState, "pet" | "events">, kind: MailKind, now = new Date(), lang: Lang = getLang()): Mail | undefined {
   const pet = state.pet;
   if (!pet || remindersPaused(state.events)) return undefined;
-  let { start, end } = mailPeriod(kind, now);
+  let { start, end } = mailPeriod(kind, now, mailDay(pet));
   const within = (from: Date, to: Date) =>
     newestEvents(state.events).filter((e) => {
       const at = eventDate(e).getTime();
@@ -210,11 +227,44 @@ export function writeMail(state: Pick<AppState, "pet" | "events">, kind: MailKin
 }
 
 /** Shows the 爪窝 card: last week's letter is unread and last week had something to write about. */
-export const hasNewMail = (state: AppState, now = new Date()) => {
-  if (!state.pet || !state.events.length || remindersPaused(state.events) || state.mailRead === weekMailKey(now)) return false;
-  const mail = writeMail(state, "week", now);
-  return !!mail && !mail.inProgress;
-};
+export const hasNewMail = (state: AppState, now = new Date()) => newMail(state, now).includes("week");
+/**
+ * Letters that arrived and haven't been opened, monthly first (docs/01 8.29). A letter counts only when the
+ * period that just ended had entries.
+ */
+export function newMail(state: AppState, now = new Date()): ("month" | "week")[] {
+  if (!state.pet || !state.events.length || remindersPaused(state.events)) return [];
+  const fresh = (kind: "month" | "week", read?: string, key?: string) => {
+    if (read === key) return false;
+    const mail = writeMail(state, kind, now);
+    return !!mail && !mail.inProgress;
+  };
+  return [
+    ...(fresh("month", state.mailReadMonth, monthMailKey(now, mailDay(state.pet))) ? (["month"] as const) : []),
+    ...(fresh("week", state.mailRead, weekMailKey(now)) ? (["week"] as const) : []),
+  ];
+}
+/** How many past letters of a kind the 爪信 page lists. */
+const PAST: Record<MailKind, number> = { week: 8, month: 12, year: 5 };
+/**
+ * Earlier letters of a kind that had entries, newest first, each with the moment to write it as of
+ * (passed back to writeMail). The current letter is not included.
+ */
+export function pastMail(state: Pick<AppState, "pet" | "events">, kind: MailKind, now = new Date(), lang: Lang = getLang()): { at: Date; mail: Mail }[] {
+  if (!state.pet) return [];
+  const day = mailDay(state.pet), latest = mailPeriod("month", now, day).end, out: { at: Date; mail: Mail }[] = [];
+  const first = state.events.reduce((min, e) => Math.min(min, eventDate(e).getTime()), Infinity);
+  for (let i = 1; out.length < PAST[kind] && i <= 60; i++) {
+    const at =
+      kind === "week" ? addDays(mondayOf(now), -7 * i)
+      : kind === "month" ? monthDay(latest, -i, day)
+      : new Date(now.getFullYear() - i, 11, 31, 23, 59, 59);
+    if (mailPeriod(kind, at, day).end.getTime() <= first) break;
+    const mail = writeMail(state, kind, at, lang);
+    if (mail && !mail.inProgress && !mail.empty) out.push({ at, mail });
+  }
+  return out;
+}
 
 const NOTE_TITLE: Text = { zh: "{name}给你写了一封信", en: "{name} sent you a letter" };
 /** The Monday 09:00 notification, unless the owner turned it off or the pet has died. */

@@ -13,6 +13,7 @@ export const bundleOf = (state: AppState): PetBundle | null =>
         routines: state.routines,
         pawsona: state.pawsona,
         mailRead: state.mailRead,
+        mailReadMonth: state.mailReadMonth,
         circle: state.circle,
         sounds: state.sounds,
       }
@@ -25,6 +26,7 @@ const withBundle = (state: AppState, b: PetBundle): AppState => ({
   routines: b.routines,
   pawsona: b.pawsona,
   mailRead: b.mailRead,
+  mailReadMonth: b.mailReadMonth,
   circle: b.circle,
   sounds: b.sounds,
   draft: null,

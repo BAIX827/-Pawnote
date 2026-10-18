@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import { demoState } from "../src/data/demo";
 import { isAppState } from "../src/data/validation";
 import { PAWSONA_QUESTIONS, PERSONAS, TEMPERS, adoptPawsona, pawsonaCard, scorePawsona, takePawsona } from "../src/domain/pawsona";
-import { hasNewMail, mailPeriod, plannedMail, weekMailKey, writeMail } from "../src/domain/paw-mail";
+import { hasNewMail, mailDay, mailPeriod, monthMailKey, newMail, pastMail, plannedMail, weekMailKey, writeMail } from "../src/domain/paw-mail";
 import { mailSVG, pawsonaSVG } from "../src/domain/share-cards";
 import { temperOf } from "../src/domain/temper";
 import { generateStories } from "../src/domain/story-engine";
@@ -170,4 +170,34 @@ test("爪信：上周没有记录时显示本周进行中的信，爪窝不提�
   assert.equal(year.start.getMonth(), 9);
   assert.equal(year.start.getDate(), 13);
   assert.equal(hasNewMail(s, NOW), false);
+});
+
+test("月信按到家日每月送达，月底没有这一天就在最后一天；新信月信先开，历史只列有记录的期", () => {
+  assert.equal(mailDay({ homeDate: "2025-09-11" }), 11);
+  assert.equal(mailDay({ joinedAt: new Date(2026, 2, 7, 12).toISOString() }), 7);
+  assert.equal(mailDay({}), 1);
+  const m = mailPeriod("month", NOW, 11);
+  assert.deepEqual([m.start, m.end], [new Date(2026, 8, 11), new Date(2026, 9, 11)]);
+  // The 10th still waits for the 11th.
+  assert.deepEqual(mailPeriod("month", new Date(2026, 9, 10, 23), 11).end, new Date(2026, 8, 11));
+  // Arrived on the 31st: February's letter comes on the 28th.
+  assert.deepEqual(mailPeriod("month", new Date(2027, 1, 28, 9), 31), { start: new Date(2027, 0, 31), end: new Date(2027, 1, 28) });
+  assert.equal(monthMailKey(NOW, 11), "2026-10-11");
+
+  const p = { ...pet(), homeDate: "2025-09-11" };
+  const s = state([
+    entry(p, "睡了一下午", "sleep", new Date(2026, 8, 20)),
+    entry(p, "洗澡", "bath", new Date(2026, 9, 6)),
+    entry(p, "很早以前散步", "walk", new Date(2026, 6, 15)),
+  ], p);
+  assert.deepEqual(newMail(s, NOW), ["month", "week"]);
+  assert.deepEqual(newMail({ ...s, mailReadMonth: "2026-10-11" }, NOW), ["week"]);
+  assert.deepEqual(newMail({ ...s, demo: false, events: [] }, NOW), []);
+  const months = pastMail(s, "month", NOW, "zh");
+  // Sep 11–Oct 10 is the current letter; Jul 11–Aug 10 had the walk; Aug 11–Sep 10 had nothing.
+  assert.deepEqual(months.map((x) => x.mail.start), [new Date(2026, 6, 11)]);
+  assert.equal(writeMail(s, "month", months[0].at, "zh")!.entries, 1);
+  assert.deepEqual(pastMail(s, "week", NOW, "zh").map((x) => x.mail.start), [new Date(2026, 8, 14), new Date(2026, 6, 13)]);
+  assert.equal(isAppState({ ...s, mailReadMonth: "2026-10-11" }), true);
+  assert.equal(isAppState({ ...s, mailReadMonth: "soon" }), false);
 });

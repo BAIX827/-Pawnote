@@ -1,9 +1,9 @@
 import { t, useLang } from "../i18n";
 import { useEffect, useRef, useState } from "react";
 import { Image, Pressable, Text, View } from "react-native";
-import { router } from "expo-router";
+import { router, useLocalSearchParams } from "expo-router";
 import { useStore } from "../data/store";
-import { MAIL_KINDS, MIN_YEAR_ENTRIES, MailKind, allReminders, weekMailKey, writeMail, type Mail } from "../domain/paw-mail";
+import { MAIL_KINDS, MIN_YEAR_ENTRIES, MailKind, allReminders, mailDay, monthMailKey, pastMail, weekMailKey, writeMail, type Mail } from "../domain/paw-mail";
 import { mailSVG, periodLabel } from "../domain/share-cards";
 import { CATEGORY_LABELS, LifeEvent } from "../domain/types";
 import { exportCard } from "../platform/export";
@@ -33,24 +33,55 @@ const PAGE_COLORS: Record<Page, string> = {
 export default function PawMail() {
   const { state, update, notify } = useStore();
   const lang = useLang();
-  const [kind, setKind] = useState<MailKind>("week");
+  const params = useLocalSearchParams<{ kind?: string }>();
+  const [kind, setKind] = useState<MailKind>(MAIL_KINDS.find((k) => k === params.kind) ?? "week");
   const [page, setPage] = useState(0);
+  // A past letter being read (the moment it is written as of), or undefined for the latest one.
+  const [past, setPast] = useState<Date>();
   const [permission, setPermission] = useState<ReminderPermission>("unsupported");
   const card = useRef<View>(null);
-  const [now] = useState(() => new Date());
+  const [today] = useState(() => new Date());
+  const now = past ?? today;
   const mail = writeMail(state, kind, now, lang);
-  const weekKey = weekMailKey(now);
-  const hasMail = !!mail;
-  // Opening this week's letter marks it read, which clears the card on 爪窝.
+  const weekKey = weekMailKey(today), monthKey = monthMailKey(today, mailDay(state.pet));
+  const latest = !!mail && !past;
+  // Opening the latest letter marks it read, so 爪窝 neither opens it again nor shows its card (docs/01 8.29).
   useEffect(() => {
-    if (hasMail && kind === "week" && state.mailRead !== weekKey) update((s) => ({ ...s, mailRead: weekKey }));
-  }, [hasMail, kind, state.mailRead, weekKey, update]);
+    if (latest && kind === "week" && state.mailRead !== weekKey) update((s) => ({ ...s, mailRead: weekKey }));
+    if (latest && kind === "month" && state.mailReadMonth !== monthKey) update((s) => ({ ...s, mailReadMonth: monthKey }));
+  }, [latest, kind, state.mailRead, state.mailReadMonth, weekKey, monthKey, update]);
   useEffect(() => {
     if (remindersSupported) void reminderPermission().then(setPermission).catch(() => {});
   }, []);
   if (!state.pet) return <Onboarding />;
   const pet = state.pet;
-  const back = <Button label={t("返回")} tone="plain" onPress={() => router.replace("/")} />;
+  const back = past
+    ? <Button label={t("返回本期")} tone="plain" onPress={() => { setPast(undefined); setPage(0); }} />
+    : <Button label={t("返回")} tone="plain" onPress={() => (router.canGoBack() ? router.back() : router.replace("/"))} />;
+  const kinds = (
+    <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 8 }}>
+      {MAIL_KINDS.map((k) => (
+        <Chip key={k} label={t(KIND_LABELS[k])} active={k === kind} color={colors.orange} onPress={() => { setKind(k); setPage(0); setPast(undefined); }} />
+      ))}
+    </View>
+  );
+  const earlier = past ? [] : pastMail(state, kind, today, lang);
+  const history = earlier.length ? (
+    <View style={{ gap: 10 }}>
+      <Text style={[styles.h2, { fontSize: 22, lineHeight: 30 }]}>{t("往期")}</Text>
+      {earlier.map(({ at, mail: m }) => (
+        <Pressable
+          key={at.toISOString()}
+          accessibilityRole="button"
+          onPress={() => { setPast(at); setPage(0); }}
+          style={({ pressed }) => [styles.between, { backgroundColor: colors.paper, borderWidth: 2.5, borderColor: colors.ink, borderRadius: 12, padding: 14, gap: 10 }, shadow(pressed ? 1 : 3)]}
+        >
+          <Text style={[styles.body, { fontWeight: "700", flex: 1 }]}>{periodLabel(m)}</Text>
+          <Text style={styles.small}>{t("{n} 条记录", { n: m.entries })}</Text>
+        </Pressable>
+      ))}
+    </View>
+  ) : null;
   if (!mail)
     return (
       <View style={styles.stack}>
@@ -67,11 +98,7 @@ export default function PawMail() {
       <View style={[styles.stack, { maxWidth: 760, width: "100%", alignSelf: "center" }]}>
         <Heading title={t("爪信")}
           hint={t("它写给你的信")} accent={colors.pink} action={back} />
-        <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 8 }}>
-          {MAIL_KINDS.map((k) => (
-            <Chip key={k} label={t(KIND_LABELS[k])} active={k === kind} color={colors.orange} onPress={() => { setKind(k); setPage(0); }} />
-          ))}
-        </View>
+        {kinds}
         <View style={[{ minHeight: 280, backgroundColor: colors.paper, borderWidth: 2.5, borderColor: colors.ink, borderRadius: 14, padding: 22, gap: 14, justifyContent: "center" }, shadow(5)]}>
           <Avatar pet={pet} size={72} demo={state.demo} />
           <Text style={big}>{kind === "week" ? t("这周的信还在写") : kind === "month" ? t("这个月的信还在写") : t("年鉴还在攒")}</Text>
@@ -92,6 +119,7 @@ export default function PawMail() {
             <Button label={t("记录今天")} icon="plus" onPress={() => router.push("/record")} style={{ alignSelf: "flex-start" }} />
           )}
         </View>
+        {history}
       </View>
     );
   }
@@ -234,11 +262,7 @@ export default function PawMail() {
     <View style={[styles.stack, { maxWidth: 760, width: "100%", alignSelf: "center" }]}>
       <Heading title={t("爪信")}
         hint={t("它写给你的信")} accent={colors.pink} action={back} />
-      <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 8 }}>
-        {MAIL_KINDS.map((k) => (
-          <Chip key={k} label={t(KIND_LABELS[k])} active={k === kind} color={colors.orange} onPress={() => { setKind(k); setPage(0); }} />
-        ))}
-      </View>
+      {kinds}
       <Pressable
         accessibilityRole="button"
         accessibilityLabel={at < pages.length - 1 ? t("下一页") : mail.title}
@@ -278,6 +302,7 @@ export default function PawMail() {
           )}
         </View>
       )}
+      {history}
     </View>
   );
 }

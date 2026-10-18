@@ -23,7 +23,6 @@ import {
 } from "../components/ui";
 import Onboarding from "./Onboarding";
 import HouseholdPets from "../components/HouseholdPets";
-import { pawsonaCard } from "../domain/pawsona";
 import { ageLabel, speciesLabel } from "../domain/pet-profile";
 export default function Profile() {
   const { state } = useStore();
@@ -116,19 +115,7 @@ export default function Profile() {
         <View style={[styles.row, { flexWrap: "wrap" }]}>
           <Chip label={t("日记")} active={!filter.photosOnly} onPress={() => { setFilter({ ...filter, photosOnly: false }); setLimit(30); }} />
           <Chip label={t("照片")} active={filter.photosOnly === true} onPress={() => { setFilter({ ...filter, photosOnly: true }); setLimit(30); }} />
-          <Button label={t("声音相册 · {n} 段叫声", { n: state.sounds?.length ?? 0 })} icon="mic" tone="soft" onPress={() => router.push("/sounds")} />
-          <Button label={t("成长纪念册")} icon="book" tone="soft" onPress={() => router.push("/keepsake")} />
-          <Button label={t("生日与纪念日")} icon="gift" tone="soft" onPress={() => router.push("/anniversaries")} />
-          <Button label={t("关系网")} icon="share-2" tone="soft" onPress={() => router.push("/bonds")} />
-          <Button label={t("爪约")} icon="bell" tone="soft" onPress={() => router.push("/dates")} />
-          <Button
-            label={state.pawsona ? t("爪格：{name}", { name: pawsonaCard(pet, state.pawsona).name }) : t("爪格测试")}
-            icon="zap"
-            tone="soft"
-            onPress={() => router.push("/pawsona")}
-          />
-          <Button label={t("爪信")} icon="mail" tone="soft" onPress={() => router.push("/mail")} />
-          <Button label={t("时光机")} icon="clock" tone="soft" onPress={() => router.push("/timemachine")} />
+          <Button label={t("成长纪念册")} icon="book" tone="soft" onPress={() => router.push("/timemachine")} />
         </View>
       </View>
       <JournalFilters events={state.events} filter={filter} onChange={(value) => { setFilter(value); setLimit(30); }} />

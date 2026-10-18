@@ -10,4 +10,14 @@ export const optimizeEn: Record<string, string> = {
   "今天 AI 用得有点多，明天再试。本机版本不限次数。": "AI has had a busy day here. Try again tomorrow; the on-device version has no limit.",
   "本机保存失败，可能是存储空间不足。请先导出备份，当前页面仍保留你的记录。":
     "Couldn't save on this device, possibly because storage is full. Export a backup first; this page still has your entries.",
+  // docs/01 8.29
+  "{name}的年度纪念册": "{name}'s year book",
+  年度纪念册: "Year book",
+  保存年度纪念册: "Save year book",
+  "声音 · {n}": "Sounds · {n}",
+  纪念日: "Special days",
+  历史爪信: "Past letters",
+  爪格: "Pawsona",
+  往期: "Earlier letters",
+  返回本期: "Back to the latest",
 };

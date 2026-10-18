@@ -18,6 +18,8 @@ import {
   shadow,
   styles,
 } from "../components/ui";
+import PastMemories from "../components/PastMemories";
+import { pawsonaCard } from "../domain/pawsona";
 import Onboarding from "./Onboarding";
 
 const FIRST_LABELS = {
@@ -55,6 +57,9 @@ function Polaroid({ event, caption, size, tilt }: { event: LifeEvent; caption: s
   );
 }
 
+type Shelf = { label: string; icon: "mic" | "gift" | "mail" | "zap" | "book"; bg: string; to: "/sounds" | "/anniversaries" | "/mail" | "/pawsona" | "/keepsake" };
+
+/** 成长纪念册 (docs/01 8.29): every memory in one place, sorted into shelves, then the growth timeline. */
 export default function TimeMachine() {
   const { state } = useStore();
   if (!state.pet) return <Onboarding />;
@@ -77,14 +82,37 @@ export default function TimeMachine() {
       </Text>
     </View>
   );
+  const shelves: Shelf[] = [
+    { label: t("声音 · {n}", { n: state.sounds?.length ?? 0 }), icon: "mic", bg: colors.green, to: "/sounds" },
+    { label: t("纪念日"), icon: "gift", bg: colors.pink, to: "/anniversaries" },
+    { label: t("历史爪信"), icon: "mail", bg: colors.orange, to: "/mail" },
+    { label: state.pawsona ? t("爪格：{name}", { name: pawsonaCard(pet, state.pawsona).name }) : t("爪格"), icon: "zap", bg: colors.lavender, to: "/pawsona" },
+    { label: t("年度纪念册"), icon: "book", bg: colors.sky, to: "/keepsake" },
+  ];
   return (
     <View style={[styles.stack, { maxWidth: 760, width: "100%", alignSelf: "center" }]}>
       <Heading
-        title={t("时光机")}
-        hint={t("回看它的变化")}
-        accent={colors.sky}
+        title={t("成长纪念册")}
+        accent={colors.lavender}
         action={<Button label={t("返回")} tone="plain" onPress={() => router.canGoBack() ? router.back() : router.replace("/profile")} />}
       />
+      <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 12 }}>
+        {shelves.map((shelf) => (
+          <Pressable
+            key={shelf.to}
+            accessibilityRole="button"
+            accessibilityLabel={shelf.label}
+            onPress={() => router.push(shelf.to)}
+            style={({ pressed }) => [
+              { flexGrow: 1, flexBasis: 140, flexDirection: "row", alignItems: "center", gap: 10, backgroundColor: shelf.bg, borderWidth: 2.5, borderColor: colors.ink, borderRadius: 14, padding: 14 },
+              shadow(pressed ? 1 : 3),
+            ]}
+          >
+            <Icon name={shelf.icon} size={22} color={colors.ink} />
+            <Text style={{ fontFamily: display, fontSize: 18, lineHeight: 24, color: colors.ink, flexShrink: 1 }}>{shelf.label}</Text>
+          </Pressable>
+        ))}
+      </View>
 
       {marks.anniversaryToday !== undefined && (
         <Card style={{ backgroundColor: colors.pink, gap: 4 }}>
@@ -117,15 +145,7 @@ export default function TimeMachine() {
         </Pressable>
       )}
 
-      <Card style={{ backgroundColor: colors.green, gap: 10 }}>
-        <View style={styles.row}><Icon name="mic" /><Text style={styles.h2}>{t("听它慢慢长大")}</Text></View>
-        <Text style={styles.body}>{t("全部声音")} · {state.sounds?.length ?? 0}</Text>
-        <Button label={t("打开声音相册")} tone="soft" onPress={() => router.push("/sounds")} />
-      </Card>
-      <View style={[styles.row, { flexWrap: "wrap" }]}>
-        <Button label={t("成长纪念册")} icon="book" tone="soft" onPress={() => router.push("/keepsake")} />
-        <Button label={t("生日与纪念日")} icon="gift" tone="soft" onPress={() => router.push("/anniversaries")} />
-      </View>
+      <PastMemories />
       <Text style={[styles.h2, { fontSize: 24, lineHeight: 32, marginTop: 4 }]}>{t("成长对比")}</Text>
       {photos.length ? (
         <>

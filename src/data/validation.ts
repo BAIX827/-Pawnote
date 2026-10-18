@@ -132,6 +132,7 @@ function bundle(v: Record<string, unknown>): boolean {
     return false;
   if (!pawsona(v.pawsona)) return false;
   if (v.mailRead !== undefined && !(typeof v.mailRead === "string" && /^\d{4}-\d{2}-\d{2}$/.test(v.mailRead))) return false;
+  if (v.mailReadMonth !== undefined && !(typeof v.mailReadMonth === "string" && /^\d{4}-\d{2}-\d{2}$/.test(v.mailReadMonth))) return false;
   if (v.circle !== undefined && !circle(v.circle)) return false;
   if (v.sounds !== undefined) {
     if (!Array.isArray(v.sounds) || v.sounds.length > MAX_SOUNDS || !v.sounds.every((s) =>

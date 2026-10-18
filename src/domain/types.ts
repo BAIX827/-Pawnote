@@ -86,6 +86,7 @@ export interface PetBundle {
   routines?: Routine[];
   pawsona?: AppState["pawsona"];
   mailRead?: string;
+  mailReadMonth?: string;
   circle?: CircleSettings;
   sounds?: SoundMemory[];
 }
@@ -145,6 +146,8 @@ export interface AppState {
   pawsona?: { version: 1; temper: Temper; scores: Record<Temper, number>; takenAt: string };
   /** The Monday (YYYY-MM-DD) of the newest weekly 爪信 the owner has opened (docs/01 8.18). */
   mailRead?: string;
+  /** The arrival day (YYYY-MM-DD) of the newest monthly 爪信 the owner has opened (docs/01 8.29). */
+  mailReadMonth?: string;
   /** The Monday 爪信 notification; absent means on. */
   mailReminder?: boolean;
   /** 爪友圈 choices (docs/01 8.20): residents sent back to town, and the pet's comments the owner deleted. */

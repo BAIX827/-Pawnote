@@ -141,6 +141,6 @@ test("新增页面文案均有英文，纪念册和纪念信使用英文标题�
     const letter = occasionLetter(state, occasionForYear(state.pet, "birthday", 2025)!, "en");
     assert.equal(letter.title, "Miso's birthday");
     const book = makeKeepsake(state, { title: "Miso's memories", events: state.events.map((e) => e.id), sounds: [] });
-    assert.ok(keepsakeHTML(book).includes("Growth keepsake"));
+    assert.ok(keepsakeHTML(book).includes("Year book"));
   } finally { applyLang("zh"); }
 });

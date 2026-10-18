@@ -34,7 +34,7 @@ export const memoriesEn: Record<string, string> = {
   "再听这一声": "Listen again",
   "第 {n} / {total} 段回忆": "Memory {n} of {total}",
   "下一段回忆": "Next memory",
-  "成长纪念册": "Growth keepsake",
+  "成长纪念册": "Memory book",
   "生日与纪念日": "Birthdays & anniversaries",
   "有个特别的日子": "A special day is coming",
   "{name}的生日": "{name}'s birthday",

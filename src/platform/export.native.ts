@@ -50,7 +50,7 @@ export async function exportKeepsake(content: string, filename: string) {
   try {
     file.create({ overwrite: true });
     file.write(content);
-    await Sharing.shareAsync(file.uri, { mimeType: "text/html", UTI: "public.html", dialogTitle: t("保存成长纪念册") });
+    await Sharing.shareAsync(file.uri, { mimeType: "text/html", UTI: "public.html", dialogTitle: t("保存年度纪念册") });
   } finally {
     if (file.exists) file.delete();
   }

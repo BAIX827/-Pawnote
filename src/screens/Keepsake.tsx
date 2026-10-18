@@ -12,7 +12,7 @@ import Onboarding from "./Onboarding";
 
 export default function Keepsake() {
   const { state, notify } = useStore();
-  const [title, setTitle] = useState(t("{name}的成长纪念册", { name: state.pet?.name ?? "" }));
+  const [title, setTitle] = useState(t("{name}的年度纪念册", { name: state.pet?.name ?? "" }));
   const [year, setYear] = useState<string>();
   const [eventIds, setEventIds] = useState(() => new Set(state.events.map((e) => e.id)));
   const [soundIds, setSoundIds] = useState(() => new Set((state.sounds ?? []).map((s) => s.id)));
@@ -41,7 +41,7 @@ export default function Keepsake() {
       {photo && <Image source={{ uri: photo }} style={{ width: 44, height: 44, borderRadius: 6 }} />}
     </Pressable>;
   return <View style={[styles.stack, { maxWidth: 760, width: "100%", alignSelf: "center" }]}>
-    <Heading title={t("成长纪念册")} accent={colors.lavender}
+    <Heading title={t("年度纪念册")} accent={colors.lavender}
       action={<Button label={t("返回")} tone="plain" onPress={() => router.canGoBack() ? router.back() : router.replace("/profile")} />} />
     <Card style={{ gap: 14 }}>
       <Field accessibilityLabel={t("纪念册标题")} value={title} onChangeText={setTitle} maxLength={60} />

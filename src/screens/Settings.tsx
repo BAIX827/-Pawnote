@@ -58,6 +58,7 @@ export default function Settings() {
         ))}
         {state.pet && <Button label={t("修改年龄、身份与日期")} icon="edit-2" tone="plain"
           onPress={() => router.push({ pathname: "/onboarding", params: { edit: "1" } })} />}
+        {state.pet && <Button label={t("爪约")} icon="bell" tone="plain" onPress={() => router.push("/dates")} />}
       </Card>
       <Card style={{ gap: 17 }}>
           <View style={styles.row}>
