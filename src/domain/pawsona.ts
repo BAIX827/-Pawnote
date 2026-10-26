@@ -145,7 +145,7 @@ export const PERSONAS: Record<Temper, Persona> = {
     match: { zh: "给我空间、又准时开饭的人类。", en: "A human who gives me space and feeds me on time." },
   },
   clingy: {
-    name: { zh: "黏黏小尾巴", en: "The Velcro" }, code: "VELCRO", tag: "亲人", color: "#FF9EC7",
+    name: { zh: "黏黏小尾巴", en: "The Velcro" }, code: "VELCRO", tag: "亲人", color: "#FFB199",
     trait: { zh: "黏人", en: "Clingy" },
     intro: {
       zh: "我是{name}，{owner}去哪我去哪，厕所门口也算。一天里最开心的，是你开门回家那一下。",
@@ -155,7 +155,7 @@ export const PERSONAS: Record<Temper, Persona> = {
     match: { zh: "不介意身后多一条小尾巴的人类。", en: "a human who doesn't mind a shadow." },
   },
   goofy: {
-    name: { zh: "快乐憨憨", en: "The Sunshine Goof" }, code: "GOOF", tag: "憨厚", color: "#C6F432",
+    name: { zh: "快乐憨憨", en: "The Sunshine Goof" }, code: "GOOF", tag: "憨厚", color: "#FFD84D",
     trait: { zh: "憨", en: "Goofy" },
     intro: {
       zh: "我是{name}！今天也很开心！不知道为什么开心，反正很开心！{owner}回来了！现在更开心了！",
@@ -175,7 +175,7 @@ export const PERSONAS: Record<Temper, Persona> = {
     match: { zh: "会在对的时候给我鼓掌的人类。", en: "A human who claps at the right moments." },
   },
   curious: {
-    name: { zh: "小小科学家", en: "The Lab Gremlin" }, code: "GREMLIN", tag: "好奇", color: "#FFD3E5",
+    name: { zh: "小小科学家", en: "The Lab Gremlin" }, code: "GREMLIN", tag: "好奇", color: "#7FE0B5",
     trait: { zh: "好奇", en: "Curious" },
     intro: {
       zh: "我是{name}，家里的首席研究员。纸箱、塑料袋、{owner}的水杯，都在研究范围内。结论：水杯推下去会响。明天再验证一次。",

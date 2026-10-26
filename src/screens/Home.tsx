@@ -4,7 +4,6 @@ import { router } from "expo-router";
 import { useStore } from "../data/store";
 import { progress, titleFor } from "../domain/life";
 import { formatDate } from "../domain/types";
-import { speciesEmoji } from "../domain/pet-profile";
 import { ownerName, petLine } from "../domain/story-engine";
 import { greeting } from "../domain/greetings";
 import {
@@ -12,12 +11,13 @@ import {
   Empty,
   Icon,
   Meter,
+  PetSticker,
   Sticker,
   Tape,
   Ticker,
-  demoPhoto,
   colors,
   display,
+  numeric,
   shadow,
   styles,
 } from "../components/ui";
@@ -38,7 +38,7 @@ function moment(hour: number) {
   if (hour < 18) return { label: t("下午档"), icon: "coffee" as const };
   return { label: t("晚间档"), icon: "moon" as const };
 }
-const notes = [colors.paper, colors.lavender, colors.green, colors.pink];
+const notes = [colors.paper, colors.lavender, colors.mint, colors.yellow];
 
 export default function Home() {
   const { state } = useStore();
@@ -50,7 +50,11 @@ export default function Home() {
     wide = width >= 1100,
     narrow = width < 500,
     now = new Date(),
-    m = moment(now.getHours());
+    m = moment(now.getHours()),
+    month = state.events.filter((e) => {
+      const d = eventDate(e);
+      return d.getFullYear() === now.getFullYear() && d.getMonth() === now.getMonth();
+    });
   // What the pet itself said today, never the owner's words quoted back (docs/01 8.24); on a day
   // with nothing recorded yet, the greeting for the hour (docs/01 8.26).
   const saying = (latest && eventDay(latest) === localDay(now) && petLine(latest)) || greeting(pet, now.getHours(), getLang());
@@ -58,117 +62,111 @@ export default function Home() {
     // Without the town panels the home is one column; on a desktop it stays a readable width (docs/01 8.26).
     <View style={[styles.stack, narrow && { gap: 14 },
       state.preferences?.homeExtras !== true && { maxWidth: 860, width: "100%", alignSelf: "center" }]}>
-      <View
-        style={[
-          {
-            backgroundColor: colors.orange,
-            borderRadius: 14,
-            borderWidth: 2.5,
-            borderColor: colors.ink,
-            overflow: "hidden",
-          },
-          shadow(4),
-        ]}
-      >
-        <View style={{ padding: narrow ? 14 : 24, paddingBottom: 14, minHeight: narrow ? 116 : 200, justifyContent: "space-between", gap: 10 }}>
-          <View style={[styles.row, { gap: 8, flexWrap: "wrap", marginRight: narrow ? 105 : 190 }]}>
-            <Sticker bg={colors.paper} rotate={0}>
-              {now.toLocaleDateString(locale(), { month: "long", day: "numeric", weekday: "short" })}
-              {" · "}
-              {m.label}
-            </Sticker>
-          </View>
+      {/* The poster: one orange block, the pet's own photo stuck on as a sticker (docs/01 8.30). */}
+      <View style={{ backgroundColor: colors.orange, borderRadius: 14, borderBottomLeftRadius: narrow ? 40 : 64, overflow: "hidden" }}>
+        <Ticker text={`${t("今日主角")} ★ ${pet.name} ★ ${t("今日主角")} ★ ${pet.name} ★ ${t("今日主角")} ★ ${pet.name} ★`} height={narrow ? 24 : 28} />
+        <View style={{ padding: narrow ? 14 : 24, paddingTop: narrow ? 12 : 18, paddingBottom: narrow ? 18 : 28, minHeight: narrow ? 196 : 270, gap: narrow ? 8 : 12, marginRight: narrow ? 128 : 220 }}>
+          <Sticker bg={colors.paper} rotate={0}>
+            {now.toLocaleDateString(locale(), { month: "long", day: "numeric", weekday: "short" })}
+            {" · "}
+            {m.label}
+          </Sticker>
           <Text
             numberOfLines={2}
             adjustsFontSizeToFit
             style={{
               fontFamily: display,
               color: colors.ink,
-              fontSize: narrow ? 36 : 80,
-              lineHeight: narrow ? 42 : 86,
-              marginRight: narrow ? 105 : 190,
+              fontSize: narrow ? 52 : 92,
+              lineHeight: narrow ? 58 : 98,
             }}
           >
             {pet.name}
           </Text>
-          <View style={{ alignItems: "flex-start", gap: 6, marginRight: narrow ? 105 : 190 }}>
-            <View style={{ backgroundColor: colors.ink, borderRadius: 6, paddingHorizontal: 8, paddingVertical: 5 }}>
-              <Text style={{ color: colors.bg, fontSize: 12, fontWeight: "700" }}>
-                {titleFor(p.level, pet.route)} · Lv.{p.level}
+          <View style={{ alignItems: "flex-start", gap: 7 }}>
+            <View style={{ backgroundColor: colors.yellow, borderWidth: 2, borderColor: colors.ink, borderRadius: 999, paddingHorizontal: 10, paddingVertical: 3 }}>
+              <Text style={{ color: colors.ink, fontSize: 12, fontWeight: "800" }}>
+                Lv.{p.level} {titleFor(p.level, pet.route)}
               </Text>
             </View>
-            <View style={{ backgroundColor: colors.lavender, borderWidth: 2, borderColor: colors.ink, borderRadius: 6, paddingHorizontal: 8, paddingVertical: 4, transform: [{ rotate: "-4deg" }] }}>
-              <Text numberOfLines={1} style={{ color: colors.ink, fontSize: 12, fontWeight: "700", maxWidth: 170 }}>
+            <View style={{ backgroundColor: colors.lavender, borderWidth: 2, borderColor: colors.ink, borderRadius: 999, paddingHorizontal: 10, paddingVertical: 3, transform: [{ rotate: "-4deg" }] }}>
+              <Text numberOfLines={1} style={{ color: colors.ink, fontSize: 12, fontWeight: "800", maxWidth: 170 }}>
                 {tList(pet.personality)}
               </Text>
             </View>
           </View>
         </View>
-        <View
-          style={{
-            position: "absolute",
-            right: -3,
-            bottom: narrow ? 0 : 26,
-            width: narrow ? 100 : 180,
-            height: narrow ? 110 : 200,
-            borderWidth: 2.5,
-            borderColor: colors.ink,
-            borderTopLeftRadius: 12,
-            overflow: "hidden",
-            backgroundColor: colors.pink,
-            alignItems: "center",
-            justifyContent: "center",
-          }}
-        >
-          {pet.avatar || state.demo ? (
-            <Image source={pet.avatar ? { uri: pet.avatar } : demoPhoto} style={{ width: "100%", height: "100%" }} resizeMode="cover" />
-          ) : (
-            <Text style={{ fontSize: narrow ? 64 : 96 }}>{speciesEmoji(pet)}</Text>
-          )}
-        </View>
-        {!narrow && <Ticker text={`${t("今日主角")} ★ ${pet.name} ★ ${t("今日主角")} ★ ${pet.name} ★ ${t("今日主角")} ★ ${pet.name} ★`} />}
+        <PetSticker
+          pet={pet}
+          demo={state.demo}
+          width={narrow ? 104 : 176}
+          height={narrow ? 124 : 200}
+          style={{ position: "absolute", right: narrow ? 14 : 30, top: narrow ? 44 : 56 }}
+        />
       </View>
+
+      <View style={[{ backgroundColor: colors.paper, borderRadius: 18, borderWidth: 2.5, borderColor: colors.ink, padding: 14, gap: 6, marginTop: 4, transform: [{ rotate: "-1deg" }] }, shadow(3)]}>
+        <View
+          pointerEvents="none"
+          style={{ position: "absolute", left: 28, top: -11, width: 18, height: 18, backgroundColor: colors.paper, borderLeftWidth: 2.5, borderTopWidth: 2.5, borderColor: colors.ink, transform: [{ rotate: "45deg" }] }}
+        />
+        <Text style={{ fontFamily: display, fontSize: 14, color: colors.orange }}>{t("{name}说", { name: pet.name })}</Text>
+        <Text numberOfLines={3} style={[styles.body, { fontSize: 16, lineHeight: 24, fontWeight: "800" }]}>
+          {saying}
+        </Text>
+      </View>
+
       <Pressable
         accessibilityRole="button"
         accessibilityLabel={t("记录今天，翻成宠物的话")}
         onPress={() => router.push("/record")}
         style={({ pressed }) => [
           {
-            backgroundColor: colors.green,
-            borderWidth: 2.5,
-            borderColor: colors.ink,
-            borderRadius: 14,
-            padding: 14,
+            backgroundColor: colors.ink,
+            borderRadius: 18,
+            paddingVertical: 12,
+            paddingLeft: 18,
+            paddingRight: 10,
             flexDirection: "row",
             alignItems: "center",
             gap: 12,
-            transform: [{ translateX: pressed ? 2 : 0 }, { translateY: pressed ? 2 : 0 }],
+            transform: [{ translateY: pressed ? 2 : 0 }],
           },
-          shadow(pressed ? 2 : 4),
         ]}
       >
         <View style={{ flex: 1 }}>
-          <Text style={{ color: colors.ink, fontSize: 24, lineHeight: 30, fontFamily: display }}>
+          <Text style={{ color: colors.bg, fontSize: 24, lineHeight: 30, fontFamily: display }}>
             {t("它今天干了啥？")}
           </Text>
         </View>
-        <View style={{ width: 44, height: 44, borderRadius: 22, backgroundColor: colors.ink, alignItems: "center", justifyContent: "center" }}>
-          <Icon name="arrow-right" color={colors.green} size={22} />
+        <View style={{ width: 46, height: 46, borderRadius: 12, borderWidth: 2.5, borderColor: colors.bg, backgroundColor: colors.yellow, alignItems: "center", justifyContent: "center", transform: [{ rotate: "6deg" }] }}>
+          <Icon name="arrow-right" color={colors.ink} size={22} />
         </View>
       </Pressable>
 
-      <View style={[{ backgroundColor: colors.paper, borderRadius: 14, borderWidth: 2.5, borderColor: colors.ink, padding: 14, gap: 8, marginTop: 4 }, shadow(4)]}>
-        <View
-          pointerEvents="none"
-          style={{ position: "absolute", left: 28, top: -11, width: 18, height: 18, backgroundColor: colors.paper, borderLeftWidth: 2.5, borderTopWidth: 2.5, borderColor: colors.ink, transform: [{ rotate: "45deg" }] }}
-        />
-        <View style={{ alignSelf: "flex-start", backgroundColor: colors.pink, borderWidth: 2, borderColor: colors.ink, borderRadius: 5, paddingHorizontal: 6, paddingVertical: 2 }}>
-          <Text style={{ fontFamily: display, fontSize: 13, color: colors.ink }}>{t("{name}说", { name: pet.name })}</Text>
+      {/* This month in three real counts, straight from the record categories (docs/01 8.30). */}
+      {state.events.length > 0 && (
+        <View style={{ flexDirection: "row", gap: 8 }}>
+          {[
+            { n: month.length, unit: t("篇"), label: t("本月记录"), bg: colors.yellow, radius: { borderBottomLeftRadius: 32 } },
+            { n: month.filter((e) => e.category === "snack").length, unit: t("次"), label: t("本月零食"), bg: colors.mint, radius: {} },
+            { n: month.filter((e) => e.category === "chaos").length, unit: t("次"), label: t("本月拆家"), bg: colors.lavender, radius: { borderTopLeftRadius: 32 } },
+          ].map((s) => (
+            <View
+              key={s.label}
+              accessible
+              accessibilityLabel={`${s.label} ${s.n}${s.unit}`}
+              style={[{ flex: 1, backgroundColor: s.bg, borderRadius: 16, paddingVertical: 10, paddingHorizontal: 12 }, s.radius]}
+            >
+              <Text style={{ fontFamily: numeric, fontSize: narrow ? 30 : 38, lineHeight: narrow ? 36 : 46, color: colors.ink }}>
+                {s.n}
+                <Text style={{ fontFamily: undefined, fontSize: 12, fontWeight: "800" }}> {s.unit}</Text>
+              </Text>
+              <Text style={{ fontSize: 12, fontWeight: "700", color: colors.ink }}>{s.label}</Text>
+            </View>
+          ))}
         </View>
-        <Text numberOfLines={3} style={[styles.body, { fontSize: 15, fontWeight: "700" }]}>
-          {saying}
-        </Text>
-      </View>
+      )}
 
       {/* A new home sees how to start on the first screen, ahead of the 爪约 (docs/01 8.26). */}
       {!state.events.length && (
@@ -184,7 +182,7 @@ export default function Home() {
         <View>
           <View
             pointerEvents="none"
-            style={{ position: "absolute", left: -4, right: -6, bottom: 3, height: 10, backgroundColor: colors.pink }}
+            style={{ position: "absolute", left: -4, right: -6, bottom: 3, height: 10, backgroundColor: colors.yellow }}
           />
           <Text style={[styles.h2, { fontSize: 26, lineHeight: 34 }]}>{t("最近发生")}</Text>
         </View>
@@ -211,7 +209,7 @@ export default function Home() {
                 shadow(4),
               ]}
             >
-              <Tape color={i % 2 ? colors.pink : colors.orange} rotate={i % 2 ? 5 : -5} />
+              <Tape color={i % 2 ? colors.lavender : colors.orange} rotate={i % 2 ? 5 : -5} />
               <Text
                 style={{
                   color: colors.ink,
