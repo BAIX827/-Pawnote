@@ -4,7 +4,7 @@
     "slug": "paw-life",
     "version": "0.1.0",
     "orientation": "portrait",
-    "icon": "./assets/pawnote-icon-outline.png",
+    "icon": "./assets/pawnote-icon-signature.png",
     "userInterfaceStyle": "light",
     "ios": {
       "supportsTablet": false,
@@ -24,7 +24,7 @@
       "bundler": "metro",
       "output": "single",
       "name": "爪记",
-      "favicon": "./assets/pawnote-icon-outline.png"
+      "favicon": "./assets/pawnote-icon-signature.png"
     },
     "scheme": "pawlife",
     "plugins": [
