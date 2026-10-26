@@ -1,17 +1,35 @@
-# 爪记黑白线条图标
+# 爪记 App 图标
 
-根据用户指定的原版水彩爪印改为黑白线条：保留四个趾垫、掌垫轮廓、两条日记横线和右下纸页折角。
+## 当前版本：回旋爪印（2026-10-26）
 
-文件：`assets/pawnote-icon-outline.png`，1024 × 1024 PNG，白底不透明。App 图标与 Web favicon 已使用此版本。
+用户要求重新设计爪子图标，尽量减少与市面产品雷同。延续白底黑色，四枚略有错落的实心趾垫配合一笔回旋的掌垫；掌垫的轮廓向内收成书写笔迹。原版日记横线与折角在新版本中收敛为同一条轮廓。
 
-生成方式：内置 imagegen 编辑。输入参考为首版水彩图标。
+文件：`assets/pawnote-icon-signature.png`，1024 × 1024 PNG，不透明背景。App 图标与 Web favicon 使用该文件，Mac 打包脚本自动读取 app.json 中的同一路径。已安装的 App 需要重新打包安装才能显示新图标。界面内的橘色 PawMark 继续用于导航及内容状态。
 
-完整提示词：
+历史对照：`assets/pawnote-icon-outline.png`。新版由内置 imagegen 生成，再针对掌垫连笔进行一次编辑；使用 sips 统一到 1024 × 1024，另检查 32、64 和 180 像素效果。
+
+## 公开图标初步对照
+
+- [Rover 官方品牌资源](https://www.rover.com/blog/press/tab/media-resource/)：常规爪印与品牌文字的组合。
+- [PetNote](https://appadvice.com/app/petnote-pet-health-care/1502371877)、[Every Wag](https://apps.apple.com/us/app/every-wag-dog-log-vet-care/id6747091313)：爪印与笔记本的组合，因此新版收起纸页与横线。
+- [Animal Paw Swirl 模板](https://www.design.com/maker/logo/animal-paw-swirl-751453/details)、[Dog Paw Pottery](https://www.dogpawpottery.ca/)：爪印和回旋的结合已经存在。新版以四枚实心趾垫、单一开口掌垫和向内回收的短笔迹形成具体区别；仍存在同类视觉母题，全球唯一性需要额外检索。
+
+公开图片检索仅是初步视觉筛查，未完成商标图形、应用商店全量图标或相似图像的正式查重。
+
+## 生成提示词（内置 imagegen）
 
 ```text
-Use case: style-transfer. Asset type: production black-and-white outline icon for the pet journal app 爪记 / Pawnote.
-Input image 1 is the EDIT TARGET. Convert this exact icon to clean black line art on pure white. Preserve the original layout, scale, proportions, positions and characteristic shapes: four separate oval toe pads in the same arch, two tall central toes and two shorter outer toes; one broad softly lobed main pad below; exactly two short gently slanted rounded journaling strokes inside the main pad; the distinctive curled paper corner on the main pad's lower right.
-Replace every colored filled shape with a single bold smooth BLACK OUTLINE and WHITE interior. Toe pads must be empty white shapes with black contours. Main paw pad must be white inside with a black contour. Draw the two journal lines as two simple bold black strokes with round ends, matching their positions and slight slant. Translate the folded paper corner into elegant black contour curves showing the curl and fold, preserving its original location and recognizable shape. Keep that folded-paper detail nuanced with two clean curved contour lines; no gray shading.
-Use confident polished rounded contour strokes about 12-16 pixels thick at 1024 size, consistent stroke rhythm, smooth soft organic edges. Preserve the emblem's open spacing and generous outer whitespace. Pure white full-bleed square background, pure black lines, white interiors. The richness comes from the original paw shapes and curled paper corner. Remove all coral pigment, cream tint, watercolor texture, paper grain, shadows and gradients. No surrounding outer paw outline, no fingers or arm, no claws, no fur, no added anatomical creases, no extra decoration, no words, no watermark, no border, no mockup, no grid. Output ONE standalone square image of the edited icon.
+Use case: logo-brand.
+Asset type: final production app icon for 爪记 / Pawnote, a pet diary application. Design ONE striking, original monochrome paw emblem, square 1024 by 1024 image.
+Primary request: redesign an unattractive generic paw with note lines into a compact sophisticated friendly bespoke brand symbol. Combine a paw and the gesture of writing in the actual geometry of the palm.
+Design: four separate small solid black organic bean-like toe pads above one generously sized outlined palm. Give the four toes a carefully balanced, subtly asymmetric dancing rhythm: different lean angles and gently different sizes, two taller inner toes and two smaller outer toes, soft organic rounded contours. The lower palm is ONE confident thick black continuous rounded contour, roughly a soft triangular paw cushion, its lower-right outline flows inward into a short elegant handwritten curl ending as a single horizontal writing stroke INSIDE the palm. An open spiral-like return, roomy white counterspace. The curl and the outer palm are the SAME continuous stroke. Keep the curl very simple and legible. It should unmistakably read as a paw first, with a remembered personal handwritten mark as the distinctive second reading. Broad quiet curves, consistent optical weight, beautifully crafted negative space, gentle asymmetry, warmth.
+Composition: centered optically, emblem fills about 68-72% width and height of the canvas, generous even white safe margin on all sides. Pure opaque white full-bleed square background and pure solid black symbol only, crisp vector-like edges. Smooth bold stroke that survives a 32px icon. Standalone finished emblem, single design.
+Avoid: regular stock five-oval paw geometry, heart pad, map pin, literal notebook, folded page corner, stacked diary lines, pencil, speech bubble tail, letters, typography, words, borders, mockup, rounded square tile, drop shadows, gradient, gray, texture, rough brush, ultra thin lines. Do not copy any existing pet brand or app mark.
+```
+
+## 定向编辑提示词（以上一轮输出为输入）
+
+```text
+Use case: precise-object-edit / logo-brand. This image is the EDIT TARGET, a black and white pet diary app icon. Make ONE targeted geometric improvement to the palm. The palm's outer contour and the small handwritten inner curl must be ONE CONTINUOUS stroke: open the palm contour at its bottom-right, bend the right-hand outside stroke inward and leftward to form the existing short horizontal stroke and simple upward curl inside. Make a clear spacious WHITE channel between the outer bottom edge and the inward-returning stroke. The result is an open, handwritten, spiral paw pad like a single-storey handwritten lowercase g but reads as a paw, warm, minimal, bold. There must be absolutely no separate floating stroke inside a closed palm. Think one line drawing an outer rounded paw cushion then turning inward into its own small signature curl. Keep the four organic black toe pads, their layout and visual weight. Maintain pure flat black with pure opaque white background, no gray texture, no shadow. Make the outer palm slightly narrower and more compact, use a consistent bold rounded stroke weight. Center the entire emblem with 16% safe margin on all sides. Final standalone square 1024x1024 app icon, no presentation or text.
 ```
 
