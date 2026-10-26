@@ -463,7 +463,15 @@ export const residentName = (r: Resident, lang: Lang) =>
   `${r.title[lang]}${lang === "zh" ? "" : " "}${r.name[lang]}`;
 /** Resident text that mentions another resident uses the same full name. */
 const renameIn = (text: string, lang: Lang) =>
-  RESIDENTS.reduce((s, r) => s.split(r.name[lang]).join(residentName(r, lang)), text);
+  RESIDENTS.reduce((s, r) => {
+    const escape = (value: string) => value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    const name = escape(r.name[lang]), title = escape(r.title[lang]);
+    // Templates may already say 煤球店长 or 店长煤球. Normalize either form once.
+    const pattern = lang === "zh"
+      ? `(?:${title}\\s*)*${name}(?:\\s*${title})*`
+      : `\\b(?:${title}\\s+)*${name}(?:\\s+${title})*\\b`;
+    return s.replace(new RegExp(pattern, "g"), residentName(r, lang));
+  }, text);
 export const residentById = (id: string) => RESIDENTS.find((r) => r.id === id);
 const actorOf = (r: Resident, lang: Lang): Actor => ({ kind: "resident", id: r.id, name: residentName(r, lang) });
 

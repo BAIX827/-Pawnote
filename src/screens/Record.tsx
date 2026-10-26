@@ -41,11 +41,9 @@ import {
   Icon,
   Stamp,
   Sticker,
-  Tape,
   Wobble,
   colors,
   display,
-  shadow,
   styles,
 } from "../components/ui";
 import DateField from "../components/DateField";
@@ -234,90 +232,11 @@ function Recorder({ original, initialDate }: { original?: LifeEvent; initialDate
     <View style={{ gap: 22, maxWidth: 760, width: "100%", alignSelf: "center" }}>
       <Heading
         title={original ? t("编辑日记") : t("爪语")}
-        hint={original ? undefined : t("写下它今天干了啥")}
         accent={colors.pink}
         action={
           <Button label={t("返回")} icon="x" tone="plain" onPress={() => router.canGoBack() ? router.back() : router.replace("/")} />
         }
       />
-
-      <View
-        style={[
-          {
-            backgroundColor: "#FFF",
-            borderRadius: 10,
-            padding: 12,
-            gap: 12,
-            marginTop: 6,
-            transform: [{ rotate: "-0.8deg" }],
-          },
-          shadow(4),
-        ]}
-      >
-        <Tape color={colors.sky} />
-        {draft.photo ? (
-          <Image
-            source={{ uri: draft.photo }}
-            style={{ width: "100%", height: 240, backgroundColor: colors.pale }}
-            resizeMode="cover"
-          />
-        ) : (
-          <Pressable
-            accessibilityRole="button"
-            accessibilityLabel={t("选择照片")}
-            disabled={busy}
-            onPress={() => {
-              void pick();
-            }}
-            style={{
-              height: 120,
-              borderWidth: 2,
-              borderStyle: "dashed",
-              borderColor: colors.muted,
-              alignItems: "center",
-              justifyContent: "center",
-              gap: 6,
-            }}
-          >
-            <Icon name="image" size={26} color={colors.muted} />
-            <Text style={styles.small}>
-              {busy ? t("照片处理中…") : t("贴一张现场照片（可选）")}
-            </Text>
-          </Pressable>
-        )}
-        <View style={[styles.row, { flexWrap: "wrap" }]}>
-          {draft.photo && (
-            <Button
-              label={busy ? t("照片处理中…") : t("更换照片")}
-              icon="image"
-              tone="soft"
-              disabled={busy}
-              onPress={() => {
-                void pick();
-              }}
-            />
-          )}
-          {Platform.OS !== "web" && (
-            <Button
-              label={t("拍一张")}
-              icon="camera"
-              tone="soft"
-              disabled={busy}
-              onPress={() => {
-                void pick("camera");
-              }}
-            />
-          )}
-          {draft.photo && (
-            <Button
-              label={t("移除照片")}
-              tone="plain"
-              disabled={busy}
-              onPress={() => patch({ photo: undefined })}
-            />
-          )}
-        </View>
-      </View>
 
       <Text style={styles.small}>{t("记录日期：{date}", { date: draft.occurredOn ?? localDay() })}</Text>
       <View style={{ gap: 8 }}>
@@ -361,6 +280,43 @@ function Recorder({ original, initialDate }: { original?: LifeEvent; initialDate
             <Text style={styles.small}>{draft.description.length} / 500</Text>
           </View>
         </Bubble>
+      </View>
+
+      <View style={{ gap: 8 }}>
+        {draft.photo && (
+          <Image
+            source={{ uri: draft.photo }}
+            accessibilityLabel={t("照片")}
+            style={{ width: 88, height: 88, borderRadius: 10, backgroundColor: colors.pale }}
+            resizeMode="cover"
+          />
+        )}
+        <View style={[styles.row, { flexWrap: "wrap", gap: 8 }]}>
+          <Button
+            label={busy ? t("照片处理中…") : draft.photo ? t("更换照片") : t("选择照片")}
+            icon="image"
+            tone="plain"
+            disabled={busy}
+            onPress={() => { void pick(); }}
+          />
+          {Platform.OS !== "web" && (
+            <Button
+              label={t("拍一张")}
+              icon="camera"
+              tone="plain"
+              disabled={busy}
+              onPress={() => { void pick("camera"); }}
+            />
+          )}
+          {draft.photo && (
+            <Button
+              label={t("移除照片")}
+              tone="plain"
+              disabled={busy}
+              onPress={() => patch({ photo: undefined })}
+            />
+          )}
+        </View>
       </View>
 
       <View style={[styles.row, { justifyContent: "center", gap: 14, marginVertical: -4 }]}>

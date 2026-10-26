@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { RESIDENTS, buildCircle, residentName } from "../src/domain/paw-circle";
+import { RESIDENTS, buildCircle, residentName, residentPostsOn } from "../src/domain/paw-circle";
 import { actionLine } from "../src/domain/event-context";
 import { generateStories, petLine } from "../src/domain/story-engine";
 import { mentionedPets } from "../src/domain/household";
@@ -31,6 +31,24 @@ test("居民名字一律带职业，正文里提到它也一起改", () => {
   // Each resident post shows once in the two-week feed.
   const keys = town.map((p) => `${p.author.id}:${p.text}`);
   assert.equal(new Set(keys).size, keys.length);
+});
+
+test("居民动态里的煤球店长统一为店长煤球，职业只出现一次", () => {
+  const texts: string[] = [];
+  for (let day = 1; day <= 90; day++) {
+    for (const lang of ["zh", "en"] as const) {
+      for (const post of residentPostsOn(new Date(2026, 9, day), lang)) {
+        texts.push(post.text);
+        for (const resident of RESIDENTS) {
+          const name = residentName(resident, lang), title = resident.title[lang];
+          const space = lang === "zh" ? "" : " ";
+          assert.ok(!post.text.includes(`${name}${space}${title}`), post.text);
+          assert.ok(!post.text.includes(`${title}${space}${name}`), post.text);
+        }
+      }
+    }
+  }
+  assert.ok(texts.some((text) => text.startsWith("店长煤球说我数学不好。")));
 });
 
 test("常见动作有专门的接话，首页气泡只放宠物自己的话", () => {

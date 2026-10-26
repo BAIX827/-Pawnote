@@ -12,8 +12,7 @@ import {
   Chip,
   Empty,
   Heading,
-  Portrait,
-  Sticker,
+  Avatar,
   Tag,
   Tape,
   colors,
@@ -28,6 +27,7 @@ export default function Profile() {
   const { state } = useStore();
   const [filter, setFilter] = useState<JournalFilter>({});
   const [limit, setLimit] = useState(30);
+  const [petsOpen, setPetsOpen] = useState(false);
   const events = filterJournal(state.events, filter);
   if (!state.pet) return <Onboarding />;
   const pet = state.pet;
@@ -38,10 +38,9 @@ export default function Profile() {
   const rows: ({ e: LifeEvent; with?: Pet })[] = [...events.map((e) => ({ e })), ...shared]
     .sort((a, b) => eventDate(b.e).getTime() - eventDate(a.e).getTime());
   return (
-    <View style={styles.stack}>
+    <View style={[styles.stack, { gap: 16, maxWidth: 860, width: "100%", alignSelf: "center" }]}>
       <Heading
         title={t("爪册")}
-        hint={t("档案和日记本")}
         accent={colors.lilac}
         action={
           <Button
@@ -54,63 +53,45 @@ export default function Profile() {
           />
         }
       />
-      <HouseholdPets />
       <View
         style={[
           {
             backgroundColor: colors.lavender,
-            padding: 22,
-            paddingTop: 28,
+            padding: 14,
             borderRadius: 14,
-            gap: 20,
+            gap: 8,
           },
-          shadow(6),
+          shadow(3),
         ]}
       >
-        <View style={[styles.row, { gap: 22, alignItems: "center" }]}>
-          <Portrait pet={pet} demo={state.demo} size={90} />
-          <View style={{ flex: 1, gap: 6 }}>
-            <Sticker bg={colors.yellow} rotate={-3}>
-              {state.demo ? t("示例居民") : t("爪爪镇居民")}
-            </Sticker>
-            <Text numberOfLines={2} style={[styles.h1, { fontSize: 36, color: colors.ink }]}>
+        <View style={[styles.row, { gap: 12 }]}>
+          <Avatar pet={pet} demo={state.demo} size={56} />
+          <View style={{ flex: 1, gap: 2 }}>
+            <Text numberOfLines={2} style={[styles.h2, { fontSize: 26, lineHeight: 32 }]}>
               {pet.name}
             </Text>
-            <Text style={[styles.body, { color: colors.ink, fontWeight: "700" }]}>
+            <Text style={styles.small}>
               {speciesLabel(pet)} · {ageLabel(pet.ageMonths)}
             </Text>
-            <Text style={[styles.small, { color: colors.ink }]}>{tList(pet.personality)}</Text>
+            <Text style={styles.small}>{tList(pet.personality)} · {t(pet.route === "work" ? "岗位 · {role}" : "班级 · {role}", { role: t(pet.role) })}</Text>
           </View>
         </View>
-        <View
-          style={{
-            backgroundColor: colors.paper,
-            borderWidth: 2.5,
-            borderColor: colors.ink,
-            borderRadius: 14,
-            padding: 14,
-            flexDirection: "row",
-            gap: 12,
-          }}
-        >
-          <View style={{ flex: 1 }}>
-            <Text style={styles.h2}>{state.events.length}</Text>
-            <Text style={styles.small}>{t("篇日记")}</Text>
-          </View>
-          <View style={{ flex: 1 }}>
-            <Text style={styles.h2}>
-              {state.events.filter((e) => e.published).length}
-            </Text>
-            <Text style={styles.small}>{t("条爪友圈动态")}</Text>
-          </View>
-          <View style={{ flex: 1 }}>
-            <Text style={[styles.h2, { fontSize: 17 }]}>
-              {pet.route === "work" ? t("职场") : t("校园")}
-            </Text>
-            <Text style={styles.small}>{t(pet.route === "work" ? "岗位 · {role}" : "班级 · {role}", { role: t(pet.role) })}</Text>
-          </View>
+        <View style={[styles.row, { justifyContent: "space-between", gap: 8 }]}>
+          <Text style={[styles.small, { flexShrink: 1 }]}>
+            {state.events.length} {t("篇日记")} · {state.events.filter((e) => e.published).length} {t("条爪友圈动态")}
+          </Text>
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel={t("我家的毛孩子")}
+            accessibilityState={{ expanded: petsOpen }}
+            onPress={() => setPetsOpen(!petsOpen)}
+            style={({ pressed }) => ({ minHeight: 44, justifyContent: "center", paddingHorizontal: 4, opacity: pressed ? 0.6 : 1 })}
+          >
+            <Text style={[styles.small, { color: colors.ink, fontWeight: "700" }]}>{t("我家的毛孩子")} {petsOpen ? "−" : "+"}</Text>
+          </Pressable>
         </View>
       </View>
+      {petsOpen && <HouseholdPets />}
       <View style={{ gap: 12 }}>
         <View style={[styles.row, { flexWrap: "wrap" }]}>
           <Chip label={t("日记")} active={!filter.photosOnly} onPress={() => { setFilter({ ...filter, photosOnly: false }); setLimit(30); }} />
