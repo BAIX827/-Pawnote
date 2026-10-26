@@ -14,7 +14,8 @@ import { router, usePathname } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useStore } from "../data/store";
 import { exportBackup } from "../platform/export";
-import { Avatar, Button, Icon, PawMark, Wobble, colors, display, styles } from "./ui";
+import { Avatar, Button, Icon, Wobble, colors, display, styles } from "./ui";
+import BrandMark from "./BrandMark";
 import RestoreBackup from "./RestoreBackup";
 import { MAX_PETS, homePets, switchPet } from "../domain/household";
 import { othersCalling } from "../domain/paw-dates";
@@ -111,7 +112,7 @@ export default function Shell({ children }: { children: React.ReactNode }) {
             }}
           >
             <View style={[styles.row, { marginTop: 12 }]}>
-              <PawMark size={34} outline={colors.paper} />
+              <BrandMark size={44} />
               <View>
                 <Text
                   style={{
@@ -176,7 +177,7 @@ export default function Shell({ children }: { children: React.ReactNode }) {
             ) : (
               <View style={[styles.row, { gap: 8 }]}>
                 <Wobble degrees={8}>
-                  <PawMark size={26} />
+                  <BrandMark size={32} />
                 </Wobble>
                 <Text
                   style={{
