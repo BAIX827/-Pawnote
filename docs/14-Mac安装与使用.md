@@ -2,7 +2,7 @@
 
 版本：0.1.0 · 2026-10-11。
 
-Mac 本地版复用 Expo Web 界面，以 macOS AppKit + WKWebView 承载，页面随应用打包。应用图标使用 `assets/pawnote-icon-signature.png`：白底黑色实心趾垫与一笔回旋的掌垫。打包脚本从 app.json 读取图标路径；重新打包安装后生效。旧版 `assets/pawnote-icon-outline.png` 留作历史对照。
+Mac 本地版复用 Expo Web 界面，以 macOS AppKit + WKWebView 承载，页面随应用打包。应用图标使用 `assets/pawnote-icon-sticker.png`：橘底、米黄爪印、黑边与短距离硬投影，延续页面贴纸风格。打包脚本从 app.json 读取图标路径；重新打包安装后生效。旧版 `assets/pawnote-icon-signature.png` 和 `assets/pawnote-icon-outline.png` 留作历史对照。
 
 ## 打开
 
