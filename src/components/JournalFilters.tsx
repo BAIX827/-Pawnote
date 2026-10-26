@@ -20,10 +20,24 @@ export default function JournalFilters({ events, filter, onChange }: {
   const patch = (change: Partial<JournalFilter>) => onChange({ ...filter, ...change });
   const heading = dayDate(`${month}-01`).toLocaleDateString(locale(), { year: "numeric", month: "long" });
   const cells = calendarDays(month, candidates);
-  return <Card style={{ gap: 14 }}>
+  const search = (
     <Field accessibilityLabel={t("搜索日记")} placeholder={t("搜洗澡、海边，或日记里的一句话")}
       value={filter.query ?? ""} onChangeText={(query) => patch({ query })} />
-    {!full && <Button label={t("更多筛选")} icon="sliders" tone="plain" style={{ alignSelf: "flex-start" }} onPress={() => setExpanded(true)} />}
+  );
+  if (!full) return (
+    <View style={[styles.row, { gap: 8 }]}>
+      <View style={{ flex: 1 }}>{search}</View>
+      <Pressable accessibilityRole="button" accessibilityLabel={t("更多筛选")}
+        accessibilityState={{ expanded: false }} onPress={() => setExpanded(true)}
+        style={({ pressed }) => ({ width: 48, minHeight: 48, alignItems: "center", justifyContent: "center",
+          borderRadius: 14, borderWidth: 2.5, borderColor: colors.ink, backgroundColor: colors.paper,
+          opacity: pressed ? 0.6 : 1 })}>
+        <Icon name="sliders" size={20} />
+      </Pressable>
+    </View>
+  );
+  return <Card style={{ gap: 14 }}>
+    {search}
     {full && <>
     <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 8, paddingBottom: 4 }}>
       <Chip label={t("全部分类")} active={!filter.category} onPress={() => patch({ category: undefined })} />

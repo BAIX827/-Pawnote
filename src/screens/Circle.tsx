@@ -1,6 +1,6 @@
 import { t, useLang } from "../i18n";
 import { useEffect, useMemo, useState } from "react";
-import { Image, Pressable, Text, View } from "react-native";
+import { Image, Pressable, ScrollView, Text, View } from "react-native";
 import { router } from "expo-router";
 import { useStore } from "../data/store";
 import { formatDate } from "../domain/types";
@@ -119,10 +119,9 @@ export default function Circle() {
   };
 
   return (
-    <View style={[styles.stack, { maxWidth: 760, width: "100%", alignSelf: "center" }]}>
+    <View style={[styles.stack, { gap: 16, maxWidth: 760, width: "100%", alignSelf: "center" }]}>
       <Heading
         title={t("爪友圈")}
-        hint={t("小镇朋友圈")}
         accent={colors.sky}
         action={<Button label={t("写今天的事")} icon="edit-3" onPress={() => router.push("/record")} />}
       />
@@ -132,7 +131,9 @@ export default function Circle() {
       <>
           <View style={{ gap: 10 }}>
             <Text style={styles.caps}>{t(pet.species === "cat" ? "{name}的好朋喵 · 爪爪镇居民" : pet.species === "dog" ? "{name}的好朋狗 · 爪爪镇居民" : "{name}的好朋友 · 爪爪镇居民", { name: pet.name })}</Text>
-            <View style={[styles.row, { flexWrap: "wrap", gap: 12 }]}>
+            <ScrollView horizontal showsHorizontalScrollIndicator={false}
+              style={{ flexGrow: 0 }}
+              contentContainerStyle={{ alignItems: "flex-start", gap: 12, paddingVertical: 4 }}>
               {RESIDENTS.map((r) => (
                 <Pressable
                   key={r.id}
@@ -143,7 +144,7 @@ export default function Circle() {
                     setWho(who === r.id ? "all" : r.id);
                     setLimit(PAGE);
                   }}
-                  style={{ alignItems: "center", gap: 4, width: 64 }}
+                  style={{ alignItems: "center", gap: 4, minWidth: 72, flexShrink: 0 }}
                 >
                   <ResidentFace r={r} faded={hidden.includes(r.id)} />
                   <Text style={[styles.small, { color: colors.ink, fontWeight: who === r.id ? "800" : "500" }]} numberOfLines={1}>
@@ -151,7 +152,7 @@ export default function Circle() {
                   </Text>
                 </Pressable>
               ))}
-            </View>
+            </ScrollView>
           </View>
 
           {resident && (

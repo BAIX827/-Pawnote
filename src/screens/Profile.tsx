@@ -3,7 +3,7 @@ import { useState } from "react";
 import JournalFilters from "../components/JournalFilters";
 import { filterJournal, JournalFilter } from "../domain/memories";
 import { eventDate } from "../domain/dates";
-import { Image, Pressable, Text, View } from "react-native";
+import { Image, Pressable, ScrollView, Text, View } from "react-native";
 import { router } from "expo-router";
 import { useStore } from "../data/store";
 import { LifeEvent, Pet, formatDate } from "../domain/types";
@@ -38,7 +38,7 @@ export default function Profile() {
   const rows: ({ e: LifeEvent; with?: Pet })[] = [...events.map((e) => ({ e })), ...shared]
     .sort((a, b) => eventDate(b.e).getTime() - eventDate(a.e).getTime());
   return (
-    <View style={[styles.stack, { gap: 16, maxWidth: 860, width: "100%", alignSelf: "center" }]}>
+    <View style={[styles.stack, { gap: 12, maxWidth: 860, width: "100%", alignSelf: "center" }]}>
       <Heading
         title={t("爪册")}
         accent={colors.lilac}
@@ -57,9 +57,9 @@ export default function Profile() {
         style={[
           {
             backgroundColor: colors.lavender,
-            padding: 14,
+            padding: 12,
             borderRadius: 14,
-            gap: 8,
+            gap: 6,
           },
           shadow(3),
         ]}
@@ -93,20 +93,21 @@ export default function Profile() {
       </View>
       {petsOpen && <HouseholdPets />}
       <View style={{ gap: 12 }}>
-        <View style={[styles.row, { flexWrap: "wrap" }]}>
+        <ScrollView horizontal showsHorizontalScrollIndicator={false}
+          style={{ flexGrow: 0 }} contentContainerStyle={{ alignItems: "center", gap: 12, paddingBottom: 4 }}>
           <Chip label={t("日记")} active={!filter.photosOnly} onPress={() => { setFilter({ ...filter, photosOnly: false }); setLimit(30); }} />
           <Chip label={t("照片")} active={filter.photosOnly === true} onPress={() => { setFilter({ ...filter, photosOnly: true }); setLimit(30); }} />
           <Button label={t("成长纪念册")} icon="book" tone="soft" onPress={() => router.push("/timemachine")} />
-        </View>
+        </ScrollView>
       </View>
       <JournalFilters events={state.events} filter={filter} onChange={(value) => { setFilter(value); setLimit(30); }} />
-      <View style={[styles.between, { marginTop: 6 }]}>
+      <View style={styles.between}>
         <View>
           <View
             pointerEvents="none"
             style={{ position: "absolute", left: -4, right: -6, bottom: 3, height: 10, backgroundColor: colors.yellow }}
           />
-          <Text style={[styles.h2, { fontSize: 26, lineHeight: 34 }]}>{t("人生日记")}</Text>
+          <Text style={[styles.h2, { fontSize: 24, lineHeight: 30 }]}>{t("人生日记")}</Text>
         </View>
         <Text style={styles.small}>{t("{n} 条真实记录", { n: events.length })}</Text>
       </View>

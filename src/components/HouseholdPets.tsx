@@ -1,6 +1,6 @@
 import { t } from "../i18n";
 import { useState } from "react";
-import { Pressable, Text, View } from "react-native";
+import { Pressable, ScrollView, Text, View } from "react-native";
 import { router } from "expo-router";
 import { useStore } from "../data/store";
 import { MAX_PETS, homePets, removePet, switchPet } from "../domain/household";
@@ -22,11 +22,13 @@ export default function HouseholdPets() {
           <Button label={managing ? t("完成") : t("管理")} tone="plain" onPress={() => { setManaging(!managing); setConfirm(null); }} />
         )}
       </View>
-      <View style={[styles.row, { flexWrap: "wrap", gap: 14 }]}>
+      <ScrollView horizontal showsHorizontalScrollIndicator={false}
+        style={{ flexGrow: 0 }}
+        contentContainerStyle={{ alignItems: "flex-start", gap: 14, paddingVertical: 4 }}>
         {pets.map((pet) => {
           const active = pet.id === current;
           return (
-            <View key={pet.id} style={{ alignItems: "center", gap: 4, width: 66 }}>
+            <View key={pet.id} style={{ alignItems: "center", gap: 4, minWidth: 66, flexShrink: 0 }}>
               <Pressable
                 accessibilityRole="button"
                 accessibilityLabel={active ? t("{name}（当前）", { name: pet.name }) : t("切换到{name}", { name: pet.name })}
@@ -59,7 +61,7 @@ export default function HouseholdPets() {
           );
         })}
         {pets.length < MAX_PETS && !managing && (
-          <View style={{ alignItems: "center", gap: 4, width: 66 }}>
+          <View style={{ alignItems: "center", gap: 4, minWidth: 66, flexShrink: 0 }}>
             <Pressable
               accessibilityRole="button"
               accessibilityLabel={t("添加宠物")}
@@ -74,7 +76,7 @@ export default function HouseholdPets() {
             <Text style={styles.small}>{t("添加")}</Text>
           </View>
         )}
-      </View>
+      </ScrollView>
       {doomed && (
         <View style={[styles.card, { gap: 10, backgroundColor: colors.pale }]}>
           <Text accessibilityRole="alert" style={styles.body}>

@@ -96,7 +96,8 @@ export default function TimeMachine() {
         accent={colors.lavender}
         action={<Button label={t("返回")} tone="plain" onPress={() => router.canGoBack() ? router.back() : router.replace("/profile")} />}
       />
-      <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 12 }}>
+      <ScrollView horizontal showsHorizontalScrollIndicator={false}
+        style={{ flexGrow: 0 }} contentContainerStyle={{ alignItems: "center", gap: 12, paddingBottom: 6 }}>
         {shelves.map((shelf) => (
           <Pressable
             key={shelf.to}
@@ -104,7 +105,7 @@ export default function TimeMachine() {
             accessibilityLabel={shelf.label}
             onPress={() => router.push(shelf.to)}
             style={({ pressed }) => [
-              { flexGrow: 1, flexBasis: 140, flexDirection: "row", alignItems: "center", gap: 10, backgroundColor: shelf.bg, borderWidth: 2.5, borderColor: colors.ink, borderRadius: 14, padding: 14 },
+              { minWidth: 140, flexShrink: 0, flexDirection: "row", alignItems: "center", gap: 10, backgroundColor: shelf.bg, borderWidth: 2.5, borderColor: colors.ink, borderRadius: 14, padding: 14 },
               shadow(pressed ? 1 : 3),
             ]}
           >
@@ -112,7 +113,7 @@ export default function TimeMachine() {
             <Text style={{ fontFamily: display, fontSize: 18, lineHeight: 24, color: colors.ink, flexShrink: 1 }}>{shelf.label}</Text>
           </Pressable>
         ))}
-      </View>
+      </ScrollView>
 
       {marks.anniversaryToday !== undefined && (
         <Card style={{ backgroundColor: colors.pink, gap: 4 }}>

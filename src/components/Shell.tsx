@@ -237,7 +237,9 @@ export default function Shell({ children }: { children: React.ReactNode }) {
               }}
             >
               <Text style={styles.caps}>{t("我家的毛孩子")} · {pets.length}</Text>
-              <View style={[styles.row, { flexWrap: "wrap", gap: 14 }]}>
+              <ScrollView horizontal showsHorizontalScrollIndicator={false}
+                style={{ flexGrow: 0 }}
+                contentContainerStyle={{ alignItems: "flex-start", gap: 14, paddingVertical: 4 }}>
                 {pets.map((pet) => {
                   const active = pet.id === state.pet!.id;
                   return (
@@ -252,7 +254,7 @@ export default function Shell({ children }: { children: React.ReactNode }) {
                         update((s) => switchPet(s, pet.id));
                         notify(t("现在是{name}的视角。", { name: pet.name }));
                       }}
-                      style={({ pressed }) => ({ alignItems: "center", gap: 4, width: 62, opacity: pressed ? 0.6 : 1 })}
+                      style={({ pressed }) => ({ alignItems: "center", gap: 4, minWidth: 62, flexShrink: 0, opacity: pressed ? 0.6 : 1 })}
                     >
                       <View style={{ padding: 2, borderRadius: 30, borderWidth: 3, borderColor: active ? colors.orange : "transparent" }}>
                         <Avatar pet={pet} demo={state.demo} size={44} />
@@ -264,7 +266,7 @@ export default function Shell({ children }: { children: React.ReactNode }) {
                     </Pressable>
                   );
                 })}
-              </View>
+              </ScrollView>
               <View style={[styles.row, { flexWrap: "wrap" }]}>
                 {pets.length < MAX_PETS && (
                   <Button label={t("添加宠物")} icon="plus" tone="plain" onPress={() => router.push({ pathname: "/onboarding", params: { add: "1" } })} />
