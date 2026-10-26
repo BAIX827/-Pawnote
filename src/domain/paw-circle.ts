@@ -78,7 +78,7 @@ export const RESIDENTS: Resident[] = [
     species: "dog",
     emoji: "🦮",
     temper: "clingy",
-    color: "#C6F432",
+    color: "#FFD84D",
     role: { zh: "幼儿园陪读老师", en: "Reading buddy, kindergarten" },
     bio: {
       zh: "退休的导盲犬，老金毛。现在在幼儿园陪小朋友读书，什么都想和“我的人”一起做。",
@@ -152,7 +152,7 @@ export const RESIDENTS: Resident[] = [
     species: "cat",
     emoji: "🐈",
     temper: "drama",
-    color: "#FF9EC7",
+    color: "#FFB199",
     role: { zh: "剧团台柱", en: "Lead actress, town theatre" },
     bio: {
       zh: "布偶猫，爪爪镇剧团的台柱。洗个澡能演成三幕悲剧，演完自己拆穿。",
@@ -226,7 +226,7 @@ export const RESIDENTS: Resident[] = [
     species: "lizard",
     emoji: "🦎",
     temper: "calm",
-    color: "#C6F432",
+    color: "#FFE2C2",
     role: { zh: "档案馆管理员", en: "Town archivist" },
     bio: {
       zh: "鬃狮蜥，爪爪镇档案馆管理员。每条动态都像值班报告，晒太阳也要写进报告。",
@@ -263,7 +263,7 @@ export const RESIDENTS: Resident[] = [
     species: "rabbit",
     emoji: "🐇",
     temper: "shy",
-    color: "#FFD3E5",
+    color: "#7FE0B5",
     role: { zh: "图书馆借阅员", en: "Library assistant" },
     bio: {
       zh: "垂耳兔，图书馆最角落的借阅员。慢热，每条动态都是一点点小勇敢。",

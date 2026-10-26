@@ -9,10 +9,10 @@ import { Icon, colors, display, shadow } from "./ui";
 
 // Only one letter opens by itself per launch; the rest wait on 爪窝's card (docs/01 8.29).
 let opened = false;
-function openLetterOnce(kind: "month" | "week") {
-  if (opened) return;
+function claimAutoOpen() {
+  if (opened) return false;
   opened = true;
-  router.push({ pathname: "/mail", params: { kind } });
+  return true;
 }
 
 /**
@@ -25,8 +25,8 @@ export default function HomeLetters() {
   const fresh = newMail(state);
   const next = fresh[0];
   useEffect(() => {
-    if (!next || state.demo) return;
-    openLetterOnce(next);
+    if (!next || state.demo || !claimAutoOpen()) return;
+    router.push({ pathname: "/mail", params: { kind: next } });
   }, [next, state.demo]);
   if (!pet) return null;
   const mail = fresh.length > 0;

@@ -33,8 +33,8 @@ import Onboarding from "./Onboarding";
 
 // 爪友圈 2.0 (docs/01 8.20): only animals speak. The owner picks where a post goes and can tidy up,
 // but never writes a post or a comment here.
-const notes = [colors.paper, colors.yellow, colors.sky, colors.pink, colors.green];
-const tapes = [colors.orange, colors.lavender, colors.pink, colors.jade];
+const notes = [colors.paper, colors.lavender, colors.mint, colors.yellow];
+const tapes = [colors.orange, colors.yellow, colors.lavender, colors.mint];
 const PAGE = 20;
 
 function ResidentFace({ r, size = 48, faded }: { r: Resident; size?: number; faded?: boolean }) {

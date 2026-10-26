@@ -84,7 +84,7 @@ export function mailSVG(pet: Pet, mail: Mail): string {
     ];
     stats.forEach((s, i) => {
       const x = 40 + i * 216;
-      parts.push(block(x, y, 196, 130, ["#FF7A1A", "#C6F432", "#B9A6FF"][i]));
+      parts.push(block(x, y, 196, 130, ["#FF7A1A", "#FFD84D", "#B9A6FF"][i]));
       parts.push(`<text x="${x + 20}" y="${y + 72}" font-size="52" font-weight="bold">${s.n}</text><text x="${x + 20}" y="${y + 108}" font-size="18">${escapeXML(s.label)}</text>`);
     });
     y += 180;

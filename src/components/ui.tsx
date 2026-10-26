@@ -20,23 +20,27 @@ import { Pet } from "../domain/types";
 import { speciesEmoji } from "../domain/pet-profile";
 import { t } from "../i18n";
 export { default as Icon } from "./Icon";
-// Orange pop (docs/12): flat clashing blocks, thick black outlines, hard offset shadows.
+// The blended look (docs/12, docs/01 8.30): orange pop's ink outlines, hard shadows and tape, with
+// big colour blocks and the pet's own photo as the star. Token names are historical: "green" and
+// "yellow" now hold butter yellow, "sky" holds mint and "pink" holds coral.
 export const colors = {
   bg: "#FFF3DF",
   paper: "#FFFFFF",
   ink: "#111111",
   muted: "#5C534A",
   orange: "#FF7A1A",
-  pale: "#FFD3E5",
+  pale: "#FFE2C2",
   line: "#111111",
   edge: "#111111",
-  green: "#C6F432",
+  green: "#FFD84D",
   jade: "#FF7A1A",
   lavender: "#B9A6FF",
   lilac: "#DDD2FF",
-  yellow: "#C6F432",
-  pink: "#FF9EC7",
-  sky: "#B9A6FF",
+  yellow: "#FFD84D",
+  pink: "#FFB199",
+  sky: "#7FE0B5",
+  mint: "#7FE0B5",
+  cobalt: "#2B50FF",
   red: "#E0483A",
 };
 // Bundled display faces (assets/fonts, SIL OFL): ZCOOL QingKe HuangYou for headlines, Archivo
@@ -53,7 +57,7 @@ export const numeric = Platform.select({
   default: "ArchivoBlack_400Regular",
 }) as string;
 /** A hard, unblurred offset shadow in ink. */
-export const shadow = (size = 4): ViewStyle => ({
+export const shadow = (size = 3): ViewStyle => ({
   boxShadow: `${size}px ${size}px 0px ${colors.ink}`,
 });
 export const styles = StyleSheet.create({
@@ -63,7 +67,7 @@ export const styles = StyleSheet.create({
     padding: 20,
     borderWidth: 2.5,
     borderColor: colors.ink,
-    boxShadow: `4px 4px 0px ${colors.ink}`,
+    boxShadow: `3px 3px 0px ${colors.ink}`,
   },
   row: { flexDirection: "row", alignItems: "center", gap: 12 },
   between: {
@@ -586,7 +590,7 @@ export function Avatar({
       style={[
         frame,
         {
-          backgroundColor: colors.pink,
+          backgroundColor: colors.pale,
           alignItems: "center",
           justifyContent: "center",
         },
@@ -732,7 +736,7 @@ export function Portrait({
   demo,
   size = 110,
   rotate = 4,
-  tape = colors.pink,
+  tape = colors.yellow,
 }: {
   pet: Pet;
   demo?: boolean;
@@ -820,6 +824,57 @@ export function Meter({
           borderColor: colors.ink,
         }}
       />
+    </View>
+  );
+}
+
+/**
+ * The pet as a sticker: its own photo inside a thick white border with a hard ink shadow, tilted,
+ * with a strip of tape on top (docs/01 8.30). Without a photo it shows the species face on pale
+ * orange. Cutting the background out of the photo comes later; the frame stays the same.
+ */
+export function PetSticker({
+  pet,
+  demo,
+  width = 140,
+  height = 160,
+  rotate = 4,
+  tape = colors.yellow,
+  style,
+}: {
+  pet: Pet;
+  demo?: boolean;
+  width?: number;
+  height?: number;
+  rotate?: number;
+  tape?: string;
+  style?: StyleProp<ViewStyle>;
+}) {
+  const photo = pet.avatar ? { uri: pet.avatar } : demo && pet.id === DEMO_PET ? demoPhoto : undefined;
+  const border = Math.max(6, Math.round(width * 0.06));
+  return (
+    <View
+      accessible
+      accessibilityLabel={pet.name}
+      style={[
+        {
+          padding: border,
+          backgroundColor: colors.paper,
+          borderRadius: 18,
+          transform: [{ rotate: `${rotate}deg` }],
+        },
+        shadow(3),
+        style,
+      ]}
+    >
+      <Tape color={tape} rotate={-rotate * 2} width={width * 0.45} />
+      {photo ? (
+        <Image source={photo} style={{ width, height, borderRadius: 12, backgroundColor: colors.pale }} resizeMode="cover" />
+      ) : (
+        <View style={{ width, height, borderRadius: 12, backgroundColor: colors.pale, alignItems: "center", justifyContent: "center" }}>
+          <Text style={{ fontSize: Math.min(width, height) * 0.55 }}>{speciesEmoji(pet)}</Text>
+        </View>
+      )}
     </View>
   );
 }
