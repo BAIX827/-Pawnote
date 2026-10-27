@@ -109,7 +109,7 @@ test("提醒是宠物口吻，按脾气和语言变化，难过时不开玩笑�
   const walk = { activity: "walk" };
   const cool = reminderLine(pet, walk, 0, { lang: "zh" });
   assert.ok(cool.includes("妈妈"));
-  assert.ok(cool.endsWith("我只是顺便提一下。"));
+  assert.ok(cool.endsWith("咪只是顺便提一下。"));
   assert.ok(reminderLine({ ...pet, personality: "胆小" }, walk, 0, { lang: "zh" }).endsWith("……你有空的话。"));
   const clingyEn = reminderLine({ ...pet, personality: "clingy" }, { activity: "wand" }, 0, { lang: "en" });
   assert.equal(clingyEn, clingyEn.toLowerCase());
@@ -118,7 +118,7 @@ test("提醒是宠物口吻，按脾气和语言变化，难过时不开玩笑�
   const sick = reminderLine(pet, walk, 0, { lang: "zh", events: [entry(pet, "它生病了，去了医院", at(9))], now });
   assert.ok(sick.includes("歇着") && !sick.includes("顺便"));
   // A sad entry from long ago no longer quiets the reminders.
-  assert.ok(reminderLine(pet, walk, 0, { lang: "zh", events: [entry(pet, "它生病了", at(9, 0, 1))], now }).endsWith("我只是顺便提一下。"));
+  assert.ok(reminderLine(pet, walk, 0, { lang: "zh", events: [entry(pet, "它生病了", at(9, 0, 1))], now }).endsWith("咪只是顺便提一下。"));
   // The example entries are dated today, so they're left out to keep the farewell the newest entry.
   const s = { ...addRoutine({ ...base(), events: [] }, { activity: "walk", time: "07:30" }), pet };
   assert.equal(remindersPaused(s.events), false);

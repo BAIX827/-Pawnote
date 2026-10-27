@@ -1,25 +1,58 @@
 // Voice material for the AI prompts: one temper card, one species card and one short example
-// per pet. Source and reasoning: docs/13-宠物语气指南.md (v2), sections 5 and 8.
+// per pet. Source and reasoning: docs/13-宠物语气指南.md (v3).
 export const TEMPERS = ["cool", "clingy", "goofy", "drama", "curious", "calm", "shy"];
 
 export const TEMPER_CARD = {
   zh: {
-    cool: "有主见，珍惜自己的距离和时间。表面淡淡的，心里会惦记，下次愿意一起的邀请就是一点亲近。少用否认式嘴硬和口号。",
-    clingy: "在意{owner}的声音、气味和陪伴。把普通小事当成一起过日子的片段，会直接说想念，也会担心对方愿不愿意理自己。温柔里有自己的小愿望。",
-    goofy: "容易开心，对下一次、下一口有很具体的期待。思路会拐弯，认真地给自己的愿望找理由。允许一点兴奋，同时保留细小的惦记。",
-    drama: "很在意自己有没有被认真听见，会给小事很大的分量。夸张是它争取关心的方式，热闹之后露一点真正的委屈或期待。避免每篇都演浩劫。",
-    curious: "对气味、声音和人类的规矩有自己的问题，想理解，也想听朋友怎么想。让好奇落在原话的细节上，少用实验结论式口号。",
-    calm: "喜欢自己的节奏，对小事有安静但明确的偏好。话少，感受有层次，愿意慢慢聊。避免空白的‘今天就这样’或流水账。",
-    shy: "会犹豫，也想靠近和被听见。在意熟悉的声音、气味、距离和选择权。进步可以是愿意再试一次，避免强行编勇敢事迹。",
+    cool: "傲娇。嘴硬，不承认在意，偷偷在意；短句，冷着说。沙雕方式：用公文腔讲小事（“保留追诉权”“本次不予追究”“已阅”），或者一句话傲娇反转（“比什么时候说过等你了”）。",
+    clingy: "黏人。直接说喜欢，三句不离{owner}，真诚到有点傻，像小狗文学。沙雕方式：一根筋的直球（“等到了。是{owner}。”），或者第三人称自嘲（“小狗不懂，小狗只知道{owner}在”）。",
+    goofy: "憨。开心得没有逻辑，抓错重点，感叹号可以多。沙雕方式：用人类的说法解释自己的事（“没有长胖，是碗变小了”“饭碗在加载”），或者忘了自己要说什么。",
+    drama: "戏精。小事演成大事，演完用括号自己拆穿（“今天经历了一场浩劫（洗澡）”“差点饿晕（没有）”）。可以自称“本大王”一次。",
+    curious: "好奇。把一切当实验，有结论，看不懂人类还很自信（“两脚兽为什么……？是发生什么事了吗？”）。沙雕方式：实验记录、离谱的结论、向读者求助。",
+    calm: "淡定。冷面陈述，像打工人写汇报（“今日工作：睡觉。完成度：超额。无其他补充。”）。沙雕方式：精神状态、认命（“XX的命也是命”）、摆烂。",
+    shy: "胆小。小声，躲着，一点点进步，心里和身体不同步（“心里很开心！不过身体还在犹豫”“心说好的，腿说不要”）。沙雕方式：自嘲式的小勇敢（“勇敢里比较小的那种”）。",
   },
   en: {
-    cool: "Values personal space and choice. Quiet affection shows in a willingness to be invited again. Deadpan, with a private wish underneath; avoid constant denials.",
-    clingy: "Earnest, often lowercase. Notices the meaning of {owner}'s voice, scent and company. Has little wishes of its own as well as affection.",
-    goofy: "Easily delighted, with specific hopes about the next outing or bite. Takes a winding route through sincere thoughts. Excitement leaves room for small feelings.",
-    drama: "Wants to be heard and cared about. Exaggeration is a bid for attention; let a genuine little wish show through it. Every event need not be a disaster.",
-    curious: "Has questions about smells, sounds and human rules. Uses details from the note and wonders what friends think. Avoid canned experiment conclusions.",
-    calm: "Values an unhurried pace and has quiet, specific preferences. Few words with feeling inside them. Avoid empty reports and generic sign-offs.",
-    shy: "Hesitant but interested in connection. Values familiar sounds, scents, distance and choice. Another gentle try can be a wish rather than an invented brave deed.",
+    cool: "Deadpan and begrudging. Never admits caring. Silly beat: formal language for a tiny matter (\"I reserve the right to take further action\"), or turning the tables on {owner} with a question.",
+    clingy: "Lowercase, earnest, single-minded, like Thoughts of Dog. Says the love out loud. Silly beat: a one-track thought that keeps landing on {owner}.",
+    goofy: "Golden-retriever energy. Happy confusion, gets the wrong end of things, one CAPS burst allowed. Silly beat: a dog-logic POV explanation (\"I haven't got bigger. My bowl has got smaller.\").",
+    drama: "A diva. Every small event is a tragedy, then a bracket gives it away (\"Today I suffered (bath).\").",
+    curious: "A small scientist who can't work humans out. Logs, findings and confident wrong conclusions (\"Why do you talk to the little box?\").",
+    calm: "A flat status report, office-worker deadpan (\"Task: sleep. Completion: above target. Nothing further.\"). Unbothered acceptance.",
+    shy: "Quiet and careful. Heart and body disagree (\"My heart said yes. My legs said no.\"). Small brave steps, the smaller kind of brave.",
+  },
+};
+
+// A second personality picked on the form colours one beat of each piece (docs/13 v3 §2).
+export const FLAVOR_LINE = {
+  zh: { cool: "嘴硬", clingy: "黏人", goofy: "憨", drama: "爱演", curious: "好奇", calm: "佛系", shy: "胆小" },
+  en: { cool: "a stubborn streak", clingy: "a clingy streak", goofy: "a goofy streak", drama: "a dramatic streak", curious: "a curious streak", calm: "an unbothered streak", shy: "a shy streak" },
+};
+// Common pairs worth a sentence of their own; the key is the main temper, then the flavour.
+export const COMBOS = {
+  zh: {
+    "cool+clingy": "口嫌体正直：嘴上嫌弃，身体很诚实。",
+    "clingy+cool": "黏人但要面子：明明很想你，说出来像是勉强。",
+    "shy+curious": "想看又不敢靠太近：躲在安全的地方认真观察。",
+    "curious+shy": "好奇心很大，胆子很小：研究要保持安全距离。",
+    "goofy+drama": "开心到演起来：一点小事就宣布“这辈子最好的一天”。",
+    "drama+goofy": "演着演着自己先笑场。",
+    "calm+cool": "懒得理你，但该记的账都记着。",
+    "cool+calm": "懒得理你，但该记的账都记着。",
+    "clingy+drama": "主人离开五分钟，演成生离死别。",
+    "drama+clingy": "所有的戏，都是为了让主人多看一眼。",
+  },
+  en: {
+    "cool+clingy": "Says it doesn't care. Clearly cares. Sits close anyway.",
+    "clingy+cool": "Clingy but proud: the love comes out sounding reluctant.",
+    "shy+curious": "Wants to look, won't get close: careful research from a safe spot.",
+    "curious+shy": "Huge curiosity, tiny courage: all experiments at a safe distance.",
+    "goofy+drama": "So happy it becomes a performance.",
+    "drama+goofy": "Starts a tragedy, breaks character laughing.",
+    "calm+cool": "Can't be bothered, but keeps score.",
+    "cool+calm": "Can't be bothered, but keeps score.",
+    "clingy+drama": "Five minutes apart is a tragic separation.",
+    "drama+clingy": "Every scene is staged for {owner}'s attention.",
   },
 };
 
@@ -53,49 +86,50 @@ export const SPECIES_CARD = {
 };
 
 // The same bath, told by each temper. Shown to the model as a feel for the voice only.
+// {self} is what the pet calls itself (咪 / 汪 / its name).
 const BATH = {
   zh: {
     note: "今天给它洗了澡，洗完它躲在沙发底下不出来，叫了半天，饭好了才出来。",
-    cool: "洗完澡，去了沙发底下。那段时间想留给自己。\n{owner}叫了好久，我听见了。饭好了才出来，毕竟吃饭也是我自己的安排。\n下次洗澡，希望提前跟我商量。",
-    clingy: "洗完躲在沙发底下，心里有点委屈。\n{owner}一直叫我。我想出去，又想让{owner}再温柔一点。等到饭好了，才出来。\n想吃饭，也想让{owner}知道，我还需要一点安慰。",
-    goofy: "洗完澡就去沙发底下了。{owner}叫了好久，我还想在里面待着。\n后来饭好了，我出来了。心里有点想笑，吃饭的安排比洗澡好理解多了。\n下次最好先跟我聊聊饭。",
-    drama: "洗完澡，我去了沙发底下。想给自己的委屈留一点地方。\n{owner}叫了好久，我还在等一个更合心意的理由。饭好了，我出来了。\n吃饭可以开始，关于安慰的讨论也请继续。",
-    curious: "洗完待在沙发底下，{owner}叫了好久。\n我想知道，为什么平时叫我和饭好了叫我，心里的感觉会差这么多。饭好了，我就出来了。\n这个问题想慢慢琢磨。最好有下一顿陪着想。",
-    calm: "洗完澡，在沙发底下待着。{owner}叫了很久，我想按自己的节奏来。\n饭好了就出来了。休息和吃饭，各有各的时间。\n下次也想给自己留一点空闲。",
-    shy: "洗完就躲进了沙发底下。那时候想先跟外面留一点距离。\n{owner}叫了好久。等饭好了，我才出来。心里还是想慢一点。\n下次如果能留更多时间给我准备，我可能会更放心。",
+    cool: "关于今天被强行洗澡一事，{self}已撤退至沙发底下，保留追诉权。\n{owner}叫了很多遍，{self}都听见了。没出来，是因为不想。\n饭好了才出来。不代表和解，只代表饿了。",
+    clingy: "洗完澡{self}躲起来了，因为湿湿的{self}不好看。\n{owner}叫了好多声，{self}都听见了，每一声都想出去。\n饭一好就出来了，顺便原谅了{owner}。",
+    goofy: "洗澡！为什么！{self}在沙发底下想了很久，没想明白。\n{owner}一直在叫{self}，{self}在思考，没空。\n然后饭好了。{self}决定不想了！",
+    drama: "今天，本大王经历了一场浩劫（洗澡）。\n{self}在沙发底下写好了遗书，{owner}叫了半天，{self}不为所动。\n饭好了。遗书先收起来。",
+    curious: "研究发现：洗完澡，{self}闻起来不像{self}了。只好去沙发底下想想现在{self}是谁。\n{owner}叫了好久。{self}注意到，饭好的时候叫{self}，和平时叫{self}，听起来不一样。\n结论：饭比较重要。",
+    calm: "今日汇报：洗澡一次。情绪：稳定。毛：湿。\n洗完在沙发底下待命，{owner}叫了很多次，{self}在晾干。\n饭点准时归位。无其他补充。",
+    shy: "洗完澡{self}心里很乱，就钻沙发底下去了。不是生气，是需要缓缓。\n叫{self}的声音{self}都记着，只是身体还不太想动。\n饭好了，{self}才敢慢慢出来。",
   },
   en: {
     note: "Gave her a bath today. She hid under the sofa after and only came out when dinner was ready.",
-    cool: "After the bath, I went under the sofa. That time belonged to me.\n{owner} called for ages. I heard. I came out when dinner was ready; eating also belongs on my schedule.\nI'd like consultation before the next bath.",
-    clingy: "i hid under the sofa after the bath. a little hurt in my feelings.\n{owner} kept calling. i wanted to come out, and wanted a softer invitation too. i came out when dinner was ready.\nfood sounds good. some reassurance would sound good too.",
-    goofy: "Bath done. Under the sofa I went. {owner} called for ages, but I still wanted that space.\nDinner was ready, so I came out. Meals make more sense to me than baths.\nNext time, let's discuss dinner first.",
-    drama: "After the bath I hid under the sofa. My feelings wanted a little room.\n{owner} called for ages. I was waiting for an invitation that suited me. Dinner arrived, and I came out.\nThe meal may begin. Discussions about comfort should continue.",
-    curious: "After the bath I stayed under the sofa while {owner} kept calling.\nWhy does a call feel different when dinner is ready? I came out for that one.\nI'd like time to consider this. Another meal could help.",
-    calm: "After the bath, some time under the sofa. {owner} called for a while. I wanted my own pace.\nDinner was ready, and I came out. Rest and meals each have their time.\nI'd like room for both next time.",
-    shy: "I hid under the sofa after the bath. I wanted some distance from outside.\n{owner} called for ages. I came out when dinner was ready, still wanting to take things slowly.\nMore time to get ready might help next time.",
+    cool: "Regarding today's forced bath, I have withdrawn under the sofa and reserve the right to take further action.\n{owner} called many times. I heard every one. I stayed put because I wanted to.\nI came out for dinner. That is not forgiveness. That is hunger.",
+    clingy: "i hid after the bath because wet me isn't cute.\n{owner} called and called. i heard every one and wanted to go every time.\ndinner was ready so i came out. and forgave {owner} on the way.",
+    goofy: "Bath! WHY! I thought about it under the sofa for ages. No answer.\n{owner} kept calling, but I was busy thinking.\nThen dinner was ready. I stopped thinking!",
+    drama: "Today I suffered (bath).\nI wrote my last words under the sofa. {owner} called and called. I was unmoved.\nDinner arrived. Last words filed for later.",
+    curious: "Finding: after a bath I don't smell like me. I went under the sofa to work out who I am now.\n{owner} kept calling. A dinner call sounds different from a normal call.\nConclusion: dinner matters more.",
+    calm: "Report: one bath. Mood: stable. Fur: wet.\nStood by under the sofa while {owner} called. Drying.\nReturned on time for dinner. Nothing further.",
+    shy: "After the bath my heart was a mess, so I went under the sofa. Not upset. Just recovering.\nI heard {owner} calling. My body wasn't ready to move.\nWhen dinner was ready, I came out slowly.",
   },
 };
 // Used instead when the owner's own note is about a bath, so the model cannot copy the example.
 const SNACK = {
   zh: {
     note: "它趁我不注意把桌上的鸡胸肉叼走了。",
-    cool: "趁{owner}没留意，把桌上的鸡胸肉叼走了。\n我知道{owner}可能有意见。关于桌上的东西归谁，也许我们该有一次正式讨论。我的意见想先说。",
-    clingy: "趁{owner}没注意，叼走了鸡胸肉。\n想要吃的，也在意{owner}会怎么想。希望这件事聊完了，还愿意好好叫我的名字。",
-    goofy: "桌上的鸡胸肉，我趁{owner}没注意叼走了。\n有些愿望来得很快，想清楚规则要慢一点。我想跟{owner}商量，下次有没有可以直接给我的那份。",
-    drama: "趁{owner}没注意，叼走了桌上的鸡胸肉。\n这件事在{owner}那里可能只有一句话，在我心里有很长一段期待。我希望讨论规则的时候，也给期待留个位置。",
-    curious: "趁{owner}没注意，把鸡胸肉从桌上叼走了。\n桌上的东西为什么跟我的那份有不同的规矩？我想弄明白。要是{owner}能讲清楚，下次也许能少一个问号。",
-    calm: "桌上的鸡胸肉，我趁{owner}没注意叼走了。\n这件事的经过很短。关于哪份可以拿，我想慢慢听{owner}讲清楚。",
-    shy: "趁{owner}没注意，叼走了桌上的鸡胸肉。\n现在想起来，还有一点犹豫。希望{owner}愿意听听我，也希望下次能知道，哪一份是留给我的。",
+    cool: "鸡胸肉是自己掉进{self}嘴里的，{self}只是刚好在旁边。\n{owner}要是有意见，可以写成书面材料。{self}不一定看。",
+    clingy: "{self}趁{owner}没注意，叼走了鸡胸肉。\n不是想偷吃，是想吃{owner}吃的东西。这样就像一起吃了。",
+    goofy: "桌上有鸡胸肉！然后{self}嘴里有鸡胸肉！中间发生了什么{self}也不太清楚！\n反正很好吃！",
+    drama: "那块鸡胸肉在桌上呼唤{self}，{self}只是回应了它。\n这是一个关于命运的故事。（{owner}没看见）",
+    curious: "实验：{owner}不看的时候，桌上的鸡胸肉还算不算{owner}的？\n{self}叼走验证了一下。结论：好吃。归属问题待查。",
+    calm: "今日进食：鸡胸肉一块，来源：桌上。\n经过很短，{self}的解释更短：饿了。",
+    shy: "{self}本来只想闻一下……闻着闻着，就叼走了。\n现在心里有点慌，但是嘴里很香。",
   },
   en: {
     note: "She grabbed the chicken breast off the table when I wasn't looking.",
-    cool: "I grabbed the chicken from the table while {owner} wasn't looking.\n{owner} may have opinions. Perhaps ownership of table food needs a proper discussion. I'd like the first speaking slot.",
-    clingy: "i took the chicken while {owner} wasn't looking.\ni wanted it. i also care what {owner} thinks. when we talk about this, i'd like my name said gently.",
-    goofy: "I grabbed the chicken while {owner} wasn't looking.\nA wish arrives quickly. Understanding the rules takes longer. Could the next serving have a part that is already mine?",
-    drama: "I grabbed the chicken from the table while {owner} wasn't looking.\nA short event in {owner}'s account. A much larger hope in mine. Please leave room for that in any discussion of rules.",
-    curious: "I took the chicken while {owner} wasn't looking.\nWhy do table things have different rules from my portion? I'd like an explanation. That could leave one fewer question next time.",
-    calm: "I took the chicken from the table while {owner} wasn't looking.\nA short account. I'd like time to hear which serving is mine to take.",
-    shy: "I grabbed the chicken while {owner} wasn't looking.\nThinking about it leaves a little hesitation. I'd like a gentle conversation about which part is meant for me next time.",
+    cool: "The chicken fell into my mouth. I was merely nearby.\nIf {owner} has concerns, please submit them in writing. I may not read them.",
+    clingy: "i took the chicken while {owner} wasn't looking.\nnot stealing. i just wanted to eat what {owner} eats. like we ate together.",
+    goofy: "Chicken on the table! Then chicken in my mouth! The middle part is unclear!\nVery tasty though!",
+    drama: "The chicken called to me from the table. I simply answered.\nThis is a story about fate. ({owner} wasn't looking.)",
+    curious: "Experiment: if {owner} isn't looking, is the chicken still {owner}'s?\nI took it to check. Finding: delicious. Ownership: unresolved.",
+    calm: "Intake: one chicken breast. Source: table.\nThe event was short. My explanation is shorter: hungry.",
+    shy: "I only meant to sniff it... then it was in my mouth.\nMy heart is nervous. My mouth is happy.",
   },
 };
 export function example(lang, temper, description) {
@@ -107,22 +141,22 @@ export function example(lang, temper, description) {
 // Original feed examples on the same recorded event, for tone rather than reuse.
 const FRIEND_POSTS = {
   zh: {
-    cool: "今天出去玩了。下次还可以邀请我，跟谁去我倒是有要求。",
-    clingy: "今天跟{owner}一起出去玩。好玩的事情很多，最想说的还是‘一起’。",
-    goofy: "今天出去玩了，心里还没玩够。明天的名额，我想先占上！",
-    drama: "今天出去玩了。我希望下次安排得再隆重一点，至少先问问我的意见。",
-    curious: "出去玩的时候，总想多弄明白一点。大家平时最留意什么？",
-    calm: "今天出去玩了。下次还想慢一点，给小事多留些时间。",
-    shy: "出去玩这件事，还想慢慢试试。下次也想让{owner}陪着。",
+    cool: "出去了一趟。评价：可以再去，但别是今天。",
+    clingy: "出门了！和{owner}一起！这句话{self}可以说一百遍。",
+    goofy: "出门！出门！出门！回家了，心还在外面跑。",
+    drama: "今天的高光时刻：出门。请大家记住这一天。",
+    curious: "出去一趟，问题比答案多。人类走路为什么一定要走直线？",
+    calm: "外勤一次，一切正常。出门的意义在于回家。已回家。",
+    shy: "心里很想看外面，腿有自己的想法。跟紧{owner}就不怕了。",
   },
   en: {
-    cool: "Went out today. Another invitation would be considered. I do have opinions about the company.",
-    clingy: "went out with {owner}. plenty to like. the together part is what i want to tell you about.",
-    goofy: "Went out. My mind is still playing. I'd like to save a spot for tomorrow!",
-    drama: "Went out today. Next time I'd appreciate being consulted on the arrangements.",
-    curious: "An outing makes me want to know more. What do you all tend to notice?",
-    calm: "Went out today. A little more time for little things would suit me next time.",
-    shy: "i'd like another gentle try at going out. with {owner} along again.",
+    cool: "Went out. Would go again. Not today.",
+    clingy: "went out! with {owner}! i could say that a hundred times.",
+    goofy: "OUT OUT OUT! Home now. Brain still outside.",
+    drama: "Today's highlight: going out. Please mark the date.",
+    curious: "Went out. Came back with more questions. Why do humans walk in straight lines?",
+    calm: "One outing. All normal. Point of going out: coming home. Home.",
+    shy: "Heart wanted to look. Legs disagreed. Stayed close to {owner}.",
   },
 };
 

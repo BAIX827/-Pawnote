@@ -2,7 +2,7 @@ import { addDays, dayKey, eventDate, eventDay, newestEvents } from "./dates";
 import { Lang, getLang } from "../i18n/core";
 import { PlannedReminder, plannedReminders, remindersPaused } from "./paw-dates";
 import { ownerName } from "./story-engine";
-import { Temper, isSensitive, temperOf } from "./temper";
+import { Temper, isSensitive, temperOf, withSelf } from "./temper";
 import { AppState, CATEGORIES, Category, LifeEvent, Pet } from "./types";
 
 // 爪信 / Paw Mail (docs/01 8.18): a letter from the pet about a stretch of time, made only from
@@ -187,7 +187,7 @@ export function writeMail(state: Pick<AppState, "pet" | "events">, kind: MailKin
   }
   const temper = temperOf(pet), owner = ownerName(pet);
   // Clingy pets write in lowercase in English (docs/13 §4).
-  const voice = (s: string) => (lang === "en" && temper === "clingy" ? s.toLowerCase() : s);
+  const voice = (s: string) => (lang === "en" ? (temper === "clingy" ? s.toLowerCase() : s) : withSelf(s, pet, owner));
   const fill = (s: string) => s.split("{name}").join(pet.name).split("{owner}").join(owner);
   const quiet = mine.some((e) => isSensitive(e.description));
   const counts = Object.fromEntries(CATEGORIES.map((c) => [c, 0])) as Record<Category, number>;

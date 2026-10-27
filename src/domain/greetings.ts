@@ -1,6 +1,6 @@
 import type { Lang } from "../i18n/core";
 import { Pet } from "./types";
-import { Temper, temperOf } from "./temper";
+import { Temper, temperOf, withSelf } from "./temper";
 
 // 爪窝's opening line before there is an entry to quote: one per part of the day, in the pet's own
 // temper (docs/01 8.25), so a lively dog never greets you like an aloof cat.
@@ -62,4 +62,8 @@ const GREETINGS: Record<Temper, Record<DaySlot, Text>> = {
   },
 };
 
-export const greeting = (pet: Pet, hour: number, lang: Lang): string => GREETINGS[temperOf(pet)][slotOf(hour)][lang];
+// In Chinese the pet says 咪 / 汪 / its name instead of 我 (docs/13 v3 §3).
+export const greeting = (pet: Pet, hour: number, lang: Lang): string => {
+  const line = GREETINGS[temperOf(pet)][slotOf(hour)][lang];
+  return lang === "zh" ? withSelf(line, pet) : line;
+};

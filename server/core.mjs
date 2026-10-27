@@ -1,7 +1,7 @@
 // Pawnote AI gateway, the part that is the same wherever it runs: it keeps provider keys off
 // the device, picks a model by region, and counts each device's free AI generations per week.
 // A host (Node in index.mjs, Cloudflare Workers in worker.mjs) supplies `env` and a usage store.
-import { BANNED, SPECIES_CARD, TEMPERS, TEMPER_CARD, example } from "./voice.mjs";
+import { BANNED, COMBOS, FLAVOR_LINE, SPECIES_CARD, TEMPERS, TEMPER_CARD, example } from "./voice.mjs";
 
 const STYLES = ["diary", "life", "social", "news"];
 const SPECIES = { cat: "猫", dog: "狗", rabbit: "兔子", lizard: "蜥蜴", hamster: "仓鼠", guineaPig: "豚鼠", bird: "鸟", turtle: "龟", snake: "蛇", fish: "鱼" };
@@ -58,22 +58,31 @@ export function createGateway(env, store) {
     if (region !== "cn" && region !== "intl") return "region";
     if (body.lang !== undefined && body.lang !== "zh" && body.lang !== "en") return "lang";
     if (!text(description, 500)) return "description";
-    if (!pet || !text(pet.name, 20) || !text(pet.personality, 60) || !text(pet.owner, 10) || !text(pet.self, 10)) return "pet";
+    if (!pet || !text(pet.name, 20) || !text(pet.personality, 60) || !text(pet.owner, 10) || !text(pet.self, 20)) return "pet";
     if (pet.route !== "work" && pet.route !== "campus") return "pet.route";
     if (!text(pet.role, 30)) return "pet.role";
     if (!TEMPERS.includes(body.temper)) return "temper";
     if (body.weird !== undefined && typeof body.weird !== "boolean") return "weird";
+    if (body.flavors !== undefined && !(Array.isArray(body.flavors) && body.flavors.length <= 2 && body.flavors.every((f) => TEMPERS.includes(f)))) return "flavors";
     if (body.locale !== undefined && !(typeof body.locale === "string" && /^[A-Za-z-]{2,20}$/.test(body.locale))) return "locale";
     if (!(pet.species in SPECIES) && !text(pet.speciesName, 20)) return "pet.species";
     return null;
   }
   const SPECIES_EN = { cat: "cat", dog: "dog", rabbit: "rabbit", lizard: "lizard", hamster: "hamster", guineaPig: "guinea pig", bird: "bird", turtle: "turtle", snake: "snake", fish: "fish" };
   const british = (locale) => /^en-(AU|GB|NZ|IE|ZA)\b/i.test(locale ?? "");
-  const withOwner = (text, owner) => text.split("{owner}").join(owner);
+  const withOwner = (text, owner, self = "I") => text.split("{owner}").join(owner).split("{self}").join(self);
+  // A second personality (multi-pick on the form) colours one beat; known pairs get their own line (docs/13 v3 §2).
+  function flavorNote(lang, temper, flavors = [], owner) {
+    if (!flavors.length) return "";
+    const combo = COMBOS[lang][`${temper}+${flavors[0]}`];
+    if (lang === "en")
+      return `Also has ${flavors.map((f) => FLAVOR_LINE.en[f]).join(" and ")}: let it show in one or two places, without changing the main voice.${combo ? ` ${withOwner(combo, owner)}` : ""}\n`;
+    return `【副色】它还有一点${flavors.map((f) => FLAVOR_LINE.zh[f]).join("、")}：在一两处带出来，不改变整体语气。${combo ?? ""}\n`;
+  }
 
   // Each prompt carries only this pet's own temper card, species card and one example of the
-  // voice, so the model writes one register well instead of averaging several. See docs/13.
-  function promptEn({ pet, description, temper, weird, locale }) {
+  // voice, so the model writes one register well instead of averaging several. See docs/13 v3.
+  function promptEn({ pet, description, temper, flavors, weird, locale }) {
     const kind = SPECIES_EN[pet.species] ?? pet.speciesName;
     const work = pet.route === "work";
     const shown = example("en", temper, description);
@@ -81,26 +90,27 @@ export function createGateway(env, store) {
       {
         role: "system",
         content:
-          `You are writing for a pet with a little social life of its own: private thoughts, a school/work diary, a post to friends and a neighbourhood news item. The owner's note provides the actual event.\n` +
+          `You are writing for a pet with a little social life of its own, in the style of the funniest pet accounts on Instagram: private thoughts, a school/work diary, a post to friends and a neighbourhood news item. The owner's note provides the actual event.\n` +
           `The pet: ${pet.name}, a ${kind}. Personality: ${pet.personality}. It calls its owner "${pet.owner}". In its pretend life it ${work ? `has a job as ${pet.role}` : "goes to school"}.\n\n` +
           `Voice: ${withOwner(TEMPER_CARD.en[temper], pet.owner)}\n` +
-          `${weird ? "This one is a bit unhinged: include one deadpan absurd thought per piece." : "One absurd beat is welcome but optional."}\n` +
+          flavorNote("en", temper, flavors, pet.owner) +
+          `${weird ? "This one is a bit unhinged: the silly beat can be properly absurd." : ""}\n` +
           `Species: ${SPECIES_CARD.en[pet.species] ?? SPECIES_CARD.en.other}\n\n` +
           `How to write:\n` +
-          `1. Use only what the owner wrote. No new events, places or anything about health. The pet's opinions, excuses and misreadings are welcome.\n` +
-          `2. Let one detail in the note carry a feeling: what the pet notices, hopes for, misunderstands or is reluctant to admit. Sensory detail must come from the note; inner interpretations and wishes can be imagined. Vary sentence length.\n` +
-          `3. End on an action or a petty remark. No moral, no summary, no explaining the joke.\n` +
-          `4. No em dashes. No lists of three. At most one pet-internet word (zoomies, loaf, blep...). Never: fren, hooman twice, heckin pupperino, i can haz, fur-ever, pawsitively, testament, tapestry, boundless, journey.\n` +
-          `5. If the note mentions illness, injury or a lost pet, nothing is a joke: quiet, sincere, short.\n` +
-          `6. Write in ${british(locale) ? "British" : "American"} English.\n` +
-          `7. Let the social world appear through a question to friends, a private opinion or a playful use of the pet's school/job role. Named friends, encounters, replies, likes and shared history require evidence in the owner's note. Use at most one social gesture per piece.\n` +
-          `8. Use the pet's name or species. Town name: Pawtown. Remove archive announcements and explanations of the fictional setting.\n` +
-          `9. Check each sentence before returning it. An unrecorded action, sensory observation or response by the owner must be removed or phrased wholly as a future wish or hypothetical. "I guess" does not justify saying something already happened. If the note only says they went out, do not claim they sniffed anything, were called back, returned on command, lingered or met anyone. All four pieces use the same factual boundary.\n\n` +
+          `1. Use only what the owner wrote. No new events, places, people or anything about health. The pet's opinions, excuses and confident misreadings are welcome: the joke is that the pet completely misunderstands what happened and is sure it's right.\n` +
+          `2. One silly beat per piece, in this temper's own style (see Voice). Only one; don't joke in every sentence.\n` +
+          `3. "I'd like", "I hope" and "next time" at most once per piece. No wish-list endings.\n` +
+          `4. Short sentences, varied length. End on an action, a petty remark or a reveal. No moral, no summary, no explaining the joke.\n` +
+          `5. No em dashes. No lists of three. At most one pet-internet word (zoomies, loaf, blep...). Never: fren, hooman twice, heckin pupperino, i can haz, fur-ever, pawsitively, testament, tapestry, boundless, journey.\n` +
+          `6. If the note mentions illness, injury or a lost pet, nothing is a joke: quiet, sincere, short.\n` +
+          `7. Write in ${british(locale) ? "British" : "American"} English.\n` +
+          `8. Town name: Pawtown. Named friends, encounters, replies and likes require evidence in the note. Remove archive announcements and explanations of the fictional setting.\n` +
+          `9. Check each sentence before returning it. An unrecorded action, sensory observation or response by the owner must be removed or turned into an obvious joke or opinion. If the note only says they went out, do not claim they sniffed anything, were called back, or met anyone. All four pieces use the same factual boundary.\n\n` +
           `Return one JSON object with keys diary, life, social, news, each {"title": string, "text": string}.\n` +
-          `- diary: inner voice, usually 40-100 words. Give the event a private meaning or a little hope for next time. Let the mood change naturally.\n` +
-          `- life: a ${work ? "work diary" : "school diary"}, usually 30-80 words. Connect one actual detail to its role with one light metaphor. Conversational prose; avoid compulsory numbered reports and a formal Note line.\n` +
-          `- social: a personal post to friends, usually 15-45 words. An actual detail plus a feeling or a gentle question to readers. No hashtags; at most one emoji. Let it stand alone, rather than tacking a slogan onto the note.\n` +
-          `- news: a short, lightly playful pet news item. Use a concrete Title Case headline, tell the event once, then optionally add one brief opinion in the pet's voice. Prefer 15-45 words; a simple note can be shorter. No invented sources, formal reporting preamble, repeated retelling, stock investigation ending, archive/notebook announcements or explanation of the fictional setting. Stop at the pet's reaction.\n` +
+          `- diary: inner voice, 30-90 words, two or three short paragraphs. The event, then the pet's take on it, then stop.\n` +
+          `- life: a ${work ? "work" : "school"} diary, 30-80 words. A work log, team-chat message or class notes in the pet's voice; one or two ${work ? "office" : "school"} words tied to the actual detail.\n` +
+          `- social: a post to friends, 10-35 words. The result and an attitude; may ask readers one thing. No hashtags; at most one emoji.\n` +
+          `- news: a short, playful pet news item. Concrete Title Case headline, the event told once, one line from the pet in quotes. 15-45 words. No invented sources or reporting preamble. Stop at the pet's reaction.\n` +
           `Titles under 10 words.\n\n` +
           `An example of this voice on a different event. Feel the voice; do not reuse its sentences or structure.\n` +
           `Owner's note: ${shown.note}\nDiary:\n${withOwner(shown.diary, pet.owner)}\n\nA separate feed example, based only on "Went out together today":\n${withOwner(shown.social, pet.owner)}`,
@@ -110,37 +120,39 @@ export function createGateway(env, store) {
   }
   function prompt(input) {
     if (input.lang === "en") return promptEn(input);
-    const { pet, description, temper, weird } = input;
+    const { pet, description, temper, flavors, weird } = input;
     const kind = SPECIES[pet.species] ?? pet.speciesName;
     const work = pet.route === "work";
     const shown = example("zh", temper, description);
+    const fill = (t) => withOwner(t, pet.owner, pet.self);
     return [
       {
         role: "system",
         content:
-          `你在替一只小动物写它自己的生活：私下的心事、上学或上班的日常、发给朋友的动态和邻里小报。真实经过来自主人记录，表达来自它自己的视角。\n` +
-          `宠物：${pet.name}，${kind}。性格：${pet.personality}。它叫主人“${pet.owner}”。它的虚拟身份：${work ? "上班的小动物" : "上学的小动物"}，${pet.role}。\n\n` +
-          `【它的语气】${withOwner(TEMPER_CARD.zh[temper], pet.owner)}\n` +
-          `${weird ? "它是个抽象的家伙：每篇放一处一本正经的离谱想法。" : "可以有一处无厘头的抽象，没有也行。"}\n` +
+          `你在替一只小动物写它自己的生活，口吻像小红书上最好笑的沙雕宠物号：私下的心事、上学或上班的日常、发给朋友的动态和邻里小报。真实经过来自主人记录，表达来自它自己的视角。\n` +
+          `宠物：${pet.name}，${kind}。性格：${pet.personality}。它叫主人“${pet.owner}”，自称“${pet.self}”。它的虚拟身份：${work ? "上班的小动物" : "上学的小动物"}，${pet.role}。\n\n` +
+          `【它的语气】${fill(TEMPER_CARD.zh[temper])}\n` +
+          flavorNote("zh", temper, flavors, pet.owner) +
+          `${weird ? "它是个抽象的家伙：沙雕点可以更离谱一些。\n" : ""}` +
           `【物种】${SPECIES_CARD.zh[pet.species] ?? SPECIES_CARD.zh.other}\n\n` +
           `写法：\n` +
-          `1. 只写主人写到的事。不编新事件、地点和健康状况；宠物的想法、借口、误会可以加。\n` +
-          `2. 从原话的一个细节写进它心里：它注意到什么，惦记什么，误会了什么，想让谁理解。原话里的气味、声音、触感或动作可以承载情绪；未提供的动作和感官细节保持为愿望、假设，或省去。让心情有小小的转折，长短句自然交错。\n` +
-          `3. 结尾停在动作或一句嘴硬上。不总结，不升华，不讲道理。\n` +
-          `4. 默认自称“我”${pet.self !== "我" ? `，“${pet.self}”全篇最多用一次` : ""}。一篇最多一个网络梗。\n` +
-          `5. 不用：排比、“不是……而是……”“不仅……更是……”、仿佛、宛如、治愈、岁月静好、满满的、喵星人、汪星人、哈基米、萌萌哒。\n` +
-          `6. 如果主人写到生病、受伤或走失：四段都不开玩笑，安静、真诚、短。\n` +
-          `7. 用简体中文。称呼只用宠物名字、具体物种或“小动物”；城镇叫“爪爪镇”，公司叫“爪爪公司”。删掉“在小动物世界里”“写进档案”“已收录为校园生活笔记”“新增独家记录”等背景解释和归档说明。\n` +
-          `8. 小社会的感觉来自它自己的偏好、对熟人的语气、给读者留的一句轻问题，或身份带来的一个小比喻。一篇选一种就够。朋友姓名、相遇、评论、点赞、共同经历都需要主人原话依据；学校或职场用作想象里的比喻，别编成实际发生的课程和会议。\n` +
-          `9. 输出前逐句核对：新增的已发生动作、感官观察或主人回应，删除或完整改成未来愿望、假设。“我猜”也不能用来断言已经发生的事。原话只有“出去玩”时，省去“没闻够”“妈妈一叫我就回来”“路过谁”“跑了多久”等补写经过；可以写“下次想慢慢闻”“希望妈妈多陪我一会儿”。四种体裁共享这条事实边界。\n\n` +
+          `1. 只写主人写到的事。不编新事件、地点、人物和健康状况。好笑的地方在于：它非常自信地误解了这件事，而且理直气壮。想法、借口、嘴硬、离谱的结论都可以加。\n` +
+          `2. 每篇一处沙雕点，用它这种性格自己的方式（见【它的语气】）。只放一处，别句句抖机灵。\n` +
+          `3. “想……”“希望……”“下次……”一篇最多一次，不要用愿望句收尾。\n` +
+          `4. 短句为主，长短交错。结尾停在动作、一句嘴硬或一个反转上。不总结，不升华，不讲道理。\n` +
+          `5. 自称用“${pet.self}”，和“我”可以混用，每篇至少出现一次“${pet.self}”。泛指人类可以说“两脚兽”“人类”。一篇最多一个网络梗。\n` +
+          `6. 不用：排比、“不是……而是……”“不仅……更是……”、仿佛、宛如、治愈、岁月静好、满满的、本喵、本汪、喵星人、汪星人、毛孩子、哈基米、萌萌哒。\n` +
+          `7. 如果主人写到生病、受伤或走失：四段都不开玩笑，安静、真诚、短。\n` +
+          `8. 用简体中文。城镇叫“爪爪镇”，公司叫“爪爪公司”。删掉“在小动物世界里”“写进档案”“收录”等背景解释和归档说明。朋友姓名、相遇、评论、点赞需要主人原话依据。\n` +
+          `9. 输出前逐句核对：新增的已发生动作、感官观察或主人回应，删掉，或者改成一眼能看出的玩笑和看法。原话只有“出去玩”时，不补写“闻了什么”“被叫回来”“路过谁”。四种体裁共享这条事实边界。\n\n` +
           `输出一个 JSON 对象，只输出 JSON。四个键 diary、life、social、news，每个值是 {"title": "...", "text": "..."}。\n` +
-          `- diary 内心独白：通常 70–160 字。写真实日常在它心里的分量，一点自己的偏好、犹豫或下一次的小期待。情绪有变化，结尾留在它想说的那句话。\n` +
-          `- life ${work ? "打工日记" : "校园日记"}：通常 50–120 字，自然的日记段落，用一个${work ? "工作" : "上学"}小比喻连接真实经过和身份。省去编号纪要、固定“备注”和完成任务式结尾。\n` +
-          `- social 爪友圈动态：通常 25–80 字，像它发给熟人的朋友圈。一件具体小事加一点心思，可以偶尔问读者一句。全文自己讲清楚，省去“主人说”开场和重复改写；避免句句喊口号、固定结尾问“谁懂”。不加话题标签，最多一个表情。\n` +
-          `- news 小报：简短、自然，可以带一点轻松的幽默。标题直接写宠物和具体小事。正文把事情讲一遍，可加一句宠物自己的想法，回应要增加态度，避免把原话换个人称又说一遍。通常 20–60 字，简单的事可以更短。省去“本报讯”“据主人爆料”“当事宠物随后回应”等报道套话；结尾停在反应上，省去“情绪稳定”“事件仍在调查中”和收录说明。例：主人写“今天带她出去玩了”，标题“小黄出门啦”，正文“今天主人带小黄出去玩了。小黄：‘明天还想去！’”。\n` +
+          `- diary 内心独白：50–120 字，两三段。先写这件事，再写它自信的理解，停在嘴硬或反转上。\n` +
+          `- life ${work ? "打工日记" : "校园日记"}：50–120 字。可以写成${work ? "工作汇报、工作群消息" : "课堂笔记、班级群消息"}，用一两个${work ? "打工" : "上学"}词贴着真实经过。\n` +
+          `- social 爪友圈动态：15–50 字，像它发给熟人的朋友圈。写结果和态度，可以向读者问一句。不加话题标签，最多一个表情。\n` +
+          `- news 小报：标题直接写宠物和具体小事。正文讲一次经过，再加一句它的回应（用引号）。20–60 字。省去“本报讯”“据主人爆料”等套话，结尾停在反应上。例：主人写“今天带她出去玩了”，标题“小黄出门啦”，正文“今天主人带小黄出去玩了。小黄：‘外面什么都好玩！汪忙不过来！’”。\n` +
           `标题都不超过 20 个字。\n\n` +
           `下面是同一种语气写另一件事的示范，只用来感受语气，不要照抄句子和结构。\n` +
-          `主人原话：${shown.note}\n内心独白：\n${withOwner(shown.diary, pet.owner)}\n\n另一条独立的爪友圈示范，原话只有“今天带她出去玩了”：\n${withOwner(shown.social, pet.owner)}`,
+          `主人原话：${shown.note}\n内心独白：\n${fill(shown.diary)}\n\n另一条独立的爪友圈示范，原话只有“今天带她出去玩了”：\n${fill(shown.social)}`,
       },
       { role: "user", content: `主人写的原话：${description.trim()}` },
     ];

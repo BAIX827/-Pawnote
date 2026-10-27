@@ -2,7 +2,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { ownerName, selfName } from "../domain/story-engine";
 import { Pet, STYLES, Stories, id } from "../domain/types";
 import { getLang, t } from "../i18n/core";
-import { isWeird, temperOf } from "../domain/temper";
+import { flavorsOf, isWeird, temperOf } from "../domain/temper";
 
 // Both come from the build: one bundle for mainland China, one for everywhere else.
 const API = process.env.EXPO_PUBLIC_API_URL?.replace(/\/$/, "");
@@ -88,6 +88,7 @@ export async function generateWithAI(
         region: REGION,
         lang: getLang(),
         temper: temperOf(pet),
+        flavors: flavorsOf(pet),
         weird: isWeird(pet),
         locale: deviceLocale(),
         description: description.trim(),

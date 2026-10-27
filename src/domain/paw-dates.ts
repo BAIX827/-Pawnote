@@ -1,7 +1,7 @@
 import { dayKey, eventDate, newestEvents } from "./dates";
 import { Lang, getLang, t } from "../i18n/core";
 import { detectCategory, ownerName } from "./story-engine";
-import { Temper, isLoss, isSensitive, temperOf } from "./temper";
+import { Temper, isLoss, isSensitive, temperOf, withSelf } from "./temper";
 import { AppState, Category, LifeEvent, Pet, Routine, Species, id } from "./types";
 
 // 爪约 (docs/01 8.16): the pet calls its owner over for something they do together.
@@ -254,7 +254,7 @@ export function reminderLine(
   const tails = TAILS[temper][lang];
   const line = `${fill(lines[variant % lines.length], owner, thing, lang)}${lang === "en" ? " " : ""}${tails[Math.floor(variant / lines.length) % tails.length]}`;
   // Clingy pets write in lowercase in English (docs/13 §4).
-  return lang === "en" && temper === "clingy" ? line.toLowerCase() : line;
+  return lang === "en" ? (temper === "clingy" ? line.toLowerCase() : line) : withSelf(line, pet, owner);
 }
 /** A different line each day, steady within the day. */
 export const dayVariant = (now: Date, salt = 0) =>

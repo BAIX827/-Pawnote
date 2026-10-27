@@ -1,6 +1,6 @@
 import type { Lang } from "../i18n/core";
 import { addDays, dayKey, dayNumber, eventDate, newestEvents, startOfDay } from "./dates";
-import { Temper, isLoss, isSensitive, temperOf } from "./temper";
+import { Temper, isLoss, isSensitive, temperOf, withSelf } from "./temper";
 import { AppState, Category, LifeEvent, Pet, Species } from "./types";
 
 // 爪友圈 2.0, local edition (docs/01 8.20). Only animals speak here: the owner's pet drafts its
@@ -566,7 +566,7 @@ function visitorsFor(e: LifeEvent, pet: Pet, lang: Lang, hidden: string[], now: 
       comments.push({
         id: `r:${e.id}:${pet.id}`,
         author: { kind: "pet", id: pet.id, name: pet.name },
-        text: fill(lines[h % lines.length][lang], { friend: first.author.name }),
+        text: lang === "zh" ? withSelf(fill(lines[h % lines.length].zh, { friend: first.author.name }), pet) : fill(lines[h % lines.length][lang], { friend: first.author.name }),
         at: when,
         replyTo: first.id,
         removable: true,
@@ -653,7 +653,9 @@ export function buildCircle(state: AppState, now: Date, lang: Lang): Circle {
           p.comments.push({
             id,
             author: { kind: "pet", id: pet.id, name: pet.name },
-            text: fill(PET_COMMENTS[temper][p.category][lang], { friend: residentName(r, lang) }),
+            text: lang === "zh"
+              ? withSelf(fill(PET_COMMENTS[temper][p.category].zh, { friend: residentName(r, lang) }), pet)
+              : fill(PET_COMMENTS[temper][p.category][lang], { friend: residentName(r, lang) }),
             at: when,
             removable: true,
           });

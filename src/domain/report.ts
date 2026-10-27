@@ -1,6 +1,6 @@
 import { eventDay, newestEvents } from "./dates";
 import { getLang, t } from "../i18n/core";
-import { isSensitive, temperOf, Temper } from "./temper";
+import { isSensitive, selfOf, temperOf, Temper } from "./temper";
 import { CATEGORIES, Category, LifeEvent, Pet } from "./types";
 
 // A monthly keepsake of saved moments. Frequency is never a performance rating.
@@ -80,13 +80,13 @@ export function reportCard(report: MonthReport): { rows: { subject: string; coun
 }
 
 const SELF: Record<Temper, string> = {
-  cool: "这些日常，我想按自己的节奏慢慢回看。",
-  clingy: "和{owner}一起的日子，想一段一段记住。",
-  goofy: "和{owner}一起，想把这些小事再看一遍！",
-  drama: "本月的小剧场，想请{owner}一起回看。",
-  curious: "还有些小问题，想和{owner}接着聊。",
+  cool: "这个月的日常，{self}都看过了。还行。",
+  clingy: "这个月和{owner}一起的每一天，{self}都想记住。",
+  goofy: "这个月好开心！具体哪天开心，{self}忘了！",
+  drama: "本月剧情精彩，主角是{self}。下月敬请期待。",
+  curious: "本月观察完毕。人类还是很难懂，{self}会继续研究。",
   calm: "正常上班，正常下班，没有意见。",
-  shy: "我有在努力，只是比较小声。",
+  shy: "{self}这个月有在努力，只是比较小声。",
 };
 /** A count-based memory note and the pet's reflection in its own temper. */
 export function appraisal(pet: Pet, report: MonthReport, owner: string) {
@@ -96,6 +96,6 @@ export function appraisal(pet: Pet, report: MonthReport, owner: string) {
         ? `${report.entries} ${report.entries === 1 ? "moment" : "moments"} kept across ${report.days} ${report.days === 1 ? "day" : "days"}. Add another whenever you feel like it.`
         : t("这 {days} 天，留下了 {n} 段生活。想记的时候，就添一笔。", { days: report.days, n: report.entries })
       : t("这一页还空着，想记的时候再写。"),
-    self: t(SELF[temperOf(pet)], { owner }),
+    self: t(SELF[temperOf(pet)], { owner, self: selfOf(pet, getLang() === "en" ? "en" : "zh") }),
   };
 }

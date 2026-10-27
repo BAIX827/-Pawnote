@@ -11,7 +11,6 @@ import {
   voiceVariant,
   generationSignature,
   ownerName,
-  selfName,
 } from "../domain/story-engine";
 import { dayDate, eventDay, eventTimestamp, isPastDay, localDay } from "../domain/dates";
 import { saveEvent } from "../domain/life";
@@ -116,8 +115,7 @@ function Recorder({ original, initialDate }: { original?: LifeEvent; initialDate
     latest.current = draft.description;
   }, [draft.description]);
   if (!pet) return <Onboarding />;
-  const self = selfName(pet),
-    owner = ownerName(pet),
+  const owner = ownerName(pet),
     story = generated ? draft.stories![draft.selectedStyle] : undefined;
   const postingState = { ...state, events: state.events.filter((e) => e.id !== original?.id) };
   const postingDate = isPastDay(draft.occurredOn) ? dayDate(draft.occurredOn) : new Date();
@@ -324,7 +322,7 @@ function Recorder({ original, initialDate }: { original?: LifeEvent; initialDate
         <Wobble degrees={generated ? 6 : 0}>
           <Stamp
             top={generated ? t("已翻译") : t("待翻译")}
-            main={self.length > 1 ? t("{kind}语", { kind: self.slice(1) }) : t("宠语")}
+            main={pet.species === "cat" ? t("{kind}语", { kind: "喵" }) : pet.species === "dog" ? t("{kind}语", { kind: "汪" }) : t("宠语")}
             color={generated ? colors.orange : colors.muted}
             size={72}
             rotate={0}

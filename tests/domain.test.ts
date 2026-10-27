@@ -7,6 +7,7 @@ import {
   detectCategory,
   generateStory,
   generateStories,
+  selfName,
   generationSignature,
   toPetVoice,
 } from "../src/domain/story-engine";
@@ -90,7 +91,7 @@ test("新物种和自定义性格可生成、备份，旧猫狗备份保持兼�
       personality: "慢热但亲人，喜欢安静地观察", personalitySource: "custom", ageMonths: 8, routeSource: "manual" };
     const stories = generateStories(state.pet, "今天在自己的角落休息。", "other");
     for (const [style, story] of Object.entries(stories)) {
-      if (style !== "news") assert.ok(story.text.includes("今天我在自己的角落休息。"));
+      if (style !== "news") assert.ok(story.text.includes(`今天${selfName(state.pet)}在自己的角落休息。`));
       assert.ok(!story.text.includes("undefined"));
     }
     assert.ok(stories.news.text.includes("“今天在自己的角落休息。”"));
@@ -205,19 +206,19 @@ test("等级在100 XP边界升级，去重统计", () => {
 test("主人视角改写为宠物第一人称，并从原话猜出标签", () => {
   const cat = demoState().pet!;
   assert.equal(toPetVoice(cat, "今天把我的水杯推下去了，还一脸无辜").text,
-    "今天我把铲屎官的水杯推下去了，还一脸无辜。");
+    "今天咪把铲屎官的水杯推下去了，还一脸无辜。");
   const snack = toPetVoice(cat, "趁我转身的时候，它偷吃了一块小鱼干。");
-  assert.equal(snack.text, "趁铲屎官转身的时候，我悄悄品鉴了一块小鱼干。");
+  assert.equal(snack.text, "趁铲屎官转身的时候，咪悄悄品鉴了一块小鱼干。");
   assert.equal(snack.spin, "偷吃");
-  assert.equal(toPetVoice(cat, "橘总又把花瓶打碎了，我气死了！").text, "我又把花瓶打碎了，铲屎官气死了！");
-  assert.equal(toPetVoice(cat, "我们家猫咪和其他小猫玩了一会儿").text, "我和其他小猫玩了一会儿。");
+  assert.equal(toPetVoice(cat, "橘总又把花瓶打碎了，我气死了！").text, "咪又把花瓶打碎了，铲屎官气死了！");
+  assert.equal(toPetVoice(cat, "我们家猫咪和其他小猫玩了一会儿").text, "咪和其他小猫玩了一会儿。");
   const dog: Pet = { ...cat, name: "旺财", species: "dog" };
-  assert.equal(toPetVoice(dog, "我带他去公园玩，我们都很开心").text, "我的人带我去公园玩，我和我的人都很开心。");
-  assert.equal(toPetVoice(dog, "今天带她出去玩了").text, "今天我的人带我出去玩了。");
-  assert.equal(toPetVoice(dog, "今天给她洗澡了").text, "今天我的人给我洗澡了。");
+  assert.equal(toPetVoice(dog, "我带他去公园玩，我们都很开心").text, "我的人带汪去公园玩，汪和我的人都很开心。");
+  assert.equal(toPetVoice(dog, "今天带她出去玩了").text, "今天我的人带汪出去玩了。");
+  assert.equal(toPetVoice(dog, "今天给她洗澡了").text, "今天我的人给汪洗澡了。");
   assert.match(generateStories(cat, "趁我转身的时候，它偷吃了一块小鱼干。", "snack").diary.text, /悄悄品鉴/);
   const mine: Pet = { ...cat, ownerTitle: "妈妈" };
-  assert.equal(toPetVoice(mine, "我给它买了新玩具").text, "妈妈给我买了新玩具。");
+  assert.equal(toPetVoice(mine, "我给它买了新玩具").text, "妈妈给咪买了新玩具。");
   assert.notEqual(generationSignature(cat, "x", "other"), generationSignature(mine, "x", "other"));
   assert.equal(isAppState({ ...demoState(), pet: mine, events: [] }), true);
   assert.equal(isAppState({ ...demoState(), pet: { ...cat, ownerTitle: "很".repeat(11) }, events: [] }), false);
@@ -242,7 +243,7 @@ test("小报只讲一次原话，回应补充态度，省去报道和归档套�
       const story = generateStory({ ...pet, route }, fact, detectCategory(fact), "news", variant);
       assert.match(story.title, /小黄.*出门/);
       assert.equal(story.text.split(fact).length - 1, 1);
-      assert.match(story.text, /小黄：“.*(?:下一次|下次|明天|外面)/);
+      assert.match(story.text, /小黄：“.+”/);
       assert.doesNotMatch(story.title + story.text, /本报讯|爆料|当事|随后回应|小动物世界|档案|收录|独家记录|虚构娱乐报道/);
       assert.ok(story.text.length < 120);
     }
@@ -254,7 +255,7 @@ test("小报只讲一次原话，回应补充态度，省去报道和归档套�
   applyLang("en");
   try {
     const story = generateStories(pet, "Took her out today.", "walk").news;
-    assert.match(story.text, /another|tomorrow/);
+    assert.match(story.text, /: ".+"/);
     assert.doesNotMatch(story.title + story.text, /archive|file|special edition|fictional entertainment|13\/10/i);
   } finally {
     applyLang("zh");
@@ -274,8 +275,8 @@ test("英文界面下词条、称号与本机故事使用英文，未收录的�
     assert.ok(stories.social.text.includes("He stole a fish."));
     assert.ok(stories.news.text.includes("He stole a fish."));
     assert.ok(!stories.diary.text.includes("He stole a fish.") && !stories.life.text.includes("He stole a fish."));
-    assert.match(stories.diary.text, /opinions about food/);
-    assert.match(generateStories({ ...pet, species: "dog", personality: "亲人" }, "We went out.", "walk").diary.text, /favourite part/);
+    assert.match(stories.diary.text, /highest rating/);
+    assert.match(generateStories({ ...pet, species: "dog", personality: "亲人" }, "We went out.", "walk").diary.text, /best part/);
     assert.equal(isAppState(demoState()), true);
   } finally {
     applyLang("zh");
@@ -286,13 +287,13 @@ test("同一件事按性格写出不同口吻，未知性格按物种取默认",
   const said = (personality: string, species: Pet["species"] = "cat") =>
     generateStories({ ...cat, species, personality }, "它把杯子推下去了。", "chaos").diary.text;
   assert.equal(new Set(["傲娇", "亲人", "活泼", "戏精", "好奇", "稳重", "敏感"].map(p => said(p))).size, 7);
-  assert.match(said("亲人"), /愿意理我/);
-  assert.match(said("好奇"), /为什么/);
-  assert.match(said("慢热但亲人，喜欢安静地观察"), /慢慢讲/);
+  assert.match(said("亲人"), /多看咪/);
+  assert.match(said("好奇"), /掉下去会怎么样/);
+  assert.match(said("慢热但亲人，喜欢安静地观察"), /不是故意的/);
   assert.equal(said("说不清", "dog"), said("活泼", "dog"));
   assert.equal(said("说不清", "turtle"), said("稳重", "turtle"));
   assert.equal(temperOf({ ...cat, personality: "活泼 · 好奇 · 亲人" }), "goofy");
-  assert.match(generateStories({ ...cat, ownerTitle: "妈妈", personality: "亲人" }, "带它散步。", "walk").diary.text, /跟妈妈一起/);
+  assert.match(generateStories({ ...cat, ownerTitle: "妈妈", personality: "亲人" }, "带它散步。", "walk").diary.text, /妈妈一直在咪旁边/);
 });
 test("难过的事不开玩笑，离别按原话保存，日常小事不误判", () => {
   const cat = demoState().pet!;
@@ -386,7 +387,7 @@ test("四种风格保留真实描述，人设变化使生成签名失效", () =>
   const description = "只在窗边看了一会儿雨。";
   const stories = generateStories(p, description, "other");
   for (const [style, story] of Object.entries(stories))
-    if (style !== "news") assert.ok(story.text.includes("我只在窗边看了一会儿雨。"));
+    if (style !== "news") assert.ok(story.text.includes("咪只在窗边看了一会儿雨。"));
   assert.ok(stories.news.text.includes(description));
   const school: Pet = { ...p, route: "campus", role: "睡眠研究班" };
   assert.match(

@@ -1,6 +1,6 @@
 import { Category, Draft, LifeEvent, Pet, Stories, Story, StoryStyle, STYLES } from "./types";
 import { getLang, t } from "../i18n/core";
-import { isLoss, isSensitive, reaction, socialLine, temperOf } from "./temper";
+import { isLoss, isSensitive, reaction, selfOf, socialLine } from "./temper";
 const incidents: Record<
   Category,
   {
@@ -10,41 +10,35 @@ const incidents: Record<
   }
 > = {
   sleep: {
-    work: "午觉想排进今天的日程。上班的事，等我睡够了再商量。",
-    campus: "这门休息课，我想按自己的进度学。醒来再聊下一节。",
+    work: "今日工作内容：睡觉。这是今天最重要的项目。",
+    campus: "今天的课：睡觉。出勤率百分之百。",
     title: "今天忙着睡觉",
   },
   snack: {
-    work: "关于吃的，我愿意多花点心思。下一份试吃机会，希望还考虑我。",
-    campus: "要是开一门吃饭课，我应该很愿意认真听。课后也想继续研究。",
+    work: "试吃岗今日准时到岗。工作很辛苦，份量还可以再加。",
+    campus: "吃饭课今天满分。老师是碗。",
     title: "开饭时间到",
   },
   bath: {
-    work: "今天的清洁流程到这里。我想申请一点自由时间，慢慢恢复自己的节奏。",
-    campus: "洗澡这门课先上到这里。下一节想选自己喜欢的，最好由我决定。",
+    work: "今天被安排了清洁团建，全程没有发言。",
+    campus: "今天上了一节洗澡课。下次申请请假。",
     title: "洗澡这件小事",
   },
   chaos: {
-    work: "这件事要是开会讨论，也请给我留个发言位置。我的想法还没讲完。",
-    campus: "这道题我有自己的解法。结果可以聊，思路也想让大家听听。",
+    work: "今天的项目出了点状况。复盘会就不参加了。",
+    campus: "今天这道题的解法比较特别，老师可能不认。",
     title: "今天有点小状况",
   },
   walk: {
-    work: "今天的外出算我喜欢的安排。下次想把时间留宽一点，按自己的节奏来。",
-    campus: "户外这门课，下次还想选。好奇心想多留一点时间。",
+    work: "外勤完成。外面的情况已摸清，报销另说。",
+    campus: "户外课结束。学到了很多，具体是什么，忘了。",
     title: "出门啦",
   },
   other: {
-    work: "这件事记进今天的工作日志了。没人要求，是我自己想记的。",
-    campus: "这件事记进了今天的课堂笔记。老师没布置，是我自己加的。",
+    work: "这件事记进工作日志了。没人要求，自己记的。",
+    campus: "这件事记进课堂笔记了。老师没布置，自己加的。",
     title: "今天的小事",
   },
-};
-const SELF: Partial<Record<Pet["species"], string>> = {
-  cat: "本喵",
-  dog: "本汪",
-  rabbit: "本兔",
-  lizard: "本蜥",
 };
 const ALIASES: Partial<Record<Pet["species"], string[]>> = {
   cat: ["猫主子", "猫咪", "猫猫", "小猫", "主子"],
@@ -73,12 +67,8 @@ const P = "\u0001",
   W = "\u0003",
   K = "\u0004";
 
-// "本喵 / 本汪" reads as a pose, so only the cool and the dramatic use it; everyone else says "我".
-export const selfName = (pet: Pet) => {
-  if (getLang() === "en") return "I";
-  const temper = temperOf(pet);
-  return temper === "cool" || temper === "drama" ? (SELF[pet.species] ?? "我") : "我";
-};
+// What the pet calls itself: 咪 / 汪 / its own name in Chinese, "I" in English (docs/13 v3 §3).
+export const selfName = (pet: Pet) => selfOf(pet, getLang() === "en" ? "en" : "zh");
 // English cats used to say "the staff", which read as a workplace; every pet says "my human" (docs/01 8.24).
 export const defaultOwnerName = (species: Pet["species"]) =>
   getLang() === "en"
@@ -131,10 +121,11 @@ export function toPetVoice(
       spin ??= from;
     }
   const owner = ownerName(pet);
+  const self = selfName(pet);
   s = s
-    .split(P).join("我")
+    .split(P).join(self)
     .split(O).join(owner)
-    .split(W).join(`我和${owner}`);
+    .split(W).join(`${self}和${owner}`);
   KEEP.forEach((word, i) => {
     s = s.split(K + String.fromCharCode(97 + i)).join(word);
   });
@@ -206,7 +197,7 @@ export function generateStory(
         ? `【${pet.route === "work" ? "今日工作日记" : "今日校园日记"}】\n${said.text}\n\n${life || mine.line}`
         : style === "social"
           ? `${said.text}\n${socialLine(pet, category, owner, "zh", fact, variant)}`
-          : `${said.text}\n\n${mine.line}${variant % 2 === 1 ? `\n${mine.closer}` : ""}`;
+          : `${said.text}\n\n${mine.line}${variant % 2 === 1 || mine.flavored ? `\n${mine.closer}` : ""}`;
   const title =
     style === "news"
       ? `${pet.name}：${v.title}`
@@ -222,28 +213,28 @@ export function generateStory(
 // the post and the news quote the owner for context. The AI gateway provides a true retelling.
 const asides: Record<Category, { work: string; campus: string; title: string }> = {
   sleep: {
-    work: "I'd like a nap on today's schedule. Work can be discussed when I've rested.",
-    campus: "I'd like to study rest at my own pace. The next class can wait until I wake up.",
+    work: "Today's task: sleep. Top priority project.",
+    campus: "Today's class: sleep. Perfect attendance.",
     title: "Busy Sleeping",
   },
   snack: {
-    work: "Happy to give food some serious thought. Please consider me for the next tasting slot.",
-    campus: "A class about food sounds interesting. I'd happily keep thinking about it afterwards.",
+    work: "Tasting shift complete. Hard work. Portions could be bigger.",
+    campus: "Lunch class: full marks. The teacher was the bowl.",
     title: "Snack Time",
   },
   bath: {
-    work: "Cleaning routine complete. I'd like some free time to settle back into my own pace.",
-    campus: "That's enough bath class for now. I'd like a say in the next elective.",
+    work: "Mandatory water-based team building today. Did not contribute.",
+    campus: "Had bath class today. Requesting a sick note next time.",
     title: "Bath Day",
   },
   chaos: {
-    work: "If there's a meeting about this, save me a speaking slot. I have thoughts too.",
-    campus: "I have my own approach to this question. I'd like my reasoning heard alongside the result.",
+    work: "A small incident on today's project. Skipping the retro.",
+    campus: "My answer to today's question was creative. The teacher may not accept it.",
     title: "A Little Chaos Today",
   },
   walk: {
-    work: "An outing belongs on my preferred schedule. I'd like more time and my own pace next time.",
-    campus: "I'd choose outdoor class again. My curiosity could use a little more time.",
+    work: "Field work done. Expenses to follow.",
+    campus: "Outdoor class over. Learned a lot. Can't remember what.",
     title: "Out and About",
   },
   other: {
@@ -272,7 +263,7 @@ function englishStory(pet: Pet, fact: string, category: Category, style: StorySt
         ? `${work ? "Work diary" : "School diary"}\n${life || mine.line}`
         : style === "social"
           ? `${Owner} says: "${fact}"\n${socialLine(pet, category, owner, "en", fact, variant)}`
-          : `${mine.line}${variant % 2 === 1 ? `\n${mine.closer}` : ""}`;
+          : `${mine.line}${variant % 2 === 1 || mine.flavored ? `\n${mine.closer}` : ""}`;
   const title =
     style === "news"
       ? `${pet.name}: ${v.title}`

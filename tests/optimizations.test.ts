@@ -6,7 +6,7 @@ import { IMAGE_PREFIX, hasImages, imageName, imageRefs, mapImages } from "../src
 import { backupDue, markBackedUp, snoozeBackup } from "../src/domain/backup";
 import { deleteEvent, restoreEvent } from "../src/domain/life";
 import { generateStories, voiceVariant } from "../src/domain/story-engine";
-import { moreEn, moreZh } from "../src/domain/voice-bank-more";
+import { en as voiceEn, zh as voiceZh } from "../src/domain/voice-bank";
 import { CATEGORIES, type AppState, type Category, type LifeEvent, type Pet } from "../src/domain/types";
 import { applyLang } from "../src/i18n/core";
 import { createGateway, headers, originAllowed } from "../server/core.mjs";
@@ -79,11 +79,11 @@ test("删除日记可以撤销，换了宠物或已经恢复过就不重复放�
 const BANNED_ZH = /仿佛|宛如|岁月静好|治愈|小确幸|满满的|暖暖的|不仅.{1,15}更是|好多话|好多想法|分几次说/;
 const BANNED_EN = /—|heartwarming|furry friend|pawsome|more to say/i;
 test("本机文案：每种脾气每类事内心独白 5 句、爪友圈 4 句，同类事连着记不重复", () => {
-  for (const [bank, banned] of [[moreZh, BANNED_ZH], [moreEn, BANNED_EN]] as const)
+  for (const [bank, banned] of [[voiceZh, BANNED_ZH], [voiceEn, BANNED_EN]] as const)
     for (const [temper, set] of Object.entries(bank))
       for (const c of CATEGORIES) {
-        assert.equal(set.line[c].length, 3, `${temper} ${c}`);
-        assert.equal(set.social[c].length, 2, `${temper} ${c}`);
+        assert.equal(set.line[c].length, 5, `${temper} ${c}`);
+        assert.equal(set.social[c].length, 4, `${temper} ${c}`);
         for (const line of [...set.line[c], ...set.social[c]]) assert.doesNotMatch(line, banned, line);
       }
   for (const lang of ["zh", "en"] as const) {
