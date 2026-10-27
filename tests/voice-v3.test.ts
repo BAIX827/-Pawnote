@@ -73,3 +73,13 @@ test("AI 网关：副色最多两个且必须是已知脾气，自称最长 20 �
   assert.equal((await ask({ flavors: ["sleepy"] })).status, 400);
   assert.equal((await ask({}, "团子团子团子团子团子团子")).status, 200);
 });
+
+test("日记里同一句收尾不会出现两次", () => {
+  applyLang("zh");
+  for (const variant of [0, 1, 2, 3]) {
+    const text = generateStories({ ...base(), personality: "傲娇" }, "它把桌上的杯子推下去摔碎了。", "other", variant).diary.text;
+    const lines = text.split("\n").filter(Boolean);
+    const last = lines[lines.length - 1];
+    assert.ok(!lines.slice(0, -1).some((l) => l.endsWith(last)), text);
+  }
+});

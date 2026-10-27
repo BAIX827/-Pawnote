@@ -197,7 +197,7 @@ export function generateStory(
         ? `【${pet.route === "work" ? "今日工作日记" : "今日校园日记"}】\n${said.text}\n\n${life || mine.line}`
         : style === "social"
           ? `${said.text}\n${socialLine(pet, category, owner, "zh", fact, variant)}`
-          : `${said.text}\n\n${mine.line}${variant % 2 === 1 || mine.flavored ? `\n${mine.closer}` : ""}`;
+          : `${said.text}\n\n${mine.line}${(variant % 2 === 1 || mine.flavored) && !mine.line.endsWith(mine.closer) ? `\n${mine.closer}` : ""}`;
   const title =
     style === "news"
       ? `${pet.name}：${v.title}`
@@ -263,7 +263,7 @@ function englishStory(pet: Pet, fact: string, category: Category, style: StorySt
         ? `${work ? "Work diary" : "School diary"}\n${life || mine.line}`
         : style === "social"
           ? `${Owner} says: "${fact}"\n${socialLine(pet, category, owner, "en", fact, variant)}`
-          : `${mine.line}${variant % 2 === 1 || mine.flavored ? `\n${mine.closer}` : ""}`;
+          : `${mine.line}${(variant % 2 === 1 || mine.flavored) && !mine.line.endsWith(mine.closer) ? `\n${mine.closer}` : ""}`;
   const title =
     style === "news"
       ? `${pet.name}: ${v.title}`
