@@ -35,7 +35,7 @@ export const zh: VoiceBank = {
       other: ["今天有件事，算{self}同意它发生了。", "日常一条，看完请安静离开。", "发这个不是为了让谁夸。夸也可以。", "今日无事。有事也不说。"],
     },
     closers: ["今天的意见就这些。", "此事到此为止。", "别看了，{self}没在笑。"],
-    silly: ["比什么时候说过在意了。", "本次不予追究。下次就不一定了。", "{self}只是路过，顺便赢了。"],
+    silly: ["比什么时候说过在意了。", "本次不予追究。下次就不一定了。", "{self}才没生气。（其实有一点）"],
   },
   clingy: {
     line: {
@@ -55,7 +55,7 @@ export const zh: VoiceBank = {
       other: ["今天也是和{owner}待在一起的一天。", "这件小事，{owner}陪{self}一起过的。", "{owner}在的一天，就是好的一天。", "今天也很喜欢{owner}。明天也是。"],
     },
     closers: ["{self}在门口等{owner}。", "今天也想黏着{owner}。", "摸摸头就更好了。"],
-    silly: ["说到底，{self}就是想黏着{owner}。别的不重要。", "{self}不懂这些，{self}只知道{owner}在就好。", "{self}的全部想法就是这些，没有别的了。"],
+    silly: ["说到底，{self}就是想黏着{owner}。别的不重要。", "{self}不懂这些，{self}只知道{owner}在就好。", "{self}没有时间概念，只知道{owner}在的时候就是好时候。"],
   },
   goofy: {
     line: {
@@ -75,7 +75,7 @@ export const zh: VoiceBank = {
       other: ["今天又是开心的一天！细节不重要！", "{self}今天干了一件事！大家觉得厉害吗！", "不知道为什么，反正很开心！", "今天的{self}也是脑袋空空，很幸福！"],
     },
     closers: ["开心！", "还有吗！", "{self}还想再来一次！"],
-    silly: ["{self}没有长胖，是窝变小了。", "{self}的脑子今天也是空空的，很轻松！", "等一下，{self}刚才要说什么来着？"],
+    silly: ["{self}没有长胖，是窝变小了。", "虽然{self}看不太懂，但{self}先盖个章！", "等一下，{self}刚才要说什么来着？"],
   },
   drama: {
     line: {
@@ -95,7 +95,7 @@ export const zh: VoiceBank = {
       other: ["今日剧情已更新，主角是{self}。", "本周名场面候选一件，请投票。", "事情很小，感受很大。", "全体注意，{self}宣布完了。"],
     },
     closers: ["掌声可以响起来了。", "本场演出到此结束。", "（其实也还好）"],
-    silly: ["{self}写好的遗书，这次先收起来。", "今天的剧情，{self}给自己打满分。", "全剧终。（明天还有）"],
+    silly: ["{self}写好的遗书，这次先收起来。", "{self}决定这辈子都不理{owner}了。（坚持了三秒）", "全剧终。（明天还有）"],
   },
   curious: {
     line: {
@@ -115,7 +115,7 @@ export const zh: VoiceBank = {
       other: ["今日观察一条，欢迎补充。", "新发现一件，原理暂时不明。", "今天又看不懂人类了。", "{owner}笑了，原因不明。"],
     },
     closers: ["有谁也好奇这个？", "结论明天公布。", "实验继续。"],
-    silly: ["两脚兽的行为，{self}还在研究。是发生什么事了吗？", "这个问题困扰了{self}整整一分钟。", "人类真是一种神奇的生物。"],
+    silly: ["两脚兽的行为，{self}还在研究。是发生什么事了吗？", "这个问题困扰了{self}整整一分钟。", "{self}已经发帖求助了：两脚兽为什么要这样？"],
   },
   calm: {
     line: {
@@ -180,7 +180,7 @@ export const en: VoiceBank = {
       other: ["Something happened today. I allowed it.", "Daily update. Read quietly and move on.", "I'm not posting this for compliments. Compliments are accepted.", "Nothing happened today. If it did, I'm not saying."],
     },
     closers: ["That's all my comments for today.", "This matter is closed.", "Stop looking. I'm not smiling."],
-    silly: ["When did I ever say I cared.", "No further action this time. Next time, who knows.", "I was just passing through. I happened to win."],
+    silly: ["When did I ever say I cared.", "No further action this time. Next time, who knows.", "I'm not upset. (A little.)"],
   },
   clingy: {
     line: {
@@ -200,7 +200,7 @@ export const en: VoiceBank = {
       other: ["another day with {owner}.", "{owner} was with me for this one.", "a day with {owner} is a good day.", "liked {owner} a lot today. tomorrow too."],
     },
     closers: ["i'll be by the door.", "sticking close to {owner} today.", "a head pat would make it better."],
-    silly: ["at the end of the day i just want to be next to {owner}. that's it.", "i don't understand much. i understand that {owner} is here.", "that's all my thoughts. there aren't any others."],
+    silly: ["at the end of the day i just want to be next to {owner}. that's it.", "i don't understand much. i understand that {owner} is here.", "i don't really know what time is. i know when {owner} is here, and that's the good time."],
   },
   goofy: {
     line: {
@@ -220,7 +220,7 @@ export const en: VoiceBank = {
       other: ["Another happy day! Details unimportant!", "I did a thing today! Impressive, right?", "No idea why. Very happy.", "Head empty. Very content."],
     },
     closers: ["Happy!", "Is there more?", "Can we do it again?"],
-    silly: ["I haven't got bigger. My bed has got smaller.", "Nothing in my head today. Very relaxing.", "Hang on, what was I saying?"],
+    silly: ["I haven't got bigger. My bed has got smaller.", "I didn't understand it, but I approved it anyway!", "Hang on, what was I saying?"],
   },
   drama: {
     line: {
@@ -240,7 +240,7 @@ export const en: VoiceBank = {
       other: ["New episode out. I'm the lead.", "Scene of the week nominee. Vote now.", "Small thing. Big feelings.", "Attention, everyone. That's the announcement."],
     },
     closers: ["You may applaud now.", "That concludes tonight's performance.", "(It was fine, actually.)"],
-    silly: ["My last words can go back in the drawer for now.", "I give today's episode full marks.", "The end. (More tomorrow.)"],
+    silly: ["My last words can go back in the drawer for now.", "I have decided never to speak to {owner} again. (Lasted three seconds.)", "The end. (More tomorrow.)"],
   },
   curious: {
     line: {
@@ -260,7 +260,7 @@ export const en: VoiceBank = {
       other: ["One observation today. Additions welcome.", "New finding. Mechanism unclear.", "Didn't understand humans again today.", "{owner} laughed. Cause unknown."],
     },
     closers: ["Anyone else curious?", "Results tomorrow.", "Experiment continues."],
-    silly: ["Still studying human behaviour. Did something happen?", "This question puzzled me for an entire minute.", "Humans are a remarkable species."],
+    silly: ["Still studying human behaviour. Did something happen?", "This question puzzled me for an entire minute.", "I've posted on the forum: why do humans do this?"],
   },
   calm: {
     line: {
