@@ -83,3 +83,16 @@ export function questionnaireTraits(answers: number[]): string[] {
   });
   return [...scores].sort((a, b) => b[1] - a[1]).slice(0, 3).map(([trait]) => trait);
 }
+
+// Several personality tags join like the questionnaire's result (docs/01 8.34).
+export const PERSONALITY_SEP = " · ";
+export const MAX_PERSONALITY_TAGS = 4;
+export const personalityParts = (text: string) =>
+  text.split(/\s*·\s*/).map((p) => p.trim()).filter(Boolean);
+/** Adds or removes a tag, keeping the owner's own words; undefined when the tag limit is reached. */
+export function togglePersonality(text: string, tag: string, tags: readonly string[]): string | undefined {
+  const parts = personalityParts(text);
+  if (parts.includes(tag)) return parts.filter((p) => p !== tag).join(PERSONALITY_SEP);
+  if (parts.filter((p) => tags.includes(p)).length >= MAX_PERSONALITY_TAGS) return undefined;
+  return [...parts, tag].join(PERSONALITY_SEP);
+}

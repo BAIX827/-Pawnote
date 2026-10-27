@@ -319,6 +319,13 @@ export function addRoutine(state: AppState, input: RoutineInput, now = new Date(
   const routine: Routine = { id: id(), ...cleanRoutine(input), enabled: true, createdAt: now.toISOString() };
   return { ...state, routines: [...routines, routine] };
 }
+/** One custom 爪约 per chosen time, all or none (docs/01 8.34). */
+export function addRoutines(state: AppState, inputs: RoutineInput[], now = new Date()): AppState {
+  if (!inputs.length) throw new Error(t("至少选一个时间。"));
+  const room = MAX_ROUTINES - (state.routines ?? []).length;
+  if (inputs.length > room) throw new Error(t("爪约最多 {n} 条，还能加 {m} 条。", { n: MAX_ROUTINES, m: Math.max(0, room) }));
+  return inputs.reduce((s, input) => addRoutine(s, input, now), state);
+}
 /** A new pet starts with its species' first two 爪约 switched on, so 爪窝 has something to call about (docs/01 8.24). */
 export function withStarterRoutines(state: AppState, now = new Date()): AppState {
   if (!state.pet || state.routines?.length) return state;

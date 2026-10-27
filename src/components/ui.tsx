@@ -234,6 +234,37 @@ export function Label({ children }: { children: React.ReactNode }) {
     </Text>
   );
 }
+/** A form section folded to one line showing its current choice; tap the line to open it (docs/01 8.34). */
+export function Fold({ label, summary, open, onToggle, children }: {
+  label: string;
+  summary: string;
+  open: boolean;
+  onToggle: () => void;
+  children: React.ReactNode;
+}) {
+  return (
+    <View style={{ gap: 10 }}>
+      <Pressable
+        accessibilityRole="button"
+        accessibilityLabel={`${label}：${summary}`}
+        accessibilityState={{ expanded: open }}
+        onPress={onToggle}
+        style={{ flexDirection: "row", alignItems: "center", gap: 10, minHeight: 44 }}
+      >
+        <Text style={{ fontSize: 14, fontWeight: "700", color: colors.ink }}>{label}</Text>
+        {!open && (
+          <View style={{ flexShrink: 1, backgroundColor: colors.pale, borderWidth: 2, borderColor: colors.ink, borderRadius: 999, paddingHorizontal: 12, paddingVertical: 4 }}>
+            <Text numberOfLines={1} style={{ fontSize: 14, fontWeight: "700", color: colors.ink }}>{summary}</Text>
+          </View>
+        )}
+        <View style={{ flex: 1 }} />
+        <Text style={{ fontSize: 13, color: colors.muted }}>{open ? t("收起") : t("展开")}</Text>
+        <Icon name={open ? "chevron-up" : "chevron-down"} size={18} color={colors.ink} />
+      </Pressable>
+      {open && children}
+    </View>
+  );
+}
 export function Field({ ref, ...props }: TextInputProps & { ref?: React.Ref<TextInput> }) {
   return (
     <TextInput

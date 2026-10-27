@@ -12,6 +12,7 @@ import {
   RoutineInput,
   activityLabel,
   addRoutine,
+  addRoutines,
   normalizeTime,
   reminderLine,
   remindersPaused,
@@ -56,7 +57,7 @@ function Days({ days, onToggle }: { days: number[]; onToggle: (day: number) => v
     </View>
   );
 }
-const toggle = (days: number[], d: number) => (days.includes(d) ? days.filter((x) => x !== d) : [...days, d]);
+const toggle = <T,>(list: T[], x: T) => (list.includes(x) ? list.filter((y) => y !== x) : [...list, x]);
 
 function RoutineCard({ routine, index, say, change, remove }: {
   routine: Routine;
@@ -104,7 +105,9 @@ export default function PawDates() {
   const { state, update, notify } = useStore();
   const [permission, setPermission] = useState<ReminderPermission>("unsupported");
   const [label, setLabel] = useState("");
-  const [time, setTime] = useState("19:00");
+  // Several times make one 爪约 each (docs/01 8.34).
+  const [times, setTimes] = useState<string[]>(["19:00"]);
+  const [time, setTime] = useState("");
   const [days, setDays] = useState(ALL_DAYS);
   useEffect(() => {
     void reminderPermission().then(setPermission).catch(() => {});
@@ -127,8 +130,21 @@ export default function PawDates() {
   async function add(input: RoutineInput) {
     if (!apply((s) => addRoutine(s, input))) return false;
     notify(t("约好了：{time} {label}", { time: input.time, label: activityLabel(input) }));
-    if (remindersSupported && permission === "undetermined") setPermission(await requestReminderPermission().catch(() => permission));
+    await askPermission();
     return true;
+  }
+  async function addCustom() {
+    const typed = time.trim() ? normalizeTime(time) : undefined;
+    if (time.trim() && !typed) return notify(t("时间请按 08:30 这样填写。"));
+    const all = [...new Set([...times, ...(typed ? [typed] : [])])].sort();
+    if (!apply((s) => addRoutines(s, all.map((at) => ({ activity: "custom", label, time: at, days }))))) return;
+    notify(t("约好了：{time} {label}", { time: all.join("、"), label: label.trim() }));
+    setLabel("");
+    setTime("");
+    await askPermission();
+  }
+  async function askPermission() {
+    if (remindersSupported && permission === "undetermined") setPermission(await requestReminderPermission().catch(() => permission));
   }
   const status =
     permission === "unsupported"
@@ -209,12 +225,26 @@ export default function PawDates() {
           <Field value={label} onChangeText={setLabel} maxLength={MAX_LABEL} placeholder={t("比如：被摸肚子、咬毛线球")} />
         </View>
         <View>
-          <Label>{t("几点")}</Label>
+          <Label>{t("几点（可以多选）")}</Label>
           <View style={[styles.row, { flexWrap: "wrap", gap: 8 }]}>
-            <Field value={time} onChangeText={setTime} maxLength={5} keyboardType="numbers-and-punctuation" style={{ width: 100, textAlign: "center" }} accessibilityLabel={t("提醒时间")} />
-            {QUICK_TIMES.map((q) => (
-              <Chip key={q} label={q} active={time === q} onPress={() => setTime(q)} />
+            {[...new Set([...QUICK_TIMES, ...times])].sort().map((q) => (
+              <Chip key={q} label={q} active={times.includes(q)} onPress={() => setTimes(toggle(times, q))} />
             ))}
+            <Field
+              value={time}
+              onChangeText={setTime}
+              onSubmitEditing={() => {
+                const clean = normalizeTime(time);
+                if (!clean) return notify(t("时间请按 08:30 这样填写。"));
+                if (!times.includes(clean)) setTimes([...times, clean]);
+                setTime("");
+              }}
+              maxLength={5}
+              keyboardType="numbers-and-punctuation"
+              placeholder={t("其他时间")}
+              style={{ width: 110, textAlign: "center" }}
+              accessibilityLabel={t("添加其他提醒时间")}
+            />
           </View>
         </View>
         <View>
@@ -231,13 +261,7 @@ export default function PawDates() {
           label={t("加进爪约")}
           icon="plus"
           disabled={routines.length >= MAX_ROUTINES}
-          onPress={() => {
-            const clean = normalizeTime(time);
-            if (!clean) return notify(t("时间请按 08:30 这样填写。"));
-            void add({ activity: "custom", label, time: clean, days }).then((ok) => {
-              if (ok) setLabel("");
-            });
-          }}
+          onPress={() => void addCustom()}
           style={{ alignSelf: "flex-start" }}
         />
       </Card>

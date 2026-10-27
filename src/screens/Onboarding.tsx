@@ -19,7 +19,7 @@ import {
   id,
   roleFor,
 } from "../domain/types";
-import { SPECIES_INFO, ageFromBirthday, parseAge, recommendRoute } from "../domain/pet-profile";
+import { MAX_PERSONALITY_TAGS, SPECIES_INFO, ageFromBirthday, parseAge, personalityParts, recommendRoute, togglePersonality } from "../domain/pet-profile";
 import { defaultOwnerName, ownerName } from "../domain/story-engine";
 import { withStarterRoutines } from "../domain/paw-dates";
 import { isHomeDate } from "../domain/timeline";
@@ -31,6 +31,7 @@ import {
   Card,
   Chip,
   Field,
+  Fold,
   Label,
   Tag,
   colors,
@@ -53,6 +54,10 @@ export default function Onboarding({ editing = false, adding = false }: { editin
     original?.personalitySource ?? "tag",
   );
   const [quizOpen, setQuizOpen] = useState(false);
+  // Long choice lists start folded to one line each (docs/01 8.34).
+  const [speciesOpen, setSpeciesOpen] = useState(false);
+  const [personalityOpen, setPersonalityOpen] = useState(false);
+  const [titleOpen, setTitleOpen] = useState(false);
   const [quizAnswers, setQuizAnswers] = useState(
     original?.questionnaire?.answers,
   );
@@ -145,11 +150,18 @@ export default function Onboarding({ editing = false, adding = false }: { editin
       return;
     }
     if (species === "other" && !speciesName.trim()) {
+      setSpeciesOpen(true);
       notify(t("请填写宠物类型，例如刺猬、蜜袋鼯。"));
       return;
     }
     if (!personality.trim()) {
+      setPersonalityOpen(true);
       notify(t("选一个性格标签，或写下你了解的它。"));
+      return;
+    }
+    if (personality.trim().length > 60) {
+      setPersonalityOpen(true);
+      notify(t("性格描述最多 60 个字。"));
       return;
     }
     if (ageError) {
@@ -277,8 +289,12 @@ export default function Onboarding({ editing = false, adding = false }: { editin
               </Text>
             )}
           </View>
-          <View style={{ gap: 10 }}>
-            <Label>{t("02 / 宠物类型")}</Label>
+          <Fold
+            label={t("02 / 宠物类型")}
+            summary={species === "other" ? speciesName.trim() || t("其他宠物") : `${SPECIES_INFO[species].emoji} ${t(SPECIES_INFO[species].label)}`}
+            open={speciesOpen}
+            onToggle={() => setSpeciesOpen(!speciesOpen)}
+          >
             <View style={[styles.row, { flexWrap: "wrap" }]}>
               {SPECIES.map((value) => (
                 <Chip
@@ -298,7 +314,7 @@ export default function Onboarding({ editing = false, adding = false }: { editin
                 placeholder={t("例如：刺猬、蜜袋鼯、蜘蛛")}
               />
             )}
-          </View>
+          </Fold>
           <View style={{ gap: 10 }}>
             <Label>{t("03 / 年龄（可选）")}</Label>
             <View style={styles.row}>
@@ -331,16 +347,23 @@ export default function Onboarding({ editing = false, adding = false }: { editin
               </Text>
             )}
           </View>
-          <View style={{ gap: 12 }}>
-            <Label>{t("04 / 性格")}</Label>
+          <Fold
+            label={t("04 / 性格")}
+            summary={personality.trim() ? tList(personality) : t("还没选")}
+            open={personalityOpen}
+            onToggle={() => setPersonalityOpen(!personalityOpen)}
+          >
+            <Text style={styles.small}>{t("可以多选，最多 {n} 个，排在前面的最像它。", { n: MAX_PERSONALITY_TAGS })}</Text>
             <View style={[styles.row, { flexWrap: "wrap" }]}>
               {PERSONALITIES.map((p) => (
                 <Chip
                   key={p}
                   label={t(p)}
-                  active={personality === p}
+                  active={personalityParts(personality).includes(p)}
                   onPress={() => {
-                    setPersonality(p);
+                    const next = togglePersonality(personality, p, PERSONALITIES);
+                    if (next === undefined) return notify(t("性格标签最多选 {n} 个。", { n: MAX_PERSONALITY_TAGS }));
+                    setPersonality(next);
                     setPersonalitySource("tag");
                   }}
                 />
@@ -375,7 +398,7 @@ export default function Onboarding({ editing = false, adding = false }: { editin
                 }}
               />
             )}
-          </View>
+          </Fold>
           <View style={{ gap: 10 }}>
             <Label>{t("05 / 人生路线")}</Label>
             {species === "cat" || species === "dog" ? (
@@ -422,8 +445,12 @@ export default function Onboarding({ editing = false, adding = false }: { editin
               />
             </View>
           </View>
-          <View style={{ gap: 10 }}>
-            <Label>{t("06 / 它在日记里怎么称呼你")}</Label>
+          <Fold
+            label={t("06 / 它在日记里怎么称呼你")}
+            summary={ownerTitle.trim() || defaultOwnerName(species)}
+            open={titleOpen}
+            onToggle={() => setTitleOpen(!titleOpen)}
+          >
             <View style={[styles.row, { flexWrap: "wrap" }]}>
               {[t("妈妈"), t("爸爸"), t("姐姐"), t("哥哥"), t("铲屎官"), t("两脚兽"), t("我的人"), t("主人")].map((t) => (
                 <Chip
@@ -441,7 +468,7 @@ export default function Onboarding({ editing = false, adding = false }: { editin
               maxLength={10}
               placeholder={t("也可以自己写，例如：老张。留空就叫“{owner}”", { owner: defaultOwnerName(species) })}
             />
-          </View>
+          </Fold>
           <View style={{ gap: 10 }}>
             <Label>{t("07 / 到家日期（可选）")}</Label>
             <DateField label={t("到家日期")} value={homeDate} onChange={setHomeDate} />
