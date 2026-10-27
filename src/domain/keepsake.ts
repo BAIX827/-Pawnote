@@ -27,7 +27,7 @@ export function keepsakeHTML(book: Keepsake): string {
   const items = [
     ...book.events.map((event) => ({ day: eventDay(event), html: `<article class="page"><span class="tag">${esc(eventDay(event))} · ${esc(t("日记"))}</span>
 ${image(event.photo)}<h2>${esc(event.stories[event.selectedStyle].title)}</h2><p class="story">${esc(event.stories[event.selectedStyle].text)}</p>
-<details open><summary>${esc(t("主人原话"))}</summary><p>${esc(event.description)}</p></details><footer>${esc(event.petSnapshot.name)} · ${esc(t(event.petSnapshot.role))}</footer></article>` })),
+<footer>${esc(event.petSnapshot.name)} · ${esc(t(event.petSnapshot.role))}</footer></article>` })),
     ...book.sounds.map((sound) => ({ day: sound.recordedOn, html: `<article class="page sound"><span class="tag">${esc(sound.recordedOn)} · ${esc(t("声音相册"))}</span>
 <h2>${esc(sound.title)}</h2><p>${esc(t(SOUND_STAGE_LABELS[sound.stage]))}${sound.ageMonths === undefined ? "" : ` · ${esc(t("当时 {n} 个月", { n: sound.ageMonths }))}`} · ${soundTime(sound.duration)}</p>
 ${validSoundAudio(sound.audio) ? `<audio controls preload="none" src="${sound.audio}">${esc(t("请用浏览器打开纪念册，播放声音。"))}</audio>` : `<p>${esc(t("声音读取失败，请重试。"))}</p>`}

@@ -1,4 +1,5 @@
 import test from "node:test";
+import { petLine } from "../src/domain/story-engine";
 import assert from "node:assert/strict";
 import { demoState } from "../src/data/demo";
 import { eventDate, eventDay, eventTimestamp, isDay, isPastDay, localDay, dayDistance } from "../src/domain/dates";
@@ -98,7 +99,9 @@ test("纪念信引用真实记录，离世记录保留纪念页，SVG转义用�
   state.events = [{ ...at("2025-02-27"), description: "去了海边 <script>alert(1)</script>" }];
   const occasion = occasionForYear(state.pet, "birthday", 2025)!;
   const letter = occasionLetter(state, occasion);
-  assert.ok(letter.paragraphs.some((p) => p.includes(state.events[0].description)));
+  // The letter quotes the pet, never the owner's note (docs/01 8.36).
+  assert.ok(!letter.paragraphs.some((p) => p.includes(state.events[0].description)));
+  assert.ok(letter.paragraphs.some((p) => p.includes(petLine(state.events[0])!)));
   assert.ok(!occasionSVG(letter).includes("<script>"));
   state.events = [{ ...at("2025-02-27"), description: "它去世了" }];
   const memorial = occasionLetter(state, occasion);

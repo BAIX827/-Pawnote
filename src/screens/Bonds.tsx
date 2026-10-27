@@ -1,3 +1,4 @@
+import { petLine } from "../domain/story-engine";
 import { t, useLang } from "../i18n";
 import { useMemo, useState } from "react";
 import { Pressable, Text, View, useWindowDimensions } from "react-native";
@@ -168,7 +169,7 @@ export default function Bonds() {
                   {t("最近：{date} {tone}「{text}」", {
                     date: formatDate(eventDate(last.event).toISOString()),
                     tone: t(TONE_LABELS[last.event.together!.tone]),
-                    text: last.event.description,
+                    text: petLine(last.event) ?? last.event.stories[last.event.selectedStyle].title,
                   })}
                   {l.history.length > 1 ? t(" · 共 {n} 件事", { n: l.history.length }) : ""}
                 </Text>

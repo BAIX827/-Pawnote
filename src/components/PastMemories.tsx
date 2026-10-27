@@ -1,3 +1,4 @@
+import { petLine } from "../domain/story-engine";
 import { useState } from "react";
 import { Image, Text, View } from "react-native";
 import { router } from "expo-router";
@@ -22,7 +23,7 @@ export default function PastMemories() {
     {memory.kind === "event" ? <>
       {memory.event.photo && <Image source={{ uri: memory.event.photo }} style={{ width: "100%", height: 200, borderRadius: 10, borderWidth: 2.5, borderColor: colors.ink }} />}
       <Text style={styles.h2} numberOfLines={2}>{memory.event.stories[memory.event.selectedStyle].title}</Text>
-      <Text style={styles.body} numberOfLines={3}>{memory.event.description}</Text>
+      <Text style={styles.body} numberOfLines={3}>{petLine(memory.event)}</Text>
       <Button label={t("翻开这段回忆")} tone="soft" onPress={() => router.push({ pathname: "/event", params: { id: memory.event.id } })} />
     </> : <>
       <Text style={styles.h2}>{memory.sound.title}</Text>

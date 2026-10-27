@@ -4,7 +4,7 @@ import { router } from "expo-router";
 import { useStore } from "../data/store";
 import { progress, titleFor } from "../domain/life";
 import { formatDate } from "../domain/types";
-import { ownerName, petLine } from "../domain/story-engine";
+import { petLine } from "../domain/story-engine";
 import { greeting } from "../domain/greetings";
 import {
   Button,
@@ -193,7 +193,7 @@ export default function Home() {
             <Pressable
               key={e.id}
               accessibilityRole="button"
-              accessibilityLabel={t("查看记录：{text}", { text: e.description })}
+              accessibilityLabel={t("查看记录：{text}", { text: e.stories[e.selectedStyle].title })}
               onPress={() => router.push({ pathname: "/event", params: { id: e.id } })}
               style={({ pressed }) => [
                 {
@@ -230,7 +230,7 @@ export default function Home() {
                   {e.stories[e.selectedStyle].title}
                 </Text>
                 <Text style={styles.muted} numberOfLines={2}>
-                  {t("{owner}说：{text}", { owner: ownerName(e.petSnapshot), text: e.description })}
+                  {petLine(e)}
                 </Text>
               </View>
               {e.photo && (

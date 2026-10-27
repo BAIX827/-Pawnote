@@ -118,7 +118,7 @@ export default function Profile() {
             return (
               <View key={`with:${e.id}`} style={[styles.card, { marginLeft: 66, padding: 14, gap: 6, backgroundColor: colors.pale }]}>
                 <Text style={styles.caps}>{t("和{name}一起", { name: other.name })} · {formatDate(date.toISOString())}</Text>
-                <Text style={styles.body} numberOfLines={3}>{e.description}</Text>
+                <Text style={styles.body} numberOfLines={3}>{e.stories[e.selectedStyle].text}</Text>
                 <Text style={styles.small}>{t("记在{name}的日记里", { name: other.name })}</Text>
               </View>
             );
@@ -185,7 +185,7 @@ export default function Profile() {
                 </View>
                 <Pressable
                   accessibilityRole="button"
-                  accessibilityLabel={t("打开日记：{text}", { text: e.description })}
+                  accessibilityLabel={t("打开日记：{text}", { text: e.stories[e.selectedStyle].title })}
                   onPress={() =>
                     router.push({ pathname: "/event", params: { id: e.id } })
                   }

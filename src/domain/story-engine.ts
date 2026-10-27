@@ -183,7 +183,6 @@ export function generateStory(
   const owner = ownerName(pet),
     said = toPetVoice(pet, fact, grave);
   const mine = reaction(pet, category, owner, "zh", variant, fact);
-  if (grave && style === "news") return done(`${pet.name}的今日记录`, `${owner}写下：“${fact}”\n\n${mine.line}`);
   if (grave && style !== "diary")
     return done(`${pet.name}的今日记录`, `${said.text}\n\n${style === "social" ? mine.closer : mine.line}`);
   // The work / school diary keeps the pet's reply to this event and adds its job's take, so it
@@ -192,7 +191,7 @@ export function generateStory(
   const life = mine.contextual ? `${mine.line}${job ? `\n${job}` : ""}` : job;
   const text =
     style === "news"
-      ? `${owner}说：“${fact}”\n\n${pet.name}：“${mine.line}”`
+      ? `${said.text}\n\n${pet.name}：“${mine.line}”`
       : style === "life"
         ? `【${pet.route === "work" ? "今日工作日记" : "今日校园日记"}】\n${said.text}\n\n${life || mine.line}`
         : style === "social"
@@ -209,8 +208,8 @@ export function generateStory(
   return done(title, text);
 }
 // English has no safe rule for swapping grammatical person, so the offline version doesn't retell:
-// the inner voice and diary give only the pet's side (the owner's note sits right above them), and
-// the post and the news quote the owner for context. The AI gateway provides a true retelling.
+// every voice gives only the pet's side; the owner's note shows only on the entry page (docs/01 8.36).
+// The AI gateway provides a true retelling.
 const asides: Record<Category, { work: string; campus: string; title: string }> = {
   sleep: {
     work: "Today's task: sleep. Top priority project.",
@@ -245,24 +244,23 @@ const asides: Record<Category, { work: string; campus: string; title: string }> 
 };
 function englishStory(pet: Pet, fact: string, category: Category, style: StoryStyle, variant: number): Story {
   const v = asides[category], owner = ownerName(pet), work = pet.route === "work";
-  const Owner = owner.charAt(0).toUpperCase() + owner.slice(1);
   const mine = reaction(pet, category, owner, "en", variant, fact);
   const job = work ? v.work : v.campus;
   const life = mine.contextual ? `${mine.line}${job ? `\n${job}` : ""}` : job;
   if (isSensitive(fact))
     return {
       title: `${pet.name}'s day`,
-      text: `${Owner} wrote: "${fact}"\n\n${style === "social" ? mine.closer : mine.line}`.slice(0, 2000),
+      text: style === "social" ? mine.closer : mine.line,
       generator: "template",
       edited: false,
     };
   const text =
     style === "news"
-      ? `${Owner} said: "${fact}"\n\n${pet.name}: "${mine.line}"`
+      ? `${pet.name}: "${mine.line}"`
       : style === "life"
         ? `${work ? "Work diary" : "School diary"}\n${life || mine.line}`
         : style === "social"
-          ? `${Owner} says: "${fact}"\n${socialLine(pet, category, owner, "en", fact, variant)}`
+          ? socialLine(pet, category, owner, "en", fact, variant)
           : `${mine.line}${(variant % 2 === 1 || mine.flavored) && !mine.line.endsWith(mine.closer) ? `\n${mine.closer}` : ""}`;
   const title =
     style === "news"

@@ -1,3 +1,4 @@
+import { petLine } from "../domain/story-engine";
 import { locale, t } from "../i18n";
 import { Image, Pressable, ScrollView, Text, View } from "react-native";
 import { router } from "expo-router";
@@ -42,7 +43,7 @@ function Polaroid({ event, caption, size, tilt }: { event: LifeEvent; caption: s
   return (
     <Pressable
       accessibilityRole="button"
-      accessibilityLabel={t("打开日记：{text}", { text: event.description })}
+      accessibilityLabel={t("打开日记：{text}", { text: event.stories[event.selectedStyle].title })}
       onPress={() => open(event)}
       style={[
         { backgroundColor: "#FFF", padding: 7, paddingBottom: 8, borderWidth: 2.5, borderColor: colors.ink, transform: [{ rotate: `${tilt}deg` }] },
@@ -177,7 +178,7 @@ export default function TimeMachine() {
             <Pressable
               key={m.kind}
               accessibilityRole="button"
-              accessibilityLabel={t("打开日记：{text}", { text: m.event.description })}
+              accessibilityLabel={t("打开日记：{text}", { text: m.event.stories[m.event.selectedStyle].title })}
               onPress={() => open(m.event)}
               style={[
                 {
@@ -198,7 +199,7 @@ export default function TimeMachine() {
                 <Text style={styles.small}>{formatDate(eventDate(m.event).toISOString())}</Text>
                 <Text style={[styles.h2, { fontSize: 19, lineHeight: 27 }]}>{m.label}</Text>
                 <Text style={styles.muted} numberOfLines={2}>
-                  {m.event.description}
+                  {petLine(m.event)}
                 </Text>
               </View>
               {m.event.photo && (

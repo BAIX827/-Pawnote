@@ -94,7 +94,8 @@ test("新物种和自定义性格可生成、备份，旧猫狗备份保持兼�
       if (style !== "news") assert.ok(story.text.includes(`今天${selfName(state.pet)}在自己的角落休息。`));
       assert.ok(!story.text.includes("undefined"));
     }
-    assert.ok(stories.news.text.includes("“今天在自己的角落休息。”"));
+    // Only the entry page shows the owner's words (docs/01 8.36).
+    assert.ok(!stories.news.text.includes("“今天在自己的角落休息。”"));
     if (species !== "cat") assert.ok(!stories.diary.text.includes("本喵"));
     if (species !== "dog") assert.ok(!stories.diary.text.includes("本汪"));
     assert.ok(speciesEmoji(state.pet));
@@ -242,7 +243,7 @@ test("小报只讲一次原话，回应补充态度，省去报道和归档套�
     for (const variant of [0, 1]) {
       const story = generateStory({ ...pet, route }, fact, detectCategory(fact), "news", variant);
       assert.match(story.title, /小黄.*出门/);
-      assert.equal(story.text.split(fact).length - 1, 1);
+      assert.ok(!story.text.includes(fact));
       assert.match(story.text, /小黄：“.+”/);
       assert.doesNotMatch(story.title + story.text, /本报讯|爆料|当事|随后回应|小动物世界|档案|收录|独家记录|虚构娱乐报道/);
       assert.ok(story.text.length < 120);
@@ -251,7 +252,7 @@ test("小报只讲一次原话，回应补充态度，省去报道和归档套�
     for (const story of Object.values(other)) assert.doesNotMatch(story.title + story.text, /档案|收录|独家记录/);
     assert.doesNotMatch(other.life.text, /\n2\./);
   }
-  assert.match(generateStories({ ...pet, ownerTitle: "妈妈" }, fact, "walk").news.text, /^妈妈说/);
+  assert.doesNotMatch(generateStories({ ...pet, ownerTitle: "妈妈" }, fact, "walk").news.text, /妈妈说/);
   applyLang("en");
   try {
     const story = generateStories(pet, "Took her out today.", "walk").news;
@@ -271,10 +272,8 @@ test("英文界面下词条、称号与本机故事使用英文，未收录的�
     const stories = generateStories(pet, "He stole a fish.", "snack");
     for (const story of Object.values(stories))
       assert.ok(!/[\u4e00-\u9fff]/.test(story.title + story.text));
-    // The post and the news quote the owner for context; the inner voice and diary give the pet's side only (docs/01 8.25).
-    assert.ok(stories.social.text.includes("He stole a fish."));
-    assert.ok(stories.news.text.includes("He stole a fish."));
-    assert.ok(!stories.diary.text.includes("He stole a fish.") && !stories.life.text.includes("He stole a fish."));
+    // Every voice gives the pet's side only; the owner's words stay on the entry page (docs/01 8.36).
+    for (const story of Object.values(stories)) assert.ok(!story.text.includes("He stole a fish."));
     assert.match(stories.diary.text, /highest rating/);
     assert.match(generateStories({ ...pet, species: "dog", personality: "亲人" }, "We went out.", "walk").diary.text, /best part/);
     assert.equal(isAppState(demoState()), true);

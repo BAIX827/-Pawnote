@@ -2,7 +2,7 @@ import { getLang, Lang, t } from "../i18n/core";
 import { AppState, Pet, Preferences } from "./types";
 import { dayDistance, eventDay, isPastDay, localDay, newestEvents } from "./dates";
 import { escapeXML, wrap } from "./news-card";
-import { ownerName } from "./story-engine";
+import { ownerName, petLine } from "./story-engine";
 import { isSensitive, selfOf, temperOf } from "./temper";
 import { remindersPaused } from "./paw-dates";
 
@@ -68,7 +68,7 @@ export function occasionLetter(state: AppState, occasion: Occasion, lang: Lang =
         zh ? `留下了${entries.length}条日常记录。可以慢慢翻，也可以听听保存下来的声音。` : `${entries.length} daily entries are preserved. Turn the pages at your own pace, or listen to a saved sound.`]
     : [opening,
         zh ? `这段时间，你为我留下了${recent.length}条日常。` : `You saved ${recent.length} everyday entries from this chapter of my life.`,
-        ...(memory ? [zh ? `翻到一条原话：“${memory.description}”` : `Here's one of your entries: “${memory.description}”`] : []),
+        ...(memory && petLine(memory) ? [zh ? `翻到我说过的一句：“${petLine(memory)}”` : `Here's something I said back then: “${petLine(memory)}”`] : []),
         quiet ? (zh ? "这一天，愿我们安安静静地相伴。" : "For this day, I wish for quiet time together.") : ending];
   return { title, subtitle, greeting: memorial ? (zh ? "留给你的纪念页" : "A page for you") : zh ? `致${owner}：` : `To ${owner},`,
     paragraphs, closing: memorial ? pet.name : zh ? `写信的：${pet.name}` : `From ${pet.name}`,
