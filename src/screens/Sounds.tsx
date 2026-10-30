@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Text, View } from "react-native";
 import { router } from "expo-router";
+import BookTabs from "../components/BookTabs";
 import { useStore } from "../data/store";
 import { t } from "../i18n";
 import { SoundMemory, SoundStage, SOUND_STAGES } from "../domain/types";
@@ -127,6 +128,7 @@ export default function Sounds() {
     <View style={[styles.stack, { maxWidth: 760, width: "100%", alignSelf: "center" }]}>
       <Heading title={t("声音相册")} accent={colors.pink}
         action={<Button label={t("返回")} tone="plain" disabled={busy} onPress={() => router.canGoBack() ? router.back() : router.replace("/profile")} />} />
+      <BookTabs current="sounds" />
       <Text style={styles.caps}>{t("全部声音")} · {sounds.length}</Text>
       {!mode && (
         <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 12 }}>

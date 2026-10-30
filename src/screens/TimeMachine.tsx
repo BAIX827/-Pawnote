@@ -2,6 +2,7 @@ import { petLine } from "../domain/story-engine";
 import { locale, t } from "../i18n";
 import { Image, Pressable, ScrollView, Text, View } from "react-native";
 import { router } from "expo-router";
+import BookTabs from "../components/BookTabs";
 import { useStore } from "../data/store";
 import { eventDate } from "../domain/dates";
 import { firsts, milestones, monthlyPhotos } from "../domain/timeline";
@@ -20,7 +21,6 @@ import {
   styles,
 } from "../components/ui";
 import PastMemories from "../components/PastMemories";
-import { pawsonaCard } from "../domain/pawsona";
 import Onboarding from "./Onboarding";
 
 const FIRST_LABELS = {
@@ -58,9 +58,9 @@ function Polaroid({ event, caption, size, tilt }: { event: LifeEvent; caption: s
   );
 }
 
-type Shelf = { label: string; icon: "mic" | "gift" | "mail" | "zap" | "book"; bg: string; to: "/sounds" | "/anniversaries" | "/mail" | "/pawsona" | "/keepsake" };
+type Shelf = { label: string; icon: "gift" | "book"; bg: string; to: "/anniversaries" | "/keepsake" };
 
-/** 成长纪念册 (docs/01 8.29): every memory in one place, sorted into shelves, then the growth timeline. */
+/** 纪念, once 成长纪念册 (docs/01 8.29, 8.37): every memory in one place, sorted into shelves, then the growth timeline. */
 export default function TimeMachine() {
   const { state } = useStore();
   if (!state.pet) return <Onboarding />;
@@ -83,20 +83,19 @@ export default function TimeMachine() {
       </Text>
     </View>
   );
+  // Sounds and letters have their own tabs now, and 爪格 lives under 我的 (docs/01 8.37).
   const shelves: Shelf[] = [
-    { label: t("声音 · {n}", { n: state.sounds?.length ?? 0 }), icon: "mic", bg: colors.green, to: "/sounds" },
     { label: t("纪念日"), icon: "gift", bg: colors.pink, to: "/anniversaries" },
-    { label: t("历史爪信"), icon: "mail", bg: colors.orange, to: "/mail" },
-    { label: state.pawsona ? t("爪格：{name}", { name: pawsonaCard(pet, state.pawsona).name }) : t("爪格"), icon: "zap", bg: colors.lavender, to: "/pawsona" },
     { label: t("年度纪念册"), icon: "book", bg: colors.sky, to: "/keepsake" },
   ];
   return (
     <View style={[styles.stack, { maxWidth: 760, width: "100%", alignSelf: "center" }]}>
       <Heading
-        title={t("成长纪念册")}
+        title={t("纪念")}
         accent={colors.lavender}
         action={<Button label={t("返回")} tone="plain" onPress={() => router.canGoBack() ? router.back() : router.replace("/profile")} />}
       />
+      <BookTabs current="memories" />
       <ScrollView horizontal showsHorizontalScrollIndicator={false}
         style={{ flexGrow: 0 }} contentContainerStyle={{ alignItems: "center", gap: 12, paddingBottom: 6 }}>
         {shelves.map((shelf) => (

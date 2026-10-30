@@ -21,7 +21,7 @@ export default function Pawsona() {
   const card = useRef<View>(null);
   if (!state.pet) return <Onboarding />;
   const pet = state.pet;
-  const back = <Button label={t("返回")} tone="plain" onPress={() => (router.canGoBack() ? router.back() : router.replace("/profile"))} />;
+  const back = <Button label={t("返回")} tone="plain" onPress={() => (router.canGoBack() ? router.back() : router.replace("/me"))} />;
   if (remindersPaused(state.events))
     return (
       <View style={styles.stack}>

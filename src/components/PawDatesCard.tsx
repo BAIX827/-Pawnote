@@ -21,8 +21,11 @@ import { switchPet } from "../domain/household";
 import { remindLater } from "../platform/reminders";
 import { Button, Icon, colors, display, numeric, shadow, styles } from "./ui";
 
-/** 爪窝's 爪约 corner: what the pet is asking for right now, and the way into the 爪约 page. */
-export default function PawDatesCard() {
+/**
+ * 爪窝's 爪约 corner: what the pet is asking for right now. With `quiet` it stays away unless
+ * something is due, so the home note can give the slot to something else (docs/01 8.37).
+ */
+export default function PawDatesCard({ quiet = false }: { quiet?: boolean }) {
   const { state, update, notify } = useStore();
   const [now, setNow] = useState(() => new Date());
   const [done, setDone] = useState<Routine>();
@@ -58,7 +61,7 @@ export default function PawDatesCard() {
     : routines.length
       ? t("约定都关着")
       : null;
-
+  if (quiet && !due.length && !others.length && !done) return null;
   return (
     <View style={{ gap: 14 }}>
       {due.slice(0, 1).map((r, i) => (

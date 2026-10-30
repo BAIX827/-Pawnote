@@ -3,29 +3,30 @@ import { Pressable, Text, View } from "react-native";
 import { router } from "expo-router";
 import { colors, Icon, shadow, Sticker, Wobble } from "./ui";
 
-export default function Neighborhood({ work }: { work: boolean }) {
+// The town only holds places the tab bar doesn't, so it never repeats it (docs/01 8.37).
+export default function Neighborhood() {
   const districts = [
     {
-      label: t("爪册小屋"),
-      route: "/profile" as const,
-      icon: "book-open" as const,
-      color: colors.orange,
+      label: t("邮局"),
+      route: "/mail" as const,
+      icon: "mail" as const,
+      color: colors.pink,
       height: 96,
       tilt: -2,
     },
     {
-      label: work ? t("爪爪公司") : t("联合学院"),
-      route: "/life" as const,
-      icon: work ? ("briefcase" as const) : ("book" as const),
-      color: colors.jade,
+      label: t("算命屋"),
+      route: "/pawsona" as const,
+      icon: "zap" as const,
+      color: colors.lavender,
       height: 136,
       tilt: 1,
     },
     {
-      label: t("爪友圈"),
-      route: "/circle" as const,
-      icon: "message-circle" as const,
-      color: colors.lavender,
+      label: t("唱片行"),
+      route: "/sounds" as const,
+      icon: "mic" as const,
+      color: colors.mint,
       height: 110,
       tilt: 2,
     },
@@ -128,7 +129,7 @@ export default function Neighborhood({ work }: { work: boolean }) {
                   borderColor: colors.ink,
                 }}
               >
-                <Icon name={d.icon} size={22} color="#FFFBF1" />
+                <Icon name={d.icon} size={22} color={colors.ink} />
                 <View style={{ flexDirection: "row", gap: 9 }}>
                   {[0, 1].map((i) => (
                     <View

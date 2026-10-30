@@ -71,7 +71,6 @@ export const en: Record<string, string> = {
   "已填生日时优先用生日；只填到家日期时生成生日祝福。年龄仍按手填值或真实生日计算。": "A known birthday takes priority. With only a home date, birthday wishes celebrate that day. Age uses your entry or the actual birth date.",
   "新日记随机选择口吻": "Choose a random voice for new entries",
   "每篇从内心独白、校园或打工日记、爪友圈动态、爪报中随机选一种。关闭后默认内心独白，可手动选。已保存日记与草稿保持原口吻。": "Each new entry picks one voice: inner thoughts, school or work diary, circle post, or Paw Post. Turn off to start with inner thoughts and choose manually. Saved entries and drafts keep their voice.",
-  "首页展示小镇与成长": "Show town and growth on Home",
   "开启后，在最近日记下方展示小镇、经验与爪报。爪迹和爪友圈仍可从底部进入。": "Show the town, XP and Paw Post below recent entries. Life and Paw Circle remain accessible in the bottom navigation.",
   "开启": "On",
   "关闭": "Off",

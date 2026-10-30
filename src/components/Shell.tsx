@@ -19,11 +19,13 @@ import BrandMark from "./BrandMark";
 import RestoreBackup from "./RestoreBackup";
 import { MAX_PETS, homePets, switchPet } from "../domain/household";
 import { othersCalling } from "../domain/paw-dates";
+import { newMail } from "../domain/paw-mail";
+// Today / memories / friends / mine; a page inside one keeps its tab lit (docs/01 8.37).
 const nav = [
-  { route: "/", label: "爪窝", icon: "home" as const },
-  { route: "/life", label: "爪迹", icon: "briefcase" as const },
-  { route: "/circle", label: "爪友圈", icon: "message-circle" as const },
-  { route: "/profile", label: "爪册", icon: "book-open" as const },
+  { route: "/", label: "爪窝", icon: "home" as const, also: [] as string[] },
+  { route: "/profile", label: "爪册", icon: "book-open" as const, also: ["/sounds", "/mail", "/timemachine", "/anniversaries", "/keepsake"] },
+  { route: "/circle", label: "爪友圈", icon: "message-circle" as const, also: ["/bonds"] },
+  { route: "/me", label: "我的", icon: "user" as const, also: ["/life", "/report", "/dates", "/pawsona", "/settings"] },
 ];
 export default function Shell({ children }: { children: React.ReactNode }) {
   const { width } = useWindowDimensions();
@@ -44,7 +46,8 @@ export default function Shell({ children }: { children: React.ReactNode }) {
     backgroundColor: colors.red, borderWidth: 2, borderColor: colors.paper };
   const lang = useLang();
   const item = (n: (typeof nav)[number]) => {
-    const active = path === n.route;
+    const active = path === n.route || n.also.includes(path);
+    const unread = n.route === "/profile" && !!state.pet && newMail(state).length > 0;
     return (
       <Pressable
         key={n.route}
@@ -64,11 +67,14 @@ export default function Shell({ children }: { children: React.ReactNode }) {
           opacity: pressed ? 0.65 : active ? 1 : 0.6,
         })}
       >
-        <Icon
-          name={n.icon}
-          size={20}
-          color={active ? colors.green : colors.bg}
-        />
+        <View>
+          <Icon
+            name={n.icon}
+            size={20}
+            color={active ? colors.green : colors.bg}
+          />
+          {unread && <View style={[dot, { borderColor: colors.ink }]} />}
+        </View>
         <Text
           style={{
             fontSize: wide ? 15 : 11,

@@ -1,18 +1,16 @@
-import { locale, t, tList } from "../i18n";
+import { locale, t } from "../i18n";
 import { useState } from "react";
 import JournalFilters from "../components/JournalFilters";
 import { filterJournal, JournalFilter } from "../domain/memories";
 import { eventDate } from "../domain/dates";
-import { Image, Pressable, ScrollView, Text, View } from "react-native";
-import { router } from "expo-router";
+import { Image, Pressable, Text, View } from "react-native";
+import { router, useLocalSearchParams } from "expo-router";
 import { useStore } from "../data/store";
 import { LifeEvent, Pet, formatDate } from "../domain/types";
 import {
   Button,
-  Chip,
   Empty,
   Heading,
-  Avatar,
   Tag,
   Tape,
   colors,
@@ -21,13 +19,12 @@ import {
   styles,
 } from "../components/ui";
 import Onboarding from "./Onboarding";
-import HouseholdPets from "../components/HouseholdPets";
-import { ageLabel, speciesLabel } from "../domain/pet-profile";
+import BookTabs from "../components/BookTabs";
 export default function Profile() {
   const { state } = useStore();
-  const [filter, setFilter] = useState<JournalFilter>({});
+  const { photos } = useLocalSearchParams<{ photos?: string }>();
+  const [filter, setFilter] = useState<JournalFilter>(photos === "1" ? { photosOnly: true } : {});
   const [limit, setLimit] = useState(30);
-  const [petsOpen, setPetsOpen] = useState(false);
   const events = filterJournal(state.events, filter);
   if (!state.pet) return <Onboarding />;
   const pet = state.pet;
@@ -39,67 +36,9 @@ export default function Profile() {
     .sort((a, b) => eventDate(b.e).getTime() - eventDate(a.e).getTime());
   return (
     <View style={[styles.stack, { gap: 12, maxWidth: 860, width: "100%", alignSelf: "center" }]}>
-      <Heading
-        title={t("爪册")}
-        accent={colors.lilac}
-        action={
-          <Button
-            label={t("编辑档案")}
-            icon="edit-2"
-            tone="soft"
-            onPress={() =>
-              router.push({ pathname: "/onboarding", params: { edit: "1" } })
-            }
-          />
-        }
-      />
-      <View
-        style={[
-          {
-            backgroundColor: colors.lavender,
-            padding: 12,
-            borderRadius: 14,
-            gap: 6,
-          },
-          shadow(3),
-        ]}
-      >
-        <View style={[styles.row, { gap: 12 }]}>
-          <Avatar pet={pet} demo={state.demo} size={56} />
-          <View style={{ flex: 1, gap: 2 }}>
-            <Text numberOfLines={2} style={[styles.h2, { fontSize: 26, lineHeight: 32 }]}>
-              {pet.name}
-            </Text>
-            <Text style={styles.small}>
-              {speciesLabel(pet)} · {ageLabel(pet.ageMonths)}
-            </Text>
-            <Text style={styles.small}>{tList(pet.personality)} · {t(pet.route === "work" ? "岗位 · {role}" : "班级 · {role}", { role: t(pet.role) })}</Text>
-          </View>
-        </View>
-        <View style={[styles.row, { justifyContent: "space-between", gap: 8 }]}>
-          <Text style={[styles.small, { flexShrink: 1 }]}>
-            {state.events.length} {t("篇日记")} · {state.events.filter((e) => e.published).length} {t("条爪友圈动态")}
-          </Text>
-          <Pressable
-            accessibilityRole="button"
-            accessibilityLabel={t("我家的毛孩子")}
-            accessibilityState={{ expanded: petsOpen }}
-            onPress={() => setPetsOpen(!petsOpen)}
-            style={({ pressed }) => ({ minHeight: 44, justifyContent: "center", paddingHorizontal: 4, opacity: pressed ? 0.6 : 1 })}
-          >
-            <Text style={[styles.small, { color: colors.ink, fontWeight: "700" }]}>{t("我家的毛孩子")} {petsOpen ? "−" : "+"}</Text>
-          </Pressable>
-        </View>
-      </View>
-      {petsOpen && <HouseholdPets />}
-      <View style={{ gap: 12 }}>
-        <ScrollView horizontal showsHorizontalScrollIndicator={false}
-          style={{ flexGrow: 0 }} contentContainerStyle={{ alignItems: "center", gap: 12, paddingBottom: 4 }}>
-          <Chip label={t("日记")} active={!filter.photosOnly} onPress={() => { setFilter({ ...filter, photosOnly: false }); setLimit(30); }} />
-          <Chip label={t("照片")} active={filter.photosOnly === true} onPress={() => { setFilter({ ...filter, photosOnly: true }); setLimit(30); }} />
-          <Button label={t("成长纪念册")} icon="book" tone="soft" onPress={() => router.push("/timemachine")} />
-        </ScrollView>
-      </View>
+      <Heading title={t("爪册")} accent={colors.lilac} />
+      <BookTabs current={filter.photosOnly ? "photos" : "diary"}
+        onLocal={(tab) => { setFilter({ ...filter, photosOnly: tab === "photos" }); setLimit(30); }} />
       <JournalFilters events={state.events} filter={filter} onChange={(value) => { setFilter(value); setLimit(30); }} />
       <View style={styles.between}>
         <View>

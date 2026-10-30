@@ -161,7 +161,7 @@ export default function PawDates() {
         title={t("爪约")}
         hint={t("它想和你一起做的事")}
         accent={colors.orange}
-        action={<Button label={t("返回")} tone="plain" onPress={() => (router.canGoBack() ? router.back() : router.replace("/"))} />}
+        action={<Button label={t("返回")} tone="plain" onPress={() => (router.canGoBack() ? router.back() : router.replace("/me"))} />}
       />
       {paused ? (
         <Card style={{ backgroundColor: colors.lilac, gap: 6 }}>

@@ -2,6 +2,7 @@ import { t, useLang } from "../i18n";
 import { useEffect, useRef, useState } from "react";
 import { Image, Pressable, Text, View } from "react-native";
 import { router, useLocalSearchParams } from "expo-router";
+import BookTabs from "../components/BookTabs";
 import { useStore } from "../data/store";
 import { MAIL_KINDS, MIN_YEAR_ENTRIES, MailKind, allReminders, mailDay, monthMailKey, pastMail, weekMailKey, writeMail, type Mail } from "../domain/paw-mail";
 import { mailSVG, periodLabel } from "../domain/share-cards";
@@ -87,6 +88,7 @@ export default function PawMail() {
       <View style={styles.stack}>
         <Heading title={t("爪信")}
         hint={t("它写给你的信")} accent={colors.pink} action={back} />
+        <BookTabs current="mail" />
         <Empty title={t("最新的记录写到它离开了。爪信先停下，这里不替它说话。")} />
       </View>
     );
@@ -98,6 +100,7 @@ export default function PawMail() {
       <View style={[styles.stack, { maxWidth: 760, width: "100%", alignSelf: "center" }]}>
         <Heading title={t("爪信")}
           hint={t("它写给你的信")} accent={colors.pink} action={back} />
+        <BookTabs current="mail" />
         {kinds}
         <View style={[{ minHeight: 280, backgroundColor: colors.paper, borderWidth: 2.5, borderColor: colors.ink, borderRadius: 14, padding: 22, gap: 14, justifyContent: "center" }, shadow(5)]}>
           <Avatar pet={pet} size={72} demo={state.demo} />
@@ -262,6 +265,7 @@ export default function PawMail() {
     <View style={[styles.stack, { maxWidth: 760, width: "100%", alignSelf: "center" }]}>
       <Heading title={t("爪信")}
         hint={t("它写给你的信")} accent={colors.pink} action={back} />
+        <BookTabs current="mail" />
       {kinds}
       <Pressable
         accessibilityRole="button"

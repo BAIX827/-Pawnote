@@ -56,7 +56,7 @@ export default function Report() {
       <Heading
         title={t("月度回顾")}
         accent={soft}
-        action={<Button label={t("返回")} tone="plain" onPress={() => router.replace("/life")} />}
+        action={<Button label={t("返回")} tone="plain" onPress={() => router.canGoBack() ? router.back() : router.replace("/me")} />}
       />
       <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 8 }}>
         {months.slice(0, 6).map((m) => (

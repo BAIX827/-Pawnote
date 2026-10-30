@@ -27,7 +27,7 @@ export default function Settings() {
       <Heading
         title={t("设置")}
         accent={colors.green}
-        action={<Button label={t("返回")} tone="plain" onPress={() => router.canGoBack() ? router.back() : router.replace("/")} />}
+        action={<Button label={t("返回")} tone="plain" onPress={() => router.canGoBack() ? router.back() : router.replace("/me")} />}
       />
       <Card style={{ gap: 14 }}>
         <View style={[styles.between, { flexWrap: "wrap" }]}>
@@ -46,7 +46,7 @@ export default function Settings() {
         {([
           { key: "homeAsBirthday", title: "生日未知时，用到家日庆生", enabled: state.preferences?.homeAsBirthday === true },
           { key: "randomStyle", title: "新日记随机选择口吻", enabled: state.preferences?.randomStyle !== false },
-          { key: "homeExtras", title: "首页展示小镇与成长", enabled: state.preferences?.homeExtras === true },
+          { key: "homeExtras", title: "首页展示小镇", enabled: state.preferences?.homeExtras === true },
         ] as const).map((item) => (
           <View key={item.key} style={{ gap: 8 }}>
             <Text style={[styles.body, { fontWeight: "700" }]}>{t(item.title)}</Text>
@@ -58,7 +58,6 @@ export default function Settings() {
         ))}
         {state.pet && <Button label={t("修改年龄、身份与日期")} icon="edit-2" tone="plain"
           onPress={() => router.push({ pathname: "/onboarding", params: { edit: "1" } })} />}
-        {state.pet && <Button label={t("爪约")} icon="bell" tone="plain" onPress={() => router.push("/dates")} />}
       </Card>
       <Card style={{ gap: 17 }}>
           <View style={styles.row}>

@@ -19,15 +19,21 @@ function claimAutoOpen() {
  * 爪窝's corner for 爪信 and 爪格 (until the test has been taken). The first time 爪窝 shows after launch,
  * a new letter opens by itself, monthly first (docs/01 8.29); the other stays here as a card.
  */
-export default function HomeLetters() {
+/** Opens a new letter by itself once per launch, whether or not its card has the home note. */
+export function LetterAutoOpen() {
   const { state } = useStore();
-  const pet = state.pet;
-  const fresh = newMail(state);
-  const next = fresh[0];
+  const next = newMail(state)[0];
   useEffect(() => {
     if (!next || state.demo || !claimAutoOpen()) return;
     router.push({ pathname: "/mail", params: { kind: next } });
   }, [next, state.demo]);
+  return null;
+}
+
+export default function HomeLetters() {
+  const { state } = useStore();
+  const pet = state.pet;
+  const fresh = newMail(state);
   if (!pet) return null;
   const mail = fresh.length > 0;
   const quiz = !state.pawsona && !remindersPaused(state.events);

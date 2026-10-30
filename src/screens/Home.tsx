@@ -10,7 +10,6 @@ import {
   Button,
   Empty,
   Icon,
-  Meter,
   PetSticker,
   Sticker,
   Tape,
@@ -22,11 +21,10 @@ import {
   styles,
 } from "../components/ui";
 import Neighborhood from "../components/Neighborhood";
-import PawDatesCard from "../components/PawDatesCard";
+import TodayNote from "../components/TodayNote";
 import PastMemories from "../components/PastMemories";
 import { eventDate, eventDay, localDay, newestEvents } from "../domain/dates";
-import OccasionPreview from "../components/OccasionPreview";
-import HomeLetters from "../components/HomeLetters";
+import { LetterAutoOpen } from "../components/HomeLetters";
 import BackupNudge from "../components/BackupNudge";
 import Onboarding from "./Onboarding";
 
@@ -47,7 +45,6 @@ export default function Home() {
   const pet = state.pet,
     p = progress(state.events),
     latest = newestEvents(state.events)[0],
-    wide = width >= 1100,
     narrow = width < 500,
     now = new Date(),
     m = moment(now.getHours()),
@@ -59,9 +56,8 @@ export default function Home() {
   // with nothing recorded yet, the greeting for the hour (docs/01 8.26).
   const saying = (latest && eventDay(latest) === localDay(now) && petLine(latest)) || greeting(pet, now.getHours(), getLang());
   return (
-    // Without the town panels the home is one column; on a desktop it stays a readable width (docs/01 8.26).
-    <View style={[styles.stack, narrow && { gap: 14 },
-      state.preferences?.homeExtras !== true && { maxWidth: 860, width: "100%", alignSelf: "center" }]}>
+    // One column; on a desktop it stays a readable width (docs/01 8.26).
+    <View style={[styles.stack, narrow && { gap: 14 }, { maxWidth: 860, width: "100%", alignSelf: "center" }]}>
       {/* The poster: one orange block, the pet's own photo stuck on as a sticker (docs/01 8.30). */}
       <View style={{ backgroundColor: colors.orange, borderRadius: 14, borderBottomLeftRadius: narrow ? 40 : 64, overflow: "hidden" }}>
         <Ticker text={`${t("今日主角")} ★ ${pet.name} ★ ${t("今日主角")} ★ ${pet.name} ★ ${t("今日主角")} ★ ${pet.name} ★`} height={narrow ? 24 : 28} />
@@ -175,8 +171,8 @@ export default function Home() {
           action={<Button label={t("写第一条日记")} onPress={() => router.push("/record")} />}
         />
       )}
-      <PawDatesCard />
-      <OccasionPreview />
+      <LetterAutoOpen />
+      <TodayNote />
       {state.events.length > 0 && <>
       <View style={[styles.between, { marginTop: 4 }]}>
         <View>
@@ -243,103 +239,9 @@ export default function Home() {
           ))}
         </View>
       </>}
-      <HomeLetters />
-      <BackupNudge />
       <PastMemories />
-      {state.preferences?.homeExtras === true && (
-        <View style={{ flexDirection: wide ? "row" : "column", gap: 24 }}>
-          <View style={{ flex: wide ? 1.3 : undefined }}>
-            <Neighborhood work={pet.route === "work"} />
-          </View>
-          <View style={{ flex: wide ? 1 : undefined, gap: 24 }}>
-            <View style={{ flexDirection: "row", gap: 12 }}>
-              {[
-                { n: p.xp, unit: "XP", label: t("成长经验"), bg: colors.green },
-                { n: state.events.length, unit: t("篇"), label: t("生活片刻"), bg: colors.sky },
-                { n: p.toNext, unit: "XP", label: t("离升级还差"), bg: colors.lilac },
-              ].map((s, i) => (
-                <View
-                  key={s.label}
-                  style={[
-                    {
-                      flex: 1,
-                      backgroundColor: s.bg,
-                      borderWidth: 2.5,
-                      borderColor: colors.ink,
-                      borderRadius: 14,
-                      paddingVertical: 12,
-                      paddingHorizontal: 10,
-                      transform: [{ rotate: `${[-2, 1.5, -1][i]}deg` }],
-                    },
-                    shadow(3),
-                  ]}
-                >
-                  <Text style={{ fontFamily: display, fontWeight: "400", fontSize: 30, lineHeight: 36, color: colors.ink }}>
-                    {s.n}
-                    <Text style={{ fontSize: 12 }}> {s.unit}</Text>
-                  </Text>
-                  <Text style={[styles.small, { color: colors.ink }]}>{s.label}</Text>
-                </View>
-              ))}
-            </View>
-            <View style={{ gap: 6 }}>
-              <View style={styles.between}>
-                <Text style={styles.caps}>Lv.{p.level} → Lv.{p.level + 1}</Text>
-                <Text style={styles.small}>{t("每条新记录 +20 XP")}</Text>
-              </View>
-              <Meter value={p.current} color={colors.orange} />
-            </View>
-            <Pressable
-              accessibilityRole="button"
-              accessibilityLabel={latest ? t("制作最新记录的爪报") : t("记录小事制作爪报")}
-              onPress={() =>
-                latest
-                  ? router.push({ pathname: "/news", params: { id: latest.id } })
-                  : router.push("/record")
-              }
-            >
-              <View
-                style={[
-                  {
-                    backgroundColor: colors.paper,
-                    borderWidth: 2.5,
-                    borderColor: colors.ink,
-                    borderRadius: 14,
-                    padding: 20,
-                    gap: 10,
-                    transform: [{ rotate: "1deg" }],
-                  },
-                  shadow(5),
-                ]}
-              >
-                <View style={styles.between}>
-                  <Text style={styles.caps}>{t("PAW POST · 独家")}</Text>
-                  <Icon name="arrow-up-right" color={colors.ink} />
-                </View>
-                <Text
-                  style={{
-                    fontSize: 40,
-                    lineHeight: 50,
-                    fontWeight: "400",
-                    fontFamily: display,
-                    color: colors.ink,
-                    letterSpacing: 4,
-                    borderBottomWidth: 3,
-                    borderTopWidth: 1,
-                    borderColor: colors.ink,
-                    paddingVertical: 4,
-                  }}
-                >
-                  {t("爪报")}
-                </Text>
-                <Text style={[styles.h2, { fontSize: 19 }]} numberOfLines={3}>
-                  {latest ? latest.stories.news.title : t("头条，等你来写")}
-                </Text>
-              </View>
-            </Pressable>
-          </View>
-        </View>
-      )}
+      <BackupNudge />
+      {state.preferences?.homeExtras === true && <Neighborhood />}
     </View>
   );
 }

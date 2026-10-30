@@ -55,6 +55,7 @@ export default function Life() {
         title={t("爪迹")}
         hint={t("成长和等级")}
         accent={soft}
+        action={<Button label={t("返回")} tone="plain" onPress={() => router.canGoBack() ? router.back() : router.replace("/me")} />}
       />
       <View style={{ flexDirection: wide ? "row" : "column", gap: 26 }}>
         <View
