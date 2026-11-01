@@ -1,0 +1,36 @@
+// English for cloud backup (docs/01 8.38), keyed by the Chinese source text.
+export const cloudEn: Record<string, string> = {
+  云端备份: "Cloud backup",
+  "开启后每天自动传一份到云端，换手机用恢复码找回。恢复码丢了就找不回，请存好。":
+    "Once on, a copy goes to the cloud each day. On a new phone, get it back with your recovery code. Without the code it can't be recovered, so keep it safe.",
+  开启云端备份: "Turn on cloud backup",
+  "正在上传…": "Uploading…",
+  "先建好宠物档案再开启。": "Set up your pet's profile first.",
+  "上次云端备份：{date} · {n} 条记录": "Last cloud backup: {date} · {n} entries",
+  还没传到云端: "Not in the cloud yet",
+  恢复码: "Recovery code",
+  "截图或抄下来。换手机时在建档页点“用恢复码找回”。":
+    "Take a screenshot or write it down. On a new phone, tap “Restore with code” on the setup page.",
+  立即备份到云端: "Back up to cloud now",
+  查看恢复码: "Show recovery code",
+  收起恢复码: "Hide recovery code",
+  删除云端备份: "Delete cloud backup",
+  "删除云端那一份，这台设备也会退出云端备份。本机数据不受影响。":
+    "This deletes the cloud copy and turns off cloud backup on this device. Data on this device stays.",
+  确认删除云端备份: "Delete cloud backup",
+  "云端备份已开启，请存好恢复码。": "Cloud backup is on. Keep your recovery code safe.",
+  "已备份到云端。": "Backed up to the cloud.",
+  "云端备份已删除。": "Cloud backup deleted.",
+  用恢复码找回: "Restore with code",
+  "恢复码是 20 位字母和数字，请检查后重试。": "A recovery code is 20 letters and numbers. Check it and try again.",
+  "正在找回…": "Restoring…",
+  找回云端备份: "Get cloud backup",
+  "云端备份还没有接通。": "Cloud backup isn't available yet.",
+  "连不上云端，请检查网络后重试。": "Can't reach the cloud. Check your connection and try again.",
+  "恢复码不对，请检查后重试。": "That recovery code doesn't look right. Check it and try again.",
+  "这个恢复码下面还没有云端备份。": "There's no cloud backup for this code yet.",
+  "数据超过 20 MB，暂时没法传到云端，请导出 JSON 备份。":
+    "Your data is over 20 MB and can't go to the cloud yet. Export a JSON backup instead.",
+  "今天云端操作太多了，明天再试。": "Too many cloud requests today. Try again tomorrow.",
+  "云端暂时出错了，请稍后再试。": "The cloud had a problem. Try again later.",
+};

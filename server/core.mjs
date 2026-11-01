@@ -228,10 +228,55 @@ export function createGateway(env, store) {
     }
   }
 
+  // Cloud backup (docs/01 8.38, docs/03 ADR-007). The recovery code is the account: only its SHA-256 is
+  // used as the storage key, and the backup body passes through unread so a 20 MB copy costs no CPU here.
+  const BACKUP_IP_DAILY = Number(env.BACKUP_IP_DAILY ?? 30);
+  async function backup(method, url, meta) {
+    if (!store.backupPut) return { status: 503, body: { error: "not_configured" } };
+    const account = await accountId(meta.authorization);
+    if (!account) return { status: 401, body: { error: "bad_code" } };
+    const limited = async (kind) => {
+      if (!meta.ip || !store.ipGet) return false;
+      const k = `${kind}:${meta.ip}`;
+      if ((await store.ipGet(today(), k)) >= BACKUP_IP_DAILY) return true;
+      await store.ipAdd(today(), k);
+      return false;
+    };
+    if (url.pathname === "/v1/backup/meta") {
+      if (method !== "GET") return { status: 405, body: { error: "method" } };
+      const info = await store.backupMeta(account);
+      return info ? { status: 200, body: { backup: info } } : { status: 404, body: { error: "no_backup" } };
+    }
+    if (method === "PUT") {
+      const size = Number(meta.contentLength);
+      if (!Number.isFinite(size) || size <= 0) return { status: 411, body: { error: "length_required" } };
+      if (size > MAX_BACKUP) return { status: 413, body: { error: "too_large" } };
+      const events = Number(meta.backupEvents ?? 0);
+      let pet = "";
+      try { pet = decodeURIComponent(meta.backupPet ?? "").slice(0, 20); } catch { pet = ""; }
+      if (await limited("bu")) return { status: 429, body: { error: "ip_limited" } };
+      const info = { savedAt: new Date().toISOString(), pet, events: Number.isInteger(events) && events >= 0 ? events : 0, bytes: size };
+      await store.backupPut(account, await meta.readBody(), info);
+      return { status: 200, body: { backup: info } };
+    }
+    if (method === "GET") {
+      if (await limited("bg")) return { status: 429, body: { error: "ip_limited" } };
+      const found = await store.backupGet(account);
+      return found ? { status: 200, raw: found, body: {} } : { status: 404, body: { error: "no_backup" } };
+    }
+    if (method === "DELETE") {
+      await store.backupDelete(account);
+      return { status: 200, body: { deleted: true } };
+    }
+    return { status: 405, body: { error: "method" } };
+  }
+
   const busy = new Set();
   /**
    * Answers one request. `readText` returns the raw body; `meta` carries the request's Origin header and
-   * client address when the host knows them. Nothing here knows about the host.
+   * client address when the host knows them, plus for backups the authorization, content-length and
+   * x-backup-* headers and `readBody()`, which returns the body in whatever form the host's store keeps.
+   * A result with `raw` is sent as-is (a stored backup); otherwise `body` is sent as JSON. Nothing here knows about the host.
    */
   async function handle(method, url, readText, meta = {}) {
     try {
@@ -270,6 +315,7 @@ export function createGateway(env, store) {
           busy.delete(body.deviceId);
         }
       }
+      if (url.pathname === "/v1/backup" || url.pathname === "/v1/backup/meta") return await backup(method, url, meta);
       return { status: 404, body: { error: "not_found" } };
     } catch (e) {
       console.error(e);
@@ -279,11 +325,21 @@ export function createGateway(env, store) {
   return { handle, mock: MOCK };
 }
 
+export const MAX_BACKUP = 20 * 1024 * 1024;
+// Recovery codes are 20 characters from a 32-letter alphabet without 0/O/1/I, shown in groups of four.
+export const CODE_ALPHABET = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+export async function accountId(authorization) {
+  const code = /^Bearer\s+(.+)$/i.exec(authorization ?? "")?.[1]?.toUpperCase().replace(/[\s-]/g, "");
+  if (!code || code.length !== 20 || [...code].some((c) => !CODE_ALPHABET.includes(c))) return null;
+  const digest = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(`pawnote:${code}`));
+  return [...new Uint8Array(digest)].map((b) => b.toString(16).padStart(2, "0")).join("");
+}
+
 export const headers = (env, origin) => ({
   "content-type": "application/json; charset=utf-8",
   // Echo an allowed origin rather than "*", so a page elsewhere cannot read the replies.
   "access-control-allow-origin": origins(env).includes("*") ? "*" : origin && originAllowed(env, origin) ? origin : "null",
   vary: "origin",
-  "access-control-allow-headers": "content-type",
-  "access-control-allow-methods": "GET,POST,OPTIONS",
+  "access-control-allow-headers": "content-type,authorization,x-backup-pet,x-backup-events",
+  "access-control-allow-methods": "GET,POST,PUT,DELETE,OPTIONS",
 });

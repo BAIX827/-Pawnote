@@ -38,3 +38,29 @@ export const markBackedUp = (state: AppState, now = new Date()): AppState =>
   ({ ...state, backup: { lastAt: now.toISOString() } });
 export const snoozeBackup = (state: AppState, now = new Date()): AppState =>
   ({ ...state, backup: { ...state.backup, snoozedUntil: new Date(now.getTime() + 14 * DAY).toISOString() } });
+
+// Cloud backup (docs/01 8.38): the recovery code is the account. 20 characters from 32 letters and digits
+// without 0/O/1/I, shown as five groups of four. Same alphabet as server/core.mjs.
+export const CODE_ALPHABET = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+export function codeFromBytes(bytes: Uint8Array): string {
+  if (bytes.length < 20) throw new Error("need 20 random bytes");
+  // 256 is a multiple of 32, so taking each byte modulo 32 keeps every letter equally likely.
+  const raw = Array.from(bytes.slice(0, 20), (b) => CODE_ALPHABET[b % 32]).join("");
+  return formatCode(raw);
+}
+/** Accepts what a person types (any case, spaces or dashes) and returns the code in groups, or null. */
+export function normalizeCode(input: string): string | null {
+  const raw = input.toUpperCase().replace(/[\s-]/g, "");
+  if (raw.length !== 20 || [...raw].some((c) => !CODE_ALPHABET.includes(c))) return null;
+  return formatCode(raw);
+}
+const formatCode = (raw: string) => raw.match(/.{4}/g)!.join("-");
+
+/** Upload automatically once a day at most, only when something changed, and never example or empty data. */
+export function cloudDue(state: AppState, lastAt: string | undefined, now = new Date()): boolean {
+  if (!state.pet || state.demo) return false;
+  if (!lastAt) return true;
+  const last = Date.parse(lastAt);
+  return now.getTime() - last > DAY &&
+    allEvents(state).some((e) => Date.parse(e.savedAt ?? e.createdAt) > last);
+}

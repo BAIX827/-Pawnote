@@ -7,6 +7,7 @@ import { useFonts } from "expo-font";
 import { fonts } from "../platform/fonts";
 import { loadLang } from "../i18n";
 import ReminderSync from "../components/ReminderSync";
+import { CloudSync } from "../components/CloudBackup";
 export default function RootLayout() {
   React.useEffect(() => {
     void loadLang();
@@ -18,6 +19,7 @@ export default function RootLayout() {
       <StoreProvider>
         <StatusBar style="dark" />
         <ReminderSync />
+        <CloudSync />
         <Stack
           screenOptions={{
             headerShown: false,

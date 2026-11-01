@@ -22,15 +22,30 @@ export default {
         const k = `ip:${day}:${ip}`;
         await env.USAGE.put(k, String(Number((await env.USAGE.get(k)) ?? 0) + 1), { expirationTtl: 2 * 24 * 60 * 60 });
       },
+      // Cloud backups (docs/03 ADR-007) share the USAGE namespace: the body under "b:", its summary under "bm:".
+      backupPut: async (account, body, info) => {
+        await env.USAGE.put(`b:${account}`, body);
+        await env.USAGE.put(`bm:${account}`, JSON.stringify(info));
+      },
+      backupGet: (account) => env.USAGE.get(`b:${account}`, { type: "stream" }),
+      backupMeta: (account) => env.USAGE.get(`bm:${account}`, { type: "json" }),
+      backupDelete: async (account) => {
+        await env.USAGE.delete(`b:${account}`);
+        await env.USAGE.delete(`bm:${account}`);
+      },
     };
     const origin = request.headers.get("origin") ?? undefined;
     const result = await createGateway(env, store).handle(request.method, new URL(request.url), () => request.text(), {
       origin,
       ip: request.headers.get("cf-connecting-ip") ?? undefined,
+      authorization: request.headers.get("authorization") ?? undefined,
+      contentLength: request.headers.get("content-length") ?? undefined,
+      backupPet: request.headers.get("x-backup-pet") ?? undefined,
+      backupEvents: request.headers.get("x-backup-events") ?? undefined,
+      readBody: () => request.arrayBuffer(),
     });
-    return new Response(result.status === 204 ? null : JSON.stringify(result.body), {
-      status: result.status,
-      headers: headers(env, origin),
-    });
+    const out = headers(env, origin);
+    if (result.raw) return new Response(result.raw, { status: result.status, headers: out });
+    return new Response(result.status === 204 ? null : JSON.stringify(result.body), { status: result.status, headers: out });
   },
 };

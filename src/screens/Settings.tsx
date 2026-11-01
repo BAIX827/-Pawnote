@@ -13,6 +13,8 @@ import {
   styles,
 } from "../components/ui";
 import RestoreBackup from "../components/RestoreBackup";
+import CloudBackup from "../components/CloudBackup";
+import { forgetAccount } from "../platform/cloud";
 import { useBackupExport } from "../components/BackupNudge";
 import { Preferences, formatDate } from "../domain/types";
 export default function Settings() {
@@ -90,6 +92,7 @@ export default function Settings() {
             />
           </View>
           <RestoreBackup />
+          <CloudBackup />
           {confirm && (
             <View
               style={{
@@ -110,6 +113,8 @@ export default function Settings() {
                   tone="danger"
                   onPress={() => {
                     reset();
+                    // The cloud copy stays and the recovery code still finds it (docs/01 8.38).
+                    void forgetAccount();
                     router.replace("/");
                     notify(t("本机数据已清空。"));
                   }}

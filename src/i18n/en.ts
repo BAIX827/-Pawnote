@@ -4,12 +4,14 @@ import { soundsEn } from "./sounds-en";
 import { bondsEn } from "./bonds-en";
 import { trialEn } from "./trial-en";
 import { optimizeEn } from "./optimize-en";
+import { cloudEn } from "./cloud-en";
 export const en: Record<string, string> = {
   ...soundsEn,
   ...memoriesEn,
   ...bondsEn,
   ...trialEn,
   ...optimizeEn,
+  ...cloudEn,
   "收起": "Hide",
   "展开": "Show",
   "还没选": "Not chosen yet",
