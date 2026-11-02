@@ -61,7 +61,8 @@ export const isLoss = (description: string) => LOSS.test(description);
 
 // One absurd beat for owners who asked for weird; it takes the closer's place.
 const weird = {
-  zh: ["这件事要是开会，{self}希望空气也来听。", "{self}对着空气哈了一口。空气知道它做了什么。", "{self}的想法有点绕，想借个纸箱装一下。", "{self}决定给今天颁个奖。奖品归{self}。", "宇宙很大，{self}的碗很小。这不公平。"],
+  // Written in Chinese pet-account style, not translated from the English list below (PRD 8.39).
+  zh: ["这事要是开会，{self}申请当主持。散会。", "{self}冲空气“哈”了一声。空气自己心里有数。", "{self}想了一下，又不想了。", "{self}给今天颁了个奖，奖品{self}先收着。", "碗就这么小，世界那么大，凭什么。"],
   en: ["If this needs a meeting, I'd like the air to attend.", "I hissed at the air. The air knows what it did.", "My thoughts need a cardboard box to sit in.", "I'm giving today an award. I'm keeping the award.", "The universe is huge. My bowl is small. Unfair."],
 };
 
