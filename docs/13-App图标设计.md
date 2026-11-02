@@ -8,7 +8,7 @@
 
 界面品牌栏也使用同一图片：`src/components/BrandMark.tsx` 统一读取该文件，桌面侧栏显示 44px 图标，手机顶部显示 32px 图标，覆盖原先手绘爪印的位置。
 
-使用内置 imagegen 编辑第二版爪印，参考图是用户确认的融合最终版页面示意图；从两版橘色候选中选择第一版再整体放大。使用 sips 统一到 1024 × 1024，并检查 32、64 像素效果。此前较细描边的橘色候选 `assets/pawnote-icon-sticker.png` 留作历史对照。完整提示词见 [橘色爪印贴纸生成记录](reference/图标贴纸提示词-2026-10-26.md)。
+使用内置 imagegen 编辑第二版爪印，参考图是用户确认的融合最终版页面示意图；从两版橘色候选中选择第一版再整体放大。使用 sips 统一到 1024 × 1024，并检查 32、64 像素效果。此前较细描边的橘色候选 [`pawnote-icon-sticker.png`](reference/图标历史/pawnote-icon-sticker.png) 留作历史对照。完整提示词见 [橘色爪印贴纸生成记录](reference/图标贴纸提示词-2026-10-26.md)。
 
 本次修改集中于页面视觉适配，先前公开图标筛查的范围与局限继续适用，见下方记录。
 
@@ -16,9 +16,9 @@
 
 用户要求重新设计爪子图标，尽量减少与市面产品雷同。延续白底黑色，四枚略有错落的实心趾垫配合一笔回旋的掌垫；掌垫的轮廓向内收成书写笔迹。原版日记横线与折角在新版本中收敛为同一条轮廓。
 
-文件：`assets/pawnote-icon-signature.png`，1024 × 1024 PNG，不透明背景，现保留作历史对照。界面内的橘色 PawMark 继续用于导航及内容状态。
+文件：[`pawnote-icon-signature.png`](reference/图标历史/pawnote-icon-signature.png)，1024 × 1024 PNG，不透明背景，现保留作历史对照。界面内的橘色 PawMark 继续用于导航及内容状态。
 
-历史对照：`assets/pawnote-icon-outline.png`。新版由内置 imagegen 生成，再针对掌垫连笔进行一次编辑；使用 sips 统一到 1024 × 1024，另检查 32、64 和 180 像素效果。
+历史对照：[`pawnote-icon-outline.png`](reference/图标历史/pawnote-icon-outline.png)。新版由内置 imagegen 生成，再针对掌垫连笔进行一次编辑；使用 sips 统一到 1024 × 1024，另检查 32、64 和 180 像素效果。
 
 ## 公开图标初步对照
 
