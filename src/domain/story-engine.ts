@@ -10,33 +10,33 @@ const incidents: Record<
   }
 > = {
   sleep: {
-    work: "今日工作内容：睡觉。这是今天最重要的项目。",
-    campus: "今天的课：睡觉。出勤率百分之百。",
+    work: "今天的活儿就是睡觉，干得不错。",
+    campus: "今天一整天都在补觉，作业明天再说。",
     title: "今天忙着睡觉",
   },
   snack: {
-    work: "试吃岗今日准时到岗。工作很辛苦，份量还可以再加。",
-    campus: "吃饭课今天满分。老师是碗。",
+    work: "今天负责试吃，干完了。就是量少了点。",
+    campus: "今天吃饭最认真，比上课认真多了。",
     title: "开饭时间到",
   },
   bath: {
-    work: "今天被安排了清洁团建，全程没有发言。",
-    campus: "今天上了一节洗澡课。下次申请请假。",
+    work: "今天被拉去洗澡了。不算加班，但很累。",
+    campus: "今天被按着洗了澡。想请假，没请成。",
     title: "洗澡这件小事",
   },
   chaos: {
-    work: "今天的项目出了点状况。复盘会就不参加了。",
-    campus: "今天这道题的解法比较特别，老师可能不认。",
+    work: "今天家里乱了点。工作的事，下班不聊。",
+    campus: "今天闯了点小祸。老师还不知道。",
     title: "今天有点小状况",
   },
   walk: {
-    work: "外勤完成。外面的情况已摸清，报销另说。",
-    campus: "户外课结束。学到了很多，具体是什么，忘了。",
+    work: "今天出外勤，外面转了一圈。",
+    campus: "今天上了户外课。学了啥，忘了。",
     title: "出门啦",
   },
   other: {
-    work: "这件事记进工作日志了。没人要求，自己记的。",
-    campus: "这件事记进课堂笔记了。老师没布置，自己加的。",
+    work: "这件事记进工作日志了，自己记的。",
+    campus: "这件事记进笔记本了，自己记的。",
     title: "今天的小事",
   },
 };
@@ -47,16 +47,11 @@ const ALIASES: Partial<Record<Pet["species"], string[]>> = {
 };
 const COMMON_ALIASES = ["小家伙", "小东西", "小祖宗", "小动物", "崽崽"];
 // Words an owner uses about the pet, and how the pet would rather put it.
+// Only swaps that read at a glance; 拆家 and the like stay as the owner wrote them (docs/01 8.41).
 const SPINS: [string, string][] = [
   ["偷吃", "悄悄品鉴"],
-  ["拆家", "改造家居"],
-  ["捣乱", "热心帮忙"],
-  ["闯祸", "搞创作"],
   ["不听话", "坚持己见"],
-  ["乱叫", "发表演讲"],
   ["挑食", "严选食材"],
-  ["发呆", "思考宇宙"],
-  ["赖床", "延长睡眠研究"],
   ["胖了", "蓬松了"],
 ];
 const KEEP = ["其他", "其它", "他们", "她们", "它们", "他人"];
