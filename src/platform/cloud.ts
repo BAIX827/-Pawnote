@@ -82,12 +82,6 @@ export async function downloadBackup(code: string): Promise<AppState> {
   if (!response.ok) throw failure(response);
   return parseBackup(await response.text());
 }
-export async function cloudMeta(code: string): Promise<CloudMeta | null> {
-  const response = await call("/v1/backup/meta", { headers: auth(code) });
-  if (response.status === 404) return null;
-  if (!response.ok) throw failure(response);
-  return ((await response.json()) as { backup: CloudMeta }).backup;
-}
 export async function deleteCloud(code: string): Promise<void> {
   const response = await call("/v1/backup", { method: "DELETE", headers: auth(code) });
   if (!response.ok) throw failure(response);

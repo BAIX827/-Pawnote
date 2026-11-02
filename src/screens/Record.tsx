@@ -67,7 +67,7 @@ export default function Record() {
 }
 function Recorder({ original, initialDate }: { original?: LifeEvent; initialDate?: string }) {
   const { state, update, notify } = useStore();
-  const [seed] = useState(() => ({ ...newDraft(state.preferences, state.events.length), occurredOn: initialDate ?? localDay() }));
+  const [seed] = useState(() => ({ ...newDraft(), occurredOn: initialDate ?? localDay() }));
   const [editDraft, setEditDraft] = useState<Draft | undefined>(() => original ? {
     id: original.id, description: original.description, category: original.category,
     photo: original.photo, stories: original.stories, selectedStyle: "diary",

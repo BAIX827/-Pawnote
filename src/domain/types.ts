@@ -126,7 +126,7 @@ export interface CircleSettings {
 export interface Preferences {
   /** Celebrate on the home date when the actual birthday is unknown. Defaults to true. */
   homeAsBirthday?: boolean;
-  /** Pick one of the four voices once for each new entry. Defaults to true. */
+  /** Retired with the voice picker (docs/01 8.42); still read so older backups load. */
   randomStyle?: boolean;
   /** Include town and XP panels on Home. Defaults to false. */
   homeExtras?: boolean;
@@ -194,9 +194,8 @@ export const emptyState = (): AppState => ({
   demo: false,
 });
 // Every entry shows one piece, the pet's own voice; the feed post and the news card are made in the
-// background and used only where they belong (docs/01 8.42). The arguments stay for existing callers.
-export const FIRST_DIARY_ENTRIES = 3;
-export const newDraft = (_preferences?: Preferences, _entries = FIRST_DIARY_ENTRIES): Draft => ({
+// background and used only where they belong (docs/01 8.42).
+export const newDraft = (): Draft => ({
   id: id(),
   description: "",
   category: "other",

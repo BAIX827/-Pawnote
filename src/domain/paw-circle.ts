@@ -472,7 +472,6 @@ const renameIn = (text: string, lang: Lang) =>
       : `\\b(?:${title}\\s+)*${name}(?:\\s+${title})*\\b`;
     return s.replace(new RegExp(pattern, "g"), residentName(r, lang));
   }, text);
-export const residentById = (id: string) => RESIDENTS.find((r) => r.id === id);
 const actorOf = (r: Resident, lang: Lang): Actor => ({ kind: "resident", id: r.id, name: residentName(r, lang) });
 
 /** True when the pet's latest record says it has died: it no longer posts or goes out. */

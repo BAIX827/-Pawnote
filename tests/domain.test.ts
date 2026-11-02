@@ -16,7 +16,6 @@ import { type Category, Pet, SPECIES, emptyState, newDraft } from "../src/domain
 import { MAX_BACKUP_BYTES, parseBackup } from "../src/domain/backup";
 import { ageLabel, parseAge, questionnaireTraits, recommendRoute, speciesEmoji, speciesLabel } from "../src/domain/pet-profile";
 import { applyLang, t } from "../src/i18n/core";
-import { appraisal, monthReport, payslip, reportCard, reportMonths } from "../src/domain/report";
 import { firsts, isHomeDate, milestones, monthlyPhotos } from "../src/domain/timeline";
 import { isLoss, isSensitive, temperOf } from "../src/domain/temper";
 import { allReminders, writeMail } from "../src/domain/paw-mail";
@@ -266,7 +265,7 @@ test("英文界面下词条、称号与本机故事使用英文，未收录的�
   applyLang("en");
   try {
     assert.equal(t("爪窝"), "Home");
-    assert.equal(t("全部 {n}", { n: 3 }), "All 3");
+    assert.equal(t("全部"), "All");
     assert.equal(t("主人自己写的话"), "主人自己写的话");
     const pet = demoState().pet!;
     const stories = generateStories(pet, "He stole a fish.", "snack");
@@ -310,8 +309,9 @@ test("难过的事不开玩笑，离别按原话保存，日常小事不误判",
   assert.equal(isLoss("we had to put him down"), true);
   const plain: Pet = { ...cat, personality: "亲人" };
   assert.ok(!generateStories(plain, "它睡了一下午。", "sleep").diary.title.includes("本喵"));
-  assert.match(generateStories(cat, "它睡了一下午。", "sleep").life.text, /今日工作日记/);
-  assert.doesNotMatch(generateStories(cat, "它睡了一下午。", "sleep").life.text, /备注：|研究已完成/);
+  // The school / work diary is retired; "life" repeats the diary (docs/01 8.42, 8.44).
+  const nap = generateStories(cat, "它睡了一下午。", "sleep");
+  assert.deepEqual(nap.life, nap.diary);
 });
 test("爪友圈按性格和真实细节写心思，两版表达可切换且不补无关事件", () => {
   const pet = demoState().pet!;
@@ -341,27 +341,6 @@ test("爪友圈按性格和真实细节写心思，两版表达可切换且不�
     assert.equal(t("欢迎搬进爪爪镇"), "Welcome to Pawtown");
   } finally { applyLang("zh"); }
 });
-test("月度回顾统计生活片刻与类别，奖励不扣款，难过的记录保留", () => {
-  const s = demoState(), base = s.events[0];
-  const at = (day: number, category: Category, description = "它玩了一会儿。") =>
-    ({ ...base, id: `${category}-${day}-${description.length}`, category, description, createdAt: new Date(2026, 4, day, 12).toISOString() });
-  const events = [at(1, "sleep"), at(1, "chaos"), at(2, "chaos"), at(3, "bath"), at(3, "chaos", "它拆家后受伤住院了。"), at(9, "walk"),
-    { ...at(1, "snack"), id: "june", createdAt: new Date(2026, 5, 1, 12).toISOString() }];
-  const r = monthReport(events, "2026-05");
-  assert.deepEqual([r.entries, r.days, r.top, r.counts.chaos], [6, 4, "chaos", 2]);
-  const pay = payslip(r);
-  assert.equal(pay.total, 60 + 3 + 6 + 5 + 4);
-  assert.ok(pay.lines.every((l) => l.amount >= 0));
-  const card = reportCard(r);
-  assert.equal(card.credits, 12);
-  assert.equal(card.rows.find((x) => x.subject === "手工课")!.count, 2);
-  assert.equal(card.rows.find((x) => x.subject === "食堂调研")!.count, 0);
-  assert.equal(monthReport(events, "2026-04").entries, 0);
-  assert.equal(payslip(monthReport([at(1, "chaos")], "2026-05")).total, 13);
-  assert.deepEqual(reportMonths(events, new Date(2026, 6, 4)), ["2026-07", "2026-06", "2026-05"]);
-  assert.match(appraisal({ ...s.pet!, personality: "亲人", ownerTitle: "妈妈" }, r, "妈妈").self, /妈妈一起/);
-  assert.equal(monthReport(Array.from({ length: 20 }, (_, i) => at(i + 1, "sleep")), "2026-05").entries, 20);
-});
 test("时光机算出每月首张照片、各类第一次和到家天数与周年", () => {
   const s = demoState(), base = s.events[0], photo = "data:image/jpeg;base64,YQ==";
   const at = (y: number, m: number, d: number, category: Category, withPhoto = false) =>
@@ -388,14 +367,9 @@ test("四种风格保留真实描述，人设变化使生成签名失效", () =>
   for (const [style, story] of Object.entries(stories))
     if (style !== "news") assert.ok(story.text.includes("咪只在窗边看了一会儿雨。"));
   assert.ok(stories.news.text.includes(description));
-  const school: Pet = { ...p, route: "campus", role: "睡眠研究班" };
-  assert.match(
-    generateStories(school, description, "other").life.title,
-    /校园/,
-  );
   assert.notEqual(
     generationSignature(p, description, "other"),
-    generationSignature(school, description, "other"),
+    generationSignature({ ...p, personality: "亲人" }, description, "other"),
   );
   assert.equal(s.events[0].petSnapshot.route, "work");
 });

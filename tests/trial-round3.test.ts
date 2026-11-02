@@ -19,14 +19,14 @@ const entry = (pet: Pet, description: string, category: Category, at: Date): Lif
 const home = (pet: Pet, events: LifeEvent[] = []): AppState => ({ schemaVersion: 1, pet, events, draft: null, demo: false });
 const FILLER = /好多想法|好多话|分几次说|多讲两句|多说两句|容我多说|more than one message|more to say/;
 
-test("“日常”类不再凑字数：接住之后只跟一句短收尾，打工 / 校园日记和内心独白不一样", () => {
+test("“日常”类不再凑字数：接住之后只跟一句短收尾；退役的打工 / 校园日记沿用内心独白", () => {
   for (const personality of ["傲娇", "亲人", "活泼", "戏精", "好奇", "随和", "慢热"]) {
     const pet = { ...dog, personality };
     for (const fact of ["今天在家待了一天。", "可乐今天把我的拖鞋叼到阳台藏起来了。"]) {
       const s = generateStories(pet, fact, "other");
       for (const style of ["diary", "life", "social", "news"] as const)
         assert.doesNotMatch(s[style].text, FILLER, `${personality} ${style}: ${s[style].text}`);
-      assert.notEqual(s.life.text.replace(/^【.*】\n/, ""), s.diary.text, personality);
+      assert.deepEqual(s.life, s.diary, personality);
     }
   }
   applyLang("en");

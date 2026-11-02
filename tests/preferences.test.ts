@@ -68,8 +68,7 @@ test("真实生日可计算月龄，未知日期保留未知，月末与12个月
 
 test("记录只出一段：新草稿和旧日记都用内心独白，旧数据照常读取（docs/01 8.42）", () => {
   const pet = demoState().pet!;
-  for (const n of [0, 3, 10]) assert.equal(newDraft(undefined, n).selectedStyle, "diary");
-  assert.equal(newDraft({ randomStyle: true }, 10).selectedStyle, "diary");
+  assert.equal(newDraft().selectedStyle, "diary");
   const draft = retellDraft(pet, newDraft(), "今天去散步", "walk");
   assert.equal(draft.selectedStyle, "diary");
   const old = demoState();

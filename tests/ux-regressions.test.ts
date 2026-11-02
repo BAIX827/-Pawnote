@@ -5,7 +5,6 @@ import { applyLang } from "../src/i18n/core";
 import { generateStory } from "../src/domain/story-engine";
 import { eventContext } from "../src/domain/event-context";
 import { soundCopy } from "../src/domain/sound-copy";
-import { appraisal, monthReport, reportCard } from "../src/domain/report";
 import { SPECIES, STYLES } from "../src/domain/types";
 import { wrap } from "../src/domain/news-card";
 
@@ -68,18 +67,3 @@ test("所有物种的声音说明与空状态双语适配，自定义物种用�
   }
 });
 
-test("一条记录和空月份都不显示等级评价，空类别只保持零计数", () => {
-  const state = demoState(), entry = state.events[0];
-  for (const lang of ["zh", "en"] as const) {
-    applyLang(lang);
-    try {
-      for (const events of [[], [entry]]) {
-        const report = monthReport(events, entry.createdAt.slice(0, 7));
-        assert.equal("grade" in report, false);
-        assert.ok(reportCard(report).rows.every((row) => !("score" in row)));
-        const words = appraisal(state.pet!, report, "妈妈");
-        assert.doesNotMatch(words.manager, /缺考|下月多写|进步空间|Absent|room to grow|show up/i);
-      }
-    } finally { applyLang("zh"); }
-  }
-});

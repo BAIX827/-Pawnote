@@ -1,7 +1,6 @@
 import { eventDate } from "./dates";
-import { LifeEvent, formatDate } from "./types";
+import { LifeEvent, Pet, formatDate } from "./types";
 import { t } from "../i18n/core";
-import { currency } from "./report";
 import { isSensitive } from "./temper";
 
 export const NEWS_TEMPLATES = ["daily", "extra", "wanted", "cover"] as const;
@@ -11,6 +10,9 @@ export const defaultNewsTemplate = (event?: Pick<LifeEvent, "category">): NewsTe
   event?.category === "chaos" ? "wanted" : "extra";
 /** A hard day gets a plain record card instead of a parody layout. */
 export const isPlainNews = (event: LifeEvent) => isSensitive(event.description);
+/** The treat a pet counts in: 小鱼干 for cats, 肉干 for dogs. */
+const currency = (pet: Pet) =>
+  t(pet.species === "cat" ? "小鱼干" : pet.species === "dog" ? "肉干" : "零食");
 /** The mock bounty on a wanted poster: a steady number per entry, in the pet's own currency. */
 export const bounty = (event: LifeEvent) =>
   `${((event.description.length % 9) + 1) * 10} ${currency(event.petSnapshot)}`;

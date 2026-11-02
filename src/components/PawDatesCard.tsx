@@ -46,7 +46,7 @@ export default function PawDatesCard({ quiet = false }: { quiet?: boolean }) {
     if (state.draft?.description.trim()) {
       notify(t("爪语里还有没保存的草稿，先把它写完吧。"));
     } else {
-      update((s) => ({ ...s, draft: { ...newDraft(s.preferences, s.events.length), ...diaryEntry(pet!, r) } }));
+      update((s) => ({ ...s, draft: { ...newDraft(), ...diaryEntry(pet!, r) } }));
     }
     router.push("/record");
   }

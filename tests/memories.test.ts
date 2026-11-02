@@ -9,7 +9,6 @@ import { nextOccasions, occasionForYear, occasionLetter, occasionSVG } from "../
 import { saveEvent, progress } from "../src/domain/life";
 import { isAppState } from "../src/data/validation";
 import { parseBackup } from "../src/domain/backup";
-import { monthReport } from "../src/domain/report";
 import { firsts, milestones } from "../src/domain/timeline";
 import { applyLang } from "../src/i18n/core";
 import { LifeEvent, SoundMemory, newDraft } from "../src/domain/types";
@@ -42,8 +41,7 @@ test("编辑旧记录保留身份、创建时间和新草稿，XP不重复，补
   assert.equal(edited.draft?.description, state.draft.description);
   assert.equal(isAppState(edited), true);
   assert.equal(parseBackup(JSON.stringify(edited)).events[1].occurredOn, "2024-04-01");
-  assert.equal(monthReport(edited.events, "2024-04").entries, 1);
-  assert.equal(monthReport(edited.events, "2024-03").entries, 0);
+  assert.deepEqual(edited.events.map(eventDay).filter((d) => d.startsWith("2024-0")), ["2024-05-01", "2024-04-01"]);
   assert.equal(firsts(edited.events)[0].event.id, "old");
   const backfill = saveEvent(edited, at("2023-01-01"));
   assert.equal(backfill.events.at(-1)?.occurredOn, "2023-01-01");

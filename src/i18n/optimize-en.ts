@@ -14,7 +14,6 @@ export const optimizeEn: Record<string, string> = {
   "{name}的年度纪念册": "{name}'s year book",
   年度纪念册: "Year book",
   保存年度纪念册: "Save year book",
-  "声音 · {n}": "Sounds · {n}",
   纪念日: "Special days",
   历史爪信: "Past letters",
   爪格: "Pawsona",
