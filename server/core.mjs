@@ -1,5 +1,5 @@
 // Pawnote AI gateway, the part that is the same wherever it runs: it keeps provider keys off
-// the device, picks a model by region, and counts each device's free AI generations per week.
+// the device, picks a model by language, and counts each device's free AI generations per week.
 // A host (Node in index.mjs, Cloudflare Workers in worker.mjs) supplies `env` and a usage store.
 import { BANNED, COMBOS, FLAVOR_LINE, SPECIES_CARD, TEMPERS, TEMPER_CARD, example } from "./voice.mjs";
 
@@ -144,7 +144,8 @@ export function createGateway(env, store) {
           `6. 不用：排比、“不是……而是……”“不仅……更是……”、仿佛、宛如、治愈、岁月静好、满满的、本喵、本汪、喵星人、汪星人、毛孩子、哈基米、萌萌哒。\n` +
           `7. 如果主人写到生病、受伤或走失：四段都不开玩笑，安静、真诚、短。\n` +
           `8. 用简体中文。城镇叫“爪爪镇”，公司叫“爪爪公司”。删掉“在小动物世界里”“写进档案”“收录”等背景解释和归档说明。朋友姓名、相遇、评论、点赞需要主人原话依据。\n` +
-          `9. 输出前逐句核对：新增的已发生动作、感官观察或主人回应，删掉，或者改成一眼能看出的玩笑和看法。原话只有“出去玩”时，不补写“闻了什么”“被叫回来”“路过谁”。四种体裁共享这条事实边界。\n\n` +
+          `9. 输出前逐句核对：新增的已发生动作、感官观察或主人回应，删掉，或者改成一眼能看出的玩笑和看法。原话只有“出去玩”时，不补写“闻了什么”“被叫回来”“路过谁”。四种体裁共享这条事实边界。\n` +
+          `10. 用大白话，像真人随手发的帖。词语搭配要是中国人平时会说的，不硬凑（反例：“气氛很硬”“默认这案子会进入长期观察”），不要翻译腔。公文腔只在【它的语气】要求时用，而且只用现成的说法（如“此事不予追究”“保留追诉权”）。写完读一遍，读着别扭的句子换成口语。\n\n` +
           `输出一个 JSON 对象，只输出 JSON。四个键 diary、life、social、news，每个值是 {"title": "...", "text": "..."}。\n` +
           `- diary 内心独白：50–120 字，两三段。先写这件事，再写它自信的理解，停在嘴硬或反转上。\n` +
           `- life ${work ? "打工日记" : "校园日记"}：50–120 字。可以写成${work ? "工作汇报、工作群消息" : "课堂笔记、班级群消息"}，用一两个${work ? "打工" : "上学"}词贴着真实经过。\n` +
@@ -206,7 +207,11 @@ export function createGateway(env, store) {
       const said = `【模拟 AI · ${input.temper}】${pet.self}听见${pet.owner}说：“${description.trim()}”`;
       return parseStories(JSON.stringify(Object.fromEntries(STYLES.map((s) => [s, { title: `【模拟 AI】${pet.name}的${s}`, text: said }]))));
     }
-    const region = providers[input.region].key && providers[input.region].url && providers[input.region].model ? input.region : "cn";
+    // Chinese goes to the Chinese provider and English to the international one, whichever build asked
+    // (docs/01 8.40); the build's own region is the fallback when that provider is not configured.
+    const ready = (r) => !!(providers[r].key && providers[r].url && providers[r].model);
+    const want = lang === "en" ? "intl" : "cn";
+    const region = ready(want) ? want : ready(input.region) ? input.region : "cn";
     const p = providers[region];
     if (!p.key) throw Object.assign(new Error("AI provider is not configured"), { status: 503 });
     const jsonMode = env[region === "cn" ? "CN_JSON_MODE" : "INTL_JSON_MODE"] !== "0";
