@@ -72,12 +72,9 @@ export default function Onboarding({ editing = false, adding = false }: { editin
   const [months, setMonths] = useState(
     original?.ageMonths === undefined ? "" : String(original.ageMonths % 12),
   );
-  const [routeSource, setRouteSource] = useState<RouteSource>(
-    original?.routeSource ?? (editing ? "manual" : "age"),
-  );
-  const [manualRoute, setManualRoute] = useState<Route>(
-    original?.route ?? "work",
-  );
+  // School and work are no longer shown or chosen (docs/01 8.42); the fields stay filled for old data.
+  const routeSource: RouteSource = original?.routeSource ?? (editing ? "manual" : "age");
+  const manualRoute: Route = original?.route ?? "work";
   const [avatar, setAvatar] = useState(original?.avatar);
   // A second pet calls the owner what the current one does, unless the owner changes it.
   const [ownerTitle, setOwnerTitle] = useState(original?.ownerTitle ?? (adding && state.pet ? ownerName(state.pet) : ""));
@@ -254,7 +251,7 @@ export default function Onboarding({ editing = false, adding = false }: { editin
                 </Text>
                 <Text style={styles.small}>{tList(preview.personality)}</Text>
                 <Tag bg={colors.paper}>
-                  {titleFor(level, preview.route)} · Lv.{level}
+                  {titleFor(level)} · Lv.{level}
                 </Tag>
               </View>
             </View>
@@ -399,54 +396,8 @@ export default function Onboarding({ editing = false, adding = false }: { editin
               />
             )}
           </Fold>
-          <View style={{ gap: 10 }}>
-            <Label>{t("05 / 人生路线")}</Label>
-            {species === "cat" || species === "dog" ? (
-              <>
-                <View style={[styles.row, { flexWrap: "wrap" }]}>
-                  <Chip
-                    label={t("按年龄自动匹配")}
-                    active={effectiveRouteSource === "age"}
-                    onPress={() => setRouteSource("age")}
-                  />
-                  <Chip
-                    label={t("主人自己选")}
-                    active={effectiveRouteSource === "manual"}
-                    onPress={() => {
-                      setManualRoute(route);
-                      setRouteSource("manual");
-                    }}
-                  />
-                </View>
-              </>
-            ) : (
-              null
-            )}
-            <View style={[styles.row, { flexWrap: "wrap" }]}>
-              <Chip
-                label={t("🎒 去上学")}
-                active={
-                  route === "campus"
-                }
-                onPress={() => {
-                  setManualRoute("campus");
-                  setRouteSource("manual");
-                }}
-              />
-              <Chip
-                label={t("💼 进入职场")}
-                active={
-                  route === "work"
-                }
-                onPress={() => {
-                  setManualRoute("work");
-                  setRouteSource("manual");
-                }}
-              />
-            </View>
-          </View>
           <Fold
-            label={t("06 / 它在日记里怎么称呼你")}
+            label={t("05 / 它在日记里怎么称呼你")}
             summary={ownerTitle.trim() || defaultOwnerName(species)}
             open={titleOpen}
             onToggle={() => setTitleOpen(!titleOpen)}
@@ -470,11 +421,11 @@ export default function Onboarding({ editing = false, adding = false }: { editin
             />
           </Fold>
           <View style={{ gap: 10 }}>
-            <Label>{t("07 / 到家日期（可选）")}</Label>
+            <Label>{t("06 / 到家日期（可选）")}</Label>
             <DateField label={t("到家日期")} value={homeDate} onChange={setHomeDate} />
           </View>
           <View style={{ gap: 10 }}>
-            <Label>{t("08 / 生日（可选）")}</Label>
+            <Label>{t("07 / 生日（可选）")}</Label>
             <DateField label={t("宠物生日")} value={birthDate} onChange={setBirthDate} />
           </View>
           <View style={styles.row}>

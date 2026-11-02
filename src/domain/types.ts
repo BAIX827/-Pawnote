@@ -193,17 +193,14 @@ export const emptyState = (): AppState => ({
   draft: null,
   demo: false,
 });
-// A pet's first few entries speak in the inner voice; after that the random pick leaves out the news
-// parody, which opens by quoting the owner (docs/01 8.26).
+// Every entry shows one piece, the pet's own voice; the feed post and the news card are made in the
+// background and used only where they belong (docs/01 8.42). The arguments stay for existing callers.
 export const FIRST_DIARY_ENTRIES = 3;
-const RANDOM_STYLES: StoryStyle[] = ["diary", "life", "social"];
-export const newDraft = (preferences?: Preferences, entries = FIRST_DIARY_ENTRIES): Draft => ({
+export const newDraft = (_preferences?: Preferences, _entries = FIRST_DIARY_ENTRIES): Draft => ({
   id: id(),
   description: "",
   category: "other",
-  selectedStyle: preferences?.randomStyle === false || entries < FIRST_DIARY_ENTRIES
-    ? "diary"
-    : RANDOM_STYLES[Math.floor(Math.random() * RANDOM_STYLES.length)],
+  selectedStyle: "diary",
   published: true,
 });
 // The pet's job at work, by species (docs/01 8.24); school pets all start in the sleep-research class.

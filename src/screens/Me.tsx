@@ -13,9 +13,9 @@ import Onboarding from "./Onboarding";
 type Tool = {
   label: string;
   plain: string;
-  icon: "zap" | "briefcase" | "book" | "bell" | "file-text" | "share-2" | "settings";
+  icon: "zap" | "trending-up" | "bell" | "share-2" | "settings";
   bg: string;
-  to: "/pawsona" | "/life" | "/dates" | "/report" | "/bonds" | "/settings";
+  to: "/pawsona" | "/life" | "/dates" | "/bonds" | "/settings";
 };
 
 /** 我的: the pet's own card and every tool that isn't a diary or a memory (docs/01 8.37). */
@@ -27,9 +27,8 @@ export default function Me() {
   const p = progress(state.events);
   const tools: Tool[] = [
     { label: state.pawsona ? pawsonaCard(pet, state.pawsona).name : t("爪格"), plain: t("性格测试"), icon: "zap", bg: colors.lavender, to: "/pawsona" },
-    { label: t("爪迹"), plain: pet.route === "work" ? t("打工经历") : t("上学经历"), icon: pet.route === "work" ? "briefcase" : "book", bg: colors.orange, to: "/life" },
+    { label: t("爪迹"), plain: t("等级和成长"), icon: "trending-up", bg: colors.orange, to: "/life" },
     { label: t("爪约"), plain: t("提醒"), icon: "bell", bg: colors.yellow, to: "/dates" },
-    { label: t("本月回顾"), plain: t("这个月过得怎样"), icon: "file-text", bg: colors.mint, to: "/report" },
     { label: t("关系网"), plain: t("它的朋友们"), icon: "share-2", bg: colors.paper, to: "/bonds" },
     { label: t("设置"), plain: t("语言、备份"), icon: "settings", bg: colors.paper, to: "/settings" },
   ];
@@ -44,13 +43,13 @@ export default function Me() {
             <Text numberOfLines={2} style={{ fontFamily: display, fontSize: 30, lineHeight: 36, color: colors.ink }}>{pet.name}</Text>
             <Text style={[styles.small, { color: colors.ink }]}>{speciesLabel(pet)} · {ageLabel(pet.ageMonths)}</Text>
             <Text style={[styles.small, { color: colors.ink }]}>
-              {tList(pet.personality)} · {t(pet.route === "work" ? "岗位 · {role}" : "班级 · {role}", { role: t(pet.role) })}
+              {tList(pet.personality)}
             </Text>
           </View>
         </View>
         <View style={{ gap: 4 }}>
           <View style={styles.between}>
-            <Text style={[styles.small, { color: colors.ink, fontWeight: "800" }]}>Lv.{p.level} {titleFor(p.level, pet.route)}</Text>
+            <Text style={[styles.small, { color: colors.ink, fontWeight: "800" }]}>Lv.{p.level} {titleFor(p.level)}</Text>
             <Text style={[styles.small, { color: colors.ink }]}>{t("还差 {n} XP · 每条新记录 +20", { n: p.toNext })}</Text>
           </View>
           <Meter value={p.current} color={colors.yellow} />

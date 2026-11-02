@@ -9,6 +9,7 @@ import React, {
 import { getStoredState, setStoredState } from "../platform/state-storage";
 import { AppState, emptyState } from "../domain/types";
 import { isAppState } from "./validation";
+import { onlyDiary } from "../domain/life";
 const KEY = "paw-life:v1";
 type Store = {
   state: AppState;
@@ -49,7 +50,7 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
           try {
             const parsed: unknown = JSON.parse(value);
             if (!isAppState(parsed)) throw new Error();
-            update(parsed);
+            update(onlyDiary(parsed));
           } catch {
             setBlocked(true);
             setError(t("本机数据读取异常。请先导出原始备份，再确认清空重建。"));
@@ -105,6 +106,7 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
   const restore = async (backup: AppState) => {
     if (restoreLock.current) throw new Error(t("正在恢复，请稍候。"));
     if (!isAppState(backup)) throw new Error(t("备份内容无法读取。"));
+    backup = onlyDiary(backup);
     restoreLock.current = true;
     setRestoring(true);
     const serialized = JSON.stringify(backup);

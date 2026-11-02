@@ -1,4 +1,4 @@
-import StoryStylePicker, { storyColors } from "../components/StoryStylePicker";
+import { storyColors } from "../components/StoryStylePicker";
 import { t } from "../i18n";
 import { useEffect, useRef, useState } from "react";
 import { Image, Platform, Pressable, Text, View } from "react-native";
@@ -70,7 +70,7 @@ function Recorder({ original, initialDate }: { original?: LifeEvent; initialDate
   const [seed] = useState(() => ({ ...newDraft(state.preferences, state.events.length), occurredOn: initialDate ?? localDay() }));
   const [editDraft, setEditDraft] = useState<Draft | undefined>(() => original ? {
     id: original.id, description: original.description, category: original.category,
-    photo: original.photo, stories: original.stories, selectedStyle: original.selectedStyle,
+    photo: original.photo, stories: original.stories, selectedStyle: "diary",
     published: original.published, occurredOn: eventDay(original), together: original.together,
     signature: generationSignature(original.petSnapshot, original.description, original.category),
   } : undefined);
@@ -378,10 +378,6 @@ function Recorder({ original, initialDate }: { original?: LifeEvent; initialDate
         </Bubble>
       </View>
 
-      {generated && <View style={{ gap: 8 }}>
-        {/* The voice can always be switched here, not only when random voices are off (docs/01 8.26). */}
-        <StoryStylePicker route={pet.route} selected={draft.selectedStyle} onSelect={(selectedStyle) => patch({ selectedStyle })} />
-      </View>}
       {draft.expressionNeedsReview && <View style={{ gap: 10 }}>
         <Text accessibilityRole="alert" style={styles.body}>{t("原话或分类已改动，已保留你润色过的表达。请选择如何处理后保存。")}</Text>
         <View style={[styles.row, { flexWrap: "wrap" }]}>

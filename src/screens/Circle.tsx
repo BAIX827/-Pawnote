@@ -289,7 +289,7 @@ function Post({
         <View style={{ flex: 1 }}>
           <Text style={styles.h2}>{p.author.name}</Text>
           <Text style={[styles.small, { color: colors.ink }]}>
-            {when(p.at, now)} · {e ? t(e.petSnapshot.role) : p.resident!.role[lang]}
+            {when(p.at, now)}{e ? "" : ` · ${p.resident!.role[lang]}`}
           </Text>
           {p.resident && (
             <Sticker bg={colors.paper} rotate={-2} style={{ marginTop: 6 }}>

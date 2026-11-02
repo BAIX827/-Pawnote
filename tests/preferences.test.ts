@@ -8,6 +8,7 @@ import { birthdayDate, nextOccasions, occasionForYear, occasionLetter, occasionS
 import { generateStories, generationSignature, retellDraft } from "../src/domain/story-engine";
 import { newDraft, STYLES } from "../src/domain/types";
 import { applyLang } from "../src/i18n/core";
+import { onlyDiary, titleFor } from "../src/domain/life";
 
 applyLang("zh");
 
@@ -65,23 +66,18 @@ test("真实生日可计算月龄，未知日期保留未知，月末与12个月
   assert.equal(ageFromBirthday("2025-01-31", new Date(2025, 1, 28)), 1);
 });
 
-test("随机口吻在三种里选、不随到爪报，编辑和恢复草稿保留口吻，关闭随机用内心独白", (t) => {
-  const random = t.mock.method(Math, "random");
+test("记录只出一段：新草稿和旧日记都用内心独白，旧数据照常读取（docs/01 8.42）", () => {
   const pet = demoState().pet!;
-  const pool = STYLES.filter((s) => s !== "news");
-  pool.forEach((style, i) => {
-    random.mock.mockImplementation(() => (i + 0.1) / pool.length);
-    const draft = retellDraft(pet, newDraft(), "今天去散步", "walk");
-    assert.equal(draft.selectedStyle, style);
-    assert.equal(retellDraft(pet, draft, "今天去海边散步", "walk").selectedStyle, style);
-    const restored = parseBackup(JSON.stringify({ ...demoState(), draft }));
-    assert.equal(restored.draft?.selectedStyle, style);
-  });
-  assert.equal(newDraft({ randomStyle: false }).selectedStyle, "diary");
-  // A pet's first three entries are always the inner voice (docs/01 8.26).
-  random.mock.mockImplementation(() => 0.9);
-  assert.deepEqual([0, 1, 2].map((n) => newDraft(undefined, n).selectedStyle), ["diary", "diary", "diary"]);
-  assert.equal(newDraft(undefined, 3).selectedStyle, "social");
+  for (const n of [0, 3, 10]) assert.equal(newDraft(undefined, n).selectedStyle, "diary");
+  assert.equal(newDraft({ randomStyle: true }, 10).selectedStyle, "diary");
+  const draft = retellDraft(pet, newDraft(), "今天去散步", "walk");
+  assert.equal(draft.selectedStyle, "diary");
+  const old = demoState();
+  const picked = { ...old, events: old.events.map((e, i) => ({ ...e, selectedStyle: STYLES[i % STYLES.length] })), draft: { ...draft, selectedStyle: "news" as const } };
+  const restored = onlyDiary(parseBackup(JSON.stringify(picked)));
+  assert.ok(restored.events.every((e) => e.selectedStyle === "diary"));
+  assert.equal(restored.draft?.selectedStyle, "diary");
+  assert.equal(restored.events.length, old.events.length);
 });
 
 test("生日未知时默认不用到家日庆生，打开偏好后才用", () => {
@@ -112,4 +108,9 @@ test("偏好随备份恢复，旧备份兼容，异常偏好被拒绝", () => {
   for (const key of ["homeAsBirthday", "randomStyle", "homeExtras"]) {
     assert.equal(isAppState({ ...state, preferences: { [key]: "false" } }), false);
   }
+});
+
+test("校园 / 职场下线：等级称号不分路线（docs/01 8.42）", () => {
+  applyLang("zh");
+  assert.deepEqual([1, 2, 3, 4, 5, 9].map((n) => titleFor(n)), ["爪爪镇新居民", "记录小能手", "日常观察员", "资深居民", "爪爪镇传说", "爪爪镇传说"]);
 });

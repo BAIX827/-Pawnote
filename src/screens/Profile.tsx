@@ -159,8 +159,7 @@ export default function Profile() {
                   ]}
                 >
                   <Text style={styles.small}>
-                    {e.petSnapshot.name} ·{" "}
-                    {e.petSnapshot.route === "work" ? t("职场") : t("校园")}
+                    {e.petSnapshot.name}
                   </Text>
                   <Button
                     label={t("制作爪报")}

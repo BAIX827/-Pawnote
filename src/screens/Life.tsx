@@ -30,15 +30,12 @@ export default function Life() {
   if (!state.pet) return <Onboarding />;
   const pet = state.pet,
     p = progress(state.events),
-    work = pet.route === "work",
-    accent = work ? colors.jade : colors.lavender,
-    soft = work ? colors.green : colors.lilac,
+    accent = colors.jade,
+    soft = colors.green,
     wide = width >= 1100;
-  // Every level from 1 to 5, named by its title, with the moment it stands for underneath (docs/01 8.24–8.26).
-  const moments = work
-    ? ["第一次营业", "转正面谈", "独立值班", "拿到工牌", "摸鱼也能出业绩"]
-    : ["第一次入学", "第一次小测", "加入社团", "当上课代表", "被写进校史"];
-  const steps = moments.map((m, i) => ({ at: i + 1, name: titleFor(i + 1, pet.route), moment: m && t(m) }));
+  // Every level from 1 to 5, named by its title, with what it takes underneath (docs/01 8.42).
+  const moments = ["开始记录", "记满 5 条", "记满 10 条", "记满 15 条", "记满 20 条"];
+  const steps = moments.map((m, i) => ({ at: i + 1, name: titleFor(i + 1), moment: t(m) }));
   const notch = {
     position: "absolute" as const,
     width: 26,
@@ -86,13 +83,13 @@ export default function Life() {
           >
             <View>
               <Text style={{ color: colors.ink, fontSize: 11, letterSpacing: 3, fontWeight: "700" }}>
-                {work ? "PAWNOTE GROUP" : "PAWNOTE ACADEMY"}
+                PAWNOTE TOWN
               </Text>
               <Text style={{ color: colors.ink, fontSize: 28, fontWeight: "400", fontFamily: display }}>
-                {work ? t("员工通行证") : t("学生通行证")}
+                {t("爪爪镇居民证")}
               </Text>
             </View>
-            <Icon name={work ? "briefcase" : "book"} color={colors.ink} size={30} />
+            <Icon name="home" color={colors.ink} size={30} />
           </View>
           <View style={{ padding: 22, paddingTop: 30, flexDirection: "row", gap: 20, alignItems: "center" }}>
             <Portrait pet={pet} demo={state.demo} size={width < 500 ? 88 : 116} rotate={-4} tape={colors.yellow} />
@@ -103,7 +100,6 @@ export default function Life() {
               >
                 {pet.name}
               </Text>
-              <Text style={[styles.small, { color: colors.ink }]}>{t(work ? "岗位 · {role}" : "班级 · {role}", { role: t(pet.role) })}</Text>
               <Text style={[styles.small, { color: colors.ink }]}>
                 {speciesLabel(pet)} · {ageLabel(pet.ageMonths)}
               </Text>
@@ -127,7 +123,7 @@ export default function Life() {
               <View style={{ flex: 1 }}>
                 <Text style={styles.caps}>{t("当前身份")}</Text>
                 <Text style={[styles.h2, { fontSize: 24, lineHeight: 34 }]}>
-                  {titleFor(p.level, pet.route)}
+                  {titleFor(p.level)}
                 </Text>
               </View>
               <Wobble>
@@ -172,14 +168,7 @@ export default function Life() {
           <Text style={[styles.body, { fontWeight: "600" }]}>
             {t("还差 {n} XP · 每条新记录 +20", { n: p.toNext })}
           </Text>
-          <Button label={t("添一段经历")} icon="plus" onPress={() => router.push("/record")} />
-          <Button
-            label={t("看本月生活回顾")}
-            icon="file-text"
-            tone="soft"
-            onPress={() => router.push("/report")}
-            style={{ backgroundColor: colors.paper }}
-          />
+          <Button label={t("记录今天")} icon="plus" onPress={() => router.push("/record")} />
         </Card>
       </View>
       <View style={{ alignSelf: "flex-start", marginTop: 6 }}>

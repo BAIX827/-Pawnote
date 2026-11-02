@@ -82,7 +82,7 @@ export default function Home() {
           <View style={{ alignItems: "flex-start", gap: 7 }}>
             <View style={{ backgroundColor: colors.yellow, borderWidth: 2, borderColor: colors.ink, borderRadius: 999, paddingHorizontal: 10, paddingVertical: 3 }}>
               <Text style={{ color: colors.ink, fontSize: 12, fontWeight: "800" }}>
-                Lv.{p.level} {titleFor(p.level, pet.route)}
+                Lv.{p.level} {titleFor(p.level)}
               </Text>
             </View>
             <View style={{ backgroundColor: colors.lavender, borderWidth: 2, borderColor: colors.ink, borderRadius: 999, paddingHorizontal: 10, paddingVertical: 3, transform: [{ rotate: "-4deg" }] }}>

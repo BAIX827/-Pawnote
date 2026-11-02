@@ -84,14 +84,13 @@ export function createGateway(env, store) {
   // voice, so the model writes one register well instead of averaging several. See docs/13 v3.
   function promptEn({ pet, description, temper, flavors, weird, locale }) {
     const kind = SPECIES_EN[pet.species] ?? pet.speciesName;
-    const work = pet.route === "work";
     const shown = example("en", temper, description);
     return [
       {
         role: "system",
         content:
-          `You are writing for a pet with a little social life of its own, in the style of the funniest pet accounts on Instagram: private thoughts, a school/work diary, a post to friends and a neighbourhood news item. The owner's note provides the actual event.\n` +
-          `The pet: ${pet.name}, a ${kind}. Personality: ${pet.personality}. It calls its owner "${pet.owner}". In its pretend life it ${work ? `has a job as ${pet.role}` : "goes to school"}.\n\n` +
+          `You are writing for a pet with a little social life of its own, in the style of the funniest pet accounts on Instagram: private thoughts, a post to friends and a neighbourhood news item. The owner's note provides the actual event.\n` +
+          `The pet: ${pet.name}, a ${kind}. Personality: ${pet.personality}. It calls its owner "${pet.owner}". \n\n` +
           `Voice: ${withOwner(TEMPER_CARD.en[temper], pet.owner)}\n` +
           flavorNote("en", temper, flavors, pet.owner) +
           `${weird ? "This one is a bit unhinged: the silly beat can be properly absurd." : ""}\n` +
@@ -105,10 +104,9 @@ export function createGateway(env, store) {
           `6. If the note mentions illness, injury or a lost pet, nothing is a joke: quiet, sincere, short.\n` +
           `7. Write in ${british(locale) ? "British" : "American"} English.\n` +
           `8. Town name: Pawtown. Named friends, encounters, replies and likes require evidence in the note. Remove archive announcements and explanations of the fictional setting.\n` +
-          `9. Check each sentence before returning it. An unrecorded action, sensory observation or response by the owner must be removed or turned into an obvious joke or opinion. If the note only says they went out, do not claim they sniffed anything, were called back, or met anyone. All four pieces use the same factual boundary.\n\n` +
-          `Return one JSON object with keys diary, life, social, news, each {"title": string, "text": string}.\n` +
+          `9. Check each sentence before returning it. An unrecorded action, sensory observation or response by the owner must be removed or turned into an obvious joke or opinion. If the note only says they went out, do not claim they sniffed anything, were called back, or met anyone. All three pieces use the same factual boundary.\n\n` +
+          `Return one JSON object with keys diary, social, news, each {"title": string, "text": string}.\n` +
           `- diary: inner voice, 30-90 words, two or three short paragraphs. The event, then the pet's take on it, then stop.\n` +
-          `- life: a ${work ? "work" : "school"} diary, 30-80 words. A work log, team-chat message or class notes in the pet's voice; one or two ${work ? "office" : "school"} words tied to the actual detail.\n` +
           `- social: a post to friends, 10-35 words. The result and an attitude; may ask readers one thing. No hashtags; at most one emoji.\n` +
           `- news: a short, playful pet news item. Concrete Title Case headline, the event told once, one line from the pet in quotes. 15-45 words. No invented sources or reporting preamble. Stop at the pet's reaction.\n` +
           `Titles under 10 words.\n\n` +
@@ -122,15 +120,14 @@ export function createGateway(env, store) {
     if (input.lang === "en") return promptEn(input);
     const { pet, description, temper, flavors, weird } = input;
     const kind = SPECIES[pet.species] ?? pet.speciesName;
-    const work = pet.route === "work";
     const shown = example("zh", temper, description);
     const fill = (t) => withOwner(t, pet.owner, pet.self);
     return [
       {
         role: "system",
         content:
-          `你在替一只小动物写它自己的生活，口吻像小红书上最好笑的沙雕宠物号：私下的心事、上学或上班的日常、发给朋友的动态和邻里小报。真实经过来自主人记录，表达来自它自己的视角。\n` +
-          `宠物：${pet.name}，${kind}。性格：${pet.personality}。它叫主人“${pet.owner}”，自称“${pet.self}”。它的虚拟身份：${work ? "上班的小动物" : "上学的小动物"}，${pet.role}。\n\n` +
+          `你在替一只小动物写它自己的生活，口吻像小红书上最好笑的沙雕宠物号：私下的心事、发给朋友的动态和邻里小报。真实经过来自主人记录，表达来自它自己的视角。\n` +
+          `宠物：${pet.name}，${kind}。性格：${pet.personality}。它叫主人“${pet.owner}”，自称“${pet.self}”。\n\n` +
           `【它的语气】${fill(TEMPER_CARD.zh[temper])}\n` +
           flavorNote("zh", temper, flavors, pet.owner) +
           `${weird ? "它是个抽象的家伙：沙雕点可以更离谱一些。\n" : ""}` +
@@ -142,13 +139,12 @@ export function createGateway(env, store) {
           `4. 短句为主，长短交错。结尾停在动作、一句嘴硬或一个反转上。不总结，不升华，不讲道理。\n` +
           `5. 自称用“${pet.self}”，和“我”可以混用，每篇至少出现一次“${pet.self}”。泛指人类可以说“两脚兽”“人类”。一篇最多一个网络梗。\n` +
           `6. 不用：排比、“不是……而是……”“不仅……更是……”、仿佛、宛如、治愈、岁月静好、满满的、本喵、本汪、喵星人、汪星人、毛孩子、哈基米、萌萌哒。\n` +
-          `7. 如果主人写到生病、受伤或走失：四段都不开玩笑，安静、真诚、短。\n` +
+          `7. 如果主人写到生病、受伤或走失：三段都不开玩笑，安静、真诚、短。\n` +
           `8. 用简体中文。城镇叫“爪爪镇”，公司叫“爪爪公司”。删掉“在小动物世界里”“写进档案”“收录”等背景解释和归档说明。朋友姓名、相遇、评论、点赞需要主人原话依据。\n` +
-          `9. 输出前逐句核对：新增的已发生动作、感官观察或主人回应，删掉，或者改成一眼能看出的玩笑和看法。原话只有“出去玩”时，不补写“闻了什么”“被叫回来”“路过谁”。四种体裁共享这条事实边界。\n` +
+          `9. 输出前逐句核对：新增的已发生动作、感官观察或主人回应，删掉，或者改成一眼能看出的玩笑和看法。原话只有“出去玩”时，不补写“闻了什么”“被叫回来”“路过谁”。三种体裁共享这条事实边界。\n` +
           `10. 用大白话，像真人随手发的帖。词语搭配要是中国人平时会说的，不硬凑（反例：“气氛很硬”“默认这案子会进入长期观察”），不要翻译腔。公文腔只在【它的语气】要求时用，而且只用现成的说法（如“此事不予追究”“保留追诉权”）。写完读一遍，读着别扭的句子换成口语。\n\n` +
-          `输出一个 JSON 对象，只输出 JSON。四个键 diary、life、social、news，每个值是 {"title": "...", "text": "..."}。\n` +
+          `输出一个 JSON 对象，只输出 JSON。三个键 diary、social、news，每个值是 {"title": "...", "text": "..."}。\n` +
           `- diary 内心独白：50–120 字，两三段。先写这件事，再写它自信的理解，停在嘴硬或反转上。\n` +
-          `- life ${work ? "打工日记" : "校园日记"}：50–120 字。可以写成${work ? "工作汇报、工作群消息" : "课堂笔记、班级群消息"}，用一两个${work ? "打工" : "上学"}词贴着真实经过。\n` +
           `- social 爪友圈动态：15–50 字，像它发给熟人的朋友圈。写结果和态度，可以向读者问一句。不加话题标签，最多一个表情。\n` +
           `- news 小报：标题直接写宠物和具体小事。正文讲一次经过，再加一句它的回应（用引号）。20–60 字。省去“本报讯”“据主人爆料”等套话，结尾停在反应上。例：主人写“今天带她出去玩了”，标题“小黄出门啦”，正文“今天主人带小黄出去玩了。小黄：‘外面什么都好玩！汪忙不过来！’”。\n` +
           `标题都不超过 20 个字。\n\n` +
@@ -164,6 +160,9 @@ export function createGateway(env, store) {
     const data = JSON.parse(raw.slice(start, end + 1));
     const stories = {};
     const names = value => value.replace(/\u6bdb\u5b69市/g, "爪爪镇").replace(/\u6bdb\u5b69公司/g, "爪爪公司").replace(/\u6bdb\u5b69(?:儿|子)?/g, "小动物");
+    // School and work are gone (docs/01 8.42): the model writes three pieces and "life" repeats the
+    // diary, so apps that still expect four keep working.
+    if (!data.life && data.diary) data.life = data.diary;
     for (const style of STYLES) {
       const s = data[style];
       if (!s || !text(s.title, 160) || !text(s.text, 1900)) throw new Error(`model returned a bad ${style} story`);

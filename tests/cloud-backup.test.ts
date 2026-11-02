@@ -72,3 +72,19 @@ test("网关云备份：存、查、取、删按恢复码隔开，码不对 401�
   assert.notEqual(await accountId(A), await accountId(B));
   assert.equal(await accountId(A), await accountId("Bearer abcdefghjklmnpqrstuv"));
 });
+
+test("网关不再要求校园 / 打工那一段，缺了就沿用内心独白（docs/01 8.42）", async () => {
+  const original = globalThis.fetch;
+  const three = Object.fromEntries(["diary", "social", "news"].map((k) => [k, { title: `${k}标题`, text: `${k}正文` }]));
+  globalThis.fetch = (async () => new Response(JSON.stringify({ choices: [{ message: { content: JSON.stringify(three) } }] }), { status: 200 })) as typeof fetch;
+  try {
+    const gw = createGateway({ CN_API_KEY: "k", CN_BASE_URL: "https://cn.example", CN_MODEL: "m" }, { get: async () => 0, add: async () => {} });
+    const body = JSON.stringify({ deviceId: "d1", region: "intl", lang: "zh", temper: "cool", description: "拆家了",
+      pet: { name: "小黄", species: "dog", personality: "傲娇", route: "campus", role: "新生", owner: "我的人", self: "汪" } });
+    const r = (await gw.handle("POST", new URL("http://x/v1/pet-voice"), async () => body, {})) as unknown as { status: number; body: { stories: Record<string, { text: string }> } };
+    assert.equal(r.status, 200);
+    assert.equal(r.body.stories.life.text, "diary正文");
+  } finally {
+    globalThis.fetch = original;
+  }
+});

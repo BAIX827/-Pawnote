@@ -54,10 +54,16 @@ export const restoreEvent = (state: AppState, event: LifeEvent): AppState =>
   state.pet?.id !== event.petSnapshot.id || state.events.some((e) => e.id === event.id)
     ? state
     : { ...state, events: newestEvents([event, ...state.events]) };
-// One title per level, the same names the 爪迹 route uses (docs/01 8.25).
-const TITLES = {
-  work: ["职场萌新", "转正新人", "正式营业员", "金牌员工", "资深摸鱼专家"],
-  campus: ["校园新生", "小测达人", "校园活跃分子", "课代表", "校园传说"],
-} as const;
-export const titleFor = (level: number, route: "campus" | "work") =>
-  t(TITLES[route][Math.min(Math.max(level, 1), 5) - 1]);
+// One title per level, the same for every pet now that school and work are gone (docs/01 8.42).
+export const TITLES = ["爪爪镇新居民", "记录小能手", "日常观察员", "资深居民", "爪爪镇传说"] as const;
+export const titleFor = (level: number) => t(TITLES[Math.min(Math.max(level, 1), 5) - 1]);
+
+/** Every entry shows the pet's own voice; older entries that picked another voice switch over (docs/01 8.42). */
+export function onlyDiary(state: AppState): AppState {
+  const fix = (events: LifeEvent[]) =>
+    events.some((e) => e.selectedStyle !== "diary") ? events.map((e) => ({ ...e, selectedStyle: "diary" as const })) : events;
+  const events = fix(state.events);
+  const household = state.household?.map((b) => ({ ...b, events: fix(b.events) }));
+  const draft = state.draft && state.draft.selectedStyle !== "diary" ? { ...state.draft, selectedStyle: "diary" as const } : state.draft;
+  return { ...state, events, draft, ...(household && { household }) };
+}

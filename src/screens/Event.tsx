@@ -1,4 +1,4 @@
-import StoryStylePicker, { storyColors } from "../components/StoryStylePicker";
+import { storyColors } from "../components/StoryStylePicker";
 import { t } from "../i18n";
 import { useState } from "react";
 import { Image, Pressable, Text, View } from "react-native";
@@ -27,9 +27,8 @@ export default function Event() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const { state, update, notify } = useStore();
   const event = state.events.find((e) => e.id === id);
-  const [style, setStyle] = useState<StoryStyle>(
-    event?.selectedStyle ?? "diary",
-  );
+  // One piece per entry, the pet's own voice (docs/01 8.42).
+  const style: StoryStyle = "diary";
   const [confirm, setConfirm] = useState(false);
   if (!event)
     return (
@@ -130,7 +129,6 @@ export default function Event() {
         </Bubble>
       </View>
       <View style={{ gap: 14, marginTop: 6 }}>
-        <StoryStylePicker route={event.petSnapshot.route} selected={style} onSelect={setStyle} />
         <View style={[styles.row, { flexWrap: "wrap" }]}>
           <Button label={t("编辑日记")} icon="edit-2" tone="soft"
             onPress={() => router.push({ pathname: "/record", params: { id: event.id } })} />
