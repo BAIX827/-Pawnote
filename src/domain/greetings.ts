@@ -15,7 +15,7 @@ const GREETINGS: Record<Temper, Record<DaySlot, Text>> = {
     night: { zh: "嘘，夜间巡逻中。", en: "Shh. Night patrol in progress." },
     morning: { zh: "早，今天的早饭呢？", en: "Morning. Where is breakfast?" },
     noon: { zh: "中午了，适合找块太阳躺下。", en: "Noon already. Time to find a patch of sun." },
-    afternoon: { zh: "下午的风不错，我批准了。", en: "Nice breeze this afternoon. Approved." },
+    afternoon: { zh: "下午的风还行，就让它吹吧。", en: "Nice breeze this afternoon. Approved." },
     evening: { zh: "你回来啦？我可没有在等你。", en: "Oh, you're back? I wasn't waiting or anything." },
   },
   clingy: {

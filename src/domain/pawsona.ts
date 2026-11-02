@@ -188,7 +188,7 @@ export const PERSONAS: Record<Temper, Persona> = {
     name: { zh: "佛系大师", en: "The Zen Master" }, code: "ZEN", tag: "随和", color: "#DDD2FF",
     trait: { zh: "淡定", en: "Calm" },
     intro: {
-      zh: "我是{name}。作息规律，情绪稳定。{owner}出门，我睡觉；{owner}回来，我继续睡。以上。",
+      zh: "我是{name}。作息规律，情绪稳定。{owner}出门，我睡觉；{owner}回来，我接着睡。就这样。",
       en: "I'm {name}. Stable schedule, stable mood. {owner} leaves, I nap. {owner} returns, I continue napping. Nothing further.",
     },
     manual: { zh: "按时开饭，其他随意。", en: "Feed on schedule. Everything else is optional." },

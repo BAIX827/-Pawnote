@@ -79,10 +79,10 @@ const PREFIX: Record<Temper, { complaint: Text; praise: Text; closing: Text; tea
     teaser: { zh: "观察报告出来了。", en: "The observation report is ready." },
   },
   calm: {
-    complaint: { zh: "例行反馈：", en: "Routine feedback:" },
+    complaint: { zh: "说个事：", en: "Routine feedback:" },
     praise: { zh: "另：", en: "Also:" },
-    closing: { zh: "以上。", en: "Nothing further." },
-    teaser: { zh: "周报已送达。", en: "Weekly report delivered." },
+    closing: { zh: "就这些。", en: "Nothing further." },
+    teaser: { zh: "这周的信到了。", en: "Weekly report delivered." },
   },
   shy: {
     complaint: { zh: "小声说一句……", en: "um, small thing..." },

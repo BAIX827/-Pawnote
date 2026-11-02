@@ -59,7 +59,7 @@ export function occasionLetter(state: AppState, occasion: Occasion, lang: Lang =
     clingy: ["我的愿望很简单：多一点和你在一起的时间。", "my wish is simple: more time with you."],
     goofy: ["我的愿望清单：一起玩！再一起玩！", "My wish list: play together! Then play again!"],
     drama: ["这一天请给我主角待遇，我先预约了。", "I'd like the starring role for this day. Consider it booked."],
-    curious: [`${self}研究了一整年，结论：${owner}是个不错的两脚兽。`, `A whole year of research. Finding: ${owner} is a decent human.`],
+    curious: [`${self}研究了一整年，发现${owner}是个还不错的两脚兽。`, `A whole year of research. Finding: ${owner} is a decent human.`],
     calm: ["又过了一年。挺好。下一年也一起过。", "Another year. Fine. Let's do the next one too."],
     shy: ["……明年这一天，你也陪我好吗？", "...will you spend this day with me next year too?"],
   }[temperOf(pet)][zh ? 0 : 1];

@@ -62,7 +62,7 @@ export const isLoss = (description: string) => LOSS.test(description);
 // One absurd beat for owners who asked for weird; it takes the closer's place.
 const weird = {
   // Written in Chinese pet-account style, not translated from the English list below (PRD 8.39).
-  zh: ["这事要是开会，{self}申请当主持。散会。", "{self}冲空气“哈”了一声。空气自己心里有数。", "{self}想了一下，又不想了。", "{self}给今天颁了个奖，奖品{self}先收着。", "碗就这么小，世界那么大，凭什么。"],
+  zh: ["这事要是开会，{self}得坐主位。好了，散了吧。", "{self}冲空气“哈”了一声。空气自己心里有数。", "{self}想了一下，又不想了。", "{self}给今天颁了个奖，奖品{self}先收着。", "碗就这么小，世界那么大，凭什么。"],
   en: ["If this needs a meeting, I'd like the air to attend.", "I hissed at the air. The air knows what it did.", "My thoughts need a cardboard box to sit in.", "I'm giving today an award. I'm keeping the award.", "The universe is huge. My bowl is small. Unfair."],
 };
 
@@ -74,7 +74,7 @@ const speciesLines: Partial<Record<Pet["species"], { zh: string[]; en: string[] 
   hamster: { zh: ["好东西先存进腮帮子，再慢慢想。", "{self}的夜班还没开始，现在只是热身。"], en: ["Good things go in the cheeks first. Thinking comes later.", "My night shift hasn't started. This is a warm-up."] },
   guineaPig: { zh: ["冰箱门一响，{self}的心就跟着响。", "生菜就是一切。别的事排在生菜后面。"], en: ["When the fridge door opens, so does my heart.", "Lettuce is everything. Everything else comes after lettuce."] },
   bird: { zh: ["这件事{self}已经学会了，下次学给{owner}听。", "{self}在高处监督，一切尽在掌握。"], en: ["I've learned this one. I'll perform it for {owner} later.", "Supervising from above. All under control."] },
-  lizard: { zh: ["这件事的温度刚刚好，{self}批准。", "{self}没有情绪，{self}只有温度。"], en: ["The temperature of this was correct. Approved.", "I don't have feelings. I have temperatures."] },
+  lizard: { zh: ["这件事的温度刚刚好，{self}说行。", "{self}没有情绪，{self}只有温度。"], en: ["The temperature of this was correct. Approved.", "I don't have feelings. I have temperatures."] },
   snake: { zh: ["{self}盘着想了一下，又盘紧了一点。", "隔着玻璃，{self}看懂了{owner}。{owner}没看懂{self}。"], en: ["I coiled, considered, and coiled a little tighter.", "Through the glass I understood {owner}. {owner} did not understand me."] },
   turtle: { zh: ["不急。{self}活得长，可以慢慢想。", "这件事{self}会记一百年。"], en: ["No rush. I'll be around a long time.", "I'll remember this for a hundred years."] },
   fish: { zh: ["水里的版本是这样的：咕噜。", "{self}在水里绕了一圈，觉得这件事可以。"], en: ["The underwater version is: blub.", "I swam a lap and decided this is fine."] },

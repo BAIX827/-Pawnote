@@ -198,8 +198,8 @@ const TAILS: Record<Temper, Record<Lang, string[]>> = {
   clingy: { zh: ["我在门口等你。", "想和你一起。"], en: ["i'll be by the door.", "i'd like it to be you."] },
   goofy: { zh: ["现在吗？现在吗！", "我已经准备好了！"], en: ["NOW? NOW.", "I'm ready! I've been ready!"] },
   drama: { zh: ["再不来我就要枯萎了。", "这可能是我这辈子最重要的请求。"], en: ["I've waited my whole life (ten minutes).", "This may be the most important request of my career."] },
-  curious: { zh: ["实验对象已就位。", "我想再验证一次。"], en: ["Test subject ready.", "I'd like to run this experiment again."] },
-  calm: { zh: ["以上。", "特此提醒。"], en: ["Nothing further.", "That is all."] },
+  curious: { zh: ["我准备好了，随时开试。", "我想再试一次。"], en: ["Test subject ready.", "I'd like to run this experiment again."] },
+  calm: { zh: ["就这样。", "提一嘴，你看着办。"], en: ["Nothing further.", "That is all."] },
   shy: { zh: ["……你有空的话。", "我小声说一下。"], en: ["...only if you have time.", "just saying it quietly."] },
 };
 // After an entry about illness, injury or going missing: no jokes and no temper flourish.
