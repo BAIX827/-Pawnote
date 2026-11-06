@@ -1,0 +1,370 @@
+<title>爪记新界面 · 色块</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700;900&family=ZCOOL+QingKe+HuangYou&family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&display=swap">
+<style>
+/* Layout: 页头一句话 + 规范条 → 四台手机（首页 / 记一笔 / 爪友圈 / 爪册）一排，窄屏两列再一列 */
+:root{
+  --bg:#EDE8DD; --fg:#141414; --muted:#5F5A50; --line:#D3CCBE;
+  --sans:"Noto Sans SC","PingFang SC","Microsoft YaHei",system-ui,sans-serif;
+  --disp:"ZCOOL QingKe HuangYou","Noto Sans SC",sans-serif;
+  --num:"Bricolage Grotesque","Noto Sans SC",sans-serif;
+  /* 爪记新色板（手机里用） */
+  --paper:#F7F3EA; --ink:#141414; --cobalt:#2B50FF; --tomato:#FF4B2B; --butter:#FFD84D; --mint:#7FE0B5; --sky:#BFD0FF;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--bg:#121212;--fg:#F2EEE6;--muted:#A49E93;--line:#2E2C29;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#121212;--fg:#F2EEE6;--muted:#A49E93;--line:#2E2C29;color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font-family:var(--sans);font-size:15px;line-height:1.65}
+.wrap{max-width:1360px;margin:0 auto;padding-block:40px 64px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.head{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr);gap:32px;align-items:end;margin-bottom:36px}
+@media (max-width:860px){.head{grid-template-columns:1fr}}
+.head .k{font-size:13px;color:var(--muted)}
+.head h1{margin:6px 0 10px;font-family:var(--disp);font-weight:400;font-size:clamp(40px,6vw,72px);line-height:1}
+.head p{margin:0;color:var(--muted);max-width:620px}
+.spec{display:grid;gap:10px;font-size:13px}
+.spec .sw{display:flex;gap:0;border-radius:10px;overflow:hidden;height:44px}
+.spec .sw span{flex:1;display:grid;place-items:end start;padding:4px 6px;font-size:10px;font-family:var(--num);font-weight:600}
+.spec .ty{display:flex;gap:18px;flex-wrap:wrap;align-items:baseline;color:var(--muted)}
+.spec .ty b{font-family:var(--disp);font-weight:400;font-size:28px;color:var(--fg)}
+.spec .ty i{font-style:normal;font-family:var(--num);font-weight:800;font-size:28px;color:var(--fg)}
+.phones{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:24px;align-items:start}
+@media (max-width:1240px){.phones{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:640px){.phones{grid-template-columns:1fr}}
+figure{margin:0;display:grid;gap:12px;min-width:0}
+figcaption{font-size:13px;color:var(--muted)}
+figcaption b{color:var(--fg);font-size:15px;margin-right:6px}
+.why{margin-top:44px;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:24px;border-top:2px solid var(--fg);padding-top:18px}
+@media (max-width:860px){.why{grid-template-columns:1fr}}
+.why h3{margin:0 0 4px;font-size:16px}
+.why p{margin:0;color:var(--muted);font-size:14px}
+.next{margin-top:28px;font-size:14px}
+
+/* ---------- phone ---------- */
+.phone{width:100%;max-width:320px;margin:0 auto;border-radius:38px;padding:7px;background:#0D0D0D}
+.scr{position:relative;height:660px;border-radius:31px;overflow:hidden;background:var(--paper);color:var(--ink);font-size:13px;line-height:1.5}
+.sb{display:flex;justify-content:space-between;padding:12px 22px 0;font-family:var(--num);font-weight:600;font-size:12px;position:relative;z-index:5}
+.tab{position:absolute;left:12px;right:12px;bottom:12px;height:58px;border-radius:22px;background:var(--ink);display:flex;justify-content:space-around;align-items:center;color:#8C877C;font-size:10px;z-index:6}
+.tab div{display:grid;justify-items:center;gap:1px}
+.tab svg{width:20px;height:20px}
+.tab .on{color:var(--paper);font-weight:700}
+.tab .add{width:46px;height:46px;border-radius:16px;background:var(--butter);color:var(--ink);display:grid;place-items:center;transform:rotate(-8deg)}
+.tab .add svg{width:24px;height:24px}
+svg.i{fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+.num{font-family:var(--num);font-weight:800;letter-spacing:-.02em;font-variant-numeric:tabular-nums}
+
+/* 1 home */
+.home .hero{position:absolute;inset:0 0 auto 0;height:318px;background:var(--cobalt);border-radius:0 0 0 72px;color:var(--paper)}
+.home .date{position:absolute;left:18px;top:44px;font-size:11px;font-weight:700;background:rgba(255,255,255,.16);padding:3px 10px;border-radius:99px}
+.home .name{position:absolute;left:16px;top:70px;font-family:var(--disp);font-size:92px;line-height:.95}
+.home .tags{position:absolute;left:18px;top:168px;display:grid;gap:6px;justify-items:start}
+.home .tags span{font-size:11px;font-weight:700;padding:2px 10px;border-radius:99px;background:var(--butter);color:var(--ink)}
+.home .tags span+span{background:var(--paper)}
+.home .dog{position:absolute;right:-16px;top:96px;width:214px;z-index:3}
+.home .bubble{position:absolute;left:14px;top:262px;width:178px;background:var(--tomato);color:var(--paper);padding:12px 14px 14px;border-radius:26px 26px 26px 6px;font-weight:900;font-size:15px;line-height:1.35;transform:rotate(-4deg);z-index:4}
+.home .bubble small{display:block;font-weight:500;font-size:10px;opacity:.85;margin-bottom:2px}
+.home .ask{position:absolute;left:14px;right:14px;top:376px;height:62px;background:var(--ink);color:var(--paper);border-radius:20px;display:flex;align-items:center;justify-content:space-between;padding:0 10px 0 18px;font-weight:900;font-size:17px}
+.home .ask small{display:block;font-weight:400;font-size:10.5px;color:#B8B2A6}
+.home .ask .go{width:42px;height:42px;border-radius:50%;background:var(--butter);color:var(--ink);display:grid;place-items:center}
+.home .ask .go svg{width:20px;height:20px}
+.home .idx{position:absolute;left:14px;right:14px;top:450px;display:grid;grid-template-columns:1.25fr 1fr 1fr;gap:8px}
+.home .idx div{border-radius:18px;padding:8px 10px;display:grid;gap:0}
+.home .idx .num{font-size:34px;line-height:1}
+.home .idx small{font-size:11px;font-weight:700}
+.home .idx div:nth-child(1){background:var(--butter);border-radius:18px 18px 18px 40px}
+.home .idx div:nth-child(2){background:var(--mint)}
+.home .idx div:nth-child(3){background:var(--sky);border-radius:40px 18px 18px 18px}
+.home .appt{position:absolute;left:14px;right:14px;top:530px;display:flex;align-items:center;gap:10px;font-size:12px}
+.home .appt .dot{width:30px;height:30px;border-radius:50%;border:2px solid var(--ink);display:grid;place-items:center}
+.home .appt .dot svg{width:15px;height:15px}
+.home .appt b{font-size:13px}
+.home .appt .num{margin-left:auto;font-size:22px}
+.home .appt .num small{font-family:var(--sans);font-size:10px;font-weight:500}
+
+/* 2 record */
+.rec{background:var(--tomato)}
+.rec .sb{color:var(--paper)}
+.rec .bar{display:flex;justify-content:space-between;align-items:center;padding:10px 18px 0;color:var(--paper)}
+.rec .bar h2{margin:0;font-family:var(--disp);font-weight:400;font-size:34px;line-height:1}
+.rec .bar .x{width:34px;height:34px;border-radius:50%;background:rgba(255,255,255,.2);display:grid;place-items:center}
+.rec .bar .x svg{width:16px;height:16px}
+.rec .in{margin:14px 14px 0;background:var(--paper);border-radius:24px;padding:14px;display:grid;gap:10px}
+.rec .in label{font-size:11px;color:#7D776B;font-weight:700}
+.rec .in .txt{font-size:15px;font-weight:500;line-height:1.5;min-height:66px}
+.rec .in .txt::after{content:"";display:inline-block;width:2px;height:16px;background:var(--tomato);vertical-align:-3px;margin-left:2px}
+.moods{display:flex;gap:6px;flex-wrap:wrap}
+.mood{display:flex;align-items:center;gap:5px;font-size:11px;font-weight:700;padding:3px 9px 3px 4px;border-radius:99px;background:#ECE6D8}
+.mood i{width:16px;height:16px;display:block}
+.mood.on{background:var(--ink);color:var(--paper)}
+.sh-star{clip-path:polygon(50% 0,61% 35%,98% 35%,68% 57%,79% 91%,50% 70%,21% 91%,32% 57%,2% 35%,39% 35%)}
+.sh-zig{clip-path:polygon(0 30%,25% 0,50% 30%,75% 0,100% 30%,100% 70%,75% 100%,50% 70%,25% 100%,0 70%)}
+.sh-blob{border-radius:60% 40% 55% 45%/50% 60% 40% 50%}
+.sh-sq{border-radius:4px;transform:rotate(12deg)}
+.rec .arrow{display:flex;align-items:center;gap:8px;margin:12px 18px 0;color:var(--paper);font-size:11px;font-weight:700}
+.rec .arrow::before{content:"";flex:1;height:2px;background:repeating-linear-gradient(90deg,var(--paper) 0 6px,transparent 6px 10px)}
+.rec .arrow::after{content:"";flex:1;height:2px;background:repeating-linear-gradient(90deg,var(--paper) 0 6px,transparent 6px 10px)}
+.rec .out{margin:12px 14px 0;background:var(--butter);border-radius:24px 24px 24px 6px;padding:14px 14px 14px 64px;position:relative;min-height:120px}
+.rec .out .av{position:absolute;left:10px;top:12px;width:46px;height:46px;border-radius:50%;background:var(--cobalt);overflow:hidden}
+.rec .out .av svg{width:62px;margin:-2px 0 0 -8px}
+.rec .out small{font-size:11px;font-weight:700}
+.rec .out p{margin:2px 0 0;font-size:15px;font-weight:900;line-height:1.45}
+.rec .out .tone{display:flex;gap:6px;margin-top:8px}
+.rec .out .tone span{font-size:10px;font-weight:700;border:1.5px solid var(--ink);border-radius:99px;padding:0 8px}
+.rec .out .tone span.on{background:var(--ink);color:var(--butter)}
+.rec .post{position:absolute;left:14px;right:14px;bottom:20px;height:56px;border-radius:18px;background:var(--ink);color:var(--paper);display:flex;align-items:center;justify-content:center;gap:8px;font-weight:900;font-size:16px}
+.rec .post .num{color:var(--butter);font-size:13px}
+
+.rec .att{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:12px 14px 0}
+.rec .att span{border:2px dashed rgba(247,243,234,.7);border-radius:18px;height:64px;display:grid;place-items:center;align-content:center;color:var(--paper);font-weight:700;font-size:12px}
+.rec .att b{font-size:18px;line-height:1}
+/* 3 circle */
+.cir .top{padding:12px 18px 0;display:flex;justify-content:space-between;align-items:end}
+.cir h2{margin:0;font-family:var(--disp);font-weight:400;font-size:44px;line-height:1}
+.cir .top .w{font-size:11px;font-weight:700;background:var(--ink);color:var(--paper);padding:5px 12px;border-radius:99px}
+.friends{display:flex;gap:8px;padding:12px 18px 0}
+.friends div{display:grid;justify-items:center;font-size:10px;font-weight:700;gap:2px}
+.friends .av{width:46px;height:46px;border-radius:50%;overflow:hidden;display:grid;place-items:end center}
+.friends .av svg{width:56px;margin-bottom:-6px}
+.friends .av.new{outline:2.5px solid var(--tomato);outline-offset:2px}
+.feed{padding:14px 14px 0;display:grid;gap:10px}
+.post{border-radius:24px;padding:12px 14px;position:relative}
+.post .who{display:flex;align-items:center;gap:8px}
+.post .who .av{width:34px;height:34px;border-radius:50%;overflow:hidden;display:grid;place-items:end center;flex:none}
+.post .who .av svg{width:42px;margin-bottom:-4px}
+.post .who b{font-size:14px}
+.post .who small{display:block;font-size:10px;opacity:.75;line-height:1.2}
+.post p{margin:8px 0 0;font-size:13.5px;font-weight:500;line-height:1.5}
+.post .re{display:flex;gap:6px;margin-top:8px;align-items:center;font-size:11px;font-weight:700}
+.post .re span{padding:2px 9px;border-radius:99px;background:rgba(255,255,255,.22)}
+.post.p1{background:var(--cobalt);color:var(--paper);border-radius:24px 24px 24px 6px}
+.post.p2{background:var(--mint);border-radius:6px 24px 24px 24px}
+.post.p2 .re span{background:rgba(20,20,20,.08)}
+.post .cmt{margin-top:8px;padding-top:8px;border-top:1.5px dashed rgba(20,20,20,.25);font-size:12px;display:grid;gap:2px}
+.post .stk{position:absolute;right:12px;top:-10px;width:54px;height:54px;background:var(--butter);color:var(--ink);display:grid;place-items:center;text-align:center;font-size:10px;font-weight:900;line-height:1.1;transform:rotate(12deg)}
+
+/* 4 book */
+.book{background:var(--ink);color:var(--paper)}
+.book .top{padding:12px 18px 0}
+.book .top small{font-size:11px;color:#9A958A;font-weight:700}
+.book h2{margin:0;font-family:var(--disp);font-weight:400;font-size:44px;line-height:1}
+.book .big{margin:14px 14px 0;background:var(--butter);color:var(--ink);border-radius:28px 28px 28px 8px;padding:14px 16px;position:relative;overflow:hidden;height:150px}
+.book .big .num{font-size:78px;line-height:.9}
+.book .big .num small{font-family:var(--sans);font-size:18px;font-weight:900;margin-left:4px}
+.book .big p{margin:4px 0 0;font-weight:900;font-size:14px;max-width:150px}
+.book .big .slip{position:absolute;right:-10px;bottom:-6px;width:130px}
+.book .cal{margin:14px 14px 0;display:grid;grid-template-columns:repeat(7,1fr);gap:6px}
+.book .cal .h{font-size:9px;color:#8E897E;text-align:center;font-weight:700}
+.book .cal i{aspect-ratio:1;display:block}
+.c-b{background:var(--cobalt);border-radius:50%}
+.c-t{background:var(--tomato)}
+.c-y{background:var(--butter)}
+.c-m{background:var(--mint)}
+.c-0{background:#2A2A2A;border-radius:50%;transform:scale(.45)}
+.book .legend{display:flex;gap:10px;flex-wrap:wrap;margin:10px 16px 0;font-size:10px;color:#BDB8AD}
+.book .legend span{display:flex;align-items:center;gap:4px}
+.book .legend i{width:10px;height:10px;display:block}
+.book .share{margin:12px 14px 0;display:flex;justify-content:space-between;align-items:center;border:2px solid var(--paper);border-radius:18px;padding:10px 14px;font-weight:900}
+.book .share small{font-weight:500;font-size:10px;color:#BDB8AD;display:block}
+.book .tab{background:#262626}
+</style>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+  <!-- 可乐：黄白田园犬 -->
+  <symbol id="dog" viewBox="0 0 200 230">
+    <rect x="52" y="140" width="96" height="86" rx="40" fill="#E9A15B"/>
+    <ellipse cx="100" cy="186" rx="26" ry="34" fill="#FFF4E2"/>
+    <ellipse cx="74" cy="222" rx="16" ry="9" fill="#FFF4E2"/>
+    <ellipse cx="126" cy="222" rx="16" ry="9" fill="#FFF4E2"/>
+    <path d="M150 196c22-4 34-22 30-44" fill="none" stroke="#E9A15B" stroke-width="14" stroke-linecap="round"/>
+    <ellipse cx="50" cy="70" rx="20" ry="42" transform="rotate(24 50 70)" fill="#8A4A22"/>
+    <ellipse cx="150" cy="70" rx="20" ry="42" transform="rotate(-24 150 70)" fill="#8A4A22"/>
+    <circle cx="100" cy="92" r="60" fill="#E9A15B"/>
+    <path d="M100 52c-12 0-14 34-20 56-6 22 6 42 20 42s26-20 20-42c-6-22-8-56-20-56z" fill="#FFF4E2"/>
+    <circle cx="76" cy="92" r="7.5" fill="#141414"/><circle cx="124" cy="92" r="7.5" fill="#141414"/>
+    <circle cx="78.5" cy="89.5" r="2.4" fill="#fff"/><circle cx="126.5" cy="89.5" r="2.4" fill="#fff"/>
+    <ellipse cx="100" cy="116" rx="12" ry="8.5" fill="#141414"/>
+    <path d="M86 128q14 12 28 0" fill="none" stroke="#141414" stroke-width="4" stroke-linecap="round"/>
+    <path d="M94 133q6 20 12 0z" fill="#FF6B6B"/>
+    <rect x="66" y="146" width="68" height="10" rx="5" fill="#FF4B2B"/>
+    <circle cx="100" cy="162" r="7" fill="#FFD84D" stroke="#141414" stroke-width="2"/>
+  </symbol>
+  <!-- 头像版本（只有头） -->
+  <symbol id="dogHead" viewBox="0 0 200 170">
+    <ellipse cx="50" cy="70" rx="20" ry="42" transform="rotate(24 50 70)" fill="#8A4A22"/>
+    <ellipse cx="150" cy="70" rx="20" ry="42" transform="rotate(-24 150 70)" fill="#8A4A22"/>
+    <circle cx="100" cy="100" r="62" fill="#E9A15B"/>
+    <path d="M100 58c-12 0-14 34-20 56-6 22 6 44 20 44s26-22 20-44c-6-22-8-56-20-56z" fill="#FFF4E2"/>
+    <circle cx="76" cy="98" r="8" fill="#141414"/><circle cx="124" cy="98" r="8" fill="#141414"/>
+    <ellipse cx="100" cy="124" rx="12" ry="8.5" fill="#141414"/>
+    <path d="M86 136q14 12 28 0" fill="none" stroke="#141414" stroke-width="4" stroke-linecap="round"/>
+  </symbol>
+  <symbol id="catHead" viewBox="0 0 200 170">
+    <path d="M40 40l14 60 40-30z" fill="#F28C28"/><path d="M160 40l-14 60-40-30z" fill="#F28C28"/>
+    <path d="M50 54l8 34 20-16z" fill="#FFC6A8"/><path d="M150 54l-8 34-20-16z" fill="#FFC6A8"/>
+    <ellipse cx="100" cy="108" rx="70" ry="60" fill="#F28C28"/>
+    <rect x="92" y="52" width="16" height="26" rx="8" fill="#C65E12"/><rect x="70" y="58" width="12" height="20" rx="6" fill="#C65E12"/><rect x="118" y="58" width="12" height="20" rx="6" fill="#C65E12"/>
+    <path d="M64 102q12-8 24 0M112 102q12-8 24 0" fill="none" stroke="#141414" stroke-width="6" stroke-linecap="round"/>
+    <path d="M94 118h12l-6 7z" fill="#FF7A8A"/>
+    <path d="M100 125q-6 10-14 6M100 125q6 10 14 6" fill="none" stroke="#141414" stroke-width="3.5" stroke-linecap="round"/>
+  </symbol>
+  <symbol id="blackCat" viewBox="0 0 200 170">
+    <path d="M40 40l14 60 40-30z" fill="#26262B"/><path d="M160 40l-14 60-40-30z" fill="#26262B"/>
+    <ellipse cx="100" cy="108" rx="70" ry="60" fill="#26262B"/>
+    <circle cx="76" cy="102" r="12" fill="#FFD84D"/><circle cx="124" cy="102" r="12" fill="#FFD84D"/>
+    <rect x="73" y="92" width="6" height="20" rx="3" fill="#141414"/><rect x="121" y="92" width="6" height="20" rx="3" fill="#141414"/>
+    <path d="M94 124h12l-6 7z" fill="#FF7A8A"/>
+  </symbol>
+  <symbol id="rabbit" viewBox="0 0 200 170">
+    <rect x="62" y="-10" width="28" height="90" rx="14" fill="#FFFFFF"/><rect x="110" y="-10" width="28" height="90" rx="14" fill="#FFFFFF"/>
+    <rect x="70" y="4" width="12" height="62" rx="6" fill="#FFC6CE"/><rect x="118" y="4" width="12" height="62" rx="6" fill="#FFC6CE"/>
+    <ellipse cx="100" cy="112" rx="62" ry="56" fill="#FFFFFF"/>
+    <circle cx="78" cy="108" r="7" fill="#141414"/><circle cx="122" cy="108" r="7" fill="#141414"/>
+    <path d="M94 124h12l-6 6z" fill="#FF7A8A"/>
+  </symbol>
+  <symbol id="parrot" viewBox="0 0 200 170">
+    <circle cx="100" cy="104" r="64" fill="#3FBF6F"/>
+    <path d="M100 40c-6-14 4-26 14-24-8 6-6 14-2 22z" fill="#FFD84D"/>
+    <circle cx="80" cy="96" r="18" fill="#fff"/><circle cx="82" cy="96" r="8" fill="#141414"/>
+    <path d="M110 92c30 0 40 22 26 40-6-12-16-16-26-14z" fill="#FF8A1F"/>
+  </symbol>
+  <symbol id="slipper" viewBox="0 0 140 70">
+    <path d="M10 46c0-18 18-30 50-30h40c22 0 34 10 34 22s-12 22-34 22H30C18 60 10 56 10 46z" fill="#FFF4E2" stroke="#141414" stroke-width="4"/>
+    <path d="M70 18c10-8 40-8 52 6" fill="none" stroke="#2B50FF" stroke-width="14" stroke-linecap="round"/>
+  </symbol>
+  <symbol id="i-home" viewBox="0 0 24 24"><path d="M4 11l8-7 8 7v9H4z"/><path d="M10 20v-5h4v5"/></symbol>
+  <symbol id="i-job" viewBox="0 0 24 24"><rect x="3" y="7" width="18" height="13" rx="2"/><path d="M9 7V5h6v2M3 12h18"/></symbol>
+  <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+  <symbol id="i-chat" viewBox="0 0 24 24"><path d="M4 18l1.5-4A7 7 0 1 1 9 18.5z"/></symbol>
+  <symbol id="i-book" viewBox="0 0 24 24"><path d="M4 5h6a2 2 0 0 1 2 2v13a2 2 0 0 0-2-2H4zM20 5h-6a2 2 0 0 0-2 2v13a2 2 0 0 1 2-2h6z"/></symbol>
+  <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></symbol>
+  <symbol id="i-bell" viewBox="0 0 24 24"><path d="M6 16V11a6 6 0 0 1 12 0v5l1.5 2h-15z"/><path d="M10 20a2 2 0 0 0 4 0"/></symbol>
+  <symbol id="i-x" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></symbol>
+</defs></svg>
+
+<div class="wrap">
+  <header class="head">
+    <div>
+      <span class="k">爪记 · 界面重新设计 · 第五版 · 2026-10-26</span>
+      <h1>大色块，大字，宠物当主角</h1>
+      <p>这次是整套界面的重新设计，不是换皮。思路像年度总结报告那种海报感：每一页一块大颜色，名字和数字放到最大，宠物用统一的几何插画画出来，会从色块里“跳”出来。荧光绿、粗黑边全部去掉，换成钴蓝、番茄红、黄油黄，男女都不挑。</p>
+    </div>
+    <div class="spec">
+      <div class="sw">
+        <span style="background:#2B50FF;color:#F7F3EA">钴蓝</span><span style="background:#FF4B2B;color:#F7F3EA">番茄</span><span style="background:#FFD84D;color:#141414">黄油</span><span style="background:#7FE0B5;color:#141414">薄荷</span><span style="background:#F7F3EA;color:#141414">米白</span><span style="background:#141414;color:#F7F3EA">墨黑</span>
+      </div>
+      <div class="ty"><span><b>爪记可乐</b> 标题：站酷庆科黄油体</span><span><i>92</i> 数字：Bricolage</span><span>正文：思源黑体</span></div>
+    </div>
+  </header>
+
+  <div class="phones">
+    <!-- 1 首页 -->
+    <figure>
+      <div class="phone"><div class="scr home">
+        <div class="hero"></div>
+        <div class="sb" style="color:#F7F3EA"><span>19:38</span><span>5G</span></div>
+        <span class="date">10月14日 周三 · 晚上</span>
+        <div class="name">可乐</div>
+        <div class="tags"><span>Lv.1 校园新生</span><span>活泼</span></div>
+        <svg class="dog" viewBox="0 0 200 230"><use href="#dog"/></svg>
+        <div class="bubble"><small>可乐说</small>你回来啦！我转了三圈欢迎你！</div>
+        <div class="ask"><div>它今天干了啥？<small>你照实写，可乐自己再说一遍</small></div><span class="go"><svg class="i"><use href="#i-arrow"/></svg></span></div>
+        <div class="idx">
+          <div><span class="num">92</span><small>贪吃指数</small></div>
+          <div><span class="num">47</span><small>拆家</small></div>
+          <div><span class="num">88</span><small>粘人</small></div>
+        </div>
+        <div class="appt"><span class="dot"><svg class="i"><use href="#i-bell"/></svg></span><div><b>出门遛弯</b><br>周四 07:30 · 爪约</div><span class="num">2<small> 天后</small></span></div>
+        <div class="tab"><div class="on"><svg class="i"><use href="#i-home"/></svg>爪窝</div><div><svg class="i"><use href="#i-job"/></svg>爪迹</div><div class="add"><svg class="i"><use href="#i-plus"/></svg></div><div><svg class="i"><use href="#i-chat"/></svg>爪友圈</div><div><svg class="i"><use href="#i-book"/></svg>爪册</div></div>
+      </div></div>
+      <figcaption><b>爪窝</b>可乐从蓝色块里探出来，它说的话是一张斜贴的红色贴纸</figcaption>
+    </figure>
+
+    <!-- 2 记一笔 -->
+    <figure>
+      <div class="phone"><div class="scr rec">
+        <div class="sb"><span>19:41</span><span>5G</span></div>
+        <div class="bar"><h2>记一笔</h2><span class="x"><svg class="i"><use href="#i-x"/></svg></span></div>
+        <div class="in">
+          <label>你照实写</label>
+          <div class="txt">把我的拖鞋叼到阳台藏起来了，我找了半小时</div>
+          <div class="moods">
+            <span class="mood"><i class="sh-star" style="background:#FFD84D"></i>开心</span>
+            <span class="mood on"><i class="sh-zig" style="background:#FF4B2B"></i>拆家</span>
+            <span class="mood"><i class="sh-blob" style="background:#7FE0B5"></i>犯困</span>
+            <span class="mood"><i class="sh-sq" style="background:#2B50FF"></i>委屈</span>
+          </div>
+        </div>
+        <div class="arrow">可乐转述</div>
+        <div class="out">
+          <span class="av"><svg viewBox="0 0 200 170"><use href="#dogHead"/></svg></span>
+          <small>可乐 · 活泼</small>
+          <p>拖鞋我替你收好了。阳台风景好，它也想出去看看。找半小时不算久，我等你回家等得更久。</p>
+          <div class="tone"><span class="on">原味</span><span>更皮</span><span>更粘人</span></div>
+        </div>
+        <div class="att"><span><b>＋</b>加一张照片</span><span><b>●</b>录它的叫声</span></div>
+        <div class="post">放进今天 <span class="num">+20 XP</span></div>
+      </div></div>
+      <figcaption><b>记一笔</b>整页番茄红，心情不用表情符号，用四种形状</figcaption>
+    </figure>
+
+    <!-- 3 爪友圈 -->
+    <figure>
+      <div class="phone"><div class="scr cir">
+        <div class="sb"><span>19:50</span><span>5G</span></div>
+        <div class="top"><h2>爪友圈</h2><span class="w">写今天的事</span></div>
+        <div class="friends">
+          <div><span class="av new" style="background:#FFD84D"><svg viewBox="0 0 200 170"><use href="#catHead"/></svg></span>橘总</div>
+          <div><span class="av new" style="background:#BFD0FF"><svg viewBox="0 0 200 170"><use href="#blackCat"/></svg></span>煤球</div>
+          <div><span class="av" style="background:#7FE0B5"><svg viewBox="0 0 200 170"><use href="#rabbit"/></svg></span>年糕</div>
+          <div><span class="av" style="background:#FF4B2B"><svg viewBox="0 0 200 170"><use href="#parrot"/></svg></span>啾啾</div>
+          <div><span class="av" style="background:#2B50FF"><svg viewBox="0 0 200 170"><use href="#dogHead"/></svg></span>可乐</div>
+        </div>
+        <div class="feed">
+          <div class="post p1">
+            <span class="stk sh-star">点爪<br>12</span>
+            <div class="who"><span class="av" style="background:#FFD84D"><svg viewBox="0 0 200 170"><use href="#catHead"/></svg></span><div><b>橘总</b><small>17:46 · 零食质检员</small></div></div>
+            <p>今天把桌上的水杯推下去了。不是故意的，是它先站在边上的。</p>
+            <div class="re"><span>可乐 点了爪</span><span>煤球 点了爪</span></div>
+          </div>
+          <div class="post p2">
+            <div class="who"><span class="av" style="background:#2B50FF"><svg viewBox="0 0 200 170"><use href="#dogHead"/></svg></span><div><b>可乐</b><small>19:41 · 校园新生</small></div></div>
+            <p>拖鞋我替你收好了。阳台风景好，它也想出去看看。</p>
+            <div class="cmt"><span><b>年糕：</b>收得好，下次收另一只。</span><span><b>可乐</b> 回复 年糕：已经在路上了。</span></div>
+          </div>
+        </div>
+        <div class="tab"><div><svg class="i"><use href="#i-home"/></svg>爪窝</div><div><svg class="i"><use href="#i-job"/></svg>爪迹</div><div class="add"><svg class="i"><use href="#i-plus"/></svg></div><div class="on"><svg class="i"><use href="#i-chat"/></svg>爪友圈</div><div><svg class="i"><use href="#i-book"/></svg>爪册</div></div>
+      </div></div>
+      <figcaption><b>爪友圈</b>每只宠物有自己的颜色，动态卡片一张一个色，不再一样的白卡</figcaption>
+    </figure>
+
+    <!-- 4 爪册 -->
+    <figure>
+      <div class="phone"><div class="scr book">
+        <div class="sb"><span>21:02</span><span>5G</span></div>
+        <div class="top"><small>爪册 · 月度</small><h2>可乐的十月</h2></div>
+        <div class="big">
+          <div class="num">7<small>次</small></div>
+          <p>叼走拖鞋，本月第一名的爱好</p>
+          <svg class="slip" viewBox="0 0 140 70"><use href="#slipper"/></svg>
+        </div>
+        <div class="cal">
+          <span class="h">一</span><span class="h">二</span><span class="h">三</span><span class="h">四</span><span class="h">五</span><span class="h">六</span><span class="h">日</span>
+          <i class="c-0"></i><i class="c-0"></i><i class="c-y sh-star"></i><i class="c-b"></i><i class="c-t sh-zig"></i><i class="c-m sh-blob"></i><i class="c-y sh-star"></i>
+          <i class="c-b"></i><i class="c-0"></i><i class="c-t sh-zig"></i><i class="c-y sh-star"></i><i class="c-m sh-blob"></i><i class="c-t sh-zig"></i><i class="c-b"></i>
+          <i class="c-y sh-star"></i><i class="c-y sh-star"></i><i class="c-0"></i><i class="c-m sh-blob"></i><i class="c-t sh-zig"></i><i class="c-b"></i><i class="c-y sh-star"></i>
+          <i class="c-0"></i><i class="c-0"></i><i class="c-0"></i><i class="c-0"></i><i class="c-0"></i><i class="c-0"></i><i class="c-0"></i>
+        </div>
+        <div class="legend"><span><i class="c-y sh-star"></i>开心 9</span><span><i class="c-t sh-zig"></i>拆家 5</span><span><i class="c-m sh-blob"></i>犯困 3</span><span><i class="c-b"></i>日常 4</span></div>
+        <div class="share"><div>生成十月总结<small>竖版长图，可以发朋友圈</small></div><svg class="i" width="20" height="20"><use href="#i-arrow"/></svg></div>
+        <div class="tab"><div><svg class="i"><use href="#i-home"/></svg>爪窝</div><div><svg class="i"><use href="#i-job"/></svg>爪迹</div><div class="add"><svg class="i"><use href="#i-plus"/></svg></div><div><svg class="i"><use href="#i-chat"/></svg>爪友圈</div><div class="on"><svg class="i"><use href="#i-book"/></svg>爪册</div></div>
+      </div></div>
+      <figcaption><b>爪册</b>一个月是一张形状日历，最多的那件事放成大数字，月底直接出总结图</figcaption>
+    </figure>
+  </div>
+
+  <section class="why">
+    <div><h3>和现在比，改了什么</h3><p>去掉荧光绿和粗黑描边，换成四种饱和但不刺眼的颜色。白底卡片堆叠改成一页一个主色块，层次靠颜色和字号，不靠边框。</p></div>
+    <div><h3>宠物怎么画</h3><p>所有宠物用同一套几何画法：圆、椭圆、三角拼起来，猫狗兔鸟都能做。用户上传照片后，头像位置换成抠好的宠物照片贴纸，色块不变。</p></div>
+    <div><h3>为什么男女都合适</h3><p>没有粉色、没有爱心泡泡、没有粗野的街头风。大色块加大数字的海报感，男生女生都会愿意截图发出去。</p></div>
+  </section>
+  <p class="next">老大觉得这套方向对，我就按规矩先把视觉规范写进 docs/ 的需求文档，再改代码，合进 main。哪一页、哪个颜色不喜欢，直接点名。</p>
+</div>

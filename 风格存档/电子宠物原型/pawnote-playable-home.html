@@ -1,0 +1,369 @@
+<title>能玩的爪窝</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700;900&family=Long+Cang&family=ZCOOL+KuaiLe&display=swap">
+<style>
+/* Layout: 左边一小段说明和“试试这些”，右边一台能玩的手机；窄屏时手机在上 */
+:root{
+  --bg:#EDE9E1; --fg:#1E1C19; --muted:#625E56; --line:#CEC8BC; --accent:#D9542B;
+  --sans:"Noto Sans SC","PingFang SC","Microsoft YaHei",system-ui,sans-serif;
+  --fun:"ZCOOL KuaiLe","Noto Sans SC",sans-serif;
+  --hand:"Long Cang","Kaiti SC",cursive;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--bg:#1A1917;--fg:#EEEAE3;--muted:#A39E95;--line:#36332E;--accent:#F07A4E;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#1A1917;--fg:#EEEAE3;--muted:#A39E95;--line:#36332E;--accent:#F07A4E;color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font-family:var(--sans);font-size:15px;line-height:1.7}
+.wrap{max-width:1040px;margin:0 auto;padding-block:36px 56px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:grid;grid-template-columns:minmax(0,1fr) 380px;gap:48px;align-items:start}
+@media (max-width:820px){.wrap{grid-template-columns:1fr}.side{order:2}}
+.side{display:grid;gap:14px;max-width:520px}
+.side .k{font-size:13px;color:var(--muted)}
+.side h1{margin:0;font-family:var(--fun);font-weight:400;font-size:clamp(34px,5vw,52px);line-height:1.1}
+.side p{margin:0}
+.side .muted{color:var(--muted)}
+.try{margin:0;padding:0;list-style:none;display:grid;gap:8px;border-top:2px solid var(--fg);padding-top:12px}
+.try li{display:grid;grid-template-columns:92px 1fr;gap:10px}
+.try b{font-weight:700}
+.try span{color:var(--muted)}
+
+/* phone */
+.phone{width:100%;max-width:380px;margin:0 auto;border-radius:40px;padding:9px;background:#141414}
+.screen{position:relative;height:760px;border-radius:32px;overflow:hidden;background:#FFF8EC;color:#2A211B;display:flex;flex-direction:column;user-select:none;-webkit-user-select:none}
+.bar{display:flex;align-items:center;gap:10px;padding:16px 16px 10px}
+.bar .nm{font-family:var(--fun);font-size:24px;line-height:1}
+.bar .job{font-size:11px;background:#2A211B;color:#FFF8EC;padding:2px 8px;border-radius:99px;white-space:nowrap}
+.xp{flex:1;height:10px;border:2px solid #2A211B;border-radius:99px;overflow:hidden;background:#fff}
+.xp i{display:block;height:100%;width:0;background:#F2B233;transition:width .4s}
+.lv{font-size:11px;font-weight:700;white-space:nowrap}
+
+/* scene */
+.scene{position:relative;height:390px;margin:0 10px;border:3px solid #2A211B;border-radius:18px;overflow:hidden;cursor:default}
+.wall{position:absolute;inset:0 0 34% 0;background:#F4C95D;background-image:repeating-linear-gradient(90deg,transparent 0 26px,rgba(160,110,20,.12) 26px 28px)}
+.floor{position:absolute;inset:66% 0 0 0;background:#C7864F;background-image:repeating-linear-gradient(90deg,transparent 0 58px,rgba(70,35,10,.25) 58px 60px)}
+.floor::before{content:"";position:absolute;left:0;right:0;top:0;height:9px;background:#8C5530;border-bottom:2px solid #2A211B}
+.win{position:absolute;left:6%;top:9%;width:30%;height:38%;border:3px solid #2A211B;background:#8ED0F0;cursor:pointer;overflow:hidden}
+.win::before,.win::after{content:"";position:absolute;background:#2A211B}
+.win::before{left:50%;top:0;bottom:0;width:3px;transform:translateX(-50%)}
+.win::after{top:50%;left:0;right:0;height:3px;transform:translateY(-50%)}
+.win .sun{position:absolute;right:12%;top:14%;width:22px;height:22px;border-radius:50%;background:#FFE36B;border:2px solid #2A211B;transition:background .5s}
+.win .cloud{position:absolute;left:8%;bottom:16%;width:34px;height:12px;border-radius:12px;background:#fff;border:2px solid #2A211B}
+.door{position:absolute;right:5%;top:20%;width:19%;height:46%;background:#7A4A2C;border:3px solid #2A211B;border-bottom:0;border-radius:6px 6px 0 0;cursor:pointer;transform-origin:left center;transition:transform .35s}
+.door::after{content:"";position:absolute;right:12%;top:52%;width:8px;height:8px;border-radius:50%;background:#F2B233;border:2px solid #2A211B}
+.door.open{transform:perspective(300px) rotateY(-55deg)}
+.doorhole{position:absolute;right:5%;top:20%;width:19%;height:46%;background:#3B2A20;border:3px solid #2A211B;border-bottom:0;border-radius:6px 6px 0 0}
+.notes{position:absolute;left:41%;top:8%;width:30%;display:flex;flex-wrap:wrap;gap:4px;align-content:flex-start}
+.note{width:100%;background:#FFFDF5;border:2px solid #2A211B;padding:3px 6px;font-family:var(--hand);font-size:14px;line-height:1.2;position:relative}
+.note::before{content:"";position:absolute;left:40%;top:-7px;width:22px;height:9px;background:rgba(217,84,43,.75)}
+.note.new{animation:pin .5s}
+@keyframes pin{0%{transform:translateY(-30px) rotate(-12deg);opacity:0}100%{opacity:1}}
+.sofa{position:absolute;left:40%;bottom:24%;width:34%;height:22%;cursor:pointer}
+.sofa .back{position:absolute;left:6%;right:6%;top:0;height:60%;background:#2F7F86;border:3px solid #2A211B;border-radius:12px 12px 4px 4px}
+.sofa .seat{position:absolute;left:0;right:0;bottom:12%;height:46%;background:#3A979F;border:3px solid #2A211B;border-radius:10px}
+.sofa .leg{position:absolute;bottom:0;width:6px;height:14%;background:#2A211B}
+.bed{position:absolute;left:3%;bottom:6%;width:22%;height:11%;background:#D9542B;border:3px solid #2A211B;border-radius:40px 40px 14px 14px}
+.bowl{position:absolute;left:30%;bottom:7%;width:13%;height:7%;background:#E8E3D8;border:3px solid #2A211B;border-radius:4px 4px 16px 16px;cursor:pointer}
+.bowl.full::before{content:"";position:absolute;left:8%;right:8%;top:-7px;height:9px;border-radius:9px 9px 0 0;background:#9A5A2A;border:2px solid #2A211B;border-bottom:0}
+.slipper{position:absolute;left:62%;bottom:4%;width:30px;height:12px;background:#5A6CC8;border:2.5px solid #2A211B;border-radius:12px 14px 6px 6px;cursor:pointer;transition:opacity .2s}
+.ball{position:absolute;bottom:9%;width:16px;height:16px;border-radius:50%;background:#E33F2E;border:2.5px solid #2A211B;left:-30px;transition:left .9s cubic-bezier(.2,.7,.3,1)}
+.night{position:absolute;inset:0;background:rgba(18,22,58,.55);opacity:0;pointer-events:none;transition:opacity .6s}
+.scene.dark .night{opacity:1}
+.scene.dark .win{background:#22285A}
+.scene.dark .win .sun{background:#F6F1C8;box-shadow:-6px 0 0 0 #22285A inset}
+.scene.dark .win .cloud{opacity:0}
+
+/* dog */
+.dog{position:absolute;bottom:5%;width:112px;height:84px;left:50%;margin-left:-56px;transition-property:left;transition-timing-function:linear;z-index:3;cursor:pointer}
+.dog .flip{width:100%;height:100%;transition:transform .12s}
+.dog.left .flip{transform:scaleX(-1)}
+.dog svg{width:100%;height:100%;overflow:visible}
+.dog .tail{transform-box:fill-box;transform-origin:100% 100%;animation:wag .5s ease-in-out infinite alternate}
+@keyframes wag{from{transform:rotate(-14deg)}to{transform:rotate(16deg)}}
+.dog .lg{transform-box:fill-box;transform-origin:50% 0}
+.dog.walk .lg.a{animation:step .28s linear infinite alternate}
+.dog.walk .lg.b{animation:step .28s linear infinite alternate-reverse}
+@keyframes step{from{transform:rotate(-22deg)}to{transform:rotate(22deg)}}
+.dog.walk .body-g{animation:bob .28s ease-in-out infinite alternate}
+@keyframes bob{to{transform:translateY(-2px)}}
+.dog.hop .flip{animation:hop .45s}
+@keyframes hop{40%{transform:translateY(-26px)}}
+.dog.left.hop .flip{animation:hopL .45s}
+@keyframes hopL{0%{transform:scaleX(-1)}40%{transform:scaleX(-1) translateY(-26px)}100%{transform:scaleX(-1)}}
+.dog.eat .head-g{transform-box:fill-box;transform-origin:20% 80%;animation:eat .3s ease-in-out infinite alternate}
+@keyframes eat{to{transform:rotate(24deg) translateY(4px)}}
+.dog .shut{display:none}
+.dog.sleep .open-eye{display:none}
+.dog.sleep .shut{display:block}
+.dog.sleep .tail{animation:none}
+.dog .carry{display:none}
+.dog.has-slipper .carry{display:block}
+.zzz{position:absolute;left:62%;top:-14px;font-family:var(--fun);font-size:16px;display:none}
+.dog.sleep .zzz{display:block;animation:z 1.6s ease-in-out infinite}
+@keyframes z{0%{transform:translate(0,4px);opacity:0}50%{opacity:1}100%{transform:translate(10px,-10px);opacity:0}}
+.bubble{position:absolute;bottom:100%;left:50%;transform:translateX(-50%);margin-bottom:6px;width:max-content;max-width:190px;background:#fff;border:2.5px solid #2A211B;border-radius:14px;padding:5px 10px;font-size:13px;font-weight:700;line-height:1.35;white-space:normal;opacity:0;transition:opacity .2s;pointer-events:none}
+.bubble::after{content:"";position:absolute;left:50%;top:100%;border:7px solid transparent;border-top-color:#2A211B;transform:translateX(-50%)}
+.bubble.show{opacity:1}
+.bubble.r{left:auto;right:-6px;transform:none}.bubble.r::after{left:auto;right:30px;transform:none}
+.bubble.l{left:-6px;transform:none}.bubble.l::after{left:30px;transform:none}
+.heart{position:absolute;font-size:16px;color:#D9542B;font-weight:900;pointer-events:none;animation:float 1s forwards;z-index:4}
+@keyframes float{to{transform:translateY(-40px);opacity:0}}
+
+/* under scene */
+.say{margin:12px 12px 0;display:grid;gap:2px}
+.say small{font-size:11px;color:#8A7B6A}
+.say p{margin:0;font-weight:700;font-size:15px;line-height:1.45;min-height:44px}
+.stats{display:flex;gap:6px;margin:8px 12px 0}
+.stats span{font-size:11px;border:2px solid #2A211B;border-radius:99px;padding:0 8px;background:#fff}
+.stats b{font-variant-numeric:tabular-nums}
+.acts{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:12px 12px 0}
+.acts button{font:inherit;font-size:12px;font-weight:700;color:#2A211B;background:#fff;border:2.5px solid #2A211B;border-radius:12px;padding:8px 2px;cursor:pointer;box-shadow:0 3px 0 #2A211B;display:grid;justify-items:center;gap:2px}
+.acts button:active{transform:translateY(3px);box-shadow:none}
+.acts svg{width:22px;height:22px}
+.rec{margin:12px 12px 0;font:inherit;font-weight:900;font-size:17px;color:#FFF8EC;background:#D9542B;border:2.5px solid #2A211B;border-radius:14px;padding:11px;cursor:pointer;box-shadow:0 4px 0 #2A211B}
+.rec:active{transform:translateY(4px);box-shadow:none}
+button:focus-visible{outline:3px solid #2F7F86;outline-offset:2px}
+.nav{margin-top:auto;display:flex;justify-content:space-around;padding:10px 6px 16px;border-top:2.5px solid #2A211B;font-size:10px;color:#8A7B6A}
+.nav div{display:grid;justify-items:center}
+.nav .on{color:#2A211B;font-weight:900}
+.nav svg{width:20px;height:20px}
+svg.i{fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+
+.sheet{position:absolute;inset:auto 0 0 0;background:#FFF8EC;border-top:3px solid #2A211B;border-radius:22px 22px 0 0;padding:16px;display:grid;gap:10px;transform:translateY(105%);transition:transform .3s;z-index:10}
+.sheet.open{transform:none}
+.sheet h3{margin:0;font-family:var(--fun);font-weight:400;font-size:22px}
+.sheet textarea{font:inherit;font-size:15px;border:2.5px solid #2A211B;border-radius:12px;padding:10px;height:84px;resize:none;background:#fff;color:#2A211B}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chips button{font:inherit;font-size:12px;border:2px solid #2A211B;border-radius:99px;background:#fff;color:#2A211B;padding:1px 10px;cursor:pointer}
+.sheet .row{display:flex;gap:8px}
+.sheet .row button{flex:1;font:inherit;font-weight:900;border:2.5px solid #2A211B;border-radius:12px;padding:9px;cursor:pointer;background:#fff;color:#2A211B}
+.sheet .row .ok{background:#2A211B;color:#FFF8EC}
+.toast{position:absolute;left:50%;top:70px;transform:translate(-50%,-20px);background:#2A211B;color:#FFF8EC;font-weight:900;font-size:13px;padding:8px 14px;border-radius:12px;opacity:0;transition:.3s;z-index:12;width:max-content;max-width:90%;text-align:center}
+.toast.show{opacity:1;transform:translate(-50%,0)}
+@media (prefers-reduced-motion:reduce){*{animation-duration:.001s!important;transition-duration:.001s!important}}
+</style>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+  <symbol id="i-door" viewBox="0 0 24 24"><path d="M6 21V4h10v17M3 21h18"/><path d="M13 12h.5"/></symbol>
+  <symbol id="i-bowl" viewBox="0 0 24 24"><path d="M3 11h18a9 9 0 0 1-18 0zM8 8c0-2 2-2 2-4M13 8c0-2 2-2 2-4"/></symbol>
+  <symbol id="i-ball" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><path d="M5 9c4 2 10 2 14 0M5 15c4-2 10-2 14 0"/></symbol>
+  <symbol id="i-moon" viewBox="0 0 24 24"><path d="M20 14A8 8 0 1 1 10 4a6 6 0 0 0 10 10z"/></symbol>
+  <symbol id="i-home" viewBox="0 0 24 24"><path d="M4 11l8-7 8 7v9H4z"/><path d="M10 20v-5h4v5"/></symbol>
+  <symbol id="i-job" viewBox="0 0 24 24"><rect x="3" y="7" width="18" height="13" rx="2"/><path d="M9 7V5h6v2M3 12h18"/></symbol>
+  <symbol id="i-chat" viewBox="0 0 24 24"><path d="M4 18l1.5-4A7 7 0 1 1 9 18.5z"/></symbol>
+  <symbol id="i-book" viewBox="0 0 24 24"><path d="M4 5h6a2 2 0 0 1 2 2v13a2 2 0 0 0-2-2H4zM20 5h-6a2 2 0 0 0-2 2v13a2 2 0 0 1 2-2h6z"/></symbol>
+</defs></svg>
+
+<div class="wrap">
+  <div class="side">
+    <span class="k">爪记 · UI 改版 · 第四版 · 可以直接玩</span>
+    <h1>首页不是一张卡片，是可乐的家</h1>
+    <p>前三版都在换皮，换来换去还是一页静态卡片，所以不好玩。这一版把首页改成一个小房间：可乐自己在屋里溜达，你做什么它都有反应，你记下的事会被它叼去贴在墙上。</p>
+    <ul class="try">
+      <li><b>点可乐</b><span>它会跳一下，跟你说句话</span></li>
+      <li><b>开门回家</b><span>它冲到门口转三圈</span></li>
+      <li><b>点地上的拖鞋</b><span>它叼走藏进沙发；再点沙发能找回来</span></li>
+      <li><b>喂饭 / 扔球</b><span>它会跑过去吃、去追</span></li>
+      <li><b>点窗户或关灯</b><span>天黑了，它回窝睡觉</span></li>
+      <li><b>记一笔</b><span>你照实写，它用自己的口吻改写，贴到墙上，还会涨经验、升岗位</span></li>
+    </ul>
+    <p class="muted">画风是平涂加粗描边，像绘本，不用渐变和发光。房间、家具、宠物的样子都可以按宠物种类换（猫有猫爬架，仓鼠有跑轮）。这只是首页的玩法原型，老大觉得这个方向对，我再接着做爪友圈（去别人家串门）和爪册。</p>
+  </div>
+
+  <div class="phone"><div class="screen" id="screen">
+    <div class="bar">
+      <span class="nm">可乐</span><span class="job" id="job">校园新生</span>
+      <span class="xp" aria-label="经验"><i id="xpbar"></i></span><span class="lv" id="lv">Lv.1</span>
+    </div>
+
+    <div class="scene" id="scene">
+      <div class="wall"></div>
+      <div class="win" id="win" title="窗户"><span class="sun"></span><span class="cloud"></span></div>
+      <div class="notes" id="notes"><div class="note" style="transform:rotate(-3deg)">今天在门口等了很久很久。</div></div>
+      <div class="doorhole"></div>
+      <div class="door" id="door" title="门"></div>
+      <div class="floor"></div>
+      <div class="bed"></div>
+      <div class="sofa" id="sofa" title="沙发"><div class="back"></div><div class="seat"></div><span class="leg" style="left:8%"></span><span class="leg" style="right:8%"></span></div>
+      <div class="bowl" id="bowl" title="饭碗"></div>
+      <div class="slipper" id="slipper" title="拖鞋"></div>
+      <div class="ball" id="ball"></div>
+      <div class="dog" id="dog">
+        <div class="bubble" id="bubble"></div>
+        <span class="zzz">z z</span>
+        <div class="flip">
+          <svg viewBox="0 0 120 90" stroke="#2A211B" stroke-width="3" stroke-linejoin="round" stroke-linecap="round">
+            <path class="tail" d="M26 46 Q12 40 14 24" fill="none" stroke-width="6"/>
+            <g class="lg a"><rect x="30" y="56" width="9" height="24" rx="4" fill="#D9A267"/></g>
+            <g class="lg b"><rect x="42" y="56" width="9" height="24" rx="4" fill="#E7B57A"/></g>
+            <g class="lg b"><rect x="70" y="56" width="9" height="24" rx="4" fill="#D9A267"/></g>
+            <g class="lg a"><rect x="81" y="56" width="9" height="24" rx="4" fill="#E7B57A"/></g>
+            <g class="body-g">
+              <ellipse cx="57" cy="50" rx="34" ry="17" fill="#E7B57A"/>
+              <path d="M40 40q10-6 24 0" fill="none" stroke="#C98A54" stroke-width="5"/>
+              <path d="M84 40 l6 14" stroke="#D9542B" stroke-width="5"/>
+              <g class="head-g">
+                <circle cx="93" cy="32" r="18" fill="#E7B57A"/>
+                <ellipse cx="107" cy="39" rx="10" ry="7.5" fill="#F6DDB8"/>
+                <circle cx="115" cy="36" r="3.6" fill="#2A211B"/>
+                <circle class="open-eye" cx="97" cy="28" r="2.8" fill="#2A211B" stroke="none"/>
+                <path class="shut" d="M93 29q4 3 8 0" fill="none" stroke-width="2.5"/>
+                <path d="M86 17q-12 3-8 24q9-2 12-17z" fill="#8A5632"/>
+                <path d="M104 45q4 3 8 1" fill="none" stroke-width="2.5"/>
+                <g class="carry"><rect x="104" y="42" width="24" height="10" rx="5" fill="#5A6CC8"/></g>
+              </g>
+            </g>
+          </svg>
+        </div>
+      </div>
+      <div class="night"></div>
+    </div>
+
+    <div class="say"><small>可乐说</small><p id="said">你回来啦！我转了三圈欢迎你！</p></div>
+    <div class="stats"><span>贪吃 <b id="s-eat">3</b></span><span>拆家 <b id="s-mess">1</b></span><span>粘人 <b id="s-love">5</b></span></div>
+    <div class="acts">
+      <button id="b-door"><svg class="i"><use href="#i-door"/></svg>开门回家</button>
+      <button id="b-feed"><svg class="i"><use href="#i-bowl"/></svg>喂饭</button>
+      <button id="b-ball"><svg class="i"><use href="#i-ball"/></svg>扔球</button>
+      <button id="b-light"><svg class="i"><use href="#i-moon"/></svg><span id="lightTxt">关灯</span></button>
+    </div>
+    <button class="rec" id="b-rec">＋ 记一笔今天的事</button>
+    <div class="nav"><div class="on"><svg class="i"><use href="#i-home"/></svg>爪窝</div><div><svg class="i"><use href="#i-job"/></svg>爪迹</div><div><svg class="i"><use href="#i-chat"/></svg>爪友圈</div><div><svg class="i"><use href="#i-book"/></svg>爪册</div></div>
+
+    <div class="sheet" id="sheet">
+      <h3>它今天干了啥？</h3>
+      <textarea id="txt" placeholder="照实写就行，比如：把纸巾撕了一地"></textarea>
+      <div class="chips" id="chips"><button>把纸巾撕了一地</button><button>洗澡的时候一直发抖</button><button>下楼遛了半小时</button><button>偷吃了我的鸡腿</button></div>
+      <div class="row"><button id="cancel">算了</button><button class="ok" id="ok">交给可乐</button></div>
+    </div>
+    <div class="toast" id="toast"></div>
+  </div></div>
+</div>
+
+<script>
+(function(){
+  const $=id=>document.getElementById(id);
+  const dog=$('dog'),scene=$('scene'),bubble=$('bubble'),said=$('said');
+  const POS={door:84,bowl:36,bed:14,sofa:57,slipper:66};
+  const JOBS=['校园新生','门口保安','零食质检员','拖鞋收藏家','沙发主管','小区名犬'];
+  const st={x:50,busy:false,night:false,slipper:'floor',xp:30,lv:1,eat:3,mess:1,love:5};
+  const sleep=ms=>new Promise(r=>setTimeout(r,ms));
+  let bubbleT;
+
+  function say(t,ms=2600){
+    bubble.classList.toggle('r',st.x>62);bubble.classList.toggle('l',st.x<24);
+    bubble.textContent=t;bubble.classList.add('show');said.textContent=t;
+    clearTimeout(bubbleT);bubbleT=setTimeout(()=>bubble.classList.remove('show'),ms);
+  }
+  function stat(k,n=1){st[k]+=n;$('s-'+k).textContent=st[k];}
+  function toast(t){const el=$('toast');el.textContent=t;el.classList.add('show');setTimeout(()=>el.classList.remove('show'),2200);}
+  function gain(n){
+    st.xp+=n;
+    if(st.xp>=100){st.xp-=100;st.lv++;const j=JOBS[Math.min(st.lv-1,JOBS.length-1)];$('job').textContent=j;toast('可乐升级啦：Lv.'+st.lv+' '+j);}
+    $('xpbar').style.width=st.xp+'%';$('lv').textContent='Lv.'+st.lv;
+  }
+  function hearts(n=3){
+    for(let i=0;i<n;i++){const h=document.createElement('span');h.className='heart';h.textContent='♥';
+      h.style.left=(st.x+(Math.random()*10-5))+'%';h.style.bottom=(28+Math.random()*8)+'%';
+      h.style.animationDelay=(i*.12)+'s';scene.appendChild(h);setTimeout(()=>h.remove(),1400);}
+  }
+  function face(left){dog.classList.toggle('left',left);}
+  function moveTo(x,speed=1){
+    const d=Math.abs(x-st.x);if(d<1)return Promise.resolve();
+    face(x<st.x);dog.classList.add('walk');
+    const ms=Math.max(250,d*28/speed);
+    dog.style.transitionDuration=ms+'ms';dog.style.left=x+'%';st.x=x;
+    return sleep(ms).then(()=>dog.classList.remove('walk'));
+  }
+  function hop(){dog.classList.remove('hop');void dog.offsetWidth;dog.classList.add('hop');return sleep(460).then(()=>dog.classList.remove('hop'));}
+  async function spin(times){for(let i=0;i<times*2;i++){face(!dog.classList.contains('left'));await sleep(130);}}
+  function wake(){if(dog.classList.contains('sleep')){dog.classList.remove('sleep');return true;}return false;}
+  let queue=Promise.resolve(),pending=0;
+  function run(fn){pending++;queue=queue.then(async()=>{while(st.busy)await sleep(60);st.busy=true;try{await fn();}catch(e){}finally{st.busy=false;pending--;}});return queue;}
+
+  const TAPS=['干嘛？要给我吃的吗？','摸头可以，摸肚子要预约。','我刚才什么都没干，真的。','你今天身上有别的狗的味道。','再摸一下，就一下。'];
+  dog.addEventListener('click',()=>run(async()=>{
+    if(st.night&&dog.classList.contains('sleep')){say('干嘛……还没睡醒。');await hop();dog.classList.add('sleep');return;}
+    wake();await hop();hearts();stat('love');gain(4);say(TAPS[Math.floor(Math.random()*TAPS.length)]);
+  }));
+
+  async function comeHome(){
+    wake();$('door').classList.add('open');say('！！！',900);
+    await moveTo(POS.door-8,2.2);await spin(3);hearts(5);stat('love',2);gain(10);
+    say('你回来啦！我转了三圈欢迎你！',3200);await sleep(900);$('door').classList.remove('open');
+  }
+  $('b-door').onclick=()=>run(comeHome);$('door').onclick=()=>run(comeHome);
+
+  async function feed(){
+    if(st.night){say('灯都关了还吃？……那就吃一点。');}
+    wake();$('bowl').classList.add('full');await moveTo(POS.bowl+6,1.8);face(true);
+    dog.classList.add('eat');await sleep(1600);dog.classList.remove('eat');$('bowl').classList.remove('full');
+    stat('eat');gain(8);say('这碗不够。下一碗呢？');await hop();
+  }
+  $('b-feed').onclick=()=>run(feed);$('bowl').onclick=()=>run(feed);
+
+  $('b-ball').onclick=()=>run(async()=>{
+    wake();const ball=$('ball');const target=8+Math.random()*78;
+    ball.style.transition='none';ball.style.left=st.x+'%';void ball.offsetWidth;ball.style.transition='';
+    ball.style.left=target+'%';await sleep(250);say('球！球！球！',1200);
+    await moveTo(target,2.4);ball.style.left='-30px';hop();gain(6);
+    say(Math.random()<.5?'叼回来了，再扔一次。':'这球归我了，不还。');
+  });
+
+  $('slipper').onclick=()=>run(async()=>{
+    if(st.slipper!=='floor')return;wake();
+    await moveTo(POS.slipper,1.6);$('slipper').style.opacity=0;dog.classList.add('has-slipper');st.slipper='mouth';say('这只拖鞋我先替你保管。');
+    await moveTo(POS.sofa,1.6);await sleep(300);dog.classList.remove('has-slipper');st.slipper='sofa';
+    stat('mess');gain(6);say('藏好了。你什么也没看见。');
+  });
+  $('sofa').onclick=()=>run(async()=>{
+    if(st.slipper!=='sofa'){wake();await moveTo(POS.sofa,1.4);await hop();say('沙发是我的，你坐旁边。');gain(3);return;}
+    const s=$('slipper');s.style.left='54%';s.style.opacity=1;st.slipper='floor';
+    say('……被你发现了。');await hop();setTimeout(()=>{s.style.left='62%';},400);
+  });
+
+  async function lights(){
+    st.night=!st.night;scene.classList.toggle('dark',st.night);$('lightTxt').textContent=st.night?'开灯':'关灯';
+    if(st.night){say('天黑了，我去睡了。',1800);await moveTo(POS.bed,1.2);face(false);await sleep(200);dog.classList.add('sleep');said.textContent='（可乐睡着了）';}
+    else{wake();await hop();say('早！今天吃什么？');}
+  }
+  $('b-light').onclick=()=>run(lights);$('win').onclick=()=>run(lights);
+
+  // 记一笔
+  const sheet=$('sheet'),txt=$('txt');
+  $('b-rec').onclick=()=>{sheet.classList.add('open');setTimeout(()=>txt.focus(),300);};
+  $('cancel').onclick=()=>sheet.classList.remove('open');
+  $('chips').addEventListener('click',e=>{if(e.target.tagName==='BUTTON')txt.value=e.target.textContent;});
+  function rewrite(t){
+    if(/纸|撕|咬|拆|鞋/.test(t)){stat('mess');return '是纸巾先惹我的。我只是让它冷静一下。';}
+    if(/吃|鸡|肉|零食|饭/.test(t)){stat('eat');return '鸡腿放在那里，就是给我的意思。';}
+    if(/澡|洗/.test(t)){return '今天被泡进水里，我抖了，但我没哭。';}
+    if(/遛|散步|下楼|公园/.test(t)){stat('love');return '今天下楼巡逻半小时，小区一切正常。';}
+    if(/睡/.test(t)){return '今天主要的工作是睡觉，完成得很好。';}
+    return '今天发生了一件事：'+t.replace(/[。.!！]+$/,'')+'。我觉得我做得对。';
+  }
+  $('ok').onclick=()=>{
+    const t=txt.value.trim();if(!t){txt.focus();return;}
+    sheet.classList.remove('open');txt.value='';
+    run(async()=>{
+      wake();const line=rewrite(t);
+      await moveTo(56,1.6);await hop();
+      const n=document.createElement('div');n.className='note new';n.textContent=line;n.style.transform='rotate('+(Math.random()*6-3).toFixed(1)+'deg)';
+      const box=$('notes');box.prepend(n);while(box.children.length>2)box.lastChild.remove();
+      gain(25);hearts(4);say(line,3600);
+    });
+  };
+
+  // 空闲时自己溜达
+  const IDLE=['（闻闻地板）','（伸了个懒腰）','嗯？好像有人在说零食。','',''];
+  async function wander(){
+    await sleep(3200+Math.random()*2800);
+    if(!st.busy&&!pending&&!st.night&&!sheet.classList.contains('open')){
+      st.busy=true;
+      try{await moveTo(10+Math.random()*72,1.4);const l=IDLE[Math.floor(Math.random()*IDLE.length)];if(l)say(l,1600);}
+      finally{st.busy=false;}
+    }
+    wander();
+  }
+  $('xpbar').style.width=st.xp+'%';
+  setTimeout(()=>say('你回来啦！我转了三圈欢迎你！',2800),400);
+  wander();
+})();
+</script>
