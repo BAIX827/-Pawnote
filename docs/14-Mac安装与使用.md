@@ -2,7 +2,7 @@
 
 版本：0.1.0 · 2026-10-11。
 
-Mac 本地版复用 Expo Web 界面，以 macOS AppKit + WKWebView 承载，页面随应用打包。应用图标使用 `assets/pawnote-icon-final.png`：用户选择的第一版橘色爪印贴纸放大版，橘底、米黄爪印、粗黑边与短距离硬投影。打包脚本从 app.json 读取图标路径；重新打包安装后生效。此前图标文件留作历史对照。
+Mac 本地版复用 Expo Web 界面，以 macOS AppKit + WKWebView 承载，页面随应用打包。应用图标使用 `assets/pawnote-icon-final.png`：用户于 2026-11-07 确认的中文「爪记」字形版，米黄底、橘色字形与爪垫、白色毛尖及黄油黄铅笔。打包脚本从 app.json 读取图标路径；重新打包安装后生效。此前图标文件留作历史对照。
 
 ## 打开
 

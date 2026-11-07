@@ -1,12 +1,22 @@
 # 爪记 App 图标
 
-## 当前版本：第一版橘色爪印贴纸放大版（2026-10-26）
+## 当前版本：中英文字形图标（2026-11-07）
+
+用户确认采用带爪垫、铅笔与白色毛尖的圆润字形。默认中文版「爪记」使用主橘 #FF7A1A、米黄 #FFF3DF、白色毛尖、黄油黄 #FFD84D 铅笔和少量墨黑细节；英文版排作「Paw Note」。两版保留已确认示意图的质感和底板。
+
+- 当前安装图标：`assets/pawnote-icon-final.png`，1024 × 1024 不透明 PNG。
+- 英文独立文件：[`pawnote-icon-en-2026-11-07.png`](reference/图标历史/pawnote-icon-en-2026-11-07.png)，1024 × 1024 不透明 PNG。
+- App、Web favicon、页面 BrandMark 与 Mac 打包共用默认中文资产，沿用现有配置路径。英文图标作为设计资产归档，设置页切换语言继续使用默认安装图标。
+- 原始预览、生成提示词与处理方式见 [中英文字形图标生成记录](reference/中英文字形图标提示词-2026-11-07.md)。前一版橘色爪印保存在 [`pawnote-icon-orange-paw-2026-10-26.png`](reference/图标历史/pawnote-icon-orange-paw-2026-10-26.png)。
+- Web 随 GitHub Pages 发布更新；Mac 版重新构建安装后更新；手机桌面图标随下一次原生构建安装更新。
+
+## 历史版本：第一版橘色爪印贴纸放大版（2026-10-26）
 
 用户要求与 App 页面的配色和风格统一，看过两版橘色候选后选择第一个，并要求爪印更大。最终使用第一版较粗的描边、较大趾垫和较长回钩，整体放大、减少橘色留白。主橘色满版背景、米黄填色、墨黑描边和短距离硬投影延续页面贴纸风格。
 
-文件：`assets/pawnote-icon-final.png`，1024 × 1024 PNG，不透明背景。App 图标与 Web favicon 已切换到本文件，Mac 打包脚本随 app.json 使用同一路径。已安装的 App 在重新构建安装后更新图标。
+历史文件：`docs/reference/图标历史/pawnote-icon-orange-paw-2026-10-26.png`，1024 × 1024 PNG，不透明背景。该版曾用于 App、Web favicon 和 Mac，现由上方字形图标替换。
 
-界面品牌栏也使用同一图片：`src/components/BrandMark.tsx` 统一读取该文件，桌面侧栏显示 44px 图标，手机顶部显示 32px 图标，覆盖原先手绘爪印的位置。
+当时界面品牌栏通过 `src/components/BrandMark.tsx` 共用默认图标路径，桌面侧栏显示 44px、手机顶部显示 32px；本轮沿用该接入方式。
 
 使用内置 imagegen 编辑第二版爪印，参考图是用户确认的融合最终版页面示意图；从两版橘色候选中选择第一版再整体放大。使用 sips 统一到 1024 × 1024，并检查 32、64 像素效果。此前较细描边的橘色候选 [`pawnote-icon-sticker.png`](reference/图标历史/pawnote-icon-sticker.png) 留作历史对照。完整提示词见 [橘色爪印贴纸生成记录](reference/图标贴纸提示词-2026-10-26.md)。
 
