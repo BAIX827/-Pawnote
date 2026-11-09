@@ -1,10 +1,11 @@
 import { t } from "../i18n";
 import { useState } from "react";
-import { Pressable, ScrollView, Text, View } from "react-native";
+import { ScrollView, Text, View } from "react-native";
 import { router } from "expo-router";
 import { useStore } from "../data/store";
 import { MAX_PETS, homePets, removePet, switchPet } from "../domain/household";
 import { Avatar, Button, Icon, colors, styles } from "./ui";
+import { Tap } from "./Motion";
 
 /** 我家的毛孩子: every pet at home, tap one to switch, add another, remove one that isn't current. */
 export default function HouseholdPets() {
@@ -29,7 +30,9 @@ export default function HouseholdPets() {
           const active = pet.id === current;
           return (
             <View key={pet.id} style={{ alignItems: "center", gap: 4, minWidth: 66, flexShrink: 0 }}>
-              <Pressable
+              <Tap
+                selected={active}
+                haptic="select"
                 accessibilityRole="button"
                 accessibilityLabel={active ? t("{name}（当前）", { name: pet.name }) : t("切换到{name}", { name: pet.name })}
                 accessibilityState={{ selected: active }}
@@ -39,13 +42,12 @@ export default function HouseholdPets() {
                   update((s) => switchPet(s, pet.id));
                   notify(t("现在是{name}的视角。", { name: pet.name }));
                 }}
-                style={({ pressed }) => ({
+                style={{
                   padding: 3,
                   borderRadius: 40,
                   borderWidth: 3,
                   borderColor: active ? colors.orange : "transparent",
-                  opacity: pressed ? 0.6 : 1,
-                })}
+                }}
               >
                 <Avatar pet={pet} demo={state.demo} size={50} />
                 {managing && !active && (
@@ -53,7 +55,7 @@ export default function HouseholdPets() {
                     <Icon name="x" size={12} color={colors.ink} />
                   </View>
                 )}
-              </Pressable>
+              </Tap>
               <Text numberOfLines={1} style={[styles.small, { color: colors.ink, fontWeight: active ? "800" : "500" }]}>
                 {pet.name}
               </Text>
@@ -62,17 +64,17 @@ export default function HouseholdPets() {
         })}
         {pets.length < MAX_PETS && !managing && (
           <View style={{ alignItems: "center", gap: 4, minWidth: 66, flexShrink: 0 }}>
-            <Pressable
+            <Tap
               accessibilityRole="button"
               accessibilityLabel={t("添加宠物")}
               onPress={() => router.push({ pathname: "/onboarding", params: { add: "1" } })}
-              style={({ pressed }) => ({
+              style={{
                 width: 56, height: 56, borderRadius: 28, borderWidth: 2.5, borderStyle: "dashed",
-                borderColor: colors.ink, alignItems: "center", justifyContent: "center", opacity: pressed ? 0.6 : 1,
-              })}
+                borderColor: colors.ink, alignItems: "center", justifyContent: "center",
+              }}
             >
               <Icon name="plus" size={22} color={colors.ink} />
-            </Pressable>
+            </Tap>
             <Text style={styles.small}>{t("添加")}</Text>
           </View>
         )}

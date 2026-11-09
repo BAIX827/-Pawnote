@@ -6,6 +6,7 @@ import { CATEGORIES, CATEGORY_LABELS, LifeEvent } from "../domain/types";
 import { eventDay, dayDate, localDay } from "../domain/dates";
 import { calendarDays, filterJournal, JournalFilter, shiftMonth } from "../domain/memories";
 import { Button, Card, Chip, Field, Icon, colors, styles } from "./ui";
+import { Tap } from "./Motion";
 
 export default function JournalFilters({ events, filter, onChange }: {
   events: LifeEvent[]; filter: JournalFilter; onChange: (filter: JournalFilter) => void;
@@ -27,13 +28,12 @@ export default function JournalFilters({ events, filter, onChange }: {
   if (!full) return (
     <View style={[styles.row, { gap: 8 }]}>
       <View style={{ flex: 1 }}>{search}</View>
-      <Pressable accessibilityRole="button" accessibilityLabel={t("更多筛选")}
+      <Tap accessibilityRole="button" accessibilityLabel={t("更多筛选")}
         accessibilityState={{ expanded: false }} onPress={() => setExpanded(true)}
-        style={({ pressed }) => ({ width: 48, minHeight: 48, alignItems: "center", justifyContent: "center",
-          borderRadius: 14, borderWidth: 2.5, borderColor: colors.ink, backgroundColor: colors.paper,
-          opacity: pressed ? 0.6 : 1 })}>
+        style={{ width: 48, minHeight: 48, alignItems: "center", justifyContent: "center",
+          borderRadius: 14, borderWidth: 2.5, borderColor: colors.ink, backgroundColor: colors.paper }}>
         <Icon name="sliders" size={20} />
-      </Pressable>
+      </Tap>
     </View>
   );
   return <Card style={{ gap: 14 }}>

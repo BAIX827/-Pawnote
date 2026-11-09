@@ -19,6 +19,8 @@ import Icon from "./Icon";
 import { Pet } from "../domain/types";
 import { speciesEmoji } from "../domain/pet-profile";
 import { t } from "../i18n";
+import { Tap } from "./Motion";
+import { buzz } from "../platform/haptics";
 export { default as Icon } from "./Icon";
 // The blended look (docs/12, docs/01 8.30): orange pop's ink outlines, hard shadows and tape, with
 // big colour blocks and the pet's own photo as the star. Token names are historical: "green" and
@@ -135,7 +137,7 @@ export function Button({
       accessibilityRole="button"
       accessibilityLabel={label}
       disabled={disabled}
-      onPress={onPress}
+      onPress={() => { buzz(); onPress(); }}
       style={({ pressed }) => [
         {
           minHeight: 46,
@@ -191,12 +193,14 @@ export function Chip({
   // Only the default black chip needs light text; every colour block in this palette takes ink.
   const light = color !== colors.ink;
   return (
-    <Pressable
+    <Tap
       accessibilityRole={onPress ? "button" : "text"}
       accessibilityLabel={label}
       accessibilityState={{ selected: active }}
       aria-selected={active}
       onPress={onPress}
+      selected={active}
+      haptic="select"
       style={{
         minHeight: onPress ? 44 : 28,
         paddingHorizontal: 15,
@@ -217,7 +221,7 @@ export function Chip({
       >
         {label}
       </Text>
-    </Pressable>
+    </Tap>
   );
 }
 export function Label({ children }: { children: React.ReactNode }) {
@@ -244,7 +248,7 @@ export function Fold({ label, summary, open, onToggle, children }: {
 }) {
   return (
     <View style={{ gap: 10 }}>
-      <Pressable
+      <Tap
         accessibilityRole="button"
         accessibilityLabel={`${label}：${summary}`}
         accessibilityState={{ expanded: open }}
@@ -260,7 +264,7 @@ export function Fold({ label, summary, open, onToggle, children }: {
         <View style={{ flex: 1 }} />
         <Text style={{ fontSize: 13, color: colors.muted }}>{open ? t("收起") : t("展开")}</Text>
         <Icon name={open ? "chevron-up" : "chevron-down"} size={18} color={colors.ink} />
-      </Pressable>
+      </Tap>
       {open && children}
     </View>
   );

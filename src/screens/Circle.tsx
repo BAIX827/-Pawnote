@@ -30,6 +30,7 @@ import {
   styles,
 } from "../components/ui";
 import Onboarding from "./Onboarding";
+import { Tap } from "../components/Motion";
 
 // 爪友圈 2.0 (docs/01 8.20): only animals speak. The owner picks where a post goes and can tidy up,
 // but never writes a post or a comment here.
@@ -135,8 +136,10 @@ export default function Circle() {
               style={{ flexGrow: 0 }}
               contentContainerStyle={{ alignItems: "flex-start", gap: 12, paddingVertical: 4 }}>
               {RESIDENTS.map((r) => (
-                <Pressable
+                <Tap
                   key={r.id}
+                  selected={who === r.id}
+                  haptic="select"
                   accessibilityRole="button"
                   accessibilityLabel={nameOf(r)}
                   accessibilityState={{ selected: who === r.id }}
@@ -150,7 +153,7 @@ export default function Circle() {
                   <Text style={[styles.small, { color: colors.ink, fontWeight: who === r.id ? "800" : "500" }]} numberOfLines={1}>
                     {nameOf(r)}
                   </Text>
-                </Pressable>
+                </Tap>
               ))}
             </ScrollView>
           </View>

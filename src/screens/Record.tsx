@@ -47,6 +47,7 @@ import {
 } from "../components/ui";
 import DateField from "../components/DateField";
 import Onboarding from "./Onboarding";
+import { buzz } from "../platform/haptics";
 
 const bare = {
   borderWidth: 0,
@@ -218,6 +219,7 @@ function Recorder({ original, initialDate }: { original?: LifeEvent; initialDate
       const next = saveEvent(state, event);
       submitted.current = true;
       update(next);
+      buzz("success");
       notify(original ? t("日记已更新，经验保持不变。")
         : t("{tag}已保存 · +20 XP", { tag: t(CATEGORY_LABELS[draft.category]) }));
       if (original && router.canGoBack()) router.back();

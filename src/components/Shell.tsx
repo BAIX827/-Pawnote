@@ -2,6 +2,7 @@ import { t, useLang } from "../i18n";
 import React from "react";
 import {
   ActivityIndicator,
+  Animated,
   KeyboardAvoidingView,
   Platform,
   Pressable,
@@ -16,6 +17,8 @@ import { useStore } from "../data/store";
 import { exportBackup } from "../platform/export";
 import { Avatar, Button, Icon, Wobble, colors, display, styles } from "./ui";
 import BrandMark from "./BrandMark";
+import { Hop, Tap, useToastMotion } from "./Motion";
+import { buzz } from "../platform/haptics";
 import RestoreBackup from "./RestoreBackup";
 import { MAX_PETS, homePets, switchPet } from "../domain/household";
 import { othersCalling } from "../domain/paw-dates";
@@ -34,6 +37,7 @@ export default function Shell({ children }: { children: React.ReactNode }) {
   const { state, ready, toast, toastAction, error, blocked, raw, reset, notify, restoring, update } =
     useStore();
   const [confirmReset, setConfirmReset] = React.useState(false);
+  const toastMotion = useToastMotion(toast);
   // Tapping the pet in the top bar opens a quick switcher when there is more than one (docs/01 8.24).
   // Remembering where it was opened closes it on its own when the owner moves to another page.
   const [switcherAt, setSwitcherAt] = React.useState<string | null>(null);
@@ -49,13 +53,13 @@ export default function Shell({ children }: { children: React.ReactNode }) {
     const active = path === n.route || n.also.includes(path);
     const unread = n.route === "/profile" && !!state.pet && newMail(state).length > 0;
     return (
-      <Pressable
+      <Tap
         key={n.route}
         accessibilityRole="button"
         accessibilityLabel={t(n.label)}
         accessibilityState={{ selected: active }}
         onPress={() => router.navigate(n.route as "/")}
-        style={({ pressed }) => ({
+        style={{
           flex: wide ? undefined : 1,
           flexDirection: wide ? "row" : "column",
           gap: wide ? 12 : 3,
@@ -64,17 +68,17 @@ export default function Shell({ children }: { children: React.ReactNode }) {
           paddingHorizontal: wide ? 16 : 2,
           paddingVertical: wide ? 14 : 7,
           borderRadius: 14,
-          opacity: pressed ? 0.65 : active ? 1 : 0.6,
-        })}
+          opacity: active ? 1 : 0.6,
+        }}
       >
-        <View>
+        <Hop tab={n.route} on={active}>
           <Icon
             name={n.icon}
             size={20}
             color={active ? colors.green : colors.bg}
           />
           {unread && <View style={[dot, { borderColor: colors.ink }]} />}
-        </View>
+        </Hop>
         <Text
           style={{
             fontSize: wide ? 15 : 11,
@@ -84,7 +88,7 @@ export default function Shell({ children }: { children: React.ReactNode }) {
         >
           {t(n.label)}
         </Text>
-      </Pressable>
+      </Tap>
     );
   };
   if (!ready)
@@ -250,8 +254,10 @@ export default function Shell({ children }: { children: React.ReactNode }) {
                 {pets.map((pet) => {
                   const active = pet.id === state.pet!.id;
                   return (
-                    <Pressable
+                    <Tap
                       key={pet.id}
+                      selected={active}
+                      haptic="select"
                       accessibilityRole="button"
                       accessibilityLabel={active ? t("{name}（当前）", { name: pet.name }) : t("切换到{name}", { name: pet.name })}
                       accessibilityState={{ selected: active }}
@@ -261,7 +267,7 @@ export default function Shell({ children }: { children: React.ReactNode }) {
                         update((s) => switchPet(s, pet.id));
                         notify(t("现在是{name}的视角。", { name: pet.name }));
                       }}
-                      style={({ pressed }) => ({ alignItems: "center", gap: 4, minWidth: 62, flexShrink: 0, opacity: pressed ? 0.6 : 1 })}
+                      style={{ alignItems: "center", gap: 4, minWidth: 62, flexShrink: 0 }}
                     >
                       <View style={{ padding: 2, borderRadius: 30, borderWidth: 3, borderColor: active ? colors.orange : "transparent" }}>
                         <Avatar pet={pet} demo={state.demo} size={44} />
@@ -270,7 +276,7 @@ export default function Shell({ children }: { children: React.ReactNode }) {
                       <Text numberOfLines={1} style={[styles.small, { color: colors.ink, fontWeight: active ? "800" : "500" }]}>
                         {pet.name}
                       </Text>
-                    </Pressable>
+                    </Tap>
                   );
                 })}
               </ScrollView>
@@ -404,7 +410,7 @@ export default function Shell({ children }: { children: React.ReactNode }) {
               <Pressable
                 accessibilityRole="button"
                 accessibilityLabel={t("记录今天")}
-                onPress={() => router.push("/record")}
+                onPress={() => { buzz(); router.push("/record"); }}
                 style={({ pressed }) => ({
                   width: 50,
                   height: 50,
@@ -426,10 +432,10 @@ export default function Shell({ children }: { children: React.ReactNode }) {
           )}
         </View>
       </KeyboardAvoidingView>
-      {!!toast && (
-        <View
+      {!!toastMotion.shown && (
+        <Animated.View
           accessibilityRole="alert"
-          style={{
+          style={[{
             position: "absolute",
             bottom: wide ? 30 : 104,
             alignSelf: "center",
@@ -441,10 +447,10 @@ export default function Shell({ children }: { children: React.ReactNode }) {
             borderColor: colors.ink,
             boxShadow: `4px 4px 0px ${colors.ink}`,
             maxWidth: "90%",
-          }}
+          }, { pointerEvents: toast ? "box-none" : "none" }, toastMotion.style]}
         >
           <View style={{ flexDirection: "row", alignItems: "center", gap: 14 }}>
-            <Text style={{ color: colors.ink, fontSize: 14, fontWeight: "700", flexShrink: 1 }}>{toast}</Text>
+            <Text style={{ color: colors.ink, fontSize: 14, fontWeight: "700", flexShrink: 1 }}>{toastMotion.shown}</Text>
             {toastAction && (
               <Pressable
                 accessibilityRole="button"
@@ -455,7 +461,7 @@ export default function Shell({ children }: { children: React.ReactNode }) {
               </Pressable>
             )}
           </View>
-        </View>
+        </Animated.View>
       )}
     </SafeAreaView>
   );
