@@ -21,7 +21,7 @@ export function parseBackup(content: string): AppState {
 
 // The home reminder to keep a copy (docs/01 8.27): ten entries and never backed up, or a month since the
 // last backup with new entries after it. "Later" rests it for two weeks. Example data never asks.
-export const BACKUP_FIRST_AFTER = 10;
+const BACKUP_FIRST_AFTER = 10;
 const DAY = 86400000;
 export function backupDue(state: AppState, now = new Date()): boolean {
   if (!state.pet || state.demo) return false;

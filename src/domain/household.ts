@@ -5,7 +5,7 @@ import { AppState, LifeEvent, Pet, PetBundle, SoundMemory } from "./types";
 // switching swaps the two. A new pet is set up through onboarding, then takes the current spot.
 export const MAX_PETS = 10;
 
-export const bundleOf = (state: AppState): PetBundle | null =>
+const bundleOf = (state: AppState): PetBundle | null =>
   state.pet
     ? {
         pet: state.pet,

@@ -1,4 +1,3 @@
-import { storyColors } from "../components/StoryStylePicker";
 import { t } from "../i18n";
 import { useState } from "react";
 import { Image, Pressable, Text, View } from "react-native";
@@ -20,6 +19,7 @@ import {
   colors,
   display,
   shadow,
+  storyColors,
   styles,
 } from "../components/ui";
 import { ownerName } from "../domain/story-engine";

@@ -14,10 +14,10 @@ export const BOND_LABELS: Record<BondLevel, string> = {
 };
 /** Where a pair starts when its level is set. */
 export const ANCHOR: Record<BondLevel, number> = { foe: -60, stranger: -15, normal: 10, friend: 50, bestie: 85 };
-export const TONE_DELTA: Record<Tone, number> = { good: 10, neutral: 3, bad: -12 };
+const TONE_DELTA: Record<Tone, number> = { good: 10, neutral: 3, bad: -12 };
 export const TONE_LABELS: Record<Tone, string> = { good: "开心", neutral: "平常", bad: "闹矛盾" };
 /** The most the 爪友圈 alone can add to a pet and a resident. */
-export const CIRCLE_CAP = 30;
+const CIRCLE_CAP = 30;
 export const MAX_BONDS = 200;
 
 export function levelOf(score: number): BondLevel {
@@ -29,7 +29,7 @@ export function levelOf(score: number): BondLevel {
 }
 const clamp = (n: number) => Math.max(-100, Math.min(100, n));
 
-export const npcId = (r: Resident) => `npc:${r.id}`;
+const npcId = (r: Resident) => `npc:${r.id}`;
 const residentOf = (id: string) => (id.startsWith("npc:") ? RESIDENTS.find((r) => `npc:${r.id}` === id) : undefined);
 /** Pairs are stored and compared with the smaller id first. */
 export const pairKey = (a: string, b: string) => (a < b ? `${a}|${b}` : `${b}|${a}`);
@@ -67,7 +67,7 @@ export function guessTone(description: string): Tone {
 }
 
 /** Who took part in a record: the pet who recorded it and the pets it was with. */
-export const participants = (e: LifeEvent) => [e.petSnapshot.id, ...(e.together?.pets ?? [])];
+const participants = (e: LifeEvent) => [e.petSnapshot.id, ...(e.together?.pets ?? [])];
 
 export interface BondNode {
   id: string;
@@ -91,12 +91,12 @@ export interface BondLink {
   /** What the 爪友圈 added, capped. */
   circle: number;
 }
-export interface BondNetwork {
+interface BondNetwork {
   nodes: BondNode[];
   links: BondLink[];
 }
 
-export function defaultLevel(a: BondNode, b: BondNode): BondLevel {
+function defaultLevel(a: BondNode, b: BondNode): BondLevel {
   if (a.kind === "pet" && b.kind === "pet") return "normal";
   const pet = (a.pet ?? b.pet)!, r = (a.resident ?? b.resident)!;
   if (!pet) return "normal";
@@ -104,7 +104,7 @@ export function defaultLevel(a: BondNode, b: BondNode): BondLevel {
 }
 
 /** How much each pet's 爪友圈 brought it closer to each resident: likes +1, comments +2, both ways. */
-export function circleWarmth(state: AppState, now: Date): Map<string, number> {
+function circleWarmth(state: AppState, now: Date): Map<string, number> {
   const warmth = new Map<string, number>();
   const add = (pet: string, resident: string, n: number) => {
     const key = pairKey(pet, `npc:${resident}`);

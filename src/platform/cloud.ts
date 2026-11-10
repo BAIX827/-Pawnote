@@ -12,7 +12,7 @@ export const cloudAvailable = !!API;
 
 /** This device's link to its cloud copy. Kept apart from the diary so a JSON backup never carries the code. */
 export interface CloudAccount { code: string; lastAt?: string; events?: number; bytes?: number }
-export interface CloudMeta { savedAt: string; pet: string; events: number; bytes: number }
+interface CloudMeta { savedAt: string; pet: string; events: number; bytes: number }
 
 export async function loadAccount(): Promise<CloudAccount | null> {
   try {

@@ -4,9 +4,9 @@ import { Temper, temperOf, withSelf } from "./temper";
 
 // 爪窝's opening line before there is an entry to quote: one per part of the day, in the pet's own
 // temper (docs/01 8.25), so a lively dog never greets you like an aloof cat.
-export type DaySlot = "night" | "morning" | "noon" | "afternoon" | "evening";
+type DaySlot = "night" | "morning" | "noon" | "afternoon" | "evening";
 
-export const slotOf = (hour: number): DaySlot =>
+const slotOf = (hour: number): DaySlot =>
   hour < 6 ? "night" : hour < 11 ? "morning" : hour < 14 ? "noon" : hour < 18 ? "afternoon" : "evening";
 
 type Text = { zh: string; en: string };

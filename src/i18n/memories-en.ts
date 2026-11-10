@@ -48,7 +48,6 @@ export const memoriesEn: Record<string, string> = {
   "生日请按 2024-03-15 这样填写，且不晚于今天。": "Enter the birthday as YYYY-MM-DD, on or before today.",
   "宠物生日": "Pet's birthday",
   "照片读取失败，请重新打开。": "The photo couldn't load. Please reopen this page.",
-  "导出失败，请重试。": "Export failed. Please try again.",
   "纪念册标题请填写 1–60 个字。": "Enter a keepsake title of 1–60 characters.",
   "选至少一篇日记或一段声音，再制作纪念册。": "Select at least one entry or sound for your keepsake.",
   "日记": "Entry",

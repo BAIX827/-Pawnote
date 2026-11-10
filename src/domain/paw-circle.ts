@@ -399,17 +399,17 @@ export const AFFINITY: Record<Temper, Temper[]> = {
   shy: ["shy", "clingy"],
 };
 
-export const MAX_POSTS_PER_DAY = 2;
+const MAX_POSTS_PER_DAY = 2;
 export const MAX_LIKES_PER_DAY = 10;
 export const MAX_COMMENTS_PER_DAY = 3;
 /** The pet heads out to browse at these local hours. */
 export const BROWSE_HOURS = [10, 19];
 /** Residents' posts older than this drop out of the circle. */
-export const FEED_DAYS = 14;
+const FEED_DAYS = 14;
 const MINUTE = 60_000;
 
 /** FNV-1a: a small stable hash so every choice below is the same each time it's worked out. */
-export function hash(s: string): number {
+function hash(s: string): number {
   let h = 0x811c9dc5;
   for (let i = 0; i < s.length; i++) {
     h ^= s.charCodeAt(i);
@@ -448,11 +448,11 @@ export interface CirclePost {
   likes: { who: Actor; at: Date }[];
   comments: CircleComment[];
 }
-export interface BrowseLog {
+interface BrowseLog {
   liked: string[];
   commented: string[];
 }
-export interface Circle {
+interface Circle {
   posts: CirclePost[];
   /** What the pet did on its rounds today. */
   today: BrowseLog;
@@ -481,7 +481,7 @@ export const petIsGone = (state: AppState) => {
 };
 
 /** Posts the pet has already left at home today. */
-export const postsToday = (state: AppState, now = new Date()) =>
+const postsToday = (state: AppState, now = new Date()) =>
   state.events.filter((e) => e.published && dayKey(eventDate(e)) === dayKey(now)).length;
 
 /**

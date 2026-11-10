@@ -5,7 +5,7 @@ import { useStore } from "../data/store";
 import { newMail } from "../domain/paw-mail";
 import { Chip, colors } from "./ui";
 
-export type BookTab = "diary" | "photos" | "sounds" | "mail" | "memories";
+type BookTab = "diary" | "photos" | "sounds" | "mail" | "memories";
 
 /**
  * The row along the top of 爪册 and the pages that belong to it (docs/01 8.37). Switching replaces the

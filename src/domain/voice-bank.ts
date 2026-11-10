@@ -5,7 +5,7 @@ import type { Temper } from "./temper";
 // silly beat, the way the funny pet accounts on 小红书 and Instagram talk. Lines stay about the kind of
 // event only, so nothing the owner didn't write turns into something that happened. {self} is what the
 // pet calls itself (咪 / 汪 / its name), {owner} what it calls its owner.
-export interface VoiceSet {
+interface VoiceSet {
   /** The pet's reaction to this kind of event: five each, so daily entries walk through them. */
   line: Record<Category, string[]>;
   /** A short post to friends: four each. */
@@ -14,7 +14,7 @@ export interface VoiceSet {
   /** This temper's silly beat, also lent to pets that list it as a second personality. */
   silly: string[];
 }
-export type VoiceBank = Record<Temper, VoiceSet>;
+type VoiceBank = Record<Temper, VoiceSet>;
 
 export const zh: VoiceBank = {
   cool: {

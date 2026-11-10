@@ -4,7 +4,7 @@ import { dayDate, eventDay, newestEvents } from "./dates";
 import { escapeXML } from "./news-card";
 import { soundTime, SOUND_STAGE_LABELS, validSoundAudio } from "./sounds";
 
-export interface Keepsake { title: string; pet: Pet; events: LifeEvent[]; sounds: SoundMemory[]; years: string; days: number }
+interface Keepsake { title: string; pet: Pet; events: LifeEvent[]; sounds: SoundMemory[]; years: string; days: number }
 export const keepsakeYears = (state: AppState) => [...new Set([
   ...state.events.map((e) => eventDay(e).slice(0, 4)), ...(state.sounds ?? []).map((s) => s.recordedOn.slice(0, 4)),
 ])].sort().reverse();

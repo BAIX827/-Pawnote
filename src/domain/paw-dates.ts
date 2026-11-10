@@ -170,7 +170,7 @@ export const ACTIVITIES = {
     diary: { zh: "今天陪{name}玩了一会儿。", en: "Played with {name} today." },
   },
 } satisfies Record<string, Activity>;
-export type ActivityKey = keyof typeof ACTIVITIES;
+type ActivityKey = keyof typeof ACTIVITIES;
 export const isActivity = (key: string): key is ActivityKey => Object.hasOwn(ACTIVITIES, key);
 
 /** What each species tends to ask for, in the order the 爪约 page offers them. */
@@ -303,7 +303,7 @@ export interface RoutineInput {
   days?: number[];
 }
 /** Checks a new or edited routine and returns its clean form, or throws a message for the owner. */
-export function cleanRoutine(input: RoutineInput): Pick<Routine, "activity" | "label" | "time" | "days"> {
+function cleanRoutine(input: RoutineInput): Pick<Routine, "activity" | "label" | "time" | "days"> {
   const custom = input.activity === "custom";
   if (!custom && !isActivity(input.activity)) throw new Error(t("没有这件事。"));
   const label = input.label?.trim();

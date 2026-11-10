@@ -7,7 +7,7 @@ const STYLES = ["diary", "life", "social", "news"];
 const SPECIES = { cat: "猫", dog: "狗", rabbit: "兔子", lizard: "蜥蜴", hamster: "仓鼠", guineaPig: "豚鼠", bird: "鸟", turtle: "龟", snake: "蛇", fish: "鱼" };
 
 // Usage is keyed by device and ISO week, so the free allowance resets every Monday (UTC).
-export function week(now = new Date()) {
+function week(now = new Date()) {
   const d = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()));
   const day = d.getUTCDay() || 7;
   const monday = new Date(d.getTime() - (day - 1) * 86400000);

@@ -55,7 +55,7 @@ export const restoreEvent = (state: AppState, event: LifeEvent): AppState =>
     ? state
     : { ...state, events: newestEvents([event, ...state.events]) };
 // One title per level, the same for every pet now that school and work are gone (docs/01 8.42).
-export const TITLES = ["爪爪镇新居民", "记录小能手", "日常观察员", "资深居民", "爪爪镇传说"] as const;
+const TITLES = ["爪爪镇新居民", "记录小能手", "日常观察员", "资深居民", "爪爪镇传说"] as const;
 export const titleFor = (level: number) => t(TITLES[Math.min(Math.max(level, 1), 5) - 1]);
 
 /** Every entry shows the pet's own voice; older entries that picked another voice switch over (docs/01 8.42). */

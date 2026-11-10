@@ -85,7 +85,7 @@ export function questionnaireTraits(answers: number[]): string[] {
 }
 
 // Several personality tags join like the questionnaire's result (docs/01 8.34).
-export const PERSONALITY_SEP = " · ";
+const PERSONALITY_SEP = " · ";
 export const MAX_PERSONALITY_TAGS = 4;
 export const personalityParts = (text: string) =>
   text.split(/\s*·\s*/).map((p) => p.trim()).filter(Boolean);

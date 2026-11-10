@@ -41,7 +41,6 @@ export const soundsEn: Record<string, string> = {
   "听听这一声": "Listen to this sound",
   "播放声音": "Play sound",
   "暂停": "Pause",
-  "收起": "Close player",
   "{name}的这一声": "A little sound from {name}",
   "这一声，已经留在声音相册里了。": "This little sound is saved in your voice album.",
   "声音片段已删除。": "Sound clip deleted.",

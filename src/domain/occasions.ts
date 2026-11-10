@@ -7,7 +7,7 @@ import { isSensitive, selfOf, temperOf } from "./temper";
 import { remindersPaused } from "./paw-dates";
 
 export type OccasionKind = "birthday" | "home";
-export interface Occasion { kind: OccasionKind; day: string; years: number; inDays: number; birthdaySource?: "birth" | "home" }
+interface Occasion { kind: OccasionKind; day: string; years: number; inDays: number; birthdaySource?: "birth" | "home" }
 // Celebrating on the home day is opt-in: an unknown birthday stays unknown (docs/01 8.26).
 export function birthdayDate(pet: Pet, preferences?: Preferences) {
   return pet.birthDate ?? (preferences?.homeAsBirthday === true ? pet.homeDate : undefined);
@@ -28,7 +28,7 @@ export function nextOccasions(pet: Pet, now = new Date(), preferences?: Preferen
     return occasion ? [{ ...occasion, inDays: dayDistance(localDay(now), occasion.day) }] : [];
   }).sort((a, b) => a.day.localeCompare(b.day));
 }
-export interface OccasionLetter {
+interface OccasionLetter {
   title: string; subtitle: string; greeting: string; paragraphs: string[]; closing: string;
   photo?: string; quiet: boolean; memorial: boolean;
 }

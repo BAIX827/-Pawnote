@@ -1,4 +1,3 @@
-import { storyColors } from "../components/StoryStylePicker";
 import { t } from "../i18n";
 import { useEffect, useRef, useState } from "react";
 import { Image, Platform, Pressable, Text, View } from "react-native";
@@ -43,6 +42,7 @@ import {
   Wobble,
   colors,
   display,
+  storyColors,
   styles,
 } from "../components/ui";
 import DateField from "../components/DateField";

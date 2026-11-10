@@ -33,7 +33,7 @@ export const shiftMonth = (month: string, delta: number) => {
   const date = dayDate(`${month}-01`);
   return localDay(new Date(date.getFullYear(), date.getMonth() + delta, 1)).slice(0, 7);
 };
-export type PastMemory = { kind: "event"; event: LifeEvent; years: number; day: string } |
+type PastMemory = { kind: "event"; event: LifeEvent; years: number; day: string } |
   { kind: "sound"; sound: SoundMemory; years: number; day: string };
 export function onThisDay(events: LifeEvent[], sounds: SoundMemory[] = [], now = new Date()): PastMemory[] {
   const today = localDay(now), thisYear = now.getFullYear();

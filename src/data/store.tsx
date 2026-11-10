@@ -26,7 +26,7 @@ type Store = {
   restore: (backup: AppState) => Promise<void>;
   restoring: boolean;
 };
-export type ToastAction = { label: string; run: () => void };
+type ToastAction = { label: string; run: () => void };
 const Context = createContext<Store | null>(null);
 export function StoreProvider({ children }: { children: React.ReactNode }) {
   const [state, update] = useState<AppState>(emptyState);

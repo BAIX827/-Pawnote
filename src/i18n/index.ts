@@ -2,7 +2,6 @@ import { useSyncExternalStore } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Lang, applyLang, getLang, subscribe } from "./core";
 export { getLang, locale, t, tList } from "./core";
-export type { Lang } from "./core";
 
 const KEY = "pawlife.lang";
 

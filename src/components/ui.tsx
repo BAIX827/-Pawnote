@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
 import {
-  AccessibilityInfo,
   Animated,
   Easing,
   Image,
@@ -16,10 +15,10 @@ import {
 } from "react-native";
 import type Feather from "@expo/vector-icons/Feather";
 import Icon from "./Icon";
-import { Pet } from "../domain/types";
+import { Pet, StoryStyle } from "../domain/types";
 import { speciesEmoji } from "../domain/pet-profile";
 import { t } from "../i18n";
-import { Tap } from "./Motion";
+import { Tap, useReducedMotion } from "./Motion";
 import { buzz } from "../platform/haptics";
 export { default as Icon } from "./Icon";
 // The blended look (docs/12, docs/01 8.30): orange pop's ink outlines, hard shadows and tape, with
@@ -555,12 +554,7 @@ export function Ticker({
 }) {
   const [x] = useState(() => new Animated.Value(0));
   const [width, setWidth] = useState(0);
-  const [still, setStill] = useState(false);
-  useEffect(() => {
-    AccessibilityInfo.isReduceMotionEnabled().then(setStill).catch(() => {});
-    const sub = AccessibilityInfo.addEventListener("reduceMotionChanged", setStill);
-    return () => sub.remove();
-  }, []);
+  const still = useReducedMotion();
   useEffect(() => {
     if (!width || still) {
       x.setValue(0);
@@ -599,9 +593,16 @@ export function Ticker({
     </View>
   );
 }
+// Bubble colour for each piece the pet writes; only the diary shows now (docs/01 8.42, 8.47).
+export const storyColors: Record<StoryStyle, string> = {
+  diary: colors.yellow,
+  life: colors.green,
+  social: colors.pink,
+  news: colors.sky,
+};
 export const demoPhoto = require("../../assets/demo-cat.jpg");
 /** Only the demo's own cat wears the demo photo; pets added later keep their own look. */
-export const DEMO_PET = "demo-pet";
+const DEMO_PET = "demo-pet";
 export function Avatar({
   pet,
   size = 48,

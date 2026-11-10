@@ -31,7 +31,7 @@ export function firsts(events: LifeEvent[]): { kind: Category | "entry" | "photo
   return out;
 }
 
-export interface Milestones {
+interface Milestones {
   /** Day count since the first entry, counting that day as day 1. */
   recordingDay?: number;
   /** Day count since the pet came home, counting that day as day 1. */

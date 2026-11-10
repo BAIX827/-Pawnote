@@ -16,7 +16,7 @@ import {
 import { Button, Icon, colors, styles } from "./ui";
 
 /** The cloud link on this device, kept current when settings or the background upload change it. */
-export function useCloudAccount() {
+function useCloudAccount() {
   const [account, setAccount] = useState<CloudAccount | null>(null);
   useEffect(() => {
     let alive = true;
