@@ -7,7 +7,7 @@ import { Text, TextInput, View, useWindowDimensions } from "react-native";
 import { router } from "expo-router";
 import { useStore } from "../data/store";
 import { demoState } from "../data/demo";
-import { progress, savePet, titleFor } from "../domain/life";
+import { savePet } from "../domain/life";
 import {
   PERSONALITIES,
   SPECIES,
@@ -19,27 +19,27 @@ import {
   id,
   roleFor,
 } from "../domain/types";
-import { MAX_PERSONALITY_TAGS, SPECIES_INFO, ageFromBirthday, parseAge, personalityParts, recommendRoute, togglePersonality } from "../domain/pet-profile";
+import { MAX_PERSONALITY_TAGS, SPECIES_INFO, ageFromBirthday, parseAge, personalityParts, recommendRoute, speciesLabel, togglePersonality } from "../domain/pet-profile";
 import { defaultOwnerName, ownerName } from "../domain/story-engine";
 import { withStarterRoutines } from "../domain/paw-dates";
 import { isHomeDate } from "../domain/timeline";
 import { MAX_PETS, addPet, homePets } from "../domain/household";
 import { choosePhoto } from "../platform/photo";
 import {
-  Avatar,
   Button,
   Card,
   Chip,
   Field,
   Fold,
   Label,
-  Tag,
   colors,
   Portrait,
   Heading,
   styles,
 } from "../components/ui";
-export default function Onboarding({ editing = false, adding = false }: { editing?: boolean; adding?: boolean }) {
+export default function Onboarding({ editing = false, adding = false, relaySetup = false }: {
+  editing?: boolean; adding?: boolean; relaySetup?: boolean;
+}) {
   const { state, update, notify } = useStore();
   const { width } = useWindowDimensions();
   const wide = width >= 1050;
@@ -126,8 +126,6 @@ export default function Onboarding({ editing = false, adding = false }: { editin
     // Kept on edit; a new pet records when it moved in, so the 爪友圈 starts from then (docs/01 8.26).
     ...(original ? (original.joinedAt ? { joinedAt: original.joinedAt } : {}) : { joinedAt: new Date().toISOString() }),
   };
-  // The pass shows the main identity, the level title, not the job (docs/01 8.25).
-  const level = editing ? progress(state.events).level : 1;
   async function pick() {
     setBusy(true);
     try {
@@ -188,27 +186,15 @@ export default function Onboarding({ editing = false, adding = false }: { editin
     notify(
       editing
         ? t("人设已更新，历史故事保留原来的身份。")
-        : t("居民身份已领取，第二人生开始啦。"),
+        : `${pet.name}’s profile is ready.`,
     );
-    router.replace("/");
+    router.replace(relaySetup && !editing ? "/record" : "/");
   }
   return (
     <View style={{ gap: 30 }}>
       <Heading
-        title={editing ? t("编辑居民档案") : adding && state.pet ? t("添加宠物") : t("欢迎搬进爪爪镇")}
+        title={editing ? "Edit pet profile" : "Add your pet"}
       />
-      {!editing && !state.pet && (
-        <Button
-          label={t("先逛逛橘总的生活")}
-          icon="arrow-right"
-          tone="soft"
-          style={{ alignSelf: "flex-start", marginTop: -14 }}
-          onPress={() => {
-            update(demoState());
-            router.replace("/");
-          }}
-        />
-      )}
       <View
         style={{
           flexDirection: wide ? "row" : "column",
@@ -228,9 +214,6 @@ export default function Onboarding({ editing = false, adding = false }: { editin
               gap: 20,
             }}
           >
-            <Text style={{ letterSpacing: 2, fontSize: 11, color: colors.ink }}>
-              {t("爪爪镇 · 居民证 · 预览")}
-            </Text>
             <View
               style={{
                 flexDirection: wide ? "column" : "row",
@@ -250,22 +233,12 @@ export default function Onboarding({ editing = false, adding = false }: { editin
                   {preview.name}
                 </Text>
                 <Text style={styles.small}>{tList(preview.personality)}</Text>
-                <Tag bg={colors.paper}>
-                  {titleFor(level)} · Lv.{level}
-                </Tag>
+                <Text style={styles.small}>{speciesLabel(preview)}</Text>
               </View>
             </View>
           </View>
         </View>
         <Card style={{ flex: wide ? 1 : undefined, gap: 21 }}>
-          <View style={styles.between}>
-            <View>
-              <Text style={styles.h2}>
-                {editing ? t("编辑宠物档案") : t("办理小镇居民证")}
-              </Text>
-            </View>
-            <Avatar pet={preview} demo={editing && state.demo} size={54} />
-          </View>
           <View>
             <Label>{t("01 / 名字")}</Label>
             <Field
@@ -449,18 +422,18 @@ export default function Onboarding({ editing = false, adding = false }: { editin
             )}
           </View>
           <Button
-            label={editing ? t("保存档案") : adding && state.pet ? t("添加到我家") : t("领取居民证")}
+            label={relaySetup ? "Save pet and write diary" : "Save pet profile"}
             icon="arrow-right"
             disabled={busy}
             onPress={create}
           />
-          {!editing && !state.pet && (
+          {!editing && !state.pet && !state.relay && !relaySetup && (
             <Button
               label={t("体验橘总的生活")}
               tone="plain"
               onPress={() => {
                 update(demoState());
-                router.replace("/");
+                router.replace("/today");
               }}
             />
           )}

@@ -1,10 +1,14 @@
 # 爪记 App 图标
 
-## 当前版本：中英文字形图标（2026-11-07）
+## 英语首测（2026-11-17）
+
+App 图标、Web favicon 和品牌栏采用已有的英文「Paw Note」字形版 `assets/pawnote-icon-en.png`。手机桌面图标随下一次原生构建与安装更新。
+
+## 中英文字形图标（2026-11-07）
 
 用户确认采用带爪垫、铅笔与白色毛尖的圆润字形。默认中文版「爪记」使用主橘 #FF7A1A、米黄 #FFF3DF、白色毛尖、黄油黄 #FFD84D 铅笔和少量墨黑细节；英文版排作「Paw Note」。两版保留已确认示意图的质感和底板。
 
-- 当前安装图标：`assets/pawnote-icon-final.png`，1024 × 1024 不透明 PNG。
+- 当时的安装图标：`assets/pawnote-icon-final.png`，1024 × 1024 不透明 PNG。
 - 英文独立文件：[`pawnote-icon-en-2026-11-07.png`](reference/图标历史/pawnote-icon-en-2026-11-07.png)，1024 × 1024 不透明 PNG。
 - App、Web favicon、页面 BrandMark 与 Mac 打包共用默认中文资产，沿用现有配置路径。英文图标作为设计资产归档，设置页切换语言继续使用默认安装图标。
 - 原始预览、生成提示词与处理方式见 [中英文字形图标生成记录](reference/中英文字形图标提示词-2026-11-07.md)。前一版橘色爪印保存在 [`pawnote-icon-orange-paw-2026-10-26.png`](reference/图标历史/pawnote-icon-orange-paw-2026-10-26.png)。

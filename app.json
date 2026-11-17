@@ -1,18 +1,17 @@
 {
   "expo": {
-    "name": "爪记",
+    "name": "Paw Note",
     "slug": "paw-life",
     "version": "0.1.0",
     "orientation": "portrait",
-    "icon": "./assets/pawnote-icon-final.png",
+    "icon": "./assets/pawnote-icon-en.png",
     "userInterfaceStyle": "light",
     "ios": {
       "supportsTablet": false,
       "bundleIdentifier": "com.baricy.pawlife.dev",
       "infoPlist": {
-        "CFBundleDevelopmentRegion": "zh_CN",
+        "CFBundleDevelopmentRegion": "en",
         "CFBundleLocalizations": [
-          "zh-Hans",
           "en"
         ]
       }
@@ -23,8 +22,8 @@
     "web": {
       "bundler": "metro",
       "output": "single",
-      "name": "爪记",
-      "favicon": "./assets/pawnote-icon-final.png"
+      "name": "Paw Note",
+      "favicon": "./assets/pawnote-icon-en.png"
     },
     "scheme": "pawlife",
     "plugins": [
@@ -32,8 +31,8 @@
       [
         "expo-image-picker",
         {
-          "photosPermission": "选择宠物照片作为头像和日常记录。",
-          "cameraPermission": "拍摄宠物日常照片。",
+          "photosPermission": "Choose photos for your pet’s profile and diary.",
+          "cameraPermission": "Take photos for your pet’s diary.",
           "microphonePermission": false
         }
       ],
@@ -52,7 +51,7 @@
       [
         "expo-audio",
         {
-          "microphonePermission": "录下宠物的叫声，留住成长中的声音。",
+          "microphonePermission": "Record sounds your pet makes for your diary.",
           "enableBackgroundRecording": false,
           "enableBackgroundPlayback": false
         }

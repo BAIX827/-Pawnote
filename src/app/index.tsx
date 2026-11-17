@@ -1,9 +1,9 @@
 import Shell from "../components/Shell";
-import Home from "../screens/Home";
+import MomentRelay from "../screens/MomentRelay";
 export default function Screen() {
   return (
     <Shell>
-      <Home />
+      <MomentRelay />
     </Shell>
   );
 }

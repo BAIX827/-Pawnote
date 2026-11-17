@@ -25,7 +25,7 @@ import { othersCalling } from "../domain/paw-dates";
 import { newMail } from "../domain/paw-mail";
 // Today / memories / friends / mine; a page inside one keeps its tab lit (docs/01 8.37).
 const nav = [
-  { route: "/", label: "爪窝", icon: "home" as const, also: [] as string[] },
+  { route: "/", label: "Relay", icon: "repeat" as const, also: ["/today"] },
   { route: "/profile", label: "爪册", icon: "book-open" as const, also: ["/sounds", "/mail", "/timemachine", "/anniversaries", "/keepsake"] },
   { route: "/circle", label: "爪友圈", icon: "message-circle" as const, also: ["/bonds"] },
   { route: "/me", label: "我的", icon: "user" as const, also: ["/life", "/dates", "/pawsona", "/settings"] },
@@ -137,7 +137,7 @@ export default function Shell({ children }: { children: React.ReactNode }) {
                 <Text
                   style={[styles.small, { letterSpacing: 2, color: "#A2B09D" }]}
                 >
-                  PAWNOTE
+                  PET RELAY
                 </Text>
               </View>
             </View>
@@ -149,22 +149,6 @@ export default function Shell({ children }: { children: React.ReactNode }) {
                 onPress={() => router.push("/record")}
               />
             )}
-            <View style={{ flex: 1 }} />
-            <View
-              style={{
-                borderTopWidth: 1,
-                borderColor: "#4B554E",
-                paddingTop: 20,
-                gap: 8,
-              }}
-            >
-              <Icon name="map-pin" color={colors.yellow} />
-              <Text
-                style={{ color: colors.paper, fontSize: 15, fontWeight: "700" }}
-              >
-                {t("爪爪镇")}
-              </Text>
-            </View>
           </View>
         )}
         <View style={{ flex: 1 }}>
@@ -182,7 +166,7 @@ export default function Shell({ children }: { children: React.ReactNode }) {
           >
             {wide ? (
               <Text style={[styles.caps, { color: colors.muted }]}>
-                {t("PAWNOTE / 爪爪镇日报")}
+                Paw Note
               </Text>
             ) : (
               <View style={[styles.row, { gap: 8 }]}>
@@ -231,9 +215,11 @@ export default function Shell({ children }: { children: React.ReactNode }) {
                 </View>
                 {pets.length > 1 && <Icon name={switcher ? "chevron-up" : "chevron-down"} size={16} color={colors.ink} />}
               </Pressable>
-            ) : (
-              <Text style={styles.small}>{t("居民登记处")}</Text>
-            )}
+            ) : path !== "/" ? (
+              <Pressable accessibilityRole="button" onPress={() => router.push("/onboarding")}>
+                <Text style={styles.small}>Add a pet</Text>
+              </Pressable>
+            ) : null}
             </View>
           </View>
           {switcher && state.pet && (

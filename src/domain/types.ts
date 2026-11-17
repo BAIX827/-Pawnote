@@ -1,5 +1,6 @@
 import { locale } from "../i18n/core";
 import type { Temper } from "./temper";
+import type { MomentRelay } from "./moment-relay";
 export const CATEGORIES = [
   "sleep",
   "snack",
@@ -139,6 +140,7 @@ export interface AppState {
   events: LifeEvent[];
   draft: Draft | null;
   demo: boolean;
+  relay?: MomentRelay;
   preferences?: Preferences;
   /** Optional so backups made before 爪约 still load. */
   routines?: Routine[];

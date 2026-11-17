@@ -1,5 +1,5 @@
 import { useEffect, useMemo } from "react";
-import { router } from "expo-router";
+import { router, type Href } from "expo-router";
 import { useStore } from "../data/store";
 import { allReminders } from "../domain/paw-mail";
 import { useLang } from "../i18n";
@@ -21,6 +21,6 @@ export default function ReminderSync() {
     const timer = setTimeout(() => void syncReminders(JSON.parse(plan)).catch(() => {}), 800);
     return () => clearTimeout(timer);
   }, [plan]);
-  useEffect(() => onReminderOpened((url) => router.navigate(url as "/")), []);
+  useEffect(() => onReminderOpened((url) => router.navigate((url === "/" ? "/today" : url) as Href)), []);
   return null;
 }

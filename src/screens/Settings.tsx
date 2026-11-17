@@ -1,4 +1,4 @@
-import { setLang, t, useLang } from "../i18n";
+import { t } from "../i18n";
 import { useState } from "react";
 import { Text, View } from "react-native";
 import { router } from "expo-router";
@@ -23,7 +23,6 @@ export default function Settings() {
   const preference = (key: keyof Preferences, value: boolean) =>
     update((s) => ({ ...s, preferences: { ...s.preferences, [key]: value } }));
   const [confirm, setConfirm] = useState(false);
-  const lang = useLang();
   return (
     <View style={[styles.stack, { maxWidth: 760, width: "100%", alignSelf: "center" }]}>
       <Heading
@@ -31,18 +30,6 @@ export default function Settings() {
         accent={colors.green}
         action={<Button label={t("返回")} tone="plain" onPress={() => router.canGoBack() ? router.back() : router.replace("/me")} />}
       />
-      <Card style={{ gap: 14 }}>
-        <View style={[styles.between, { flexWrap: "wrap" }]}>
-        <View style={styles.row}>
-          <Icon name="globe" color={colors.muted} />
-          <Text style={styles.h2}>{t("界面语言")}</Text>
-        </View>
-        <View style={[styles.row, { gap: 8 }]}>
-          <Chip label="中文" active={lang === "zh"} onPress={() => setLang("zh")} />
-          <Chip label="English" active={lang === "en"} onPress={() => setLang("en")} />
-        </View>
-        </View>
-      </Card>
       <Card style={{ gap: 18 }}>
         <Text style={styles.h2}>{t("按你的习惯")}</Text>
         {([

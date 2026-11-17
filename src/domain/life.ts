@@ -17,7 +17,7 @@ export const newestFirst = (events: LifeEvent[]) =>
 export function savePet(state: AppState, pet: Pet): AppState {
   return state.pet?.id === pet.id
     ? { ...state, pet, draft: null }
-    : { ...emptyState(), ...(state.preferences && { preferences: state.preferences }), pet };
+    : { ...emptyState(), ...(state.preferences && { preferences: state.preferences }), ...(state.relay && { relay: state.relay }), pet };
 }
 export function saveEvent(state: AppState, event: LifeEvent): AppState {
   if (!state.pet || event.petSnapshot.id !== state.pet.id)

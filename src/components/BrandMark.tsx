@@ -1,7 +1,7 @@
 import { Image } from "react-native";
 
 // Use the same artwork as app.json's icon and web favicon.
-const appIcon = require("../../assets/pawnote-icon-final.png");
+const appIcon = require("../../assets/pawnote-icon-en.png");
 
 export default function BrandMark({ size = 44 }: { size?: number }) {
   return (

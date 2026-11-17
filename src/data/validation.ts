@@ -7,6 +7,7 @@ import { isHomeDate } from "../domain/timeline";
 import { MAX_LABEL, MAX_ROUTINES, isActivity, isTime } from "../domain/paw-dates";
 import { PAWSONA_QUESTIONS, TEMPERS } from "../domain/pawsona";
 import { QUESTIONS } from "../domain/pet-profile";
+import { readRelay } from "../domain/moment-relay";
 const obj = (v: unknown): v is Record<string, unknown> =>
   !!v && typeof v === "object" && !Array.isArray(v);
 const str = (v: unknown, max: number): v is string =>
@@ -152,6 +153,7 @@ const bond = (v: unknown) => obj(v) && str(v.a, 100) && str(v.b, 100) && (v.a as
   one(v.level, BOND_LEVELS) && !((v.a as string).startsWith("npc:") && (v.b as string).startsWith("npc:"));
 export function isAppState(v: unknown): v is AppState {
   if (!obj(v) || v.schemaVersion !== 1 || typeof v.demo !== "boolean") return false;
+  if (v.relay !== undefined && !readRelay(v.relay)) return false;
   if (v.pet === null) {
     if (!Array.isArray(v.events) || v.events.length > 0) return false;
     if (v.sounds !== undefined && !(Array.isArray(v.sounds) && v.sounds.length === 0)) return false;
