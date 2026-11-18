@@ -37,8 +37,8 @@ import {
   Heading,
   styles,
 } from "../components/ui";
-export default function Onboarding({ editing = false, adding = false, relaySetup = false }: {
-  editing?: boolean; adding?: boolean; relaySetup?: boolean;
+export default function Onboarding({ editing = false, adding = false, writeAfterSetup = false }: {
+  editing?: boolean; adding?: boolean; writeAfterSetup?: boolean;
 }) {
   const { state, update, notify } = useStore();
   const { width } = useWindowDimensions();
@@ -188,7 +188,7 @@ export default function Onboarding({ editing = false, adding = false, relaySetup
         ? t("人设已更新，历史故事保留原来的身份。")
         : `${pet.name}’s profile is ready.`,
     );
-    router.replace(relaySetup && !editing ? "/record" : "/");
+    router.replace(writeAfterSetup && !editing ? "/record" : "/");
   }
   return (
     <View style={{ gap: 30 }}>
@@ -422,12 +422,12 @@ export default function Onboarding({ editing = false, adding = false, relaySetup
             )}
           </View>
           <Button
-            label={relaySetup ? "Save pet and write diary" : "Save pet profile"}
+            label={writeAfterSetup ? "Save pet and write diary" : "Save pet profile"}
             icon="arrow-right"
             disabled={busy}
             onPress={create}
           />
-          {!editing && !state.pet && !state.relay && !relaySetup && (
+          {!editing && !state.pet && !state.relay && !writeAfterSetup && (
             <Button
               label={t("体验橘总的生活")}
               tone="plain"

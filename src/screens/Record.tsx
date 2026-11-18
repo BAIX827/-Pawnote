@@ -475,7 +475,7 @@ function Recorder({ original, initialDate }: { original?: LifeEvent; initialDate
 
         <Pressable
           accessibilityRole="checkbox"
-          accessibilityLabel={t("让{name}发到爪友圈", { name: pet.name })}
+          accessibilityLabel="Include in on-device Pawtown"
           accessibilityState={{ checked: posting, disabled: !!block }}
           aria-checked={posting}
           disabled={!!block}
@@ -498,7 +498,7 @@ function Recorder({ original, initialDate }: { original?: LifeEvent; initialDate
           </View>
           <View style={{ flex: 1 }}>
             <Text style={[styles.body, { fontWeight: "700" }]}>
-              {t("让{name}发到爪友圈", { name: pet.name })}
+              Include in on-device Pawtown
             </Text>
             {block && <Text style={styles.small}>
               {block === "sensitive"

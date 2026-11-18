@@ -202,7 +202,7 @@ export const newDraft = (): Draft => ({
   description: "",
   category: "other",
   selectedStyle: "diary",
-  published: true,
+  published: false,
 });
 // The pet's job at work, by species (docs/01 8.24); school pets all start in the sleep-research class.
 const JOBS: Record<Species, string> = {

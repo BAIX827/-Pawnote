@@ -132,8 +132,10 @@ export default function Event() {
         <View style={[styles.row, { flexWrap: "wrap" }]}>
           <Button label={t("编辑日记")} icon="edit-2" tone="soft"
             onPress={() => router.push({ pathname: "/record", params: { id: event.id } })} />
-          {!state.demo && <Button label="Add to Pet Relay" icon="repeat" tone="soft"
-            onPress={() => router.push({ pathname: "/", params: { moment: event.id } })} />}
+          {!state.demo && <Button label="Share to community" icon="globe"
+            onPress={() => router.push({ pathname: "/community", params: { entry: event.id } })} />}
+          {!state.demo && <Button label="Add to Pet Relay" icon="repeat" tone="plain"
+            onPress={() => router.push({ pathname: "/relay", params: { moment: event.id } })} />}
           <Button
             label={t("制作爪报卡")}
             icon="file-text"

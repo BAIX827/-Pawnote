@@ -42,7 +42,7 @@ export default function MomentRelayScreen() {
     <View style={css.page}>
       <Text accessibilityRole="header" style={css.heading}>This relay link couldn’t be opened.</Text>
       <Text style={css.detail}>Ask the sender for a new link.</Text>
-      <Button label="Back to Pet Relay" onPress={() => router.replace("/")} />
+      <Button label="Back to Pet Relay" onPress={() => router.replace("/relay")} />
     </View>
   );
   return <Relay key={JSON.stringify([token, entryId])} incoming={incoming} entryId={entryId} />;
@@ -96,7 +96,7 @@ function Relay({ incoming, entryId }: { incoming: MomentRelay | null; entryId?: 
       setActive(next.moments.length - 1);
       setMode(null);
       setNotice("Moment added. Your relay is ready to pass on.");
-      if (incoming || entryId) router.replace("/");
+      if (incoming || entryId) router.replace("/relay");
     } catch (error) {
       setNotice(error instanceof Error ? error.message : "Couldn’t add this moment.");
     }
@@ -176,7 +176,7 @@ function Relay({ incoming, entryId }: { incoming: MomentRelay | null; entryId?: 
             <Button label={ownsPet ? "Write a diary entry" : "Add your pet"} onPress={() => {
               if (handoff === "continue" && incoming) update((current) => ({ ...current, relay: incoming }));
               if (ownsPet) router.push("/record");
-              else router.push({ pathname: "/onboarding", params: { relaySetup: "1" } });
+              else router.push({ pathname: "/onboarding", params: { next: "record" } });
             }} />
           </>}
         </View>

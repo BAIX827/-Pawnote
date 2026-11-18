@@ -25,9 +25,9 @@ import { othersCalling } from "../domain/paw-dates";
 import { newMail } from "../domain/paw-mail";
 // Today / memories / friends / mine; a page inside one keeps its tab lit (docs/01 8.37).
 const nav = [
-  { route: "/", label: "Relay", icon: "repeat" as const, also: ["/today"] },
+  { route: "/", label: "Home", icon: "home" as const, also: ["/today","/community","/relay"] },
   { route: "/profile", label: "爪册", icon: "book-open" as const, also: ["/sounds", "/mail", "/timemachine", "/anniversaries", "/keepsake"] },
-  { route: "/circle", label: "爪友圈", icon: "message-circle" as const, also: ["/bonds"] },
+  { route: "/friends", label: "Friends", icon: "message-circle" as const, also: ["/bonds","/circle"] },
   { route: "/me", label: "我的", icon: "user" as const, also: ["/life", "/dates", "/pawsona", "/settings"] },
 ];
 export default function Shell({ children }: { children: React.ReactNode }) {

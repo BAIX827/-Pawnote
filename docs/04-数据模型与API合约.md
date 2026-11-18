@@ -76,5 +76,21 @@ schemaVersion 仍为 1，新增内容向后兼容：
 - 2026-10-11：POST /v1/pet-voice 请求体新增必填 temper（cool/clingy/goofy/drama/curious/calm/shy）与可选 weird:boolean、locale（如 en-AU，用于选英式或美式拼写）；pet.role 必填。网关生成后按禁用词表检查，命中则重写一次，只计 1 次。
 - 2026-10-11：Pet.homeDate?：到家日期，格式 YYYY-MM-DD，须为不晚于当天的有效日期；进入快照与备份，不进入生成签名。月度考核与时光机均由已有记录计算，不新增存储。
 - 2026-10-11：AppState.pawsona?：最近一次爪格测试结果 {version:1, temper, scores:Record<七种脾气, number>, takenAt:ISO 时间}，scores 为 0–8 的整数且合计为 8（PRD 8.17）。AppState.mailRead?：最近读过的周信对应周一的日期 YYYY-MM-DD；AppState.mailReminder?：布尔，周一收信提醒，缺省视为开（PRD 8.18）。三者均为可选，进入备份，旧备份照常读取；爪信内容由记录计算，不存储。
-- 2026-10-11：AppState.circle?：{hiddenNpcs?: string[]（送回小镇的居民 id，最多 7 个）, removed?: string[]（主人删掉的自家宠物评论 id，最多 500 个）}（PRD 8.20）。LifeEvent.published 含义改为“留在窝里”，动态文字取爪友圈口吻。居民动态、点爪、评论与逛街结果由日期和记录计算，不存储。联机阶段：Post 增加 destination(home/lawn)，Comment 只能由服务端为宠物生成，POST /v1/posts/:id/comments 不再接受主人文本；Friendship 改为宠物之间（petA、petB），主人之间不建关系；新增 Report、Block 的宠物维度。
+- 2026-10-11：AppState.circle?：{hiddenNpcs?: string[]（送回小镇的居民 id，最多 7 个）, removed?: string[]（主人删掉的自家宠物评论 id，最多 500 个）}（PRD 8.20）。LifeEvent.published 含义改为“留在窝里”，动态文字取爪友圈口吻。居民动态、点爪、评论与逛街结果由日期和记录计算，不存储。当时的联机草案（现行契约见文末）：Post 增加 destination(home/lawn)，Comment 只能由服务端为宠物生成，POST /v1/posts/:id/comments 不再接受主人文本；Friendship 改为宠物之间（petA、petB），主人之间不建关系；新增 Report、Block 的宠物维度。
 - 2026-10-13：多只宠物与关系网（PRD 8.23）。AppState.household?: PetBundle[]，PetBundle = {pet, events, routines?, pawsona?, mailRead?, circle?, sounds?}，与当前宠物的同名字段同样校验，每只宠物的 events/sounds 只属于它自己，最多 9 只（含当前宠物共 10 只），宠物 id 不重复。AppState.bonds?: {a, b, level}[]，a、b 为自家宠物 id 或 "npc:<居民 id>"，level 为 foe/stranger/normal/friend/bestie，同一对只存一条，最多 200 条。LifeEvent.together? 与 Draft.together?：{pets: string[]（家里其他宠物 id，1–9 个，不含记录这只自己）, tone: "good"|"neutral"|"bad"}。Preferences.bondsHomeOnly?: boolean。关系值由初始关系、记录和爪友圈互动计算，不存储。
+
+## 2026-11-18 联网宠物社区
+
+所有下列路由都位于 `/v1/community/`，使用设备单独生成的 Bearer 凭据。服务端由凭据派生家庭 ID，并为每只登记的宠物分配公开 ID。本地宠物 ID 只在本家庭内解释。好友码只用于建立熟人关系。清除设备存储会失去当前社区身份。
+
+| 操作 | 范围与返回 |
+| --- | --- |
+| GET world | 按当前宠物读取可见动态、来往、提及与设置。可选 profile 限定宠物，before 翻页。 |
+| GET post / photo | 返回可见动态和它引出的相遇，或该动态单独公开的 JPEG。读取不会触发互动。 |
+| POST enrol / settings / preference | 登记或更新宠物，设置自主社交和总体倾向，或调整指定两只宠物的后续相遇权重。 |
+| POST publish / withdraw | 公开文字、分类以及选中的照片和提及。本家庭的同一只宠物、同一条记录重试返回同一个公开 ID。撤回同时移除依赖这条动态的相遇。 |
+| POST friend / save-profile | 按好友码直接建立熟人关系；收藏档案供主人私下回看。两者均与聊天意愿分别保存。 |
+| GET chat · POST consent / message | 按目标宠物找到主人。双方均同意才返回消息并允许发送。相同发送者与消息 nonce 的重试只写入一次。 |
+| POST report / block / delete-account | 举报对当前账号隐藏该动态；家庭屏蔽对双方生效；删除账号清理公开资料、来往和真人消息。 |
+
+每次公开或从暂停恢复时，服务端用最新公开日常作为起点。候选限于其他家庭已开启自主互动的宠物，在近期动态中按内容、双方偏好和随机因素选择。一次相遇同时引用发起和触发它的两条动态，双方读取同一份记录。文字回应来自服务端规则。Node 的 SQLite 和 Worker 的 Durable Object 使用同一个事务处理程序。

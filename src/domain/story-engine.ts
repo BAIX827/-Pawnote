@@ -184,7 +184,16 @@ function englishStory(pet: Pet, fact: string, category: Category, style: StorySt
       generator: "template",
       edited: false,
     };
-  const text =
+  // Preserve the observed action in these everyday kitchen moments. Keep the same
+  // generated line in the diary and the public preview; the owner can edit either.
+  let kitchen = "";
+  if (/\b(sat|sitting)\b/i.test(fact) && /\bcupboard\b/i.test(fact) && /\b(later|no|not yet)\b/i.test(fact)) {
+    kitchen = /\btwice\b/i.test(fact) ? "I did my good sit. Twice. Still waiting." : "I’m sitting right by the cupboard. How much later is later?";
+  } else if (/\bfridge\b/i.test(fact) && /\bsandwich\b/i.test(fact) && /\b(ran|running)\b/i.test(fact) && /\b(back to (?:my |her |his |the )?(bed|rug))\b/i.test(fact)) {
+    const restingPlace = /back to (?:my |her |his |the )?rug/i.test(fact) ? "rug" : "bed";
+    kitchen = `I ran all the way to the fridge. It was a sandwich. Back to my ${restingPlace}.`;
+  }
+  const text = kitchen && (style === "diary" || style === "social") ? kitchen :
     style === "news"
       ? `${pet.name}: "${mine.line}"`
       : style === "social"
